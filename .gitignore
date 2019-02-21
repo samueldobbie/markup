@@ -1,3 +1,4 @@
 secret_settings.py
 __pycache__/
 .vscode/
+*.pyc
