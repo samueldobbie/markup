@@ -1,29 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <meta http-equiv='X-UA-Compatible' content='ie=edge'>
     <title>Annotate - Markup</title>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
 </head>
 <body>
-<p style="max-width:40%; word-wrap:break-word;">
-{% for line in dict.file_data %}
-    {{ line }}
-    <br>
-{% endfor %}
-</p>
+    <div id='file_data' style='max-width:40%; word-wrap:break-word;' contenteditable>
+        {% for line in dict.file_data %}
+            {{ line }}
+            <br>
+        {% endfor %}
+    </div>
+    <p>
+        {% for key, value in dict.items %}
+            {% if key != 'file_data' %}
+                <b>{{ key }}</b>
+                    <br>
+                    {% if key == 'attributes' %}
+                        {% for val in value %}
+                            <input type='checkbox' id='{{ key }}' name='{{ key }}' value='{{ val }}'>{{ val }}
+                            <br>
+                        {% endfor %}
+                    {% else %}
+                        {% for val in value %}
+                            <input type='radio' id='{{ key }}' name='{{ key }}' value='{{ val }}'>{{ val }}
+                            <br>
+                        {% endfor %}
+                    {% endif %}
+                    <br>
+            {% endif %}
+        {% endfor %}
+    </p>
+    <button id='addAnnotation'>Add Annotation</button>
+    <button id='clearSelections'>Clear</button>
 
-<p>
-    {% for key, value in dict.items %}
-        {% if key != 'file_data' %}
-            <b>{{ key }}</b>
-            <br>
-            {% for val in value %}
-                {{ val }}
-                <br>
-            {% endfor %}
-            <br>
-        {% endif %}
-    {% endfor %}
-</p>
+    <script>
+        var all_annotations = [];
+        $(document).ready(function() {
+            $('#addAnnotation').click(function() {
+                var highlighted = window.getSelection().toString();
+                if (highlighted != '') {
+                    var annotation = [];
+                    annotation.push(highlighted)
+                    "{% for key, value in dict.items %}"
+                        "{% if key != 'file_data' %}"
+                            if (document.querySelector('input[name="{{ key }}"]:checked') != null) {
+                                annotation.push(["{{ key }}", document.querySelector('input[name="{{ key }}"]:checked').value]);
+                            }
+                        "{% endif %}"
+                    "{% endfor %}"
+                    all_annotations.push(annotation);
+                    console.log(all_annotations);
+                }
+            });
+
+            $('#clearSelections').click(function() {
+                "{% for key, value in dict.items %}"
+                    "{% if key != 'file_data' %}"
+                        if (document.querySelector('input[name="{{ key }}"]:checked') != null) {
+                            document.querySelector('input[name="{{ key }}"]:checked').checked = false;
+                        }
+                    "{% endif %}"
+                "{% endfor %}"
+            });
+        });
+    </script>
+</body>
+</html>

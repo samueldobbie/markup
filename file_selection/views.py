@@ -6,7 +6,9 @@ import tkinter as tk
 def file_selection_template(request):
     if request.method == 'GET':
         if request.GET.get('open_file_button'):
-            file_path = open_file(request)
+            root = tk.Tk()
+            root.withdraw()
+            file_path = str(filedialog.askopenfilename())
             if file_path != '()' and len(file_path) != 0:
                 return redirect('/annotate' + file_path)
             else:
