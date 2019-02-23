@@ -52,7 +52,45 @@
         var allAnnotations = [];
         var stopwordsHidden = false;
         $(document).ready(function() {
+
             $('#addAnnotation').click(function() {
+
+                // Get start and end indicies of selected text
+                var div = document.getElementById('file_data');
+                var text = div.innerText;
+                
+                var sel = getSelection();
+                var result = {start: null, end: null};
+
+                if (sel.anchorNode.nodeName == 'DIV') {
+                    return;
+                }
+
+                ['start', 'end'].forEach(which => {
+                    var counter = 1;
+                    var tmpNode = div.querySelector('span');
+                    var node = which == 'start' ? 'anchor' : 'focus';
+                    
+                    if (!sel) return;
+                        
+                    while(tmpNode !== sel[node+'Node'].parentElement) {
+                        if (tmpNode != null) {
+                            result[which] += tmpNode.innerText.length;
+                        }
+                        counter++;
+                        tmpNode = div.querySelector('span:nth-child(' + counter + ')')
+                        }
+                        result[which] += sel[node+'Offset'] + (which == 'start' ? 1 : 0);
+                    });
+                var startIndex, endIndex;
+                if (result.start < result.end) {
+                    startIndex = result.start;
+                    endIndex = result.end;
+                } else {
+                    startIndex = result.end;
+                    endIndex = result.start;
+                };
+
                 var highlighted = window.getSelection().toString();
 
                 var hasAnnotation = false; 
@@ -80,6 +118,7 @@
                     allAnnotations.push(annotation);
                     console.log(allAnnotations);
                 }
+
                 window.getSelection().removeAllRanges();
             });
 
@@ -94,25 +133,23 @@
             });
 
             $('#hideStopwords').click(function() {
-                var stopwords = ["i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their", "theirs", "themselves", "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and", "but", "if", "or", "because", "as", "until", "while", "of", "at", "by", "for", "with", "about", "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here", "there", "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", "some", "such", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"];
+                var stopwords = ["therefore", "see", "able", "yet", "know", "get", "saw", "known", "perhaps", "might", "i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their", "theirs", "themselves", "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and", "but", "if", "or", "because", "as", "until", "while", "of", "at", "by", "for", "with", "about", "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here", "there", "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", "some", "such", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"];
+                var wordColor = '';
                 if (!stopwordsHidden) {
-                    for (var i=0; i < stopwords.length; i++) {
-                        var myElements = document.querySelectorAll("." + stopwords[i]);
-                        for (var j = 0; j < myElements.length; j++) {
-                            myElements[j].style.color = '#efeff5';
-                        }
-                    }
+                    wordColor = '#efeff5';
                     document.getElementById('hideStopwords').innerText = "Show Stopwords";
                     stopwordsHidden = true;
                 } else {
-                    for (var i=0; i < stopwords.length; i++) {
-                        var myElements = document.querySelectorAll("." + stopwords[i]);
-                        for (var j = 0; j < myElements.length; j++) {
-                            myElements[j].style.color = 'black';
-                        }
-                    }
+                    wordColor = 'black';
                     document.getElementById('hideStopwords').innerText = "Hide Stopwords";
                     stopwordsHidden = false;
+                }
+
+                for (var i=0; i < stopwords.length; i++) {
+                    var myElements = document.querySelectorAll("." + stopwords[i]);
+                    for (var j = 0; j < myElements.length; j++) {
+                        myElements[j].style.color = wordColor;
+                    }
                 }
             });
         });
