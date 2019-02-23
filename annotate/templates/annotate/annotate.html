@@ -6,45 +6,70 @@
     <meta http-equiv='X-UA-Compatible' content='ie=edge'>
     <title>Annotate - Markup</title>
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,700" rel="stylesheet">
+    <link rel="shortcut icon" type="image/png" href="/static/favicon.ico/"/>
 </head>
 <body>
-    <div id='file_data' style='max-width:40%; word-wrap:break-word;' contenteditable>
-        {% for line in dict.file_data %}
-            {{ line }}
-            <br>
-        {% endfor %}
-    </div>
-    <p>
+    <div id='config_data' style='max-width:33%; float:left; padding:75px; font-size:1.2em; font-family:"Nunito";'>
         {% for key, value in dict.items %}
             {% if key != 'file_data' %}
                 <b>{{ key }}</b>
                     <br>
                     {% if key == 'attributes' %}
                         {% for val in value %}
-                            <input type='checkbox' id='{{ key }}' name='{{ key }}' value='{{ val }}'>{{ val }}
+                            <input type='checkbox' id="{{ val }}" name='{{ key }}' value='{{ val }}'>
+                            <label for="{{ val }}">{{ val }}</label>
                             <br>
                         {% endfor %}
                     {% else %}
                         {% for val in value %}
-                            <input type='radio' id='{{ key }}' name='{{ key }}' value='{{ val }}'>{{ val }}
+                            <input type='radio' id="{{ val }}" name='{{ key }}' value='{{ val }}'>
+                            <label for="{{ val }}">{{ val }}</label>
                             <br>
                         {% endfor %}
                     {% endif %}
                     <br>
             {% endif %}
         {% endfor %}
-    </p>
-    <button id='addAnnotation'>Add Annotation</button>
-    <button id='clearSelections'>Clear</button>
+
+        <button id='addAnnotation' style='background-color:rgb(210, 210, 210); padding:7.5px; color:white; border-radius:5px; font-weight:bold; border:none; font-size:0.75em; font-family:"Nunito";'>Add Annotation</button>
+        <button id='clearSelections' style='background-color:rgb(210, 210, 210); padding:7.5px; color:white; border-radius:5px; font-weight:bold; border:none; font-size:0.75em; font-family:"Nunito";'>Clear</button>
+        <button id='hideStopwords' style='width: 130px; background-color:rgb(210, 210, 210); padding:7.5px; color:white; border-radius:5px; font-weight:bold; border:none; font-size:0.75em; font-family:"Nunito";'>Hide Stopwords</button>
+    </div>
+
+    <div id='file_data' style='float:left; max-width:50%; word-wrap:break-word; padding:75px; font-size:1.2em; font-family:"Nunito"; outline:0px solid transparent;'>
+        {% for line in dict.file_data %}
+            {% for word in line.split %}
+                <span class='{{ word|lower }}'>
+                {{ word }}
+                </span>
+            {% endfor %}
+            <br>
+        {% endfor %}
+    </div>
 
     <script>
-        var all_annotations = [];
+        var allAnnotations = [];
+        var stopwordsHidden = false;
         $(document).ready(function() {
             $('#addAnnotation').click(function() {
                 var highlighted = window.getSelection().toString();
-                if (highlighted != '') {
+
+                var hasAnnotation = false; 
+                "{% for key, value in dict.items %}"
+                    "{% if key != 'file_data' %}"
+                        if (document.querySelector('input[name="{{ key }}"]:checked') != null) {
+                            hasAnnotation = true;
+                        }
+                    "{% endif %}"
+                "{% endfor %}"
+
+                if (highlighted != '' && hasAnnotation) {
                     var annotation = [];
-                    annotation.push(highlighted)
+                    annotation.push(highlighted);
+                    document.getElementById('file_data').contentEditable = 'true';
+                    document.execCommand('backColor', false, '#33FFB5');
+                    document.getElementById('file_data').contentEditable = 'false';
                     "{% for key, value in dict.items %}"
                         "{% if key != 'file_data' %}"
                             if (document.querySelector('input[name="{{ key }}"]:checked') != null) {
@@ -52,9 +77,10 @@
                             }
                         "{% endif %}"
                     "{% endfor %}"
-                    all_annotations.push(annotation);
-                    console.log(all_annotations);
+                    allAnnotations.push(annotation);
+                    console.log(allAnnotations);
                 }
+                window.getSelection().removeAllRanges();
             });
 
             $('#clearSelections').click(function() {
@@ -65,6 +91,29 @@
                         }
                     "{% endif %}"
                 "{% endfor %}"
+            });
+
+            $('#hideStopwords').click(function() {
+                var stopwords = ["i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their", "theirs", "themselves", "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and", "but", "if", "or", "because", "as", "until", "while", "of", "at", "by", "for", "with", "about", "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here", "there", "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", "some", "such", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"];
+                if (!stopwordsHidden) {
+                    for (var i=0; i < stopwords.length; i++) {
+                        var myElements = document.querySelectorAll("." + stopwords[i]);
+                        for (var j = 0; j < myElements.length; j++) {
+                            myElements[j].style.color = '#efeff5';
+                        }
+                    }
+                    document.getElementById('hideStopwords').innerText = "Show Stopwords";
+                    stopwordsHidden = true;
+                } else {
+                    for (var i=0; i < stopwords.length; i++) {
+                        var myElements = document.querySelectorAll("." + stopwords[i]);
+                        for (var j = 0; j < myElements.length; j++) {
+                            myElements[j].style.color = 'black';
+                        }
+                    }
+                    document.getElementById('hideStopwords').innerText = "Hide Stopwords";
+                    stopwordsHidden = false;
+                }
             });
         });
     </script>
