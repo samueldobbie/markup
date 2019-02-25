@@ -34,6 +34,8 @@ def annotate_data(request, data_file_path):
         configs.append(config_key)
         data[config_key] = config_values
 
+    data['ann_filename'] = os.path.basename(os.path.splitext(data_file_path)[0]) + '.ann'
+
     context = dict()
     context['dict'] = data
 

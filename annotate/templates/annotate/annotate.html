@@ -12,7 +12,7 @@
 <body>
     <div id='config_data' style='max-width:33%; float:left; padding:75px; font-size:1.2em; font-family:"Nunito";'>
         {% for key, value in dict.items %}
-            {% if key != 'file_data' %}
+            {% if key != 'file_data' and key != 'ann_filename' %}
                 <b>{{ key }}</b>
                     <br>
                     {% if key == 'attributes' %}
@@ -35,6 +35,7 @@
         <button id='addAnnotation' style='background-color:rgb(210, 210, 210); padding:7.5px; color:white; border-radius:5px; font-weight:bold; border:none; font-size:0.75em; font-family:"Nunito";'>Add Annotation</button>
         <button id='clearSelections' style='background-color:rgb(210, 210, 210); padding:7.5px; color:white; border-radius:5px; font-weight:bold; border:none; font-size:0.75em; font-family:"Nunito";'>Clear</button>
         <button id='hideStopwords' style='width: 130px; background-color:rgb(210, 210, 210); padding:7.5px; color:white; border-radius:5px; font-weight:bold; border:none; font-size:0.75em; font-family:"Nunito";'>Hide Stopwords</button>
+        <a href="" id="downloadButton" download="{{ dict.ann_filename }}"><button id='saveAnnotations' style='background-color:rgb(210, 210, 210); padding:7.5px; color:white; border-radius:5px; font-weight:bold; border:none; font-size:0.75em; font-family:"Nunito";'>Save</button></a>
     </div>
 
     <div id='file_data' style='float:left; max-width:50%; word-wrap:break-word; padding:75px; font-size:1.2em; font-family:"Nunito"; outline:0px solid transparent;'>
@@ -53,6 +54,10 @@
         var stopwordsHidden = false;
         $(document).ready(function() {
 
+            var entityIndex = 1;
+            var relationIndex = 1;
+            var eventIndex = 1;
+            var attributeIndex = 1;
             $('#addAnnotation').click(function() {
 
                 // Get start and end indicies of selected text
@@ -95,7 +100,7 @@
 
                 var hasAnnotation = false; 
                 "{% for key, value in dict.items %}"
-                    "{% if key != 'file_data' %}"
+                    "{% if key != 'file_data' and key != 'ann_filename' %}"
                         if (document.querySelector('input[name="{{ key }}"]:checked') != null) {
                             hasAnnotation = true;
                         }
@@ -104,27 +109,40 @@
 
                 if (highlighted != '' && hasAnnotation) {
                     var annotation = [];
-                    annotation.push(highlighted);
                     document.getElementById('file_data').contentEditable = 'true';
                     document.execCommand('backColor', false, '#33FFB5');
                     document.getElementById('file_data').contentEditable = 'false';
+
                     "{% for key, value in dict.items %}"
-                        "{% if key != 'file_data' %}"
+                        "{% if key != 'file_data' and key != 'ann_filename' %}"
                             if (document.querySelector('input[name="{{ key }}"]:checked') != null) {
-                                annotation.push(["{{ key }}", document.querySelector('input[name="{{ key }}"]:checked').value]);
+                                // Implement relations to same annotation properly
+                                var id = "";
+                                if ("{{ key }}" == 'entities') {
+                                    id = "T" + entityIndex;
+                                    eventIndex++;
+                                } else if ("{{ key }}" == 'attributes') {
+                                    id = "A" + attributeIndex;
+                                    attributeIndex++;
+                                } else if ("{{ key }}" == 'relation') {
+                                    id = "R" + relationIndex;
+                                    relationIndex++;
+                                } else if ("{{ key }}" == 'events') {
+                                    id = "E" + eventIndex;
+                                    eventIndex++;
+                                }
+                                annotation.push([id + '\t' + document.querySelector('input[name="{{ key }}"]:checked').value + " " + startIndex + " " + endIndex + "\t" + highlighted + '\n']);
                             }
                         "{% endif %}"
                     "{% endfor %}"
                     allAnnotations.push(annotation);
-                    console.log(allAnnotations);
                 }
-
                 window.getSelection().removeAllRanges();
             });
 
             $('#clearSelections').click(function() {
                 "{% for key, value in dict.items %}"
-                    "{% if key != 'file_data' %}"
+                    "{% if key != 'file_data' and key != 'ann_filename' %}"
                         if (document.querySelector('input[name="{{ key }}"]:checked') != null) {
                             document.querySelector('input[name="{{ key }}"]:checked').checked = false;
                         }
@@ -152,6 +170,19 @@
                     }
                 }
             });
+
+            var textFile = null;
+            $('#saveAnnotations').click(function() {
+                var data = new Blob(allAnnotations, {type: 'text/plain'});
+                
+                if (textFile != null) {
+                    window.URL.revokeObjectURL(textFile);
+                }
+
+                textFile = window.URL.createObjectURL(data);
+                document.getElementById("downloadButton").href = textFile;
+            });
+
         });
     </script>
 </body>
