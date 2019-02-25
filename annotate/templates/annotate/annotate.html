@@ -6,7 +6,8 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <meta http-equiv='X-UA-Compatible' content='ie=edge'>
     <title>Annotate - Markup</title>
-    <link href="https://fonts.googleapis.com/css?family=Nunito:400,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,700" rel="stylesheet"/>
+    <link href="{% static 'annotate/annotate.css' %}" rel="stylesheet"/>
     <link rel="shortcut icon" type="image/png" href="{% static 'annotate/favicon.ico' %}"/>
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
     <script>
@@ -18,7 +19,7 @@
     <script src="{% static 'annotate/annotate.js' %}"></script>  
 </head>
 <body>
-    <div id='config_data' style='max-width:33%; float:left; padding:75px; font-size:1.2em; font-family:"Nunito";'>
+    <div id='config_data' class="configText">
         {% for key, value in dict.items %}
             {% if key != 'file_data' and key != 'ann_filename' %}
                 <b>{{ key }}</b>
@@ -40,13 +41,15 @@
             {% endif %}
         {% endfor %}
 
-        <button id='addAnnotation' style='background-color:rgb(210, 210, 210); padding:7.5px; color:white; border-radius:5px; font-weight:bold; border:none; font-size:0.75em; font-family:"Nunito";'>Add Annotation</button>
-        <button id='clearSelections' style='background-color:rgb(210, 210, 210); padding:7.5px; color:white; border-radius:5px; font-weight:bold; border:none; font-size:0.75em; font-family:"Nunito";'>Clear</button>
-        <button id='hideStopwords' style='width: 130px; background-color:rgb(210, 210, 210); padding:7.5px; color:white; border-radius:5px; font-weight:bold; border:none; font-size:0.75em; font-family:"Nunito";'>Hide Stopwords</button>
-        <a href="" id="downloadButton" download="{{ dict.ann_filename }}"><button id='saveAnnotations' style='background-color:rgb(210, 210, 210); padding:7.5px; color:white; border-radius:5px; font-weight:bold; border:none; font-size:0.75em; font-family:"Nunito";'>Save</button></a>
+        <button id='addAnnotation' class='btn'>Add Annotation</button>
+        <button id='deleteAnnotation' class='btn'>Delete Annotation</button>
+        <p></p>
+        <button id='hideStopwords' style='width: 130px;' class='btn'>Hide Stopwords</button>
+        <button id='clearSelections' class='btn'>Clear</button>
+        <a href="" id="downloadButton" download="{{ dict.ann_filename }}"><button id='saveAnnotations' class='btn'>Save</button></a>
     </div>
 
-    <div id='file_data' style='float:left; max-width:50%; word-wrap:break-word; padding:75px; font-size:1.2em; font-family:"Nunito"; outline:0px solid transparent;'>
+    <div id='file_data' class="fileText">
         {% for line in dict.file_data %}
             {% for word in line.split %}
                 <span class='{{ word|lower }}'>

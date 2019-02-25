@@ -1,0 +1,29 @@
+
+.btn {
+    background-color:rgb(210, 210, 210);
+    padding:7.5px;
+    color:white;
+    border-radius:5px;
+    font-weight:bold;
+    border:none;
+    font-size:0.75em;
+    font-family:"Nunito";
+}
+
+.fileText {
+    float:left;
+    max-width:50%;
+    word-wrap:break-word;
+    padding:75px;
+    font-size:1.2em;
+    font-family:"Nunito";
+    outline:0px solid transparent;
+}
+
+.configText {
+    max-width:33%;
+    float:left;
+    padding:75px;
+    font-size:1.2em;
+    font-family:"Nunito";
+}

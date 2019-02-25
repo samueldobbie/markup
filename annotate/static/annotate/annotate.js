@@ -1,12 +1,10 @@
 
 $(document).ready(function () {
 
-    var entityIndex = 1;
-    var relationIndex = 1;
-    var eventIndex = 1;
-    var attributeIndex = 1;
+    var entityIndex, relationIndex, eventIndex, attributeIndex = 1;
     var allAnnotations = [];
     var stopwordsHidden = false;
+    var stopwords = ["therefore", "see", "able", "yet", "know", "get", "saw", "known", "perhaps", "might", "i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their", "theirs", "themselves", "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and", "but", "if", "or", "because", "as", "until", "while", "of", "at", "by", "for", "with", "about", "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here", "there", "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", "some", "such", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"];
 
     $('#addAnnotation').click(function () {
 
@@ -47,19 +45,6 @@ $(document).ready(function () {
         };
 
         var highlighted = window.getSelection().toString();
-
-        /*
-        var hasAnnotation = false; 
-        "{% for key, value in dict.items %}"
-            "{% if key != 'file_data' and key != 'ann_filename' %}"
-                if (document.querySelector('input[name="{{ key }}"]:checked') != null) {
-                    hasAnnotation = true;
-                }
-            "{% endif %}"
-        "{% endfor %}"
-        */
-
-
         var hasAnnotation = false;
         for (k in dict) {
             if (k != 'file_data' && k != 'ann_filename') {
@@ -74,31 +59,6 @@ $(document).ready(function () {
             document.getElementById('file_data').contentEditable = 'true';
             document.execCommand('backColor', false, '#33FFB5');
             document.getElementById('file_data').contentEditable = 'false';
-
-            /*
-            "{% for key, value in dict.items %}"
-                "{% if key != 'file_data' and key != 'ann_filename' %}"
-                    if (document.querySelector('input[name="{{ key }}"]:checked') != null) {
-                        // Implement relations to same annotation properly
-                        var id = "";
-                        if ("{{ key }}" == 'entities') {
-                            id = "T" + entityIndex;
-                            eventIndex++;
-                        } else if ("{{ key }}" == 'attributes') {
-                            id = "A" + attributeIndex;
-                            attributeIndex++;
-                        } else if ("{{ key }}" == 'relation') {
-                            id = "R" + relationIndex;
-                            relationIndex++;
-                        } else if ("{{ key }}" == 'events') {
-                            id = "E" + eventIndex;
-                            eventIndex++;
-                        }
-                        annotation.push([id + '\t' + document.querySelector('input[name="{{ key }}"]:checked').value + " " + startIndex + " " + endIndex + "\t" + highlighted + '\n']);
-                    }
-                "{% endif %}"
-            "{% endfor %}"
-            */
 
             for (k in dict) {
                 if (k != 'file_data' && k != 'ann_filename') {
@@ -129,15 +89,6 @@ $(document).ready(function () {
     });
 
     $('#clearSelections').click(function () {
-        /*
-        "{% for key, value in dict.items %}"
-            "{% if key != 'file_data' and key != 'ann_filename' %}"
-                if (document.querySelector('input[name="{{ key }}"]:checked') != null) {
-                    document.querySelector('input[name="{{ key }}"]:checked').checked = false;
-                }
-            "{% endif %}"
-        "{% endfor %}"
-        */
         for (k in dict) {
             if (k != 'file_data' && k != 'ann_filename') {
                 if (document.querySelector('input[name=' + k + ']:checked') != null) {
@@ -148,7 +99,6 @@ $(document).ready(function () {
     });
 
     $('#hideStopwords').click(function () {
-        var stopwords = ["therefore", "see", "able", "yet", "know", "get", "saw", "known", "perhaps", "might", "i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their", "theirs", "themselves", "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and", "but", "if", "or", "because", "as", "until", "while", "of", "at", "by", "for", "with", "about", "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here", "there", "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", "some", "such", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"];
         var wordColor = '';
         if (!stopwordsHidden) {
             wordColor = '#efeff5';
@@ -170,7 +120,19 @@ $(document).ready(function () {
 
     var textFile = null;
     $('#saveAnnotations').click(function () {
-        var data = new Blob(allAnnotations, { type: 'text/plain' });
+        var data = new Blob(allAnnotations, {type: 'text/plain'});
+
+        if (textFile != null) {
+            window.URL.revokeObjectURL(textFile);
+        }
+
+        textFile = window.URL.createObjectURL(data);
+        document.getElementById("downloadButton").href = textFile;
+    });
+
+
+    $('#deleteAnnotation').click(function () {
+        var data = new Blob(allAnnotations, {type: 'text/plain'});
 
         if (textFile != null) {
             window.URL.revokeObjectURL(textFile);
