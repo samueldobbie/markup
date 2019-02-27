@@ -1,13 +1,16 @@
 
 $(document).ready(function () {
 
-    var entityIndex, relationIndex, eventIndex, attributeIndex = 1;
+    var entityIndex = 1;
+    var relationIndex = 1;
+    var eventIndex = 1;
+    var attributeIndex = 1;
     var allAnnotations = [];
+    var offsets = [];
     var stopwordsHidden = false;
     var stopwords = ["therefore", "see", "able", "yet", "know", "get", "saw", "known", "perhaps", "might", "i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their", "theirs", "themselves", "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and", "but", "if", "or", "because", "as", "until", "while", "of", "at", "by", "for", "with", "about", "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here", "there", "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", "some", "such", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"];
 
     $('#addAnnotation').click(function () {
-
         // Get start and end indicies of selected text
         var div = document.getElementById('file_data');
         var text = div.innerText;
@@ -26,7 +29,7 @@ $(document).ready(function () {
 
             if (!sel) return;
 
-            while (tmpNode !== sel[node + 'Node'].parentElement) {
+            while (tmpNode != sel[node + 'Node'].parentElement) {
                 if (tmpNode != null) {
                     result[which] += tmpNode.innerText.length;
                 }
@@ -35,7 +38,8 @@ $(document).ready(function () {
             }
             result[which] += sel[node + 'Offset'] + (which == 'start' ? 1 : 0);
         });
-        var startIndex, endIndex;
+
+        var startIndex, endIndex = 0;
         if (result.start < result.end) {
             startIndex = result.start;
             endIndex = result.end;
@@ -67,7 +71,7 @@ $(document).ready(function () {
                         var id = "";
                         if (k == 'entities') {
                             id = "T" + entityIndex;
-                            eventIndex++;
+                            entityIndex++;
                         } else if (k == 'attributes') {
                             id = "A" + attributeIndex;
                             attributeIndex++;
@@ -83,7 +87,10 @@ $(document).ready(function () {
                 }
             }
 
+            offsets.push([startIndex, endIndex]);
             allAnnotations.push(annotation);
+            console.log(allAnnotations);
+            console.log(offsets);
         }
         window.getSelection().removeAllRanges();
     });
@@ -130,16 +137,58 @@ $(document).ready(function () {
         document.getElementById("downloadButton").href = textFile;
     });
 
-
+    // Need to fix the issue of offsets & modularise
     $('#deleteAnnotation').click(function () {
-        var data = new Blob(allAnnotations, {type: 'text/plain'});
+        // Get start and end indicies of selected text
+        var div = document.getElementById('file_data');
+        var text = div.innerText;
 
-        if (textFile != null) {
-            window.URL.revokeObjectURL(textFile);
-        }
+        var sel = getSelection();
+        var result = { start: null, end: null };
 
-        textFile = window.URL.createObjectURL(data);
-        document.getElementById("downloadButton").href = textFile;
+        if (sel.anchorNode.nodeName == 'DIV') {
+            return;
+        };
+
+        ['start', 'end'].forEach(which => {
+            var counter = 1;
+            var tmpNode = div.querySelector('span');
+            var node = which == 'start' ? 'anchor' : 'focus';
+
+            if (!sel) return;
+
+            while (tmpNode != sel[node + 'Node'].parentElement) {
+                if (tmpNode != null) {
+                    result[which] += tmpNode.innerText.length;
+                }
+                counter++;
+                tmpNode = div.querySelector('span:nth-child(' + counter + ')');
+            }
+            result[which] += sel[node + 'Offset'] + (which == 'start' ? 1 : 0);
+        });
+
+        var startIndex, endIndex;
+        if (result.start < result.end) {
+            startIndex = result.start;
+            endIndex = result.end;
+        } else {
+            startIndex = result.end;
+            endIndex = result.start;
+        };
+
+        for (var i = 0; i < offsets.length; i++) {
+            console.log(offsets[i][0], startIndex);
+            console.log(offsets[i][1], endIndex);
+            console.log('\n');
+            if (offsets[i][0] == startIndex && offsets[i][1] == endIndex) {
+                console.log(true);
+                allAnnotations.splice(i, 1);
+                offsets.splice(i, 1);
+                break;
+            }
+        };
+
+        console.log(allAnnotations);
     });
 
 });
