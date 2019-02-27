@@ -1,3 +1,20 @@
+.container {
+    display:flex;
+}
+
+.item {
+    margin-top:2.5%;
+}
+
+.item-1 {
+    flex-grow:1;
+    max-width:20%;
+}
+
+.item-2 {
+    flex-grow:2;
+    max-width:47.5%;
+}
 
 .btn {
     background-color:rgb(210, 210, 210);
@@ -10,20 +27,24 @@
     font-family:"Nunito";
 }
 
-.fileText {
-    float:left;
-    max-width:50%;
-    word-wrap:break-word;
-    padding:75px;
-    font-size:1.2em;
-    font-family:"Nunito";
-    outline:0px solid transparent;
+.btn-wide {
+    width:130px;
 }
 
-.configText {
-    max-width:33%;
-    float:left;
-    padding:75px;
+.standard-text {
     font-size:1.2em;
     font-family:"Nunito";
+}
+
+#config_data {
+    margin-left:2.5%;
+}
+
+#file_data {
+    outline:0px solid transparent;
+    margin-right:5%;
+}
+
+#annotation_data {
+    margin-right:2.5%;
 }

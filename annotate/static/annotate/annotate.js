@@ -92,6 +92,7 @@ $(document).ready(function () {
             console.log(allAnnotations);
             console.log(offsets);
         }
+        document.getElementById('annotation_data').innerHTML += '<p style="background-color:#33FFB5; font-family:\'Nunito\'; padding:10px; border:2px solid #888; display:inline-block; clear:both; float:left;">' + highlighted + '</p>';
         window.getSelection().removeAllRanges();
     });
 
