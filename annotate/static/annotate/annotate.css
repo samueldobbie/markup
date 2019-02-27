@@ -18,17 +18,14 @@
 
 .btn {
     background-color:rgb(210, 210, 210);
-    padding:7.5px;
+    margin-bottom:2%;
+    padding:2.5%;
     color:white;
     border-radius:5px;
     font-weight:bold;
     border:none;
     font-size:0.75em;
     font-family:"Nunito";
-}
-
-.btn-wide {
-    width:130px;
 }
 
 .standard-text {
