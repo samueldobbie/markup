@@ -37,8 +37,6 @@ def annotate_data(request, data_file_path):
 
     data['ann_filename'] = os.path.basename(os.path.splitext(data_file_path)[0]) + '.ann'
 
-    open(os.path.dirname(data_file_path) + '/abcd.txt', 'w')
-
     context = dict()
     context['dict'] = data
 
@@ -49,7 +47,10 @@ def get_file_lines(file_path):
     with open(file_path, encoding='utf8') as f:
         return f.readlines()
 
-def testing123(param, data_file_path):
-    with open(os.path.dirname(data_file_path) + '/abcd.txt', 'a') as f:
-        f.write('abc')
+
+def write_to_ann(request, data_file_path):
+    annotations = request.GET['annotations']
+    ann_filename = request.GET['ann_filename']
+    with open(os.path.dirname(data_file_path) + '/' + ann_filename, 'a') as f:
+        f.write(annotations)
     return HttpResponse(None)

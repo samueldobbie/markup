@@ -96,8 +96,15 @@ $(document).ready(function () {
                     }
 
                     // TO-Do: Implement correct stand-off formatting
+                    var annotationData = id + '\t' + annotationValue + " " + startIndex + " " + endIndex + "\t" + highlighted + '\n';
 
-                    annotation.push([id + '\t' + annotationValue + " " + startIndex + " " + endIndex + "\t" + highlighted + '\n']);
+                    // Save annotations to .ann file
+                    $.ajax({
+                        type: "GET",
+                        url: "~/write_to_ann",
+                        data: {annotations: annotationData, ann_filename: dict['ann_filename'] }
+                    });
+                    annotation.push([annotationData]);
                 }
             }
         }
@@ -154,20 +161,6 @@ $(document).ready(function () {
                 myElements[j].style.color = wordColor;
             }
         }
-    });
-
-
-    // Save annotations to .ann file
-    var textFile = null;
-    $('#saveAnnotations').click(function () {
-        var data = new Blob(allAnnotations, {type: 'text/plain'});
-
-        if (textFile != null) {
-            window.URL.revokeObjectURL(textFile);
-        }
-
-        textFile = window.URL.createObjectURL(data);
-        document.getElementById("downloadButton").href = textFile;
     });
 
 
@@ -239,7 +232,7 @@ $(document).ready(function () {
     var textColor = '';
     // Allows users to switch to darkm mode
     $('#darkMode').click(function () {
-        /*if (!darkMode) {
+        if (!darkMode) {
             backgroundColor = '#333';
             textColor = 'rgb(210, 210, 210)';
             darkMode = true;
@@ -252,14 +245,6 @@ $(document).ready(function () {
         $('body').css({
             "background-color": backgroundColor,
             "color" : textColor
-        });*/
-
-        $.ajax({
-            type: "GET",
-            url: "~/testing.py",
-            data: {}
-          }).done(function( o ) {
-             console.log(o);
-          });
+        });
     });
 });
