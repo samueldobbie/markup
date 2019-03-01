@@ -64,35 +64,45 @@ $(document).ready(function () {
         document.getElementById('file_data').contentEditable = 'false';
         
 
+        var ent_hover_info = [];
+        var att_hover_info = [];
+        var rel_hover_info = [];
+        var eve_hover_info = [];
+
         // Format annotation(s) to be in stand-off format
         var annotation = [];
         for (k in dict) {
             if (k != 'file_data' && k != 'ann_filename') {
                 if (document.querySelector('input[name=' + k + ']:checked') != null) {
                     // Implement relations to same annotation properly
+                    var annotationValue = document.querySelector('input[name=' + k + ']:checked').value;
                     var id = "";
                     if (k == 'entities') {
                         id = "T" + entityIndex;
+                        ent_hover_info.push(annotationValue);
                         entityIndex++;
                     } else if (k == 'attributes') {
                         id = "A" + attributeIndex;
+                        att_hover_info.push(annotationValue);
                         attributeIndex++;
                     } else if (k == 'relation') {
                         id = "R" + relationIndex;
+                        rel_hover_info.push(annotationValue);
                         relationIndex++;
                     } else if (k == 'events') {
                         id = "E" + eventIndex;
+                        eve_hover_info.push(annotationValue);
                         eventIndex++;
                     }
 
                     // TO-Do: Implement correct stand-off formatting
 
-                    annotation.push([id + '\t' + document.querySelector('input[name=' + k + ']:checked').value + " " + startIndex + " " + endIndex + "\t" + highlighted + '\n']);
+                    annotation.push([id + '\t' + annotationValue + " " + startIndex + " " + endIndex + "\t" + highlighted + '\n']);
                 }
             }
         }
         // Keep track of offets for each annotation
-        offsets.push([startIndex, endIndex]);
+        offsets.push([startIndex, endIndex, ent_hover_info, att_hover_info, rel_hover_info, eve_hover_info]);
 
         //Add annotaion to current-annotataion list
         allAnnotations.push(annotation);
@@ -192,8 +202,23 @@ $(document).ready(function () {
     // Display information about annotation on hover
     $("#annotation_data").mouseover(function(eventObj) {
         var id = eventObj.target.id;
+        var indicies = event.target.id.split("_");
+        var startIndex = indicies[0];
+        var endIndex = indicies[1];
         if (id != 'annotation_data') {
-            document.getElementById(id).title = "Entity: None\nAttributes: Negation\n";
+            for (var i = 0; i < offsets.length; i++) {
+                if (offsets[i][0] == startIndex && offsets[i][1] == endIndex) {
+
+                    for (var j = 2; j <= 5; j++) {
+                        if (offsets[i][j].length == 0) {
+                            offsets[i][j] = 'None';
+                        }
+                    }
+                    // To-do: deal with more than one value
+                    document.getElementById(id).title = "Entity: " + offsets[i][2] + "\nAttributes: " + offsets[i][3] + "\nRelations: " + offsets[i][4] + "\nEvents: " + offsets[i][5];
+                    return;
+                }
+            };
         } 
     });
 
@@ -223,7 +248,7 @@ $(document).ready(function () {
             textColor = 'black';
             darkMode = false;
         }
-
+        // To-do: Deal with text coloring issue when annotating then switching
         $('body').css({
             "background-color": backgroundColor,
             "color" : textColor
