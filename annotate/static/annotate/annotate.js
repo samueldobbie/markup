@@ -8,61 +8,28 @@ $(document).ready(function () {
     var attributeIndex = 1;
     var allAnnotations = [];
     var offsets = [];
-    var stopwordsHidden = false;
-    var stopwords = ["therefore", "today", "see", "able", "yet", "know", "get", "saw", "known", "perhaps", "might", "i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their", "theirs", "themselves", "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and", "but", "if", "or", "because", "as", "until", "while", "of", "at", "by", "for", "with", "about", "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here", "there", "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", "some", "such", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"];
-
-
+    
     $('#addAnnotation').click(function () {
         var highlighted = window.getSelection().toString();
-        var div = document.getElementById('file_data');
-        var sel = getSelection();
-
-        // Check whether selected text is valid
-        var validAnnotation = false;
-        for (k in dict) {
-            if (k != 'file_data' && k != 'ann_filename') {
-                if (document.querySelector('input[name=' + k + ']:checked') != null) {
-                    validAnnotation = true;
-                }
-            }
-        }
-
-        if (!validAnnotation || highlighted == '' || sel.anchorNode.nodeName == 'DIV' || !sel) {
-            return;
-        }
-
+        
+        if (highlighted == '') { return; };
+        
         // Get start and end indicies (offsets) of selected text
-        var result = { start: null, end: null };
-        ['start', 'end'].forEach(which => {
-            var counter = 1;
-            var tmpNode = div.querySelector('span');
-            var node = which == 'start' ? 'anchor' : 'focus';
+        var doc = document.getElementById('file_data');
+        var range = window.getSelection().getRangeAt(0);
+        var preCaretRange = range.cloneRange();
 
-            while (tmpNode != sel[node + 'Node'].parentElement) {
-                if (tmpNode != null) {
-                    result[which] += tmpNode.innerText.length;
-                }
-                counter++;
-                tmpNode = div.querySelector('span:nth-child(' + counter + ')')
-            }
-            result[which] += sel[node + 'Offset'] + (which == 'start' ? 1 : 0);
-        });
+        preCaretRange.selectNodeContents(doc);
+        preCaretRange.setEnd(range.startContainer, range.startOffset);
 
-        var startIndex, endIndex = 0;
-        if (result.start < result.end) {
-            startIndex = result.start;
-            endIndex = result.end;
-        } else {
-            startIndex = result.end;
-            endIndex = result.start;
-        };
+        startIndex = preCaretRange.toString().length;
+        endIndex = startIndex + range.toString().length;
 
         // Color-highlight selected text
         document.getElementById('file_data').contentEditable = 'true';
         document.execCommand('backColor', false, '#33FFB5');
         document.execCommand('foreColor', false, 'black');
-        document.getElementById('file_data').contentEditable = 'false';
-        
+        document.getElementById('file_data').contentEditable = 'false';        
 
         var ent_hover_info = [];
         var att_hover_info = [];
@@ -124,8 +91,8 @@ $(document).ready(function () {
             annotationStyle += '"'
         }
             document.getElementById('annotation_data').innerHTML += '<p ' + annotationClass + ' ' + annotationId + ' ' + annotationStyle + '>' + highlighted + '</p>';
-        
-        // Un-highlights newly-annotated text
+
+        // Removes selection of newly-annotated text
         window.getSelection().removeAllRanges();
     });
 
@@ -142,7 +109,10 @@ $(document).ready(function () {
     });
 
 
-    // Gray-out / restore stop words
+    /*
+    // Add ability to hide or show stopwords
+    //var stopwordsHidden = false;
+    //var stopwords = [deleted];
     $('#hideStopwords').click(function () {
         var wordColor = '';
         if (!stopwordsHidden) {
@@ -162,6 +132,7 @@ $(document).ready(function () {
             }
         }
     });
+    */
 
 
     // Delete clicked annotation

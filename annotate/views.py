@@ -7,8 +7,8 @@ def annotate_data(request, data_file_path):
 
     os.chdir('/')
 
-    file_data = get_file_lines(data_file_path)
-    data['file_data'] = file_data
+    # file_data = get_file_lines(data_file_path)
+    data['file_data'] = open(data_file_path, encoding='utf8').read()
 
     config_file_path = os.path.dirname(data_file_path) + '/annotation.conf'
     config_data = get_file_lines(config_file_path)

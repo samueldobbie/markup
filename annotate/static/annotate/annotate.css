@@ -41,6 +41,7 @@
 #file_data {
     outline:0px solid transparent;
     margin-right:5%;
+    white-space: pre-wrap;
 }
 
 #annotation_data {

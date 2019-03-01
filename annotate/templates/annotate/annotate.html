@@ -13,7 +13,7 @@
     <script>
         var dict = {};
         "{% for key, value in dict.items %}"
-            dict["{{ key }}"] = "{{ value }}";
+            dict["{{ key }}"] = `{{ value }}`;
         "{% endfor %}"
     </script>
     <script src="{% static 'annotate/annotate.js' %}"></script>  
@@ -44,24 +44,24 @@
 
             <button id="addAnnotation" class="btn">Add Annotation</button>
             <br>
-            <button id="hideStopwords" class="btn">Hide Stopwords</button>
-            <br>
             <button id="darkMode" class="btn">Dark Mode</button>
             <br>
             <button id="clearSelections" class="btn">Clear</button>
             <br>
         </div>
 
-        <div id="file_data" class="item item-2 standard-text">
-            {% for line in dict.file_data %}
-                {% for word in line.split %}
-                    <span class='{{ word|lower }}'>
-                        {{ word }}
-                    </span>
-                {% endfor %}
-                <br>
-            {% endfor %}
-        </div>
+        
+        <!--
+            Used to hide stop words
+            <button id="hideStopwords" class="btn">Hide Stopwords</button>
+            <br>
+
+            <span class='{{ word|lower }}'>
+                {{ word }}
+            </span>
+        -->
+
+        <div id="file_data" class="item item-2 standard-text">{{dict.file_data}}</div>
 
         <div id="annotation_data" class="item item-1 standard-text"></div>
     </div>
