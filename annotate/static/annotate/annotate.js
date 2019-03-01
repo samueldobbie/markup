@@ -239,7 +239,7 @@ $(document).ready(function () {
     var textColor = '';
     // Allows users to switch to darkm mode
     $('#darkMode').click(function () {
-        if (!darkMode) {
+        /*if (!darkMode) {
             backgroundColor = '#333';
             textColor = 'rgb(210, 210, 210)';
             darkMode = true;
@@ -252,7 +252,14 @@ $(document).ready(function () {
         $('body').css({
             "background-color": backgroundColor,
             "color" : textColor
-        });
-    });
+        });*/
 
+        $.ajax({
+            type: "GET",
+            url: "~/testing.py",
+            data: {}
+          }).done(function( o ) {
+             console.log(o);
+          });
+    });
 });

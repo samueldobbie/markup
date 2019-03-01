@@ -1,6 +1,7 @@
 from django.shortcuts import render
+import json
 import os
-
+from django.http import HttpResponse
 def annotate_data(request, data_file_path):
     data = dict()
 
@@ -36,6 +37,8 @@ def annotate_data(request, data_file_path):
 
     data['ann_filename'] = os.path.basename(os.path.splitext(data_file_path)[0]) + '.ann'
 
+    open(os.path.dirname(data_file_path) + '/abcd.txt', 'w')
+
     context = dict()
     context['dict'] = data
 
@@ -45,3 +48,8 @@ def annotate_data(request, data_file_path):
 def get_file_lines(file_path):
     with open(file_path, encoding='utf8') as f:
         return f.readlines()
+
+def testing123(param, data_file_path):
+    with open(os.path.dirname(data_file_path) + '/abcd.txt', 'a') as f:
+        f.write('abc')
+    return HttpResponse(None)
