@@ -20,12 +20,13 @@
     background-color:rgb(210, 210, 210);
     margin-bottom:2%;
     padding:2.5%;
-    color:white;
+    color:#666;
     border-radius:5px;
     font-weight:bold;
     border:none;
     font-size:0.75em;
     font-family:"Nunito";
+    outline:0px solid transparent;
 }
 
 .standard-text {

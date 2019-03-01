@@ -43,17 +43,22 @@
             {% endfor %}
 
             <button id="addAnnotation" class="btn">Add Annotation</button>
-            <button id="deleteAnnotation" class="btn">Delete Annotation</button>
+            <br>
             <button id="hideStopwords" class="btn">Hide Stopwords</button>
+            <br>
+            <button id="darkMode" class="btn">Dark Mode</button>
+            <br>
             <button id="clearSelections" class="btn">Clear</button>
+            <br>
             <a href="" id="downloadButton" download="{{ dict.ann_filename }}"><button id="saveAnnotations" class="btn">Save</button></a>
+            <!--<button id="deleteAnnotation" class="btn">Delete Annotation</button>-->
         </div>
 
         <div id="file_data" class="item item-2 standard-text">
             {% for line in dict.file_data %}
                 {% for word in line.split %}
                     <span class='{{ word|lower }}'>
-                    {{ word }}
+                        {{ word }}
                     </span>
                 {% endfor %}
                 <br>
