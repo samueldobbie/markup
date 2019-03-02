@@ -37,7 +37,7 @@ $(document).ready(function () {
 
         // Color-highlight selected text
         document.getElementById('file_data').contentEditable = 'true';
-        document.execCommand('insertHTML', false, '<span class="' + startIndex + '_' + endIndex + '" style="background-color:#33FFB5; color:black;">' + highlighted + '</span>');
+        document.execCommand('insertHTML', false, '<span id="' + startIndex + '_' + endIndex + '_aid" style="background-color:#33FFB5; color:black;">' + highlighted + '</span>');
         document.getElementById('file_data').contentEditable = 'false';        
 
         var ent_hover_info = [];
@@ -128,7 +128,7 @@ $(document).ready(function () {
         var endIndex = indicies[1];
 
         // Remove span tag from file_data text
-        document.getElementsByClassName(id)[0].outerHTML = document.getElementsByClassName(id)[0].innerHTML;
+        document.getElementById(id + '_aid').outerHTML = document.getElementById(id + '_aid').innerHTML;
 
         // Finds correct annotation index based on offset list and removes
         for (var i = 0; i < offsets.length; i++) {
@@ -146,13 +146,42 @@ $(document).ready(function () {
     });
 
 
-    // Display information about annotation on hover
+    // Display information about annotation on hover of annotation_data display
     $("#annotation_data").mouseover(function(eventObj) {
         var id = eventObj.target.id;
         var indicies = event.target.id.split("_");
         var startIndex = indicies[0];
         var endIndex = indicies[1];
         if (id != 'annotation_data') {
+            for (var i = 0; i < offsets.length; i++) {
+                if (offsets[i][0] == startIndex && offsets[i][1] == endIndex) {
+
+                    for (var j = 2; j <= 5; j++) {
+                        if (offsets[i][j].length == 0) {
+                            offsets[i][j] = 'None';
+                        }
+                    }
+                    // To-do: deal with more than one value
+                    document.getElementById(id).title = "Entity: " + offsets[i][2] + "\nAttributes: " + offsets[i][3] + "\nRelations: " + offsets[i][4] + "\nEvents: " + offsets[i][5];
+                    return;
+                }
+            };
+        } 
+    });
+
+
+    // Display information about annotation on hover of file_data display
+    $("#file_data").mouseover(function(eventObj) {
+        var id = eventObj.target.id;
+        var indicies = id.split('_');
+        var startIndex = indicies[0];
+        var endIndex = indicies[1];
+        if (id != 'file_data') {
+            /*
+            console.log(offsets);
+            console.log(startIndex);
+            console.log(endIndex);
+            */
             for (var i = 0; i < offsets.length; i++) {
                 if (offsets[i][0] == startIndex && offsets[i][1] == endIndex) {
 
