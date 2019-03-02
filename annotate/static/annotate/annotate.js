@@ -146,13 +146,11 @@ $(document).ready(function () {
     });
 
 
-    // Display information about annotation on hover of annotation_data display
-    $("#annotation_data").mouseover(function(eventObj) {
-        var id = eventObj.target.id;
-        var indicies = event.target.id.split("_");
+    function hoverInfo(id, type) {
+        var indicies = id.split("_");
         var startIndex = indicies[0];
         var endIndex = indicies[1];
-        if (id != 'annotation_data') {
+        if (id != type) {
             for (var i = 0; i < offsets.length; i++) {
                 if (offsets[i][0] == startIndex && offsets[i][1] == endIndex) {
 
@@ -167,35 +165,18 @@ $(document).ready(function () {
                 }
             };
         } 
+    }
+
+    
+    // Display information about annotation on hover of annotation_data display
+    $("#annotation_data").mouseover(function(eventObj) {
+        hoverInfo(eventObj.target.id, 'annotation_data');
     });
 
 
     // Display information about annotation on hover of file_data display
     $("#file_data").mouseover(function(eventObj) {
-        var id = eventObj.target.id;
-        var indicies = id.split('_');
-        var startIndex = indicies[0];
-        var endIndex = indicies[1];
-        if (id != 'file_data') {
-            /*
-            console.log(offsets);
-            console.log(startIndex);
-            console.log(endIndex);
-            */
-            for (var i = 0; i < offsets.length; i++) {
-                if (offsets[i][0] == startIndex && offsets[i][1] == endIndex) {
-
-                    for (var j = 2; j <= 5; j++) {
-                        if (offsets[i][j].length == 0) {
-                            offsets[i][j] = 'None';
-                        }
-                    }
-                    // To-do: deal with more than one value
-                    document.getElementById(id).title = "Entity: " + offsets[i][2] + "\nAttributes: " + offsets[i][3] + "\nRelations: " + offsets[i][4] + "\nEvents: " + offsets[i][5];
-                    return;
-                }
-            };
-        } 
+        hoverInfo(eventObj.target.id, 'file_data') ;
     });
 
 
@@ -212,7 +193,7 @@ $(document).ready(function () {
 
 
     var darkMode = false;
-    // Allows users to switch to darkm mode
+    // Allows users to switch to dark mode
     $('#darkMode').click(function () {
         var backgroundColor = '';
         var textColor = '';
