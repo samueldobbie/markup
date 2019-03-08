@@ -19,40 +19,41 @@
     <script src="{% static 'annotate/annotate.js' %}"></script>  
 </head>
 <body>
-    <select id="matchList"></select>
-
     <div class="container">
         <div id="config_data" class="item item-1 standard-text">
-            {% for key, value in dict.items %}
-                {% if key != "file_data" and key != "ann_filename" %}
-                    <b>{{ key }}</b>
-                    <br>
-                    {% if key == "attributes" %}
-                        {% for val in value %}
-                            <input type="checkbox" id="{{ val }}" name="{{ key }}" value="{{ val }}">
-                            <label for="{{ val }}">{{ val }}</label>
-                            <br>
-                        {% endfor %}
-                    {% else %}
-                        {% for val in value %}
-                            <input type="radio" id="{{ val }}" name="{{ key }}" value="{{ val }}">
-                            <label for="{{ val }}">{{ val }}</label>
-                            <br>
-                        {% endfor %}
+            <div id="config_data_options">
+                {% for key, value in dict.items %}
+                    {% if key != "file_data" and key != "ann_filename" %}
+                        <b>{{ key }}</b>
+                        <br>
+                        {% if key == "attributes" %}
+                            {% for val in value %}
+                                <input type="checkbox" id="{{ val }}" name="{{ key }}" value="{{ val }}">
+                                <label for="{{ val }}">{{ val }}</label>
+                                <br>
+                            {% endfor %}
+                        {% else %}
+                            {% for val in value %}
+                                <input type="radio" id="{{ val }}" name="{{ key }}" value="{{ val }}">
+                                <label for="{{ val }}">{{ val }}</label>
+                                <br>
+                            {% endfor %}
+                        {% endif %}
+                        <br>
                     {% endif %}
-                    <br>
-                {% endif %}
-            {% endfor %}
+                {% endfor %}
+            </div>
 
-            <button id="addAnnotation" class="btn">Add Annotation</button>
+            <select id="matchList" class="drop-down"><option>No match</option></select>
             <br>
-            <button id="suggestCUI" class="btn">Suggest CUI</button>
+            <button id="addAnnotation" class="btn">Add Annotation</button>
             <br>
             <button id="darkMode" class="btn">Dark Mode</button>
             <br>
             <button id="clearSelections" class="btn">Clear</button>
             <br>
         </div>
+
         <div id="file_data" class="item item-2 standard-text">{{dict.file_data}}</div>
 
         <div id="annotation_data" class="item item-1 standard-text"></div>

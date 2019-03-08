@@ -96,7 +96,7 @@ $(document).ready(function () {
             }
         }
         // Keep track of offets for each annotation
-        offsets.push([startIndex, endIndex, ent_hover_info, att_hover_info, rel_hover_info, eve_hover_info]);
+        offsets.push([startIndex, endIndex, ent_hover_info, att_hover_info, rel_hover_info, eve_hover_info, highlighted]);
 
         //Add annotaion to current-annotataion list
         allAnnotations.push(annotation);
@@ -169,7 +169,7 @@ $(document).ready(function () {
                         }
                     }
                     // To-do: deal with more than one value
-                    document.getElementById(id).title = "Entity: " + offsets[i][2] + "\nAttributes: " + offsets[i][3] + "\nRelations: " + offsets[i][4] + "\nEvents: " + offsets[i][5];
+                    document.getElementById(id).title = "Text: " + offsets[i][6] + "\nEntity: " + offsets[i][2] + "\nAttributes: " + offsets[i][3] + "\nRelations: " + offsets[i][4] + "\nEvents: " + offsets[i][5];
                     return;
                 }
             };
@@ -196,7 +196,7 @@ $(document).ready(function () {
 
 
     // Prevent deselection of text when selecting configuration
-    $('#config_data').mousedown(function() {
+    $('#config_data_options').mousedown(function() {
         return false;
     });
 
@@ -227,7 +227,7 @@ $(document).ready(function () {
 
     });
 
-    $('#suggestCUI').click(function () {
+    $('#file_data').mouseup(function () {
         var term = window.getSelection().toString();
 
         $.ajax({
@@ -245,6 +245,13 @@ $(document).ready(function () {
                     option.text = arr[i];
                     matchList.add(option);
                 }
+            }
+
+            if (document.getElementById('matchList').options.length == 0) {
+                var matchList = document.getElementById('matchList');
+                var option = document.createElement("option");
+                option.text = "No match";
+                matchList.add(option);
             }
         });
     });
