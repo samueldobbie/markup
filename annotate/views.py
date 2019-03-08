@@ -1,7 +1,11 @@
+from simstring.feature_extractor.character_ngram import CharacterNgramFeatureExtractor
+from simstring.measure.cosine import CosineMeasure
+from simstring.searcher import Searcher
+from django.http import HttpResponse
 from django.shortcuts import render
 import json
 import os
-from django.http import HttpResponse
+
 def annotate_data(request, data_file_path):
     data = dict()
 
@@ -54,3 +58,16 @@ def write_to_ann(request, data_file_path):
     with open(os.path.dirname(data_file_path) + '/' + ann_filename, 'a') as f:
         f.write(annotations)
     return HttpResponse(None)
+
+
+def suggest_cui(request, data_file_path):
+    results = searcher.ranked_search(request.GET['selectedTerm'], 0.85)
+    print(results[:10])
+
+    return HttpResponse(results)
+
+import pickle
+
+with open("database_2char_plus_cuis.pickle", "rb") as input_file:
+    db = pickle.load(input_file)
+searcher = Searcher(db, CosineMeasure())

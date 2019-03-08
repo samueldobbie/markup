@@ -7,7 +7,7 @@ $(document).ready(function () {
     var attributeIndex = 1;
     var allAnnotations = [];
     var offsets = [];
-    
+
     $('#addAnnotation').click(function () {
         var highlighted = window.getSelection().toString();
         
@@ -35,10 +35,19 @@ $(document).ready(function () {
         startIndex = preCaretRange.toString().length;
         endIndex = startIndex + range.toString().length;
 
+        // Change annotation color if there's an overlap between two annotations
+        highlightColor = '#33FFB5';
+        for (var i = 0; i < offsets.length; i++) {
+            if ((startIndex >= offsets[i][0] && startIndex <= offsets[i][1]) || (endIndex >= offsets[i][0] && endIndex <= offsets[i][1])) {
+                highlightColor = 'rgb(44, 214, 152)';
+                break;
+            }
+        }
+
         // Color-highlight selected text
         document.getElementById('file_data').contentEditable = 'true';
-        document.execCommand('insertHTML', false, '<span id="' + startIndex + '_' + endIndex + '_aid" style="background-color:#33FFB5; color:black;">' + highlighted + '</span>');
-        document.getElementById('file_data').contentEditable = 'false';        
+        document.execCommand('insertHTML', false, '<span id="' + startIndex + '_' + endIndex + '_aid" style="background-color:' + highlightColor + '; color:black;">' + highlighted + '</span>');
+        document.getElementById('file_data').contentEditable = 'false';
 
         var ent_hover_info = [];
         var att_hover_info = [];
@@ -167,7 +176,7 @@ $(document).ready(function () {
         } 
     }
 
-    
+
     // Display information about annotation on hover of annotation_data display
     $("#annotation_data").mouseover(function(eventObj) {
         hoverInfo(eventObj.target.id, 'annotation_data');
@@ -199,10 +208,12 @@ $(document).ready(function () {
         var textColor = '';
 
         if (!darkMode) {
+            document.getElementById('darkMode').innerHTML = 'Light Mode';
             backgroundColor = '#333';
             textColor = 'rgb(210, 210, 210)';
             darkMode = true;
         } else {
+            document.getElementById('darkMode').innerHTML = 'Dark Mode';
             backgroundColor = 'white';
             textColor = 'black';
             darkMode = false;
@@ -214,5 +225,21 @@ $(document).ready(function () {
             "color" : textColor
         });
 
+    });
+
+    $('#suggestCUI').click(function () {
+        var term = window.getSelection().toString();
+        var nearestMatches = [];
+
+        $.ajax({
+            type: "GET",
+            url: "~/suggest_cui",
+            data: {selectedTerm: term}
+        }).done(function(data){
+            alert(data);
+            nearestMatches.push(data.toString());
+        });
+
+        alert(nearestMatches);
     });
 });
