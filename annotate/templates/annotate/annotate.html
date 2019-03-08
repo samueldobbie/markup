@@ -1,50 +1,68 @@
 <!DOCTYPE html>
 <html lang='en'>
+
 <head>
     {% load staticfiles %}
     <meta charset='UTF-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <meta http-equiv='X-UA-Compatible' content='ie=edge'>
     <title>Annotate - Markup</title>
-    <link href="https://fonts.googleapis.com/css?family=Nunito:400,700" rel="stylesheet"/>
-    <link href="{% static 'annotate/annotate.css' %}" rel="stylesheet"/>
-    <link rel="shortcut icon" type="image/png" href="{% static 'annotate/favicon.ico' %}"/>
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,700" rel="stylesheet" />
+    <link href="{% static 'annotate/annotate.css' %}" rel="stylesheet" />
+    <link rel="shortcut icon" type="image/png" href="{% static 'annotate/favicon.ico' %}" />
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script>
         var dict = {};
         "{% for key, value in dict.items %}"
-            dict["{{ key }}"] = `{{ value }}`;
+        dict["{{ key }}"] = `{{ value }}`;
         "{% endfor %}"
     </script>
-    <script src="{% static 'annotate/annotate.js' %}"></script>  
+    <script src="{% static 'annotate/annotate.js' %}"></script>
 </head>
+
 <body>
+    <nav>
+        <div class="nav-wrapper" style="background-color:#333;">
+            <a href="/" class="brand-logo" style="margin-left:2%;  font-family: 'Nunito'; font-weight:bold;">markup</a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down"
+                style="margin-right:2%;  font-family: 'Nunito'; color:#33FFB5; font-weight:bold;">
+                <li><a href="sass.html">Documentation</a></li>
+                <li><a href="badges.html">FAQ</a></li>
+                <li><a href="collapsible.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
     <div class="container">
         <div id="config_data" class="item item-1 standard-text">
             <div id="config_data_options">
                 {% for key, value in dict.items %}
-                    {% if key != "file_data" and key != "ann_filename" %}
-                        <b>{{ key }}</b>
-                        <br>
-                        {% if key == "attributes" %}
-                            {% for val in value %}
-                                <input type="checkbox" id="{{ val }}" name="{{ key }}" value="{{ val }}">
-                                <label for="{{ val }}">{{ val }}</label>
-                                <br>
-                            {% endfor %}
-                        {% else %}
-                            {% for val in value %}
-                                <input type="radio" id="{{ val }}" name="{{ key }}" value="{{ val }}">
-                                <label for="{{ val }}">{{ val }}</label>
-                                <br>
-                            {% endfor %}
-                        {% endif %}
-                        <br>
-                    {% endif %}
+                {% if key != "file_data" and key != "ann_filename" %}
+                <b>{{ key }}</b>
+                <br>
+                {% if key == "attributes" %}
+                {% for val in value %}
+                <input type="checkbox" id="{{ val }}" name="{{ key }}" value="{{ val }}">
+                <label for="{{ val }}">{{ val }}</label>
+                <br>
+                {% endfor %}
+                {% else %}
+                {% for val in value %}
+                <input type="radio" id="{{ val }}" name="{{ key }}" value="{{ val }}">
+                <label for="{{ val }}">{{ val }}</label>
+                <br>
+                {% endfor %}
+                {% endif %}
+                <br>
+                {% endif %}
                 {% endfor %}
             </div>
 
-            <select id="matchList" class="drop-down"><option>No match</option></select>
+            <select id="matchList" class="drop-down">
+                <option>No match</option>
+            </select>
             <br>
             <button id="addAnnotation" class="btn">Add Annotation</button>
             <br>
@@ -59,4 +77,5 @@
         <div id="annotation_data" class="item item-1 standard-text"></div>
     </div>
 </body>
+
 </html>

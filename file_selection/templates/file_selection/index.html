@@ -1,14 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    {% load staticfiles %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Home - Markup</title>
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,700" rel="stylesheet" />
+    <link href="{% static 'file_selection/index.css' %}" rel="stylesheet" />
+    <link rel="shortcut icon" type="image/png" href="{% static 'file_selection/favicon.ico' %}" />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+    <script src="{% static 'file_selection/index.js' %}"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </head>
+
 <body>
-    <form action="" method="GET">
-        <input type="submit" class="btn" value="Open a document" name="open_file_button">
-    </form>
+    <nav>
+        <div class="nav-wrapper" style="background-color:#333;">
+            <a href="/" class="brand-logo" style="margin-left:2%;  font-family: 'Nunito'; font-weight:bold;">markup</a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down" style="margin-right:2%;  font-family: 'Nunito'; color:#33FFB5; font-weight:bold;">
+                <li><a href="sass.html">Documentation</a></li>
+                <li><a href="badges.html">FAQ</a></li>
+                <li><a href="collapsible.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div id="openFile" style="text-align: center; margin-top:15%">
+        <p style="font-size: 75px; font-family: 'Nunito'">Open a file to start <span style="background-color:#33FFB5;">annotating</span></p>
+        <form action="" method="GET">
+            <input style="font-family: 'Nunito'; font-size:24px; background-color:#333; color:white" type="submit" class="btn" value="Open single file" name="open_file_button">
+            <input style="margin-left:2%; font-family: 'Nunito'; font-size:24px; background-color:#333; color:white" type="submit" class="btn" value="Open multiple files" name="open_file_button">
+        </form>
+    </div>
 </body>
+
 </html>
