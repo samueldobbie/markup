@@ -19,6 +19,8 @@
     <script src="{% static 'annotate/annotate.js' %}"></script>  
 </head>
 <body>
+    <select id="matchList"></select>
+
     <div class="container">
         <div id="config_data" class="item item-1 standard-text">
             {% for key, value in dict.items %}
@@ -51,7 +53,6 @@
             <button id="clearSelections" class="btn">Clear</button>
             <br>
         </div>
-
         <div id="file_data" class="item item-2 standard-text">{{dict.file_data}}</div>
 
         <div id="annotation_data" class="item item-1 standard-text"></div>

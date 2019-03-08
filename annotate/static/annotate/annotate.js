@@ -39,7 +39,7 @@ $(document).ready(function () {
         highlightColor = '#33FFB5';
         for (var i = 0; i < offsets.length; i++) {
             if ((startIndex >= offsets[i][0] && startIndex <= offsets[i][1]) || (endIndex >= offsets[i][0] && endIndex <= offsets[i][1])) {
-                highlightColor = 'rgb(44, 214, 152)';
+                highlightColor = 'rgb(35, 200, 130)';
                 break;
             }
         }
@@ -229,17 +229,23 @@ $(document).ready(function () {
 
     $('#suggestCUI').click(function () {
         var term = window.getSelection().toString();
-        var nearestMatches = [];
 
         $.ajax({
             type: "GET",
             url: "~/suggest_cui",
-            data: {selectedTerm: term}
+            data: {selectedTerm: term.toLowerCase()}
         }).done(function(data){
-            alert(data);
-            nearestMatches.push(data.toString());
+            // Empty drop-down list
+            document.getElementById('matchList').options.length = 0;
+            if (data != '') {
+                var arr = data.split(',');
+                var matchList = document.getElementById('matchList');
+                for (var i=0; i < arr.length; i++) {
+                    var option = document.createElement("option");
+                    option.text = arr[i];
+                    matchList.add(option);
+                }
+            }
         });
-
-        alert(nearestMatches);
     });
 });

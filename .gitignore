@@ -5,3 +5,5 @@ __pycache__/
 *.pickle
 *.ann
 *.txt
+*.sqlite3
+*.conf

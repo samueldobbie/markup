@@ -3,6 +3,7 @@ from simstring.measure.cosine import CosineMeasure
 from simstring.searcher import Searcher
 from django.http import HttpResponse
 from django.shortcuts import render
+import pickle
 import json
 import os
 
@@ -11,7 +12,6 @@ def annotate_data(request, data_file_path):
 
     os.chdir('/')
 
-    # file_data = get_file_lines(data_file_path)
     data['file_data'] = open(data_file_path, encoding='utf8').read()
 
     config_file_path = os.path.dirname(data_file_path) + '/annotation.conf'
@@ -61,12 +61,16 @@ def write_to_ann(request, data_file_path):
 
 
 def suggest_cui(request, data_file_path):
-    results = searcher.ranked_search(request.GET['selectedTerm'], 0.85)
-    print(results[:10])
+    results = searcher.ranked_search(request.GET['selectedTerm'], 0.75)
 
-    return HttpResponse(results)
+    output = []
+    for i in results:
+        output.append(i[1] + ',')
 
-import pickle
+    if output != []:
+        output[-1] = output[-1][:-1]
+
+    return HttpResponse(output)
 
 with open("database_2char_plus_cuis.pickle", "rb") as input_file:
     db = pickle.load(input_file)
