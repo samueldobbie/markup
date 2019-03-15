@@ -8,13 +8,10 @@ $(document).ready(function () {
         checkboxes[i].labels[0].style.display = "none";
     }
 
-    var entityIndex = 1;
-    var relationIndex = 1;
-    var eventIndex = 1;
-    var attributeIndex = 1;
     var allAnnotations = [];
     var offsets = [];
-
+    var entityId = 1;
+    var attributeId = 1;
     $('#addAnnotation').click(function () {
         var highlighted = window.getSelection().toString();
         
@@ -56,21 +53,13 @@ $(document).ready(function () {
         document.execCommand('insertHTML', false, '<span id="' + startIndex + '_' + endIndex + '_aid" style="background-color:' + highlightColor + '; color:black;">' + highlighted + '</span>');
         document.getElementById('file_data').contentEditable = 'false';
 
-        var ent_hover_info = [];
-        var att_hover_info = [];
-        var rel_hover_info = [];
-        var eve_hover_info = [];
-
         // Get chosen option from dropdown and ignore if default selected or no matches found
         var suggestionList = document.getElementById('matchList');
         var option = suggestionList.options[suggestionList.selectedIndex].text;
         var optionWords = option.split(' ');
 
-        if ((optionWords[optionWords.length - 2] == 'matches' && optionWords[optionWords.length - 1] == 'found') || option == 'No match') {
-            option = '';
-        } else {
+        if (!((optionWords[optionWords.length - 2] == 'matches' && optionWords[optionWords.length - 1] == 'found') || option == 'No match')) {
             var annotationData = 'Test1' + '\t' + option + " " + startIndex + " " + endIndex + "\t" + highlighted + '\n';
-
             $.ajax({
                 type: "GET",
                 url: "~/write_match_to_ann",
@@ -78,52 +67,76 @@ $(document).ready(function () {
             });
         }
 
+        /*
         // Format annotation(s) to be in stand-off format
+        var entityHoverInfo = [];
+        var attributeHoverInfo = [];
         var annotation = [];
         for (k in dict) {
-            if (k != 'file_data' && k != 'ann_filename') {
+            if (k != 'file_data' && k != 'ann_filename' && k != 'args') {
                 if (document.querySelector('input[name=' + k + ']:checked') != null) {
-                    // Implement relations to same annotation properly
                     var annotationValue = document.querySelector('input[name=' + k + ']:checked').value;
-                    var id = "";
+                    var id = '';
                     if (k == 'entities') {
-                        id = "T" + entityIndex;
-                        ent_hover_info.push(annotationValue);
-                        entityIndex++;
+                        id = 'T' + entityId;
+                        entityHoverInfo.push(annotationValue);
+                        annotationData = id + '\t' + annotationValue + " " + startIndex + " " + endIndex + "\t" + highlighted + '\n';
+                        entityId++;
                     } else if (k == 'attributes') {
-                        id = "A" + attributeIndex;
-                        att_hover_info.push(annotationValue);
-                        attributeIndex++;
-                    } else if (k == 'relation') {
-                        id = "R" + relationIndex;
-                        rel_hover_info.push(annotationValue);
-                        relationIndex++;
-                    } else if (k == 'events') {
-                        id = "E" + eventIndex;
-                        eve_hover_info.push(annotationValue);
-                        eventIndex++;
+                        id = 'A' + attributeId;
+                        attributeHoverInfo.push(annotationValue);
+                        annotationData = id + '\t' + annotationValue + ' T' + (entityId - 1) + '\n';
+                        attributeId++;
                     } else {
                         continue;
                     }
 
-                    // TO-Do: Implement correct stand-off formatting
-                    var annotationData = id + '\t' + annotationValue + " " + startIndex + " " + endIndex + "\t" + highlighted + '\n';
-
                     // Save annotations to .ann file
                     $.ajax({
-                        type: "GET",
-                        url: "~/write_to_ann",
+                        type: 'GET',
+                        url: '~/write_to_ann',
                         data: {annotations: annotationData, ann_filename: dict['ann_filename'] }
                     });
                     annotation.push([annotationData]);
                 }
             }
         }
-        // Keep track of offets for each annotation
-        offsets.push([startIndex, endIndex, ent_hover_info, att_hover_info, rel_hover_info, eve_hover_info, highlighted]);
+        */
 
-        //Add annotaion to current-annotataion list
+        // Output annotation in stand-off format
+        var annotation = [];
+        var entityHoverInfo = [];
+        var attributeHoverInfo = [];
+
+        var entityValue = $("input[type=radio]:checked")[0].id;
+        entityHoverInfo.push(entityValue);
+        entityData = 'T' + entityId + '\t' + entityValue + ' ' + startIndex + ' ' + endIndex + '\t' + highlighted + '\n';
+        entityId++;
+
+        annotation.push([entityData]);
+        writeToAnn(entityData);
+
+        var attributeValues = [];
+        var attributeData = [];
+        for (var i=0; i < $("input[type=checkbox]:checked").length; i++) {
+            attributeValues.push($("input[type=checkbox]:checked")[i].id);
+            attributeData.push('A' + attributeId + '\t' + $("input[type=checkbox]:checked")[i].id + ' T' + (entityId - 1) + '\n');
+            attributeId++;
+        }
+        attributeHoverInfo.push(attributeValues);
+
+        for (var i=0; i<attributeData.length; i++) {
+            annotation.push([attributeData[i]]);
+            writeToAnn(attributeData[i]);
+        }        
+
+        // Keep track of offets for each annotation
+        offsets.push([startIndex, endIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
+
+        // Add annotaion to current-annotataion list
         allAnnotations.push(annotation);
+
+        console.log(allAnnotations);
 
         // Add annotation to annotaion_data display
         var annotationClass = 'class="test"';
@@ -134,22 +147,10 @@ $(document).ready(function () {
         } else {
             annotationStyle += '"'
         }
-            document.getElementById('annotation_data').innerHTML += '<p ' + annotationClass + ' ' + annotationId + ' ' + annotationStyle + '>' + highlighted + '</p>';
+        document.getElementById('annotation_data').innerHTML += '<p ' + annotationClass + ' ' + annotationId + ' ' + annotationStyle + '>' + highlighted + '</p>';
 
         // Removes selection of newly-annotated text
         window.getSelection().removeAllRanges();
-    });
-
-
-    // Clear radio and checkbox button selections
-    $('#clearSelections').click(function () {
-        for (k in dict) {
-            if (k != 'file_data' && k != 'ann_filename') {
-                if (document.querySelector('input[name=' + k + ']:checked') != null) {
-                    document.querySelector('input[name=' + k + ']:checked').checked = false;
-                }
-            }
-        }
     });
 
 
@@ -179,6 +180,17 @@ $(document).ready(function () {
     });
 
 
+    // Save annotations to .ann file
+    function writeToAnn(data) {
+        $.ajax({
+            type: 'GET',
+            url: '~/write_to_ann',
+            data: {annotations: data, ann_filename: dict['ann_filename'] }
+        });
+    }
+
+
+    // Display information about annotation on hover
     function hoverInfo(id, type) {
         var indicies = id.split("_");
         var startIndex = indicies[0];
@@ -186,14 +198,12 @@ $(document).ready(function () {
         if (id != type) {
             for (var i = 0; i < offsets.length; i++) {
                 if (offsets[i][0] == startIndex && offsets[i][1] == endIndex) {
-
-                    for (var j = 2; j <= 5; j++) {
+                    for (var j = 2; j < 5; j++) {
                         if (offsets[i][j].length == 0) {
                             offsets[i][j] = 'None';
                         }
                     }
-                    // To-do: deal with more than one value
-                    document.getElementById(id).title = "Text: " + offsets[i][6] + "\nEntity: " + offsets[i][2] + "\nAttributes: " + offsets[i][3] + "\nRelations: " + offsets[i][4] + "\nEvents: " + offsets[i][5];
+                    document.getElementById(id).title = "Text: " + offsets[i][4] + "\nEntity: " + offsets[i][2] + "\nAttributes: " + offsets[i][3];
                     return;
                 }
             };
@@ -297,12 +307,15 @@ $(document).ready(function () {
         var selected = $(this).context.id;
         var checkboxes = $("input[type=checkbox]");
         var checkboxNum = checkboxes.length;
-        
+
+        // Deselect all checkboxes and remove hiding of all attributes
         for(var i=0; i<checkboxNum; i++) {
+            $('#' + checkboxes[i].id).prop('checked', false);
             checkboxes[i].style.display = "";
             checkboxes[i].labels[0].style.display = "";
         }
 
+        // Determine which attributes should be displayed
         var visible = [];
         for(var i=0; i<conditionalSelectionBoxes.length; i++) {
             if (conditionalSelectionBoxes[i][1] == selected) {
@@ -310,6 +323,7 @@ $(document).ready(function () {
             }
         }
 
+        // Hide all unwanted attributes
         for(var i=0; i<checkboxNum; i++) {
             if (!visible.includes(checkboxes[i].id)) {
                 checkboxes[i].style.display = "none";
