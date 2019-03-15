@@ -25,12 +25,12 @@ def annotate_data(request, data_file_path):
         if line == '':
             continue
         
-        if len(line) >= 3 and line[:3] == '###':
+        if len(line) >= 3 and line[0] == '[' and line[-1] == ']':
             if config_key != '':
                 configs.append(config_key)
                 data[config_key] = config_values
                 config_values = []
-            config_key = line[4:]
+            config_key = line[1:-1]
             continue
 
         config_values.append(line)

@@ -42,15 +42,17 @@
                         <br>
                         {% if key == "attributes" %}
                             {% for val in value %}
-                                <input type="checkbox" id="{{ val }}" name="{{ key }}" value="{{ val }}">
-                                <label for="{{ val }}">{{ val }}</label>
-                                <br>
+                                <p style="margin:0; padding:0;">
+                                    <input type="checkbox" id="{{ val }}" name="{{ key }}" value="{{ val }}">
+                                    <label for="{{ val }}">{{ val }}</label>
+                                </p>
                             {% endfor %}
                         {% else %}
                             {% for val in value %}
-                                <input type="radio" id="{{ val }}" name="{{ key }}" value="{{ val }}">
-                                <label for="{{ val }}">{{ val }}</label>
-                                <br>
+                                <p style="margin:0; padding:0;">
+                                    <input type="radio" id="{{ val }}" name="{{ key }}" value="{{ val }}">
+                                    <label for="{{ val }}">{{ val }}</label>
+                                </p>
                             {% endfor %}
                         {% endif %}
                         <br>

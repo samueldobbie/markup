@@ -1,6 +1,13 @@
 
 $(document).ready(function () {
 
+    var checkboxes = $("input[type=checkbox]");
+    var checkboxNum = checkboxes.length;
+    for(var i=0; i<checkboxNum; i++) {
+        checkboxes[i].style.display = "none";
+        checkboxes[i].labels[0].style.display = "none";
+    }
+
     var entityIndex = 1;
     var relationIndex = 1;
     var eventIndex = 1;
@@ -288,15 +295,26 @@ $(document).ready(function () {
     $("input[type=radio]").click(function () {
         // Get selected radiobutton id
         var selected = $(this).context.id;
-
-        // Disable all checkboxes
-        $("input[type=checkbox]").prop('disabled', true);
+        var checkboxes = $("input[type=checkbox]");
+        var checkboxNum = checkboxes.length;
         
-        // Re-enable valid checkboxes
+        for(var i=0; i<checkboxNum; i++) {
+            checkboxes[i].style.display = "";
+            checkboxes[i].labels[0].style.display = "";
+        }
+
+        var visible = [];
         for(var i=0; i<conditionalSelectionBoxes.length; i++) {
             if (conditionalSelectionBoxes[i][1] == selected) {
-                $('#' + conditionalSelectionBoxes[i][0]).prop('disabled', false);
+                visible.push(conditionalSelectionBoxes[i][0]);
             }
-        };
+        }
+
+        for(var i=0; i<checkboxNum; i++) {
+            if (!visible.includes(checkboxes[i].id)) {
+                checkboxes[i].style.display = "none";
+                checkboxes[i].labels[0].style.display = "none";
+            }
+        }
     });
 });
