@@ -11,8 +11,6 @@
     <link href="{% static 'annotate/annotate.css' %}" rel="stylesheet" />
     <link rel="shortcut icon" type="image/png" href="{% static 'annotate/favicon.ico' %}" />
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script>
         var dict = {};
         "{% for key, value in dict.items %}"
@@ -24,13 +22,13 @@
 
 <body>
     <nav>
-        <div class="nav-wrapper" style="background-color:#333;">
+        <div class="nav-wrapper" style="background-color:#333; box-shadow: 0px 0px 8px 0px #111;">
             <a href="/" class="brand-logo" style="margin-left:2%;  font-family: 'Nunito'; font-weight:bold;">markup</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down"
                 style="margin-right:2%;  font-family: 'Nunito'; color:#33FFB5; font-weight:bold;">
-                <li><a href="sass.html">Documentation</a></li>
-                <li><a href="badges.html">FAQ</a></li>
-                <li><a href="collapsible.html">Contact</a></li>
+                <li><a href="#">Getting Started</a></li>
+                <li><a href="#">FAQ</a></li>
+                <li><a target="_blank" href="https://github.com/samueldobbie/markup">Github</a></li>
             </ul>
         </div>
     </nav>

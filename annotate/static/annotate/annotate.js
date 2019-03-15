@@ -54,6 +54,23 @@ $(document).ready(function () {
         var rel_hover_info = [];
         var eve_hover_info = [];
 
+        // Get chosen option from dropdown and ignore if default selected or no matches found
+        var suggestionList = document.getElementById('matchList');
+        var option = suggestionList.options[suggestionList.selectedIndex].text;
+        var optionWords = option.split(' ');
+
+        if ((optionWords[optionWords.length - 2] == 'matches' && optionWords[optionWords.length - 1] == 'found') || option == 'No match') {
+            option = '';
+        } else {
+            var annotationData = 'Test1' + '\t' + option + " " + startIndex + " " + endIndex + "\t" + highlighted + '\n';
+
+            $.ajax({
+                type: "GET",
+                url: "~/write_match_to_ann",
+                data: {annotations: annotationData, match: option, ann_filename: dict['ann_filename'] }
+            });
+        }
+
         // Format annotation(s) to be in stand-off format
         var annotation = [];
         for (k in dict) {
@@ -227,6 +244,7 @@ $(document).ready(function () {
 
     });
 
+    // Suggest most relevant UMLS matches based on highlighted term 
     $('#file_data').mouseup(function () {
         var term = window.getSelection().toString();
 
@@ -240,11 +258,18 @@ $(document).ready(function () {
             if (data != '') {
                 var arr = data.split(',');
                 var matchList = document.getElementById('matchList');
+                var count = 0;
+                var newOption = document.createElement("option");
+                newOption.text = '';
+                matchList.add(newOption);
                 for (var i=0; i < arr.length; i++) {
-                    var option = document.createElement("option");
-                    option.text = arr[i];
-                    matchList.add(option);
+                    newOption = document.createElement("option");
+                    newOption.text = arr[i];
+                    matchList.add(newOption);
+                    count = i;
                 }
+                count++;
+                matchList.childNodes[0].nextElementSibling.text = count + " matches found";
             }
 
             if (document.getElementById('matchList').options.length == 0) {
