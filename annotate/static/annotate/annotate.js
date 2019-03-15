@@ -244,6 +244,7 @@ $(document).ready(function () {
 
     });
 
+
     // Suggest most relevant UMLS matches based on highlighted term 
     $('#file_data').mouseup(function () {
         var term = window.getSelection().toString();
@@ -279,5 +280,23 @@ $(document).ready(function () {
                 matchList.add(option);
             }
         });
+    });
+
+    
+    // Dynamic entity / attribute configurations
+    var conditionalSelectionBoxes = JSON.parse(dict['args'].replace(/&#39;/gi, '"'));
+    $("input[type=radio]").click(function () {
+        // Get selected radiobutton id
+        var selected = $(this).context.id;
+
+        // Disable all checkboxes
+        $("input[type=checkbox]").prop('disabled', true);
+        
+        // Re-enable valid checkboxes
+        for(var i=0; i<conditionalSelectionBoxes.length; i++) {
+            if (conditionalSelectionBoxes[i][1] == selected) {
+                $('#' + conditionalSelectionBoxes[i][0]).prop('disabled', false);
+            }
+        };
     });
 });

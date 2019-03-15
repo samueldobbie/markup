@@ -14,7 +14,7 @@
     <script>
         var dict = {};
         "{% for key, value in dict.items %}"
-        dict["{{ key }}"] = `{{ value }}`;
+            dict["{{ key }}"] = `{{ value }}`;
         "{% endfor %}"
     </script>
     <script src="{% static 'annotate/annotate.js' %}"></script>
@@ -37,24 +37,24 @@
         <div id="config_data" class="item item-1 standard-text">
             <div id="config_data_options">
                 {% for key, value in dict.items %}
-                {% if key != "file_data" and key != "ann_filename" %}
-                <b>{{ key }}</b>
-                <br>
-                {% if key == "attributes" %}
-                {% for val in value %}
-                <input type="checkbox" id="{{ val }}" name="{{ key }}" value="{{ val }}">
-                <label for="{{ val }}">{{ val }}</label>
-                <br>
-                {% endfor %}
-                {% else %}
-                {% for val in value %}
-                <input type="radio" id="{{ val }}" name="{{ key }}" value="{{ val }}">
-                <label for="{{ val }}">{{ val }}</label>
-                <br>
-                {% endfor %}
-                {% endif %}
-                <br>
-                {% endif %}
+                    {% if key != "file_data" and key != "ann_filename" and key != "args" %}
+                        <b>{{ key }}</b>
+                        <br>
+                        {% if key == "attributes" %}
+                            {% for val in value %}
+                                <input type="checkbox" id="{{ val }}" name="{{ key }}" value="{{ val }}">
+                                <label for="{{ val }}">{{ val }}</label>
+                                <br>
+                            {% endfor %}
+                        {% else %}
+                            {% for val in value %}
+                                <input type="radio" id="{{ val }}" name="{{ key }}" value="{{ val }}">
+                                <label for="{{ val }}">{{ val }}</label>
+                                <br>
+                            {% endfor %}
+                        {% endif %}
+                        <br>
+                    {% endif %}
                 {% endfor %}
             </div>
 
