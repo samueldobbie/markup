@@ -514,5 +514,16 @@ $(document).ready(function () {
             }
         }
     });
+
+    $('#nextFile').click(function () {
+        $.ajax({
+            type: 'GET',
+            async: false,
+            url: '~/move_to_next_file',
+            success: function(data) {
+                window.location.href = data;
+            }
+        });
+    });
 });
 

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+    {% load staticfiles %}
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <meta http-equiv='X-UA-Compatible' content='ie=edge'>
+    <title>Annotate - Markup</title>
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,700" rel="stylesheet" />
+    <link href="{% static 'annotate/annotate.css' %}" rel="stylesheet" />
+    <link rel="shortcut icon" type="image/png" href="{% static 'annotate/favicon.ico' %}" />
+</head>
+
+<body>
+    <nav>
+        <div class="nav-wrapper" style="background-color:#333; box-shadow: 0px 0px 8px 0px #111;">
+            <a href="/" class="brand-logo" style="margin-left:2%;  font-family: 'Nunito'; font-weight:bold;">markup</a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down"
+                style="margin-right:2%;  font-family: 'Nunito'; color:#33FFB5; font-weight:bold;">
+                <li><a href="#">Getting Started</a></li>
+                <li><a href="#">FAQ</a></li>
+                <li><a target="_blank" href="https://github.com/samueldobbie/markup">Github</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div style="text-align: center; margin-top:15%;">
+        <div class="standard-text" style="font-size:25px;">
+            <p>All done - you annotated {{ count }}! Go and enjoy a coffee.</p>
+        </div>
+    </div>
+</body>
+
+</html>

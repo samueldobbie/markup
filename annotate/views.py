@@ -2,16 +2,28 @@ from simstring.feature_extractor.character_ngram import CharacterNgramFeatureExt
 from simstring.measure.cosine import CosineMeasure
 from simstring.searcher import Searcher
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 import pickle
 import json
 import os
 
+all_files = []
+all_files_count = 1
 def annotate_data(request, data_file_path):
-    data = dict()
-
     os.chdir('/')
 
+    global all_files_count
+    if os.path.isdir(data_file_path):
+        for afile in os.listdir(data_file_path):
+            if afile.endswith('.txt'):
+                all_files.append(os.path.join(data_file_path, afile))
+                all_files_count += 1
+        if len(all_files) > 0:
+            data_file_path = all_files[0]
+            del all_files[0]
+            return redirect('/annotate/' + data_file_path)
+
+    data = dict()
     data['file_data'] = open(data_file_path, encoding='utf8').read()
 
     config_file_path = os.path.dirname(data_file_path) + '/annotation.conf'
@@ -62,6 +74,25 @@ def annotate_data(request, data_file_path):
     context['dict'] = data
 
     return render(request, 'annotate/annotate.html', context)
+
+
+def move_to_next_file(request, data_file_path):
+    if len(all_files) > 0:
+        data_file_path = all_files[0]
+        del all_files[0]
+        return HttpResponse('/annotate/' + data_file_path)
+    else:
+        return HttpResponse('/finished/')  
+
+
+def finished(request):
+    global all_files_count
+    doc_no = ''
+    if all_files_count == 1:
+        doc_no = '1 document'
+    else:
+        doc_no = str(all_files_count - 1) + ' documents'
+    return render(request, 'annotate/finished.html', {'count': doc_no})
 
 
 def get_file_lines(file_path):
