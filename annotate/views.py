@@ -61,8 +61,6 @@ def annotate_data(request, data_file_path):
     context = dict()
     context['dict'] = data
 
-    print(context)
-
     return render(request, 'annotate/annotate.html', context)
 
 
@@ -72,14 +70,9 @@ def get_file_lines(file_path):
 
 
 def write_match_to_ann(request, data_file_path):
-    annotations = request.GET['annotations']
     match = request.GET['match']
     cui = cui_lookup_table[match]
-    annotations += ' ' + cui
-    ann_filename = request.GET['ann_filename']
-    with open(os.path.dirname(data_file_path) + '/' + ann_filename, 'a') as f:
-        f.write(annotations)
-    return HttpResponse(None)
+    return HttpResponse(json.dumps(cui))
 
 
 def write_to_ann(request, data_file_path):
@@ -97,6 +90,7 @@ def remove_ann_file(request, data_file_path):
     file_path = os.path.dirname(data_file_path) + '/' + ann_filename
     if os.path.exists(file_path):
         os.remove(file_path)
+    return HttpResponse(None)
 
 
 def suggest_cui(request, data_file_path):
@@ -111,7 +105,6 @@ def suggest_cui(request, data_file_path):
 
     return HttpResponse(output)
 
-'''
 with open("database_2char_plus_cuis.pickle", "rb") as input_file:
     db = pickle.load(input_file)
 
@@ -119,4 +112,4 @@ with open("cui_lookup_table_plus_cuis.pickle", "rb") as input_file:
     cui_lookup_table = pickle.load(input_file)
 
 searcher = Searcher(db, CosineMeasure())
-'''
+
