@@ -1,6 +1,10 @@
 
 $(document).ready(function () {
 
+    var allAnnotations = [];
+    var offsets = [];
+
+    // Hide all attributes until entity is selected
     var checkboxes = $("input[type=checkbox]");
     var checkboxNum = checkboxes.length;
     for(var i=0; i<checkboxNum; i++) {
@@ -8,8 +12,7 @@ $(document).ready(function () {
         checkboxes[i].labels[0].style.display = "none";
     }
 
-    var allAnnotations = [];
-    var offsets = [];
+
     var entityId = 1;
     var attributeId = 1;
     $('#addAnnotation').click(function () {
@@ -67,42 +70,6 @@ $(document).ready(function () {
             });
         }
 
-        /*
-        // Format annotation(s) to be in stand-off format
-        var entityHoverInfo = [];
-        var attributeHoverInfo = [];
-        var annotation = [];
-        for (k in dict) {
-            if (k != 'file_data' && k != 'ann_filename' && k != 'args') {
-                if (document.querySelector('input[name=' + k + ']:checked') != null) {
-                    var annotationValue = document.querySelector('input[name=' + k + ']:checked').value;
-                    var id = '';
-                    if (k == 'entities') {
-                        id = 'T' + entityId;
-                        entityHoverInfo.push(annotationValue);
-                        annotationData = id + '\t' + annotationValue + " " + startIndex + " " + endIndex + "\t" + highlighted + '\n';
-                        entityId++;
-                    } else if (k == 'attributes') {
-                        id = 'A' + attributeId;
-                        attributeHoverInfo.push(annotationValue);
-                        annotationData = id + '\t' + annotationValue + ' T' + (entityId - 1) + '\n';
-                        attributeId++;
-                    } else {
-                        continue;
-                    }
-
-                    // Save annotations to .ann file
-                    $.ajax({
-                        type: 'GET',
-                        url: '~/write_to_ann',
-                        data: {annotations: annotationData, ann_filename: dict['ann_filename'] }
-                    });
-                    annotation.push([annotationData]);
-                }
-            }
-        }
-        */
-
         // Output annotation in stand-off format
         var annotation = [];
         var entityHoverInfo = [];
@@ -114,7 +81,7 @@ $(document).ready(function () {
         entityId++;
 
         annotation.push([entityData]);
-        writeToAnn(entityData);
+        //writeToAnn(entityData);
 
         var attributeValues = [];
         var attributeData = [];
@@ -127,16 +94,14 @@ $(document).ready(function () {
 
         for (var i=0; i<attributeData.length; i++) {
             annotation.push([attributeData[i]]);
-            writeToAnn(attributeData[i]);
+            //writeToAnn(attributeData[i]);
         }        
 
         // Keep track of offets for each annotation
         offsets.push([startIndex, endIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
 
-        // Add annotaion to current-annotataion list
+        // Add annotations to current-annotation list
         allAnnotations.push(annotation);
-
-        console.log(allAnnotations);
 
         // Add annotation to annotaion_data display
         var annotationClass = 'class="test"';
@@ -151,6 +116,8 @@ $(document).ready(function () {
 
         // Removes selection of newly-annotated text
         window.getSelection().removeAllRanges();
+
+        writeToAnn();
     });
 
 
@@ -170,6 +137,8 @@ $(document).ready(function () {
                 allAnnotations.splice(i, 1);
                 offsets.splice(i, 1);
 
+                writeToAnn();
+
                 // Removes annotation from annotation_data display
                 var elem = document.getElementById(id);
                 elem.parentElement.removeChild(elem);
@@ -180,17 +149,33 @@ $(document).ready(function () {
     });
 
 
-    // Save annotations to .ann file
-    function writeToAnn(data) {
+    function removeAnnFile() {
         $.ajax({
             type: 'GET',
-            url: '~/write_to_ann',
-            data: {annotations: data, ann_filename: dict['ann_filename'] }
+            url: '~/remove_ann_file',
+            data: {ann_filename: dict['ann_filename'] }
         });
     }
 
 
-    // Display information about annotation on hover
+    // Save annotations to .ann file
+    function writeToAnn() {
+        removeAnnFile();
+        console.log(allAnnotations);
+        for(var i=0; i<allAnnotations.length; i++) {
+            for(var j=0; j<allAnnotations[i].length; j++) {
+                $.ajax({
+                    type: 'GET',
+                    async: false,
+                    url: '~/write_to_ann',
+                    data: {annotations: allAnnotations[i][j][0], ann_filename: dict['ann_filename'] }
+                });
+            }
+        }
+    }
+
+
+    // Display information about chosen annotation on hover
     function hoverInfo(id, type) {
         var indicies = id.split("_");
         var startIndex = indicies[0];
@@ -332,3 +317,39 @@ $(document).ready(function () {
         }
     });
 });
+
+        /*
+        // Format annotation(s) to be in stand-off format
+        var entityHoverInfo = [];
+        var attributeHoverInfo = [];
+        var annotation = [];
+        for (k in dict) {
+            if (k != 'file_data' && k != 'ann_filename' && k != 'args') {
+                if (document.querySelector('input[name=' + k + ']:checked') != null) {
+                    var annotationValue = document.querySelector('input[name=' + k + ']:checked').value;
+                    var id = '';
+                    if (k == 'entities') {
+                        id = 'T' + entityId;
+                        entityHoverInfo.push(annotationValue);
+                        annotationData = id + '\t' + annotationValue + " " + startIndex + " " + endIndex + "\t" + highlighted + '\n';
+                        entityId++;
+                    } else if (k == 'attributes') {
+                        id = 'A' + attributeId;
+                        attributeHoverInfo.push(annotationValue);
+                        annotationData = id + '\t' + annotationValue + ' T' + (entityId - 1) + '\n';
+                        attributeId++;
+                    } else {
+                        continue;
+                    }
+
+                    // Save annotations to .ann file
+                    $.ajax({
+                        type: 'GET',
+                        url: '~/write_to_ann',
+                        data: {annotations: annotationData, ann_filename: dict['ann_filename'] }
+                    });
+                    annotation.push([annotationData]);
+                }
+            }
+        }
+        */

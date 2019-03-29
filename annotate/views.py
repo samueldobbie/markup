@@ -85,9 +85,18 @@ def write_match_to_ann(request, data_file_path):
 def write_to_ann(request, data_file_path):
     annotations = request.GET['annotations']
     ann_filename = request.GET['ann_filename']
-    with open(os.path.dirname(data_file_path) + '/' + ann_filename, 'a') as f:
+
+    file_path = os.path.dirname(data_file_path) + '/' + ann_filename
+    with open(file_path, 'a') as f:
         f.write(annotations)
     return HttpResponse(None)
+
+
+def remove_ann_file(request, data_file_path):
+    ann_filename = request.GET['ann_filename']
+    file_path = os.path.dirname(data_file_path) + '/' + ann_filename
+    if os.path.exists(file_path):
+        os.remove(file_path)
 
 
 def suggest_cui(request, data_file_path):
