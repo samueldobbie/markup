@@ -401,7 +401,7 @@ $(document).ready(function () {
     });
 
 
-    // Sets inital color mode based on users preference (light vs. dark mode)
+    // Sets inital color mode based on users stored preference (light or dark mode)
     function initializeColor(type) {
         var backgroundColor = '';
         var textColor = '';
@@ -416,7 +416,6 @@ $(document).ready(function () {
             textColor = 'black';
         }
 
-        // To-do: Deal with text coloring issue when annotating then switching
         $('body').css({
             "background-color": backgroundColor,
             "color" : textColor
@@ -424,30 +423,25 @@ $(document).ready(function () {
     }
 
 
-    // Allows users to switch to dark mode
+    // Allows users to switch between to light and dark mode
     $('#darkMode').click(function () {
-        var backgroundColor = '';
-        var textColor = '';
-
         if (!darkMode) {
             localStorage.setItem("mode", "dark");
             document.getElementById('darkMode').innerHTML = 'Light Mode';
-            backgroundColor = '#333';
-            textColor = 'rgb(210, 210, 210)';
+            document.getElementById('file_data').style.color = 'rgb(210, 210, 210)';
+            document.getElementById('config_data_options').style.color = 'white';
+            document.getElementById('annotation_data').style.color = 'black';
+            document.getElementsByTagName('body')[0].style.backgroundColor = '#333';
             darkMode = true;
         } else {
             localStorage.setItem("mode", "light");
             document.getElementById('darkMode').innerHTML = 'Dark Mode';
-            backgroundColor = 'white';
-            textColor = 'black';
+            document.getElementById('file_data').style.color = 'black';
+            document.getElementById('config_data_options').style.color = 'black';
+            document.getElementById('annotation_data').style.color = 'black';
+            document.getElementsByTagName('body')[0].style.backgroundColor = 'white';
             darkMode = false;
         }
-
-        // To-do: Deal with text coloring issue when annotating then switching
-        $('body').css({
-            "background-color": backgroundColor,
-            "color" : textColor
-        });
     });
 
 
