@@ -3,6 +3,8 @@ $(document).ready(function () {
 
     var allAnnotations = [];
     var offsets = [];
+    var entityId = 1;
+    var attributeId = 1;
 
     // Hide all attributes until an entity is selected
     var checkboxes = $("input[type=checkbox]");
@@ -12,6 +14,15 @@ $(document).ready(function () {
         checkboxes[i].labels[0].style.display = "none";
     }
 
+    // Checks if user has preset preference for color mode
+    var darkMode;
+    if (localStorage.getItem("mode") == "dark") {
+        initializeColor("dark");
+        darkMode = true;
+    } else {
+        initializeColor("light");
+        darkMode = false;
+    }
     
     // Load annotations if there's an existing ann file
     $.ajax({
@@ -20,6 +31,11 @@ $(document).ready(function () {
         async: false,
         data: { ann_filename: dict['ann_filename'] },
         success: function (response) {
+
+            response = JSON.parse(response);
+            if (response == null || response.length == 0) {
+                return;
+            }
 
             function getTextNodesIn(node) {
                 var textNodes = [];
@@ -67,63 +83,108 @@ $(document).ready(function () {
                     textRange.select();
                 }
             }
-            
-            function makeEditableAndHighlight(colour) {
-                sel = window.getSelection();
-                if (sel.rangeCount && sel.getRangeAt) {
-                    range = sel.getRangeAt(0);
-                }
-                document.designMode = "on";
-                if (range) {
-                    sel.removeAllRanges();
-                    sel.addRange(range);
-                }
-                // Use HiliteColor since some browsers apply BackColor to the whole block
-                if (!document.execCommand("HiliteColor", false, colour)) {
-                    document.execCommand("BackColor", false, colour);
-                }
-                document.designMode = "off";
+
+            function selectAndHighlightRange(entityValue, attributeValues, start, end) {
+                setSelectionRange(document.getElementById('file_data'), start, end);
+                abc(entityValue, attributeValues, start, end);
             }
 
-            function highlight(colour) {
-                var range, sel;
-                if (window.getSelection) {
-                    // IE9 and non-IE
-                    try {
-                        if (!document.execCommand("BackColor", false, colour)) {
-                            makeEditableAndHighlight(colour);
+            annotation = [];
+            for (var i=0; i<response.length; i++) {
+                if (response[i][0] == "T" && annotation.length != 0) {
+                    allAnnotations.push(annotation);
+                    annotation = [];
+                    annotation.push([response[i] + '\n']);
+                } else if (response[i][0] == "T") {
+                    annotation.push([response[i] + '\n']);
+                } else if (response[i][0] == "A") {
+                    annotation.push([response[i] + '\n']);
+                }
+            }
+            allAnnotations.push(annotation);
+
+            for (var i=0; i<allAnnotations.length; i++) {
+                var attributeValues = [];
+                var entityValue = '';
+                var start = 0;
+                var end = 0;
+                for (var j=0; j< allAnnotations[i].length; j++) {
+                    var annotationWords = allAnnotations[i][j][0].split("\t");
+                    var data = annotationWords[1].split(" ");
+
+                    if (annotationWords[0][0] == "T") {
+                        // only parses a single digit right now
+                        var annotationId = parseInt(annotationWords[0][1]);
+                        console.log(annotationId);
+                        if (annotationId > entityId) {
+                            entityId = annotationId
                         }
-                    } catch (ex) {
-                        makeEditableAndHighlight(colour)
+
+                        entityValue = data[0];
+                        start = data[1];
+                        end = data[2];
                     }
-                } else if (document.selection && document.selection.createRange) {
-                    // IE <= 8 case
-                    range = document.selection.createRange();
-                    range.execCommand("BackColor", false, colour);
+
+                    if (annotationWords[0][0] == "A") {
+                        // only parses a single digit right now
+                        var annotationId = parseInt(annotationWords[0][1]);
+                        console.log(annotationId);
+                        if (annotationId > attributeId) {
+                            attributeId = annotationId
+                        }
+
+                        attributeValues.push([data[0]]);
+                    }
                 }
+                selectAndHighlightRange(entityValue, attributeValues, start, end);
             }
-            
-            function selectAndHighlightRange(id, start, end) {
-                setSelectionRange(document.getElementById(id), start, end);
-                highlight("#33FFB5");
-            }
-            
-            var existingAnnotations = JSON.parse(response);
-            for (var i=0; i<existingAnnotations.length; i++) {
-                var existingAnnotationsWords = existingAnnotations[i].split('\t');
-                if (existingAnnotationsWords[0][0] == "T") {
-                    var start = existingAnnotationsWords[1].split(" ")[1];
-                    var end = existingAnnotationsWords[1].split(" ")[2];
-                    selectAndHighlightRange('file_data', start, end);
-                }
-            }
+            entityId++;
+            attributeId++;
             window.getSelection().removeAllRanges();
         }
     });
 
 
-    var entityId = 1;
-    var attributeId = 1;
+    function abc(entityValue, attributeValues, startIndex, endIndex) {
+        var highlighted = window.getSelection().toString();
+
+        // Change annotation color if there's an overlap between two annotations
+        highlightColor = '#33FFB5';
+
+        // Color-highlight selected text
+        document.getElementById('file_data').contentEditable = 'true';
+        document.execCommand('insertHTML', false, '<span id="' + startIndex + '_' + endIndex + '_aid" style="background-color:' + highlightColor + '; color:black;">' + highlighted + '</span>');
+        document.getElementById('file_data').contentEditable = 'false';
+
+        var entityHoverInfo = [];
+        var attributeHoverInfo = [];
+
+        // Add entity data to annotation list and hover info
+        if (entityValue != null) {
+            entityHoverInfo.push(entityValue);
+        }
+
+        // Prepare attribute data to annotation list and add hover info
+        if (attributeValues != null) {
+            attributeHoverInfo.push(attributeValues);
+        }
+
+        // Keep track of offets for each annotation
+        offsets.push([startIndex, endIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
+
+        // Add annotation to annotaion_data display
+        var annotationClass = 'class="test"';
+        var annotationId = 'id="' + startIndex + '_' + endIndex + '"';
+        var annotationStyle = 'style="border-radius:5px; background-color:#33FFB5; font-family:\'Nunito\'; padding:10px; border:2px solid #333; display:inline-block; clear:both; float:left; '
+        if (darkMode) {
+            annotationStyle += 'color:black;"';
+        } else {
+            annotationStyle += '"'
+        }
+        document.getElementById('annotation_data').innerHTML += '<p ' + annotationClass + ' ' + annotationId + ' ' + annotationStyle + '>' + highlighted + '</p>';
+    };
+
+
     $('#addAnnotation').click(function () {
         var highlighted = window.getSelection().toString();
         
@@ -211,7 +272,7 @@ $(document).ready(function () {
             });
         }
 
-        // Add attributes to annotaiton list
+        // Add attributes to annotation list
         for (var i=0; i<attributeData.length; i++) {
             annotation.push([attributeData[i]]);
         }
@@ -340,15 +401,6 @@ $(document).ready(function () {
     });
 
 
-    // Checks if user has preset preference for color mode
-    var darkMode;
-    if (localStorage.getItem("mode") == "dark") {
-        initializeColor("dark");
-        darkMode = true;
-    } else {
-        initializeColor("light");
-        darkMode = false;
-    }
     // Sets inital color mode based on users preference (light vs. dark mode)
     function initializeColor(type) {
         var backgroundColor = '';
