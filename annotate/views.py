@@ -69,7 +69,7 @@ def get_file_lines(file_path):
         return f.readlines()
 
 
-def write_match_to_ann(request, data_file_path):
+def get_cui(request, data_file_path):
     match = request.GET['match']
     cui = cui_lookup_table[match]
     return HttpResponse(json.dumps(cui))
@@ -105,6 +105,21 @@ def suggest_cui(request, data_file_path):
 
     return HttpResponse(output)
 
+
+def load_existing(request, data_file_path):
+    ann_filename = request.GET['ann_filename']
+    file_path = os.path.dirname(data_file_path) + '/' + ann_filename
+
+    if os.path.exists(file_path):
+        annotations = []
+        for i in open(file_path, 'r').read().split('\n'):
+            if i is not "":
+                annotations.append(i)
+        return HttpResponse(json.dumps(annotations))
+    else:
+        return HttpResponse(json.dumps(None))
+
+'''
 with open("database_2char_plus_cuis.pickle", "rb") as input_file:
     db = pickle.load(input_file)
 
@@ -112,4 +127,5 @@ with open("cui_lookup_table_plus_cuis.pickle", "rb") as input_file:
     cui_lookup_table = pickle.load(input_file)
 
 searcher = Searcher(db, CosineMeasure())
+'''
 

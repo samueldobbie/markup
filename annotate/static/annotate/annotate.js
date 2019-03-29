@@ -2,16 +2,124 @@
 $(document).ready(function () {
 
     var allAnnotations = [];
-    var allMatches = [];
     var offsets = [];
 
-    // Hide all attributes until entity is selected
+    // Hide all attributes until an entity is selected
     var checkboxes = $("input[type=checkbox]");
     var checkboxNum = checkboxes.length;
     for(var i=0; i<checkboxNum; i++) {
         checkboxes[i].style.display = "none";
         checkboxes[i].labels[0].style.display = "none";
     }
+
+    
+    // Load annotations if there's an existing ann file
+    $.ajax({
+        type: "GET",
+        url: "~/load_existing",
+        async: false,
+        data: { ann_filename: dict['ann_filename'] },
+        success: function (response) {
+
+            function getTextNodesIn(node) {
+                var textNodes = [];
+                if (node.nodeType == 3) {
+                    textNodes.push(node);
+                } else {
+                    var children = node.childNodes;
+                    for (var i = 0, len = children.length; i < len; ++i) {
+                        textNodes.push.apply(textNodes, getTextNodesIn(children[i]));
+                    }
+                }
+                return textNodes;
+            }
+            
+            function setSelectionRange(el, start, end) {
+                if (document.createRange && window.getSelection) {
+                    var range = document.createRange();
+                    range.selectNodeContents(el);
+                    var textNodes = getTextNodesIn(el);
+                    var foundStart = false;
+                    var charCount = 0, endCharCount;
+            
+                    for (var i = 0, textNode; textNode = textNodes[i++]; ) {
+                        endCharCount = charCount + textNode.length;
+                        if (!foundStart && start >= charCount && (start < endCharCount || (start == endCharCount && i <= textNodes.length))) {
+                            range.setStart(textNode, start - charCount);
+                            foundStart = true;
+                        }
+                        if (foundStart && end <= endCharCount) {
+                            range.setEnd(textNode, end - charCount);
+                            break;
+                        }
+                        charCount = endCharCount;
+                    }
+            
+                    var sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                } else if (document.selection && document.body.createTextRange) {
+                    var textRange = document.body.createTextRange();
+                    textRange.moveToElementText(el);
+                    textRange.collapse(true);
+                    textRange.moveEnd("character", end);
+                    textRange.moveStart("character", start);
+                    textRange.select();
+                }
+            }
+            
+            function makeEditableAndHighlight(colour) {
+                sel = window.getSelection();
+                if (sel.rangeCount && sel.getRangeAt) {
+                    range = sel.getRangeAt(0);
+                }
+                document.designMode = "on";
+                if (range) {
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+                // Use HiliteColor since some browsers apply BackColor to the whole block
+                if (!document.execCommand("HiliteColor", false, colour)) {
+                    document.execCommand("BackColor", false, colour);
+                }
+                document.designMode = "off";
+            }
+
+            function highlight(colour) {
+                var range, sel;
+                if (window.getSelection) {
+                    // IE9 and non-IE
+                    try {
+                        if (!document.execCommand("BackColor", false, colour)) {
+                            makeEditableAndHighlight(colour);
+                        }
+                    } catch (ex) {
+                        makeEditableAndHighlight(colour)
+                    }
+                } else if (document.selection && document.selection.createRange) {
+                    // IE <= 8 case
+                    range = document.selection.createRange();
+                    range.execCommand("BackColor", false, colour);
+                }
+            }
+            
+            function selectAndHighlightRange(id, start, end) {
+                setSelectionRange(document.getElementById(id), start, end);
+                highlight("#33FFB5");
+            }
+            
+            var existingAnnotations = JSON.parse(response);
+            for (var i=0; i<existingAnnotations.length; i++) {
+                var existingAnnotationsWords = existingAnnotations[i].split('\t');
+                if (existingAnnotationsWords[0][0] == "T") {
+                    var start = existingAnnotationsWords[1].split(" ")[1];
+                    var end = existingAnnotationsWords[1].split(" ")[2];
+                    selectAndHighlightRange('file_data', start, end);
+                }
+            }
+            window.getSelection().removeAllRanges();
+        }
+    });
 
 
     var entityId = 1;
@@ -88,7 +196,7 @@ $(document).ready(function () {
         if (!((optionWords[optionWords.length - 2] == 'matches' && optionWords[optionWords.length - 1] == 'found') || option == 'No match')) {
             $.ajax({
                 type: "GET",
-                url: "~/write_match_to_ann",
+                url: "~/get_cui",
                 async: false,
                 data: { match: option },
                 success: function (response) {
@@ -160,12 +268,13 @@ $(document).ready(function () {
     });
 
 
+    // Remove annotate file in order to update with newest annotations (To-do: update existing ann file without removal)
     function removeAnnFile() {
         $.ajax({
             type: 'GET',
             async: false,
             url: '~/remove_ann_file',
-            data: {ann_filename: dict['ann_filename'] }
+            data: { ann_filename: dict['ann_filename'] }
         });
     }
 
@@ -231,6 +340,7 @@ $(document).ready(function () {
     });
 
 
+    // Checks if user has preset preference for color mode
     var darkMode;
     if (localStorage.getItem("mode") == "dark") {
         initializeColor("dark");
