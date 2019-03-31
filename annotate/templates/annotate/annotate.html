@@ -37,7 +37,7 @@
         <div id="config_data" class="item item-1 standard-text">
             <div id="config_data_options">
                 {% for key, value in dict.items %}
-                    {% if key != "file_data" and key != "ann_filename" and key != "args" %}
+                    {% if key != "file_data" and key != "ann_filename" and key != "args" and key != "vals" %}
                         <b>{{ key }}</b>
                         <br>
                         {% if key == "attributes" %}
@@ -46,6 +46,21 @@
                                     <input type="checkbox" id="{{ val }}" name="{{ key }}" value="{{ val }}">
                                     <label for="{{ val }}">{{ val }}</label>
                                 </p>
+                            {% endfor %}
+                            {% for k, v in dict.items %}
+                                {% if k == "vals" %}
+                                    {% for dropdown in v %}
+                                        <p style="margin:0; padding:0;">
+                                            <select id="{{ dropdown.1 }}" name="values" class="drop-down" style="padding:5px">
+                                                {% for option in dropdown|slice:"1:" %}
+                                                    <option value="{{ option }}">
+                                                        {{ option }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </p>
+                                    {% endfor %}
+                                {% endif %}
                             {% endfor %}
                         {% else %}
                             {% for val in value %}
@@ -70,10 +85,6 @@
             <br>
             <button id="nextFile" class="btn">Move To Next File</button>
             <br>
-            <!--
-                <button id="clearSelections" class="btn">Clear</button>
-                <br>
-            -->
         </div>
 
         <div id="file_data" class="item item-2 standard-text">{{dict.file_data}}</div>

@@ -14,6 +14,12 @@ $(document).ready(function () {
         checkboxes[i].labels[0].style.display = "none";
     }
 
+    var dropdowns = $("select[name=values]");
+    var dropdownsNum = dropdowns.length;
+    for(var i=0; i<dropdownsNum; i++) {
+        dropdowns[i].style.display = "none";
+    }
+
     // Checks if user has preset preference for color mode
     var darkMode;
     if (localStorage.getItem("mode") == "dark") {
@@ -396,9 +402,9 @@ $(document).ready(function () {
 
 
     // Prevent deselection of text when selecting configuration
-    $('#config_data_options').mousedown(function() {
+    /*$('#config_data_options').mousedown(function() {
         return false;
-    });
+    });*/
 
 
     // Sets inital color mode based on users stored preference (light or dark mode)
@@ -485,11 +491,10 @@ $(document).ready(function () {
     
     // Dynamic entity / attribute configurations
     var conditionalSelectionBoxes = JSON.parse(dict['args'].replace(/&#39;/gi, '"'));
+    var conditionalSelectionBoxes2 = JSON.parse(dict['vals'].replace(/&#39;/gi, '"'));
     $("input[type=radio]").click(function () {
         // Get selected radiobutton id
         var selected = $(this).context.id;
-        var checkboxes = $("input[type=checkbox]");
-        var checkboxNum = checkboxes.length;
 
         // Deselect all checkboxes and remove hiding of all attributes
         for(var i=0; i<checkboxNum; i++) {
@@ -498,19 +503,38 @@ $(document).ready(function () {
             checkboxes[i].labels[0].style.display = "";
         }
 
+        for(var i=0; i<dropdownsNum; i++) {
+            dropdowns[i].style.display = "";
+        }
+
         // Determine which attributes should be displayed
-        var visible = [];
+        var visibleCheckboxes = [];
         for(var i=0; i<conditionalSelectionBoxes.length; i++) {
             if (conditionalSelectionBoxes[i][1] == selected) {
-                visible.push(conditionalSelectionBoxes[i][0]);
+                console.log(conditionalSelectionBoxes[i][0])
+                visibleCheckboxes.push(conditionalSelectionBoxes[i][0]);
+            }
+        }
+
+        var visibleDropdowns = [];
+        for(var i=0; i<conditionalSelectionBoxes2.length; i++) {
+            if (conditionalSelectionBoxes2[i][0] == selected) {
+                visibleDropdowns.push(conditionalSelectionBoxes2[i][1]);
             }
         }
 
         // Hide all unwanted attributes
         for(var i=0; i<checkboxNum; i++) {
-            if (!visible.includes(checkboxes[i].id)) {
+            if (!visibleCheckboxes.includes(checkboxes[i].id)) {
                 checkboxes[i].style.display = "none";
                 checkboxes[i].labels[0].style.display = "none";
+            }
+        }
+
+        // Hide all unwanted attributes
+        for(var i=0; i<dropdownsNum; i++) {
+            if (!visibleDropdowns.includes(dropdowns[i].id)) {
+                dropdowns[i].style.display = "none";
             }
         }
     });
