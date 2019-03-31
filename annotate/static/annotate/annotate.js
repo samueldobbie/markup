@@ -511,7 +511,6 @@ $(document).ready(function () {
         var visibleCheckboxes = [];
         for(var i=0; i<conditionalSelectionBoxes.length; i++) {
             if (conditionalSelectionBoxes[i][1] == selected) {
-                console.log(conditionalSelectionBoxes[i][0])
                 visibleCheckboxes.push(conditionalSelectionBoxes[i][0]);
             }
         }
@@ -519,7 +518,7 @@ $(document).ready(function () {
         var visibleDropdowns = [];
         for(var i=0; i<conditionalSelectionBoxes2.length; i++) {
             if (conditionalSelectionBoxes2[i][0] == selected) {
-                visibleDropdowns.push(conditionalSelectionBoxes2[i][1]);
+                visibleDropdowns.push(conditionalSelectionBoxes2[i][1] + conditionalSelectionBoxes2[i][0]);
             }
         }
 
@@ -537,6 +536,8 @@ $(document).ready(function () {
                 dropdowns[i].style.display = "none";
             }
         }
+
+        // To-do: clean up above & deal with duplicate conf file entries
     });
 
     $('#nextFile').click(function () {

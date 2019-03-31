@@ -51,7 +51,7 @@
                                 {% if k == "vals" %}
                                     {% for dropdown in v %}
                                         <p style="margin:0; padding:0;">
-                                            <select id="{{ dropdown.1 }}" name="values" class="drop-down" style="padding:5px">
+                                            <select id="{{ dropdown.1|add:dropdown.0 }}" name="values" class="drop-down" style="padding:5px">
                                                 {% for option in dropdown|slice:"1:" %}
                                                     <option value="{{ option }}">
                                                         {{ option }}
