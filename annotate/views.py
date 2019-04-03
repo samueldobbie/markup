@@ -87,8 +87,6 @@ def annotate_data(request, data_file_path):
                 if len(new_vals) > 1:
                     vals.append(new_vals)
 
-    print(vals)
-
     data['args'] = args
     data['vals'] = vals
 
@@ -177,7 +175,6 @@ def load_existing(request, data_file_path):
     else:
         return HttpResponse(json.dumps(None))
 
-'''
 with open("database_2char_plus_cuis.pickle", "rb") as input_file:
     db = pickle.load(input_file)
 
@@ -185,5 +182,4 @@ with open("cui_lookup_table_plus_cuis.pickle", "rb") as input_file:
     cui_lookup_table = pickle.load(input_file)
 
 searcher = Searcher(db, CosineMeasure())
-'''
 
