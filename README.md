@@ -10,7 +10,7 @@ cd markup-demo
 source bin/activate
 git clone https://github.com/samueldobbie/markup.git
 cd markup
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 python3 manage.py runserver
 ```
 

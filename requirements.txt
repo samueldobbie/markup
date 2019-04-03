@@ -2,7 +2,6 @@ betterpath==0.2.2
 Click==7.0
 Django==2.1.7
 l==0.11.0
-pkg-resources==0.0.0
 pytz==2018.9
 simstring-pure==1.0.0
 vcversioner==2.16.0.0
