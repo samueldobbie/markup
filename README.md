@@ -2,22 +2,16 @@
 
 ### Install & Run
 
-Clone the repo
+Run the following
 ```
+pip3 install virtualenv
+virtualenv -p python3 markup-demo
+cd markup-demo
+source bin/activate
 git clone https://github.com/samueldobbie/markup.git
-```
-
-Move to the cloned repo
-```
 cd markup
-```
-
-Install all required packages
-```
 pip install -r requirements.txt
-```
-
-Run markup (currently takes ~15 seconds to load)
-```
 python3 manage.py runserver
 ```
+
+

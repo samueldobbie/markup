@@ -10,7 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
-from .secret_settings import *
+# from .secret_settings import *
+# temporary secret_key for sake of demoing
+SECRET_KEY = '^@xk97zk8n@ui+307d-&=htf37km=0__-*mq(+z0feyuce_ici'
+
+
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
