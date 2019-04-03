@@ -1,5 +1,5 @@
-from simstring.measure.cosine import CosineMeasure
-from simstring.searcher import Searcher
+#from simstring.measure.cosine import CosineMeasure
+#from simstring.searcher import Searcher
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 import pickle
