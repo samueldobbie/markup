@@ -1,11 +1,8 @@
 # markup - text annotation
 
-### Installation & Running
-
-Run the following in order:
+### Install & Run
 
 Clone the repo
-
 ```
 git clone https://github.com/samueldobbie/markup.git
 ```
