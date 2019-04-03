@@ -1,8 +1,7 @@
-from simstring.feature_extractor.character_ngram import CharacterNgramFeatureExtractor
 from simstring.measure.cosine import CosineMeasure
 from simstring.searcher import Searcher
-from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
 import pickle
 import json
 import os
