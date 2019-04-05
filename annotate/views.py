@@ -1,5 +1,5 @@
-#from simstring.measure.cosine import CosineMeasure
-#from simstring.searcher import Searcher
+from simstring.measure.cosine import CosineMeasure
+from simstring.searcher import Searcher
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 import pickle
@@ -174,7 +174,6 @@ def load_existing(request, data_file_path):
     else:
         return HttpResponse(json.dumps(None))
 
-'''
 with open("database_2char_plus_cuis.pickle", "rb") as input_file:
     db = pickle.load(input_file)
 
@@ -182,5 +181,4 @@ with open("cui_lookup_table_plus_cuis.pickle", "rb") as input_file:
     cui_lookup_table = pickle.load(input_file)
 
 searcher = Searcher(db, CosineMeasure())
-'''
 
