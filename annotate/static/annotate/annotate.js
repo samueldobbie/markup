@@ -92,7 +92,7 @@ $(document).ready(function () {
 
             function selectAndHighlightRange(entityValue, attributeValues, start, end) {
                 setSelectionRange(document.getElementById('file_data'), start, end);
-                abc(entityValue, attributeValues, start, end);
+                populateAnnotations(entityValue, attributeValues, start, end);
             }
 
             annotation = [];
@@ -121,7 +121,6 @@ $(document).ready(function () {
                     if (annotationWords[0][0] == "T") {
                         // only parses a single digit right now
                         var annotationId = parseInt(annotationWords[0][1]);
-                        console.log(annotationId);
                         if (annotationId > entityId) {
                             entityId = annotationId
                         }
@@ -134,7 +133,6 @@ $(document).ready(function () {
                     if (annotationWords[0][0] == "A") {
                         // only parses a single digit right now
                         var annotationId = parseInt(annotationWords[0][1]);
-                        console.log(annotationId);
                         if (annotationId > attributeId) {
                             attributeId = annotationId
                         }
@@ -151,7 +149,7 @@ $(document).ready(function () {
     });
 
 
-    function abc(entityValue, attributeValues, startIndex, endIndex) {
+    function populateAnnotations(entityValue, attributeValues, startIndex, endIndex) {
         var highlighted = window.getSelection().toString();
 
         // Change annotation color if there's an overlap between two annotations
@@ -254,6 +252,17 @@ $(document).ready(function () {
             attributeId++;
         }
         attributeHoverInfo.push(attributeValues);
+
+        for (var i=0; i < $("select").length; i++) {
+            var currentSelect = $("select")[i];
+            var currentValue = currentSelect.options[currentSelect.selectedIndex].value;
+
+            if (currentValue != currentSelect[0].value && currentSelect.id == currentSelect[0].value + entityValue) {
+                attributeValues.push(currentValue);
+                attributeData.push('A' + attributeId + '\t' + currentValue + ' T' + (entityId - 1) + '\n');
+                attributeId++;
+            }
+        }
 
         // Get chosen option cui from dropdown and ignore if default selected or no matches found
         var suggestionList = document.getElementById('matchList');

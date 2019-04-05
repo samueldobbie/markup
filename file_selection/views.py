@@ -12,7 +12,7 @@ def file_selection_template(request):
             else:
                 return redirect('/')
         elif request.GET.get('open_dir_button'):
-            dir_path = easygui.fileopenbox()
+            dir_path = easygui.diropenbox()
             if dir_path != None:
                 return redirect('/annotate' + dir_path)
             else:
