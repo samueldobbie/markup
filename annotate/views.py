@@ -1,9 +1,6 @@
-from simstring.measure.cosine import CosineMeasure
-from simstring.searcher import Searcher
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-import itertools
-import pickle
+import requests
 import json
 import os
 
@@ -56,8 +53,6 @@ def annotate_data(request, data_file_path):
                 add_entities = True
             continue
         config_values.append(line)
-    # Prevent issues caused by having duplicate attributes
-    config_values = list(dict.fromkeys(config_values))
 
     del entity_list[len(entity_list) - 1]
 
@@ -115,6 +110,8 @@ def annotate_data(request, data_file_path):
     data['vals'] = vals
 
     if config_values != []:
+        # Prevent issues caused by having duplicate attributes
+        config_values = list(dict.fromkeys(config_values))
         data[config_key] = config_values
 
     data['ann_filename'] = os.path.basename(os.path.splitext(data_file_path)[0]) + '.ann'
@@ -149,9 +146,8 @@ def finished(request):
 
 # Performs lookup of cui based on selected UMLS term
 def get_cui(request, data_file_path):
-    match = request.GET['match']
-    cui = cui_lookup_table[match]
-    return HttpResponse(json.dumps(cui))
+    r = requests.get('http://127.0.0.1:8000/umls_api/get_cui/' + request.GET['match'])
+    return HttpResponse(json.dumps(r.json()['cui']))
 
 
 # Outputs the input annotations to .ann file
@@ -176,9 +172,9 @@ def remove_ann_file(request, data_file_path):
 
 # Returns all relevant UMLS matches that have a cosine similarity value over 0.75, in descending order
 def suggest_cui(request, data_file_path):
-    results = searcher.ranked_search(request.GET['selectedTerm'], 0.75)
+    r = requests.get('http://127.0.0.1:8000/umls_api/' + request.GET['selectedTerm'])
     output = []
-    for i in results:
+    for i in r.json()['results']:
         output.append(i[1] + ',')
     if output != []:
         output[-1] = output[-1][:-1]
@@ -198,22 +194,4 @@ def load_existing(request, data_file_path):
         return HttpResponse(json.dumps(annotations))
     else:
         return HttpResponse(json.dumps(None))
-
-
-USE_TINYUMLS = True
-
-if USE_TINYUMLS:
-    with open("tinyumls_database_2char_plus_cuis.pickle", "rb") as input_file:
-        db = pickle.load(input_file)
-
-    with open("tinyumls_cui_lookup_table_plus_cuis.pickle", "rb") as input_file:
-        cui_lookup_table = pickle.load(input_file)
-else:
-    with open("database_2char_plus_cuis.pickle", "rb") as input_file:
-        db = pickle.load(input_file)
-
-    with open("cui_lookup_table_plus_cuis.pickle", "rb") as input_file:
-        cui_lookup_table = pickle.load(input_file)
-
-searcher = Searcher(db, CosineMeasure())
 
