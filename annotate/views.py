@@ -2,6 +2,7 @@ from simstring.measure.cosine import CosineMeasure
 from simstring.searcher import Searcher
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+import itertools
 import pickle
 import json
 import os
@@ -55,6 +56,8 @@ def annotate_data(request, data_file_path):
                 add_entities = True
             continue
         config_values.append(line)
+    # Prevent issues caused by having duplicate attributes
+    config_values = list(dict.fromkeys(config_values))
 
     del entity_list[len(entity_list) - 1]
 
@@ -101,6 +104,12 @@ def annotate_data(request, data_file_path):
                     
                 if len(new_vals) > 1:
                     vals.append(new_vals)
+
+    # Prevent issues caused by having duplicate attributes
+    final_args = []
+    for arg in args:
+        if arg not in final_args:
+            final_args.append(arg)
 
     data['args'] = args
     data['vals'] = vals
