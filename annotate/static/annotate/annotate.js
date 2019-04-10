@@ -423,6 +423,9 @@ $(document).ready(function () {
 
         if (type == "dark") {
             document.getElementById('darkMode').innerHTML = 'Light Mode';
+            for (var i=0; i < document.getElementsByTagName('select').length; i++) {
+                document.getElementById(document.getElementsByTagName('select')[i].id).style.backgroundColor = 'white';
+            }
             backgroundColor = '#333';
             textColor = 'rgb(210, 210, 210)';
         } else {
@@ -447,6 +450,9 @@ $(document).ready(function () {
             document.getElementById('config_data_options').style.color = 'white';
             document.getElementById('annotation_data').style.color = 'black';
             document.getElementsByTagName('body')[0].style.backgroundColor = '#333';
+            for (var i=0; i < document.getElementsByTagName('select').length; i++) {
+                document.getElementById(document.getElementsByTagName('select')[i].id).style.backgroundColor = 'white';
+            }
             darkMode = true;
         } else {
             localStorage.setItem("mode", "light");

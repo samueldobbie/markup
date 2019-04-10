@@ -31,22 +31,32 @@ def annotate_data(request, data_file_path):
     config_data = [x.strip() for x in config_data]
 
     # Read in all the configuration values
-    configs = []
+    entity_list = []
     config_key = ''
     config_values = []
+    add_entities = False
     for line in config_data:
         if line == '':
             continue
+
+        if add_entities:
+            entity_list.append(line)
         
         if len(line) >= 3 and line[0] == '[' and line[-1] == ']':
             if config_key != '':
-                configs.append(config_key)
                 data[config_key] = config_values
                 config_values = []
             config_key = line[1:-1]
-            continue
+            
+            if add_entities:
+                add_entities = False
 
+            if config_key.lower() == 'entities':
+                add_entities = True
+            continue
         config_values.append(line)
+
+    del entity_list[len(entity_list) - 1]
 
     # Read in all configuration arguments
     args = []
@@ -55,7 +65,7 @@ def annotate_data(request, data_file_path):
         args_split = config_values[i].split('Arg:')
         config_values[i] = args_split[0].strip()
         vals_split = ''
-        
+
         if len(args_split) > 1:
             vals_split = args_split[1].split('Value:')
 
@@ -71,7 +81,13 @@ def annotate_data(request, data_file_path):
         
         if len(vals_split) == 2:
             args_list = []
+            global_entity = False
             for arg in vals_split[0].split(','):
+                if arg.lower().strip() == '<entity>':
+                    global_entity = True
+                    for i in entity_list:
+                        args_list.append(i)
+                    break
                 if arg.strip() is not '':
                     args_list.append(arg.strip())
 
@@ -90,7 +106,6 @@ def annotate_data(request, data_file_path):
     data['vals'] = vals
 
     if config_values != []:
-        configs.append(config_key)
         data[config_key] = config_values
 
     data['ann_filename'] = os.path.basename(os.path.splitext(data_file_path)[0]) + '.ann'
@@ -119,6 +134,7 @@ def finished(request):
         doc_no = '1 document'
     else:
         doc_no = str(all_files_count - 1) + ' documents'
+    all_files_count = 1
     return render(request, 'annotate/finished.html', {'count': doc_no})
 
 
@@ -174,11 +190,21 @@ def load_existing(request, data_file_path):
     else:
         return HttpResponse(json.dumps(None))
 
-with open("database_2char_plus_cuis.pickle", "rb") as input_file:
-    db = pickle.load(input_file)
 
-with open("cui_lookup_table_plus_cuis.pickle", "rb") as input_file:
-    cui_lookup_table = pickle.load(input_file)
+USE_TINYUMLS = True
+
+if USE_TINYUMLS:
+    with open("tinyumls_database_2char_plus_cuis.pickle", "rb") as input_file:
+        db = pickle.load(input_file)
+
+    with open("tinyumls_cui_lookup_table_plus_cuis.pickle", "rb") as input_file:
+        cui_lookup_table = pickle.load(input_file)
+else:
+    with open("database_2char_plus_cuis.pickle", "rb") as input_file:
+        db = pickle.load(input_file)
+
+    with open("cui_lookup_table_plus_cuis.pickle", "rb") as input_file:
+        cui_lookup_table = pickle.load(input_file)
 
 searcher = Searcher(db, CosineMeasure())
 
