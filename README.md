@@ -1,6 +1,6 @@
 # markup - text annotation
 
-### Install & Run
+### Install & Run (Linux)
 
 Run the following:
 ```
@@ -11,6 +11,7 @@ source bin/activate
 git clone https://github.com/samueldobbie/markup.git
 cd markup
 pip3 install -r requirements.txt
+sudo apt-get install python3-tk
 python3 manage.py runserver
 ```
 

@@ -146,7 +146,7 @@ def finished(request):
 
 # Performs lookup of cui based on selected UMLS term
 def get_cui(request, data_file_path):
-    r = requests.get('http://127.0.0.1:8000/umls_api/get_cui/' + request.GET['match'])
+    r = requests.get('http://www.getmarkup.com/umls_api/get_cui/' + request.GET['match'])
     return HttpResponse(json.dumps(r.json()['cui']))
 
 
@@ -172,7 +172,7 @@ def remove_ann_file(request, data_file_path):
 
 # Returns all relevant UMLS matches that have a cosine similarity value over 0.75, in descending order
 def suggest_cui(request, data_file_path):
-    r = requests.get('http://127.0.0.1:8000/umls_api/' + request.GET['selectedTerm'])
+    r = requests.get('http://www.getmarkup.com/umls_api/' + request.GET['selectedTerm'])
     output = []
     for i in r.json()['results']:
         output.append(i[1] + ',')
