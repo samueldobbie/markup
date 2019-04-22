@@ -37,57 +37,10 @@ $(document).ready(function () {
         async: false,
         data: { ann_filename: dict['ann_filename'] },
         success: function (response) {
-
             response = JSON.parse(response);
+
             if (response == null || response.length == 0) {
                 return;
-            }
-
-            function getTextNodesIn(node) {
-                var textNodes = [];
-                if (node.nodeType == 3) {
-                    textNodes.push(node);
-                } else {
-                    var children = node.childNodes;
-                    for (var i = 0, len = children.length; i < len; ++i) {
-                        textNodes.push.apply(textNodes, getTextNodesIn(children[i]));
-                    }
-                }
-                return textNodes;
-            }
-            
-            function setSelectionRange(el, start, end) {
-                if (document.createRange && window.getSelection) {
-                    var range = document.createRange();
-                    range.selectNodeContents(el);
-                    var textNodes = getTextNodesIn(el);
-                    var foundStart = false;
-                    var charCount = 0, endCharCount;
-            
-                    for (var i = 0, textNode; textNode = textNodes[i++]; ) {
-                        endCharCount = charCount + textNode.length;
-                        if (!foundStart && start >= charCount && (start < endCharCount || (start == endCharCount && i <= textNodes.length))) {
-                            range.setStart(textNode, start - charCount);
-                            foundStart = true;
-                        }
-                        if (foundStart && end <= endCharCount) {
-                            range.setEnd(textNode, end - charCount);
-                            break;
-                        }
-                        charCount = endCharCount;
-                    }
-            
-                    var sel = window.getSelection();
-                    sel.removeAllRanges();
-                    sel.addRange(range);
-                } else if (document.selection && document.body.createTextRange) {
-                    var textRange = document.body.createTextRange();
-                    textRange.moveToElementText(el);
-                    textRange.collapse(true);
-                    textRange.moveEnd("character", end);
-                    textRange.moveStart("character", start);
-                    textRange.select();
-                }
             }
 
             function selectAndHighlightRange(entityValue, attributeValues, start, end) {
@@ -555,6 +508,8 @@ $(document).ready(function () {
         // To-do: clean up above & deal with duplicate conf file entries
     });
 
+
+    // Move to next when multiple documents opened
     $('#nextFile').click(function () {
         $.ajax({
             type: 'GET',
@@ -565,5 +520,80 @@ $(document).ready(function () {
             }
         });
     });
+
+
+    // Automatically anontate the document
+    $('#autoAnnotate').click(function () {
+        var text = document.getElementById('file_data').innerHTML;
+        var annotations = null;
+
+        $.ajax({
+            type: 'GET',
+            async: false,
+            url: '~/auto_annotate',
+            data: {'document_text': text},
+            success: function(response) {
+                annotations = JSON.parse(response);
+            }
+        });
+
+        for (var i = 0; i < annotations.length; i++) {
+            var startIndex = text.indexOf(annotations[i][0]);
+            var endIndex = startIndex + annotations[i][0].length;
+            var attributeValues = [[annotations[i][1]], [annotations[i][2]]];
+
+            setSelectionRange(document.getElementById('file_data'), startIndex, endIndex);
+            populateAnnotations("DOB", attributeValues, startIndex, endIndex);
+        } 
+    });
+
+
+    function setSelectionRange(el, start, end) {
+        if (document.createRange && window.getSelection) {
+            var range = document.createRange();
+            range.selectNodeContents(el);
+            var textNodes = getTextNodesIn(el);
+            var foundStart = false;
+            var charCount = 0, endCharCount;
+    
+            for (var i = 0, textNode; textNode = textNodes[i++]; ) {
+                endCharCount = charCount + textNode.length;
+                if (!foundStart && start >= charCount && (start < endCharCount || (start == endCharCount && i <= textNodes.length))) {
+                    range.setStart(textNode, start - charCount);
+                    foundStart = true;
+                }
+                if (foundStart && end <= endCharCount) {
+                    range.setEnd(textNode, end - charCount);
+                    break;
+                }
+                charCount = endCharCount;
+            }
+    
+            var sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+        } else if (document.selection && document.body.createTextRange) {
+            var textRange = document.body.createTextRange();
+            textRange.moveToElementText(el);
+            textRange.collapse(true);
+            textRange.moveEnd("character", end);
+            textRange.moveStart("character", start);
+            textRange.select();
+        }
+    }
+
+
+    function getTextNodesIn(node) {
+        var textNodes = [];
+        if (node.nodeType == 3) {
+            textNodes.push(node);
+        } else {
+            var children = node.childNodes;
+            for (var i = 0, len = children.length; i < len; ++i) {
+                textNodes.push.apply(textNodes, getTextNodesIn(children[i]));
+            }
+        }
+        return textNodes;
+    }
 });
 

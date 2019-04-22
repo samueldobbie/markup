@@ -1,6 +1,12 @@
 from django.shortcuts import render, redirect
+from simstring.measure.cosine import CosineMeasure
+from simstring.searcher import Searcher
 from django.http import HttpResponse
+from nltk import sent_tokenize
+from nltk import word_tokenize
+from nltk import ngrams
 import requests
+import pickle
 import json
 import os
 
@@ -195,3 +201,53 @@ def load_existing(request, data_file_path):
     else:
         return HttpResponse(json.dumps(None))
 
+
+def auto_annotate(request, data_file_path):
+    doc_text = request.GET['document_text']
+
+    doc_ngrams = []
+    for sentence in sent_tokenize(doc_text):
+        tokens = sentence.split()
+        x = len(tokens)
+        if x > 3:
+            x = 4
+        for n in range(2, x):
+            for ngram in ngrams(tokens, n):
+                term = " ".join(list(ngram))
+                if term not in doc_ngrams:
+                    doc_ngrams.append(term)
+
+    raw_sentence_ngrams = []
+    clean_sentence_ngrams = []
+    for raw_ngram in doc_ngrams:
+        if not raw_ngram[-1].isalnum():
+            raw_ngram = raw_ngram[:-1]
+
+        clean_ngram = ""
+        for char in raw_ngram:
+            if char.isalnum():
+                clean_ngram += char.lower()
+            else:
+                clean_ngram += " "
+        # remove stopwords
+        clean_ngram = " ".join([word for word in clean_ngram.split()])
+        if clean_ngram is not "":
+            raw_sentence_ngrams.append(raw_ngram)
+            clean_sentence_ngrams.append(clean_ngram)
+
+    results = []
+    for i in range(len(raw_sentence_ngrams)):
+        umls_term = searcher.ranked_search(clean_sentence_ngrams[i], 0.95)
+        if len(umls_term) > 0:
+            try:
+                umls_term = umls_lookup[umls_term[0][1]]
+                umls_cui = cui_lookup[umls_term]
+                results.append([raw_sentence_ngrams[i], umls_term, umls_cui])
+            except:
+                continue
+    return HttpResponse(json.dumps(results))
+
+umls_database = pickle.load(open("tinyumls_database_2char_plus_cuis.pickle", "rb"))
+umls_lookup = pickle.load(open("tinyumls_cleaned_umls_lookup_table_plus_cuis.pickle", "rb"))
+cui_lookup = pickle.load(open("tinyumls_cui_lookup_table_plus_cuis.pickle", "rb"))
+searcher = Searcher(umls_database, CosineMeasure())
