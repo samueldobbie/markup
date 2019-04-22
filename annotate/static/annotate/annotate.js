@@ -95,6 +95,7 @@ $(document).ready(function () {
                 }
                 selectAndHighlightRange(entityValue, attributeValues, start, end);
             }
+            console.log(allAnnotations);
             entityId++;
             attributeId++;
             window.getSelection().removeAllRanges();
@@ -591,9 +592,16 @@ $(document).ready(function () {
             var endIndex = startIndex + annotations[i][0].length;
             var attributeValues = [[annotations[i][1]], [annotations[i][2]]];
 
+            allAnnotations.push([["T" + entityId + "\tDOB " + startIndex + " " + endIndex + "\t" + annotations[i][0] + '\n'], ["A" + attributeId + "\t" + annotations[i][1] + "\tT" + entityId + "\n"], ["A" + (attributeId + 1) + "\t" + annotations[i][2] + "\tT" + entityId + "\n"]]);
+
+            entityId++;
+            attributeId++;
+            attributeId++;
+
             setSelectionRange(document.getElementById('file_data'), startIndex, endIndex);
             populateAnnotations("DOB", attributeValues, startIndex, endIndex);
-        } 
+        }
+        writeToAnn();
     });
 });
 
