@@ -237,7 +237,7 @@ def auto_annotate(request, data_file_path):
 
     results = []
     for i in range(len(raw_sentence_ngrams)):
-        umls_term = searcher.ranked_search(clean_sentence_ngrams[i], 0.95)
+        umls_term = searcher.ranked_search(clean_sentence_ngrams[i], 0.90)
         if len(umls_term) > 0:
             try:
                 umls_term = umls_lookup[umls_term[0][1]]
@@ -247,7 +247,9 @@ def auto_annotate(request, data_file_path):
                 continue
     return HttpResponse(json.dumps(results))
 
-umls_database = pickle.load(open("tinyumls_database_2char_plus_cuis.pickle", "rb"))
-umls_lookup = pickle.load(open("tinyumls_cleaned_umls_lookup_table_plus_cuis.pickle", "rb"))
-cui_lookup = pickle.load(open("tinyumls_cui_lookup_table_plus_cuis.pickle", "rb"))
-searcher = Searcher(umls_database, CosineMeasure())
+AUTO_ANNOTATE = False
+if AUTO_ANNOTATE:
+    umls_database = pickle.load(open("tinyumls_database_2char_plus_cuis.pickle", "rb"))
+    umls_lookup = pickle.load(open("tinyumls_cleaned_umls_lookup_table_plus_cuis.pickle", "rb"))
+    cui_lookup = pickle.load(open("tinyumls_cui_lookup_table_plus_cuis.pickle", "rb"))
+    searcher = Searcher(umls_database, CosineMeasure())
