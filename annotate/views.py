@@ -1,10 +1,5 @@
 from django.shortcuts import render, redirect
-from simstring.measure.cosine import CosineMeasure
-from simstring.searcher import Searcher
 from django.http import HttpResponse
-from nltk import sent_tokenize
-from nltk import word_tokenize
-from nltk import ngrams
 import requests
 import pickle
 import json
@@ -249,6 +244,13 @@ def auto_annotate(request, data_file_path):
 
 AUTO_ANNOTATE = False
 if AUTO_ANNOTATE:
+    from simstring.measure.cosine import CosineMeasure
+    from simstring.searcher import Searcher
+    from django.http import HttpResponse
+    from nltk import sent_tokenize
+    from nltk import word_tokenize
+    from nltk import ngrams
+    
     umls_database = pickle.load(open("tinyumls_database_2char_plus_cuis.pickle", "rb"))
     umls_lookup = pickle.load(open("tinyumls_cleaned_umls_lookup_table_plus_cuis.pickle", "rb"))
     cui_lookup = pickle.load(open("tinyumls_cui_lookup_table_plus_cuis.pickle", "rb"))
