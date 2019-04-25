@@ -95,7 +95,6 @@ $(document).ready(function () {
                 }
                 selectAndHighlightRange(entityValue, attributeValues, start, end);
             }
-            console.log(allAnnotations);
             entityId++;
             attributeId++;
             window.getSelection().removeAllRanges();
@@ -565,6 +564,19 @@ $(document).ready(function () {
             type: 'GET',
             async: false,
             url: '~/move_to_next_file',
+            success: function(data) {
+                window.location.href = data;
+            }
+        });
+    });
+
+
+    // Move to previous when multiple documents opened
+    $('#previousFile').click(function () {
+        $.ajax({
+            type: 'GET',
+            async: false,
+            url: '~/move_to_previous_file',
             success: function(data) {
                 window.location.href = data;
             }

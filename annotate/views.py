@@ -5,21 +5,26 @@ import pickle
 import json
 import os
 
-all_files = []
-all_files_count = 1
+next_files = []
+previous_files = []
+current_file = ''
+
+total_file_count = 1
 def annotate_data(request, data_file_path):
     os.chdir('/')
 
     # Adds all text files from selected directory to a list and opens first document to start annotating
-    global all_files_count
+    global total_file_count
+    global current_file
     if os.path.isdir(data_file_path):
         for afile in os.listdir(data_file_path):
             if afile.endswith('.txt'):
-                all_files.append(os.path.join(data_file_path, afile))
-                all_files_count += 1
-        if len(all_files) > 0:
-            data_file_path = all_files[0]
-            del all_files[0]
+                next_files.append(os.path.join(data_file_path, afile))
+                total_file_count += 1
+        if len(next_files) > 0:
+            data_file_path = next_files[0]
+            current_file = next_files[0]
+            del next_files[0]
             return redirect('/annotate/' + data_file_path)
 
     data = dict()
@@ -125,30 +130,45 @@ def annotate_data(request, data_file_path):
 
 # Returns file path of next document to be annotated
 def move_to_next_file(request, data_file_path):
-    if len(all_files) > 0:
-        data_file_path = all_files[0]
-        del all_files[0]
+    global current_file
+    if len(next_files) > 0:
+        data_file_path = next_files[0]
+        previous_files.append(current_file)
+        current_file = next_files[0]
+        del next_files[0]
         return HttpResponse('/annotate/' + data_file_path)
     else:
-        return HttpResponse('/finished/')  
+        return HttpResponse('/finished/')
+
+
+# Returns file path of next document to be annotated
+def move_to_previous_file(request, data_file_path):
+    global current_file
+    if len(previous_files) > 0:
+        data_file_path = previous_files[-1]
+        next_files.insert(0, current_file)
+        current_file = previous_files[-1]
+        del previous_files[-1]
+        return HttpResponse('/annotate/' + data_file_path)  
 
 
 # Takes user to 'finished' page after all documents have been iterated through
 def finished(request):
-    global all_files_count
+    global total_file_count
     doc_no = ''
-    if all_files_count == 1:
+    if total_file_count == 1:
         doc_no = '1 document'
     else:
-        doc_no = str(all_files_count - 1) + ' documents'
-    all_files_count = 1
+        doc_no = str(total_file_count - 1) + ' documents'
+    total_file_count = 1
     return render(request, 'annotate/finished.html', {'count': doc_no})
 
 
 # Performs lookup of cui based on selected UMLS term
 def get_cui(request, data_file_path):
-    r = requests.get('http://www.getmarkup.com/umls_api/get_cui/' + request.GET['match'])
-    return HttpResponse(json.dumps(r.json()['cui']))
+    #r = requests.get('http://www.getmarkup.com/umls_api/get_cui/' + request.GET['match'])
+    #return HttpResponse(json.dumps(r.json()['cui']))
+    return HttpResponse(cui_lookup[request.GET['match']])
 
 
 # Outputs the input annotations to .ann file
@@ -173,6 +193,7 @@ def remove_ann_file(request, data_file_path):
 
 # Returns all relevant UMLS matches that have a cosine similarity value over 0.75, in descending order
 def suggest_cui(request, data_file_path):
+    '''
     r = requests.get('http://www.getmarkup.com/umls_api/' + request.GET['selectedTerm'])
     output = []
     for i in r.json()['results']:
@@ -180,6 +201,15 @@ def suggest_cui(request, data_file_path):
     if output != []:
         output[-1] = output[-1][:-1]
     return HttpResponse(output)
+    '''
+    r = searcher.ranked_search(request.GET['selectedTerm'], COSINE_THRESHOLD)
+    output = []
+    for i in r:
+        output.append(i[1] + ',')
+    if output != []:
+        output[-1] = output[-1][:-1]
+    return HttpResponse(output)
+
 
 
 # Reads existing .ann file if exists and returns the annotations
@@ -232,7 +262,7 @@ def auto_annotate(request, data_file_path):
 
     results = []
     for i in range(len(raw_sentence_ngrams)):
-        umls_term = searcher.ranked_search(clean_sentence_ngrams[i], 0.90)
+        umls_term = searcher.ranked_search(clean_sentence_ngrams[i], COSINE_THRESHOLD)
         if len(umls_term) > 0:
             try:
                 umls_term = umls_lookup[umls_term[0][1]]
@@ -242,7 +272,8 @@ def auto_annotate(request, data_file_path):
                 continue
     return HttpResponse(json.dumps(results))
 
-AUTO_ANNOTATE = False
+COSINE_THRESHOLD = 0.9
+AUTO_ANNOTATE = True
 if AUTO_ANNOTATE:
     from simstring.measure.cosine import CosineMeasure
     from simstring.searcher import Searcher

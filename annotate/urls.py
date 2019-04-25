@@ -11,4 +11,5 @@ urlpatterns = [
     url(r'^annotate/(?P<data_file_path>[\s\S]+)/~/load_existing$', views.load_existing, name='load_existing'),
     url(r'^annotate/(?P<data_file_path>[\s\S]+)/~/remove_ann_file$', views.remove_ann_file, name='remove_ann_file'),
     url(r'^annotate/(?P<data_file_path>[\s\S]+)/~/move_to_next_file$', views.move_to_next_file, name='move_to_next_file'),
+    url(r'^annotate/(?P<data_file_path>[\s\S]+)/~/move_to_previous_file$', views.move_to_previous_file, name='move_to_previous_file'),
 ]
