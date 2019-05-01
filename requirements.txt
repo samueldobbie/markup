@@ -16,3 +16,5 @@ urllib3==1.24.2
 vcversioner==2.16.0.0
 virtualenv==16.4.3
 zope.interface==4.6.0
+nltk==3.4.1
+

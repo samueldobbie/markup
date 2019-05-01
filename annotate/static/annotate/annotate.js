@@ -604,6 +604,10 @@ $(document).ready(function () {
             var endIndex = startIndex + annotations[i][0].length;
             var attributeValues = [[annotations[i][1]], [annotations[i][2]]];
 
+            if (startIndex == -1) {
+                continue;
+            }
+
             allAnnotations.push([["T" + entityId + "\tDOB " + startIndex + " " + endIndex + "\t" + annotations[i][0] + '\n'], ["A" + attributeId + "\t" + annotations[i][1] + "\tT" + entityId + "\n"], ["A" + (attributeId + 1) + "\t" + annotations[i][2] + "\tT" + entityId + "\n"]]);
 
             entityId++;

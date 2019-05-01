@@ -1,5 +1,8 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from nltk import sent_tokenize
+from nltk import word_tokenize
+from nltk import ngrams
 import requests
 import pickle
 import json
@@ -8,7 +11,6 @@ import os
 next_files = []
 previous_files = []
 current_file = ''
-
 total_file_count = 1
 def annotate_data(request, data_file_path):
     os.chdir('/')
@@ -166,9 +168,8 @@ def finished(request):
 
 # Performs lookup of cui based on selected UMLS term
 def get_cui(request, data_file_path):
-    #r = requests.get('http://www.getmarkup.com/umls_api/get_cui/' + request.GET['match'])
-    #return HttpResponse(json.dumps(r.json()['cui']))
-    return HttpResponse(cui_lookup[request.GET['match']])
+    r = requests.get('http://www.getmarkup.com/umls_api/get_cui/' + request.GET['match'])
+    return HttpResponse(json.dumps(r.json()['cui']))
 
 
 # Outputs the input annotations to .ann file
@@ -193,7 +194,6 @@ def remove_ann_file(request, data_file_path):
 
 # Returns all relevant UMLS matches that have a cosine similarity value over 0.75, in descending order
 def suggest_cui(request, data_file_path):
-    '''
     r = requests.get('http://www.getmarkup.com/umls_api/' + request.GET['selectedTerm'])
     output = []
     for i in r.json()['results']:
@@ -201,15 +201,6 @@ def suggest_cui(request, data_file_path):
     if output != []:
         output[-1] = output[-1][:-1]
     return HttpResponse(output)
-    '''
-    r = searcher.ranked_search(request.GET['selectedTerm'], COSINE_THRESHOLD)
-    output = []
-    for i in r:
-        output.append(i[1] + ',')
-    if output != []:
-        output[-1] = output[-1][:-1]
-    return HttpResponse(output)
-
 
 
 # Reads existing .ann file if exists and returns the annotations
@@ -229,7 +220,6 @@ def load_existing(request, data_file_path):
 
 def auto_annotate(request, data_file_path):
     doc_text = request.GET['document_text']
-
     doc_ngrams = []
     for sentence in sent_tokenize(doc_text):
         tokens = sentence.split()
@@ -238,7 +228,7 @@ def auto_annotate(request, data_file_path):
             x = 4
         for n in range(2, x):
             for ngram in ngrams(tokens, n):
-                term = " ".join(list(ngram))
+                term = ' '.join(list(ngram))
                 if term not in doc_ngrams:
                     doc_ngrams.append(term)
 
@@ -253,36 +243,38 @@ def auto_annotate(request, data_file_path):
             if char.isalnum():
                 clean_ngram += char.lower()
             else:
-                clean_ngram += " "
-        # remove stopwords
-        clean_ngram = " ".join([word for word in clean_ngram.split()])
-        if clean_ngram is not "":
+                clean_ngram += ' '
+        clean_ngram = ' '.join([word for word in clean_ngram.split()])
+        if clean_ngram is not '':
             raw_sentence_ngrams.append(raw_ngram)
             clean_sentence_ngrams.append(clean_ngram)
 
-    results = []
-    for i in range(len(raw_sentence_ngrams)):
-        umls_term = searcher.ranked_search(clean_sentence_ngrams[i], COSINE_THRESHOLD)
-        if len(umls_term) > 0:
-            try:
-                umls_term = umls_lookup[umls_term[0][1]]
-                umls_cui = cui_lookup[umls_term]
-                results.append([raw_sentence_ngrams[i], umls_term, umls_cui])
-            except:
-                continue
-    return HttpResponse(json.dumps(results))
+    raw_ngrams = ''
+    clean_ngrams = ''
 
-COSINE_THRESHOLD = 0.9
-AUTO_ANNOTATE = True
-if AUTO_ANNOTATE:
-    from simstring.measure.cosine import CosineMeasure
-    from simstring.searcher import Searcher
-    from django.http import HttpResponse
-    from nltk import sent_tokenize
-    from nltk import word_tokenize
-    from nltk import ngrams
-    
-    umls_database = pickle.load(open("tinyumls_database_2char_plus_cuis.pickle", "rb"))
-    umls_lookup = pickle.load(open("tinyumls_cleaned_umls_lookup_table_plus_cuis.pickle", "rb"))
-    cui_lookup = pickle.load(open("tinyumls_cui_lookup_table_plus_cuis.pickle", "rb"))
-    searcher = Searcher(umls_database, CosineMeasure())
+    results = []
+    for i in range(0, len(raw_sentence_ngrams), 100):
+        raw_ngrams = ''
+        clean_ngrams = ''
+        if i + 100 > len(raw_sentence_ngrams):
+            for j in range(i, len(raw_sentence_ngrams)):
+                raw_ngrams += '***' + raw_sentence_ngrams[j]
+                clean_ngrams += '***' + clean_sentence_ngrams[j]
+        else:
+            for j in range(i, i + 100):
+                raw_ngrams += '***' + raw_sentence_ngrams[j]
+                clean_ngrams += '***' + clean_sentence_ngrams[j]
+        results.append(requests.get('http://www.getmarkup.com/umls_api/get_multiple/' + raw_ngrams + '/' + clean_ngrams).json()['results'])
+
+    print('\n')
+    print('\n')
+    print(len(results))
+    print('\n')
+    print('\n')
+
+    final_results = []
+    for i in results:
+        final_results += i
+
+    return HttpResponse(json.dumps(final_results))
+ 
