@@ -59,13 +59,6 @@
     margin-right:2.5%;
 }
 
-/*
-select {
-  -moz-appearance: none;
-  -webkit-appearance: none;
-}
-*/
-
 /* For IE11 */
 select::-ms-expand {
   display: none;

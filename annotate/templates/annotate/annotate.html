@@ -35,7 +35,7 @@
 
     <div class="container">
         <div id="config_data" class="item item-1 standard-text">
-            <div id="config_data_options">
+            <div id="config_data_options" style="position:fixed;">
                 {% for key, value in dict.items %}
                     {% if key != "file_data" and key != "ann_filename" and key != "args" and key != "vals" %}
                         <b>{{ key }}</b>
@@ -73,22 +73,22 @@
                         <br>
                     {% endif %}
                 {% endfor %}
-            </div>
 
-            <select id="matchList" class="drop-down">
-                <option>No match</option>
-            </select>
-            <br>
-            <button id="addAnnotation" class="btn">Add Annotation</button>
-            <br>
-            <button id="autoAnnotate" class="btn">Auto-Annotate (Not yet available)</button>
-            <br>
-            <button id="darkMode" class="btn">Dark Mode</button>
-            <br>
-            <button id="nextFile" class="btn">Move To Next File</button>
-            <br>
-            <button id="previousFile" class="btn">Move To Previous File</button>
-            <br>
+                <select id="matchList" class="drop-down">
+                    <option>No match</option>
+                </select>
+                <br>
+                <button id="addAnnotation" class="btn">Add Annotation</button>
+                <br>
+                <button id="autoAnnotate" class="btn">Auto-Annotate (Not yet available)</button>
+                <br>
+                <button id="darkMode" class="btn">Dark Mode</button>
+                <br>
+                <button id="nextFile" class="btn">Move To Next File</button>
+                <br>
+                <button id="previousFile" class="btn">Move To Previous File</button>
+                <br>
+            </div>
         </div>
 
         <div id="file_data" class="item item-2 standard-text">{{dict.file_data}}</div>
