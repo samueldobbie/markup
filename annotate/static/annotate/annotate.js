@@ -314,6 +314,12 @@ $(document).ready(function () {
         // Removes selection of newly-annotated text
         window.getSelection().removeAllRanges();
 
+        // Deselect all checkboxes and remove hiding of all attributes
+        for(var i=0; i<checkboxNum; i++) {
+            $('#' + checkboxes[i].id).prop('checked', false);
+            $("input[type=radio]").prop('checked', false);
+        }
+
         writeToAnn();
     });
 
@@ -584,7 +590,7 @@ $(document).ready(function () {
     });
 
 
-    // Automatically anontate the document
+    // Automatically annotate the document
     $('#autoAnnotate').click(function () {
         var text = document.getElementById('file_data').innerHTML;
         var annotations = null;

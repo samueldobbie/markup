@@ -266,12 +266,6 @@ def auto_annotate(request, data_file_path):
                 clean_ngrams += '***' + clean_sentence_ngrams[j]
         results.append(requests.get('http://www.getmarkup.com/umls_api/get_multiple/' + raw_ngrams + '/' + clean_ngrams).json()['results'])
 
-    print('\n')
-    print('\n')
-    print(len(results))
-    print('\n')
-    print('\n')
-
     final_results = []
     for i in results:
         final_results += i
