@@ -627,7 +627,7 @@ $(document).ready(function () {
     });
 
     var clicks = 0;
-    $('#file_data').click(function () {
+    $('#file_data').click(function (e) {
         if (window.getSelection().toString() == '' && clicks >= 2) {
             clicks = 0;
             return;
@@ -648,9 +648,9 @@ $(document).ready(function () {
             endIndex++;
 
             while (doc.innerText[endIndex] != ' ' && 
+                   doc.innerText[endIndex] != '' &&
                    doc.innerText[endIndex] != '.' && 
-                   doc.innerText[endIndex] != '\\n' && 
-                   doc.innerText[endIndex] != '\\t' && 
+                   doc.innerText[endIndex] != '\n' &&  
                    doc.innerText[endIndex] != '!' && 
                    doc.innerText[endIndex] != ',' && 
                    doc.innerText[endIndex] != ';' && 
@@ -662,5 +662,40 @@ $(document).ready(function () {
             setSelectionRange(document.getElementById('file_data'), startIndex, endIndex);
         }
     });
+
+    $('#file_data').bind("contextmenu",function(e){
+        if (window.getSelection().toString() == '' && clicks >= 2) {
+            clicks = 0;
+            return;
+        }
+
+        if (clicks >= 3) {
+            var doc = document.getElementById('file_data');
+            var range = window.getSelection().getRangeAt(0);
+            var preCaretRange = range.cloneRange();
+    
+            preCaretRange.selectNodeContents(doc);
+            preCaretRange.setEnd(range.startContainer, range.startOffset);
+    
+            startIndex = preCaretRange.toString().length;
+            endIndex = startIndex + range.toString().length;
+            endIndex--;
+
+            while (doc.innerText[endIndex] != ' ' && 
+                   doc.innerText[endIndex] != '' &&
+                   doc.innerText[endIndex] != '.' && 
+                   doc.innerText[endIndex] != '\n' &&  
+                   doc.innerText[endIndex] != '!' && 
+                   doc.innerText[endIndex] != ',' && 
+                   doc.innerText[endIndex] != ';' && 
+                   doc.innerText[endIndex] != ':' && 
+                   doc.innerText[endIndex] != '?') {
+                endIndex--;
+            }
+
+            setSelectionRange(document.getElementById('file_data'), startIndex, endIndex);
+        }
+        return false;
+     }); 
 });
 
