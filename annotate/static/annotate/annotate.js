@@ -238,7 +238,7 @@ $(document).ready(function () {
         var attributeHoverInfo = [];
 
         // Add entity data to annotation list and hover info
-        var entityValue = $("input[type=radio]:checked")[0].id;
+        var entityValue = $("input[type=radio]:checked")[0].id.split('_')[0];
         entityHoverInfo.push(entityValue);
         entityData = 'T' + entityId + '\t' + entityValue + ' ' + startIndex + ' ' + endIndex + '\t' + highlighted + '\n';
         entityId++;
@@ -314,7 +314,7 @@ $(document).ready(function () {
         // Removes selection of newly-annotated text
         window.getSelection().removeAllRanges();
 
-        // Deselect all checkboxes and remove hiding of all attributes
+        // Deselect all checkboxes and radiobuttons
         for(var i=0; i<checkboxNum; i++) {
             $('#' + checkboxes[i].id).prop('checked', false);
             $("input[type=radio]").prop('checked', false);
@@ -517,7 +517,7 @@ $(document).ready(function () {
     var conditionalSelectionBoxes2 = JSON.parse(dict['vals'].replace(/&#39;/gi, '"'));
     $("input[type=radio]").click(function () {
         // Get selected radiobutton id
-        var selected = $(this).context.id;
+        var selected = $(this).context.id.split('_')[0];
 
         // Deselect all checkboxes and remove hiding of all attributes
         for(var i=0; i<checkboxNum; i++) {

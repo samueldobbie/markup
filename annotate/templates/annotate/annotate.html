@@ -65,8 +65,8 @@
                         {% else %}
                             {% for val in value %}
                                 <p style="margin:0; padding:0;">
-                                    <input type="radio" id="{{ val }}" name="{{ key }}" value="{{ val }}">
-                                    <label for="{{ val }}">{{ val }}</label>
+                                    <input type="radio" id="{{ val }}_radio" name="{{ key }}" value="{{ val }}_radio">
+                                    <label for="{{ val }}_radio">{{ val }}</label>
                                 </p>
                             {% endfor %}
                         {% endif %}
