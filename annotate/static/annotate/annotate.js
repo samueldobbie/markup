@@ -625,5 +625,42 @@ $(document).ready(function () {
         }
         writeToAnn();
     });
+
+    var clicks = 0;
+    $('#file_data').click(function () {
+        if (window.getSelection().toString() == '' && clicks >= 2) {
+            clicks = 0;
+            return;
+        }
+
+        clicks++;
+
+        if (clicks >= 3) {
+            var doc = document.getElementById('file_data');
+            var range = window.getSelection().getRangeAt(0);
+            var preCaretRange = range.cloneRange();
+    
+            preCaretRange.selectNodeContents(doc);
+            preCaretRange.setEnd(range.startContainer, range.startOffset);
+    
+            startIndex = preCaretRange.toString().length;
+            endIndex = startIndex + range.toString().length;
+            endIndex++;
+
+            while (doc.innerText[endIndex] != ' ' && 
+                   doc.innerText[endIndex] != '.' && 
+                   doc.innerText[endIndex] != '\\n' && 
+                   doc.innerText[endIndex] != '\\t' && 
+                   doc.innerText[endIndex] != '!' && 
+                   doc.innerText[endIndex] != ',' && 
+                   doc.innerText[endIndex] != ';' && 
+                   doc.innerText[endIndex] != ':' && 
+                   doc.innerText[endIndex] != '?') {
+                endIndex++;
+            }
+
+            setSelectionRange(document.getElementById('file_data'), startIndex, endIndex);
+        }
+    });
 });
 
