@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css?family=Nunito:400,700" rel="stylesheet" />
     <link href="{% static 'annotate/annotate.css' %}" rel="stylesheet" />
     <link rel="shortcut icon" type="image/png" href="{% static 'annotate/favicon.ico' %}" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6/js/select2.min.js"></script>
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
     <script>
         var dict = {};
@@ -73,14 +75,14 @@
                         <br>
                     {% endif %}
                 {% endfor %}
-
+                
                 <select id="matchList" class="drop-down">
                     <option>No match</option>
                 </select>
                 <br>
                 <button id="addAnnotation" class="btn">Add Annotation</button>
                 <br>
-                <button id="autoAnnotate" class="btn">Auto-Annotate (Not yet available)</button>
+                <button id="autoAnnotate" class="btn">Auto-Annotate (Unavailable)</button>
                 <br>
                 <button id="darkMode" class="btn">Dark Mode</button>
                 <br>

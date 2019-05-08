@@ -261,7 +261,7 @@ $(document).ready(function () {
 
             if (currentValue != currentSelect[0].value && currentSelect.id == currentSelect[0].value + entityValue) {
                 attributeValues.push(currentValue);
-                attributeData.push('A' + attributeId + '\t' + currentValue + ' T' + (entityId - 1) + '\n');
+                attributeData.push('A' + attributeId + '\t' + currentSelect.options[0].value + ' T' + (entityId - 1) + ' ' + currentValue + '\n');
                 attributeId++;
             }
         }
@@ -416,12 +416,6 @@ $(document).ready(function () {
     $('#annotation_data').mousedown(function() {
         return false;
     });
-
-
-    // Prevent deselection of text when selecting configuration
-    /*$('#config_data_options').mousedown(function() {
-        return false;
-    });*/
 
 
     // Sets inital color mode based on users stored preference (light or dark mode)
@@ -664,6 +658,8 @@ $(document).ready(function () {
     });
 
     $('#file_data').bind("contextmenu",function(e){
+        // TO-DO: Update UMLS suggestion on right-click
+
         if (window.getSelection().toString() == '' && clicks >= 2) {
             clicks = 0;
             return;
@@ -696,6 +692,6 @@ $(document).ready(function () {
             setSelectionRange(document.getElementById('file_data'), startIndex, endIndex);
         }
         return false;
-     }); 
+     });
 });
 
