@@ -26,11 +26,13 @@
     <nav>
         <div class="nav-wrapper" style="background-color:#333; box-shadow: 0px 0px 8px 0px #111;">
             <a href="/" class="brand-logo" style="margin-left:2%;  font-family: 'Nunito'; font-weight:bold;">markup</a>
-            <ul id="nav-mobile" class="right hide-on-med-and-down"
-                style="margin-right:2%;  font-family: 'Nunito'; color:#33FFB5; font-weight:bold;">
+            <ul id="nav-mobile" class="right hide-on-med-and-down" style="margin-right:2%;  font-family: 'Nunito'; color:#33FFB5; font-weight:bold;">
                 <li><a href="#">Getting Started</a></li>
                 <li><a href="#">FAQ</a></li>
                 <li><a target="_blank" href="https://github.com/samueldobbie/markup">Github</a></li>
+                <li><a id="darkMode">Dark Mode</a></li>
+                <li><a id="previousFile" style="font-size:20px; color:#33FFB5;"><</a></li>
+                <li><a id="nextFile" style="font-size:20px; color:#33FFB5;">></a></li>
             </ul>
         </div>
     </nav>
@@ -76,20 +78,29 @@
                     {% endif %}
                 {% endfor %}
                 
+                <b>settings</b>
+                <br>
                 <select id="matchList" class="drop-down">
                     <option>No match</option>
                 </select>
                 <br>
+                <select id="searchList" class="drop-down">
+                    <option>No match</option>
+                </select>
+                <br>
+                <input id="searchDict" placeholder="Search UMLS" style="padding:2%; border-radius:5px; font-weight:bold; font-size:0.75em; font-family:'Nunito'; outline:0px solid transparent; color:#666; background-color:rgb(235, 235, 235); border:2px solid #999;"/>
+                <button id="searchDictBtn" class="btn">Search</button>
+                <br>
                 <button id="addAnnotation" class="btn">Add Annotation</button>
                 <br>
-                <button id="autoAnnotate" class="btn">Auto-Annotate (Unavailable)</button>
-                <br>
-                <button id="darkMode" class="btn">Dark Mode</button>
+                <!--
+                <button id="autoAnnotate" class="btn">Auto-Annotate</button>
                 <br>
                 <button id="nextFile" class="btn">Move To Next File</button>
                 <br>
                 <button id="previousFile" class="btn">Move To Previous File</button>
                 <br>
+                -->
             </div>
         </div>
 

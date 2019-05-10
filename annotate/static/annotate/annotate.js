@@ -289,6 +289,29 @@ $(document).ready(function () {
             });
         }
 
+        // TEMP: Get chosen option cui from dropdown and ignore if default selected or no matches found
+        var suggestionList = document.getElementById('searchList');
+        var option = suggestionList.options[suggestionList.selectedIndex].text;
+        var optionWords = option.split(' ');
+
+        if (!((optionWords[optionWords.length - 2] == 'matches' && optionWords[optionWords.length - 1] == 'found') || option == 'No match')) {
+            $.ajax({
+                type: "GET",
+                url: "~/get_cui",
+                async: false,
+                data: { match: option },
+                success: function (response) {
+                    var term = 'A' + attributeId + '\t' + option + ' T' + (entityId - 1) + '\n';
+                    attributeData.push(term);
+                    attributeId++;
+
+                    var cui = 'A' + attributeId + '\t' + response.replace(/['"]+/g, '') + ' T' + (entityId - 1) + '\n';
+                    attributeId++;
+                    attributeData.push(cui);
+                }
+            });
+        }
+
         // Add attributes to annotation list
         for (var i=0; i<attributeData.length; i++) {
             annotation.push([attributeData[i]]);
@@ -693,5 +716,43 @@ $(document).ready(function () {
         }
         return false;
      });
+
+    $('#searchDictBtn').click(function () {
+        $.ajax({
+            type: "GET",
+            url: "~/suggest_cui",
+            data: {selectedTerm: document.getElementById('searchDict').value.toLowerCase()}
+        }).done(function(data){
+            // Empty drop-down list
+            document.getElementById('searchList').options.length = 0;
+            if (data != '') {
+                var arr = data.split(',');
+                var searchList = document.getElementById('searchList');
+                var count = 0;
+                var newOption = document.createElement("option");
+                newOption.text = '';
+                searchList.add(newOption);
+                for (var i=0; i < arr.length; i++) {
+                    newOption = document.createElement("option");
+                    newOption.text = arr[i];
+                    searchList.add(newOption);
+                    count = i;
+                }
+                count++;
+                searchList.childNodes[0].nextElementSibling.text = count + " matches found";
+            }
+
+            if (document.getElementById('searchList').options.length == 0) {
+                var searchList = document.getElementById('searchList');
+                var option = document.createElement("option");
+                option.text = "No match";
+                searchList.add(option);
+            }
+        });
+    });
+
+    $('input').click(function(e) {
+        alert(e);
+    });
 });
 
