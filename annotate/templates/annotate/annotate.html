@@ -39,9 +39,10 @@
 
     <div class="container">
         <div id="config_data" class="item item-1 standard-text">
-            <div id="config_data_options" style="position:fixed;">
+            <!--style="position:fixed;"-->
+            <div id="config_data_options">
                 {% for key, value in dict.items %}
-                    {% if key != "file_data" and key != "ann_filename" and key != "args" and key != "vals" %}
+                    {% if key != "file_data" and key != "ann_filename" and key != "args" and key != "vals" and key != "events" %}
                         <b>{{ key }}</b>
                         <br>
                         {% if key == "attributes" %}

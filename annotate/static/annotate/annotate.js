@@ -290,9 +290,9 @@ $(document).ready(function () {
         }
 
         // TEMP: Get chosen option cui from dropdown and ignore if default selected or no matches found
-        var suggestionList = document.getElementById('searchList');
-        var option = suggestionList.options[suggestionList.selectedIndex].text;
-        var optionWords = option.split(' ');
+        suggestionList = document.getElementById('searchList');
+        option = suggestionList.options[suggestionList.selectedIndex].text;
+        optionWords = option.split(' ');
 
         if (!((optionWords[optionWords.length - 2] == 'matches' && optionWords[optionWords.length - 1] == 'found') || option == 'No match')) {
             $.ajax({
@@ -493,39 +493,7 @@ $(document).ready(function () {
 
     // Suggest most relevant UMLS matches based on highlighted term 
     $('#file_data').mouseup(function () {
-        var term = window.getSelection().toString();
-
-        $.ajax({
-            type: "GET",
-            url: "~/suggest_cui",
-            data: {selectedTerm: term.toLowerCase()}
-        }).done(function(data){
-            // Empty drop-down list
-            document.getElementById('matchList').options.length = 0;
-            if (data != '') {
-                var arr = data.split(',');
-                var matchList = document.getElementById('matchList');
-                var count = 0;
-                var newOption = document.createElement("option");
-                newOption.text = '';
-                matchList.add(newOption);
-                for (var i=0; i < arr.length; i++) {
-                    newOption = document.createElement("option");
-                    newOption.text = arr[i];
-                    matchList.add(newOption);
-                    count = i;
-                }
-                count++;
-                matchList.childNodes[0].nextElementSibling.text = count + " matches found";
-            }
-
-            if (document.getElementById('matchList').options.length == 0) {
-                var matchList = document.getElementById('matchList');
-                var option = document.createElement("option");
-                option.text = "No match";
-                matchList.add(option);
-            }
-        });
+        suggest_cui(window.getSelection().toString(), 'matchList');
     });
 
     
@@ -718,16 +686,20 @@ $(document).ready(function () {
      });
 
     $('#searchDictBtn').click(function () {
+        suggest_cui(document.getElementById('searchDict').value, 'searchList');
+    });
+
+    function suggest_cui(inp, type) {
         $.ajax({
             type: "GET",
             url: "~/suggest_cui",
-            data: {selectedTerm: document.getElementById('searchDict').value.toLowerCase()}
+            data: {selectedTerm: inp.toLowerCase()}
         }).done(function(data){
             // Empty drop-down list
-            document.getElementById('searchList').options.length = 0;
+            document.getElementById(type).options.length = 0;
             if (data != '') {
                 var arr = data.split(',');
-                var searchList = document.getElementById('searchList');
+                var searchList = document.getElementById(type);
                 var count = 0;
                 var newOption = document.createElement("option");
                 newOption.text = '';
@@ -742,17 +714,13 @@ $(document).ready(function () {
                 searchList.childNodes[0].nextElementSibling.text = count + " matches found";
             }
 
-            if (document.getElementById('searchList').options.length == 0) {
-                var searchList = document.getElementById('searchList');
+            if (document.getElementById(type).options.length == 0) {
+                var searchList = document.getElementById(type);
                 var option = document.createElement("option");
                 option.text = "No match";
                 searchList.add(option);
             }
         });
-    });
-
-    $('input').click(function(e) {
-        alert(e);
-    });
+    }
 });
 
