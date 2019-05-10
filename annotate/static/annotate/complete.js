@@ -28,7 +28,6 @@ $(document).ready(function () {
             "background-color": backgroundColor,
             "color" : textColor
         });
-        document.getElementById('taglineSpan').style.color = 'black';
     }
 
 
@@ -38,15 +37,14 @@ $(document).ready(function () {
             localStorage.setItem("mode", "dark");
             document.getElementById('darkMode').innerHTML = 'Light Mode';
             document.getElementsByTagName('body')[0].style.backgroundColor = '#333';
-            document.getElementById('tagline').style.color = 'rgb(210, 210, 210)';
+            document.getElementById('congrats').style.color = "rgb(210, 210, 210)";
             darkMode = true;
         } else {
             localStorage.setItem("mode", "light");
             document.getElementById('darkMode').innerHTML = 'Dark Mode';
             document.getElementsByTagName('body')[0].style.backgroundColor = 'white';
-            document.getElementById('tagline').style.color = 'black';
+            document.getElementById('congrats').style.color = "black";
             darkMode = false;
         }
-        document.getElementById('taglineSpan').style.color = 'black';
     });
 });

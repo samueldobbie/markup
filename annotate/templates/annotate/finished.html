@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css?family=Nunito:400,700" rel="stylesheet" />
     <link href="{% static 'annotate/annotate.css' %}" rel="stylesheet" />
     <link rel="shortcut icon" type="image/png" href="{% static 'annotate/favicon.ico' %}" />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+    <script src="{% static 'annotate/complete.js' %}"></script>
 </head>
 
 <body>
@@ -21,12 +23,13 @@
                 <li><a href="#">Getting Started</a></li>
                 <li><a href="#">FAQ</a></li>
                 <li><a target="_blank" href="https://github.com/samueldobbie/markup">Github</a></li>
+                <li><a id="darkMode">Dark Mode</a></li>
             </ul>
         </div>
     </nav>
 
     <div style="text-align: center; margin-top:15%;">
-        <div class="standard-text" style="font-size:25px;">
+        <div id="congrats" class="standard-text" style="font-size:25px;">
             <p>All done - you annotated {{ count }}!</p>
             <p> Go and enjoy a coffee :)</p>
         </div>
