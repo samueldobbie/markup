@@ -334,11 +334,26 @@ $(document).ready(function () {
 
         // Removes selection of newly-annotated text
         window.getSelection().removeAllRanges();
+    
+        var checkboxes = $("input[type=checkbox]");
+        var checkboxNum = checkboxes.length;
 
-        // Deselect all checkboxes and radiobuttons
+        var radiobuttons = $("input[type=radio]");
+        var radiobuttonNum = radiobuttons.length;
+        // Deselect all checkboxes
         for(var i=0; i<checkboxNum; i++) {
             $('#' + checkboxes[i].id).prop('checked', false);
-            $("input[type=radio]").prop('checked', false);
+        }
+
+        // Deselect all radiobuttons
+        for(var i=0; i<radiobuttonNum; i++) {
+            $('#' + radiobuttons[i].id).prop('checked', false);
+        }
+
+        var dropdowns = $("select");
+        var dropdownsNum = dropdowns.length;
+        for(var i=0; i<dropdownsNum; i++) {
+            document.getElementById(dropdowns[i].id).selectedIndex = 0;
         }
 
         writeToAnn();
