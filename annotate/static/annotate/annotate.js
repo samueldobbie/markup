@@ -235,7 +235,7 @@ $(document).ready(function () {
         var attributeHoverInfo = [];
 
         // Add entity data to annotation list and hover info
-        var entityValue = $("input[type=radio]:checked")[0].id.split('_')[0];
+        var entityValue = $("input[type=radio]:checked")[0].id.substring(0, $("input[type=radio]:checked")[0].id.length - 6);
         entityHoverInfo.push(entityValue);
         entityData = 'T' + entityId + '\t' + entityValue + ' ' + startIndex + ' ' + endIndex + '\t' + underscoreString(highlighted) + '\n';
         entityId++;
@@ -514,7 +514,7 @@ $(document).ready(function () {
     var conditionalSelectionBoxes2 = JSON.parse(dict['vals'].replace(/&#39;/gi, '"'));
     $("input[type=radio]").click(function () {
         // Get selected radiobutton id
-        var selected = $(this).context.id.substring(0, $(this).context.id.length - 6)
+        var selected = $(this).context.id.substring(0, $(this).context.id.length - 6);
 
         // Deselect all checkboxes and remove hiding of all attributes
         for(var i=0; i<checkboxNum; i++) {
@@ -736,8 +736,7 @@ $(document).ready(function () {
     }
 
     function underscoreString(string) {
-        //return string.split(' ').join('_');
-        return string;
+        return string.split(' ').join('_');
     }
 });
 
