@@ -129,6 +129,9 @@ def annotate_data(request, data_file_path):
     context = dict()
     context['dict'] = data
 
+    for i in data:
+        print(data[i],'\n\n')
+
     return render(request, 'annotate/annotate.html', context)
 
 

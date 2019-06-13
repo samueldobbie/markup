@@ -514,7 +514,7 @@ $(document).ready(function () {
     var conditionalSelectionBoxes2 = JSON.parse(dict['vals'].replace(/&#39;/gi, '"'));
     $("input[type=radio]").click(function () {
         // Get selected radiobutton id
-        var selected = $(this).context.id.split('_')[0];
+        var selected = $(this).context.id.substring(0, $(this).context.id.length - 6)
 
         // Deselect all checkboxes and remove hiding of all attributes
         for(var i=0; i<checkboxNum; i++) {
@@ -736,7 +736,8 @@ $(document).ready(function () {
     }
 
     function underscoreString(string) {
-        return string.split(' ').join('_');
+        //return string.split(' ').join('_');
+        return string;
     }
 });
 

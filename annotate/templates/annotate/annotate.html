@@ -74,16 +74,6 @@
                             {% for k, v in dict.items %}
                                 {% if k == "vals" %}
                                     {% for dropdown in v %}   
-                                        <!-- 
-                                        <input id="{{ dropdown.1|add:dropdown.0 }}" name="values" list="datalist_{{ dropdown.1|add:dropdown.0 }}" placeholder="{{ dropdown.1 }}">
-                                        <datalist id="datalist_{{ dropdown.1|add:dropdown.0 }}">
-                                            {% for option in dropdown|slice:"2:" %}
-                                                <option value="{{ option }}">
-                                                    {{ option }}
-                                                </option>
-                                            {% endfor %}
-                                        </datalist>
-                                        -->
                                         <p style="margin:0; padding:0;">
                                             <select id="{{ dropdown.1|add:dropdown.0 }}" name="values" class="drop-down" style="padding:2px;">
                                                 {% for option in dropdown|slice:"1:" %}
