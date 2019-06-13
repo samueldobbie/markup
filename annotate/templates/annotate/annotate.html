@@ -20,6 +20,27 @@
         "{% endfor %}"
     </script>
     <script src="{% static 'annotate/annotate.js' %}"></script>
+    <style>
+        ::-webkit-input-placeholder {
+            font-size:14px;
+            font-weight:bold;
+        }
+        
+        :-moz-placeholder {
+            font-size:14px;
+            font-weight:bold;
+        }
+        
+        ::-moz-placeholder {
+            font-size:14px;
+            font-weight:bold;
+        }
+        
+        :-ms-input-placeholder {
+            font-size:14px;
+            font-weight:bold;
+        }
+    </style>
 </head>
 
 <body>
@@ -36,10 +57,8 @@
             </ul>
         </div>
     </nav>
-
     <div class="container">
         <div id="config_data" class="item item-1 standard-text">
-            <!--style="position:fixed;"-->
             <div id="config_data_options">
                 {% for key, value in dict.items %}
                     {% if key != "file_data" and key != "ann_filename" and key != "args" and key != "vals" and key != "events" %}
@@ -54,7 +73,17 @@
                             {% endfor %}
                             {% for k, v in dict.items %}
                                 {% if k == "vals" %}
-                                    {% for dropdown in v %}
+                                    {% for dropdown in v %}   
+                                        <!-- 
+                                        <input id="{{ dropdown.1|add:dropdown.0 }}" name="values" list="datalist_{{ dropdown.1|add:dropdown.0 }}" placeholder="{{ dropdown.1 }}">
+                                        <datalist id="datalist_{{ dropdown.1|add:dropdown.0 }}">
+                                            {% for option in dropdown|slice:"2:" %}
+                                                <option value="{{ option }}">
+                                                    {{ option }}
+                                                </option>
+                                            {% endfor %}
+                                        </datalist>
+                                        -->
                                         <p style="margin:0; padding:0;">
                                             <select id="{{ dropdown.1|add:dropdown.0 }}" name="values" class="drop-down" style="padding:2px;">
                                                 {% for option in dropdown|slice:"1:" %}
@@ -84,7 +113,6 @@
                 <select id="matchList" class="drop-down">
                     <option>No match</option>
                 </select>
-                <br>
                 <select id="searchList" class="drop-down">
                     <option>No match</option>
                 </select>
@@ -94,14 +122,8 @@
                 <br>
                 <button id="addAnnotation" class="btn">Add Annotation</button>
                 <br>
-                <!--
-                <button id="autoAnnotate" class="btn">Auto-Annotate</button>
+                <button id="autoAnnotate" class="btn">Suggest Annotations</button>
                 <br>
-                <button id="nextFile" class="btn">Move To Next File</button>
-                <br>
-                <button id="previousFile" class="btn">Move To Previous File</button>
-                <br>
-                -->
             </div>
         </div>
 

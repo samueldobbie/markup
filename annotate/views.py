@@ -23,6 +23,7 @@ def annotate_data(request, data_file_path):
             if afile.endswith('.txt'):
                 next_files.append(os.path.join(data_file_path, afile))
                 total_file_count += 1
+        next_files.sort()
         if len(next_files) > 0:
             data_file_path = next_files[0]
             current_file = next_files[0]
@@ -62,7 +63,8 @@ def annotate_data(request, data_file_path):
             continue
         config_values.append(line)
 
-    del entity_list[len(entity_list) - 1]
+    if len(entity_list) - 1 >= 0:
+        del entity_list[len(entity_list) - 1]
 
     # Read in all configuration arguments
     args = []

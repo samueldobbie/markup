@@ -1,6 +1,5 @@
 
 $(document).ready(function () {
-
     var allAnnotations = [];
     var offsets = [];
     var entityId = 1;
@@ -72,8 +71,7 @@ $(document).ready(function () {
                     var data = annotationWords[1].split(" ");
 
                     if (annotationWords[0][0] == "T") {
-                        // only parses a single digit right now
-                        var annotationId = parseInt(annotationWords[0][1]);
+                        var annotationId = parseInt(annotationWords[0].split('T')[1]);
                         if (annotationId > entityId) {
                             entityId = annotationId
                         }
@@ -84,8 +82,7 @@ $(document).ready(function () {
                     }
 
                     if (annotationWords[0][0] == "A") {
-                        // only parses a single digit right now
-                        var annotationId = parseInt(annotationWords[0][1]);
+                        var annotationId = parseInt(annotationWords[0].split('A')[1]);
                         if (annotationId > attributeId) {
                             attributeId = annotationId
                         }
@@ -240,7 +237,7 @@ $(document).ready(function () {
         // Add entity data to annotation list and hover info
         var entityValue = $("input[type=radio]:checked")[0].id.split('_')[0];
         entityHoverInfo.push(entityValue);
-        entityData = 'T' + entityId + '\t' + entityValue + ' ' + startIndex + ' ' + endIndex + '\t' + highlighted + '\n';
+        entityData = 'T' + entityId + '\t' + entityValue + ' ' + startIndex + ' ' + endIndex + '\t' + underscoreString(highlighted) + '\n';
         entityId++;
 
         annotation.push([entityData]);
@@ -249,15 +246,16 @@ $(document).ready(function () {
         var attributeValues = [];
         var attributeData = [];
         for (var i=0; i < $("input[type=checkbox]:checked").length; i++) {
-            attributeValues.push($("input[type=checkbox]:checked")[i].id);
-            attributeData.push('A' + attributeId + '\t' + $("input[type=checkbox]:checked")[i].id + ' T' + (entityId - 1) + '\n');
+            var checkedAttribute = underscoreString($("input[type=checkbox]:checked")[i].id);
+            attributeValues.push(checkedAttribute);
+            attributeData.push('A' + attributeId + '\t' + checkedAttribute + ' T' + (entityId - 1) + '\n');
             attributeId++;
         }
         attributeHoverInfo.push(attributeValues);
 
         for (var i=0; i < $("select").length; i++) {
             var currentSelect = $("select")[i];
-            var currentValue = currentSelect.options[currentSelect.selectedIndex].value;
+            var currentValue = underscoreString(currentSelect.options[currentSelect.selectedIndex].value);
 
             if (currentValue != currentSelect[0].value && currentSelect.id == currentSelect[0].value + entityValue) {
                 attributeValues.push(currentValue);
@@ -278,11 +276,11 @@ $(document).ready(function () {
                 async: false,
                 data: { match: option },
                 success: function (response) {
-                    var term = 'A' + attributeId + '\t' + option + ' T' + (entityId - 1) + '\n';
+                    var term = 'A' + attributeId + '\tCUIPhrase' + ' T' + (entityId - 1) + ' ' + underscoreString(option) + '\n';
                     attributeData.push(term);
                     attributeId++;
 
-                    var cui = 'A' + attributeId + '\t' + response.replace(/['"]+/g, '') + ' T' + (entityId - 1) + '\n';
+                    var cui = 'A' + attributeId + '\tCUI' + ' T' + (entityId - 1) + ' ' + response.replace(/['"]+/g, '') + '\n';
                     attributeId++;
                     attributeData.push(cui);
                 }
@@ -301,11 +299,11 @@ $(document).ready(function () {
                 async: false,
                 data: { match: option },
                 success: function (response) {
-                    var term = 'A' + attributeId + '\t' + option + ' T' + (entityId - 1) + '\n';
+                    var term = 'A' + attributeId + '\tCUIPhrase' + ' T' + (entityId - 1) + ' ' + underscoreString(option) + '\n';
                     attributeData.push(term);
                     attributeId++;
 
-                    var cui = 'A' + attributeId + '\t' + response.replace(/['"]+/g, '') + ' T' + (entityId - 1) + '\n';
+                    var cui = 'A' + attributeId + '\tCUI' + ' T' + (entityId - 1) + ' ' + response.replace(/['"]+/g, '') + '\n';
                     attributeId++;
                     attributeData.push(cui);
                 }
@@ -368,7 +366,6 @@ $(document).ready(function () {
                 // Removes annotation from annotation_data display
                 var elem = document.getElementById(id);
                 elem.parentElement.removeChild(elem);
-
                 return;
             }
         };
@@ -611,8 +608,9 @@ $(document).ready(function () {
         writeToAnn();
     });
 
+    
     var clicks = 0;
-    $('#file_data').click(function (e) {
+    $('#file_data').click(function () {
         if (window.getSelection().toString() == '' && clicks >= 2) {
             clicks = 0;
             return;
@@ -643,12 +641,11 @@ $(document).ready(function () {
                    doc.innerText[endIndex] != '?') {
                 endIndex++;
             }
-
             setSelectionRange(document.getElementById('file_data'), startIndex, endIndex);
         }
     });
 
-    $('#file_data').bind("contextmenu",function(e){
+    $('#file_data').bind("contextmenu",function(){
         // TO-DO: Update UMLS suggestion on right-click
 
         if (window.getSelection().toString() == '' && clicks >= 2) {
@@ -721,6 +718,10 @@ $(document).ready(function () {
                 searchList.add(option);
             }
         });
+    }
+
+    function underscoreString(string) {
+        return string.split(' ').join('_');
     }
 });
 
