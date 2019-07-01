@@ -1,23 +1,62 @@
 
 $(document).ready(function () {
-    var allAnnotations = [];
-    var offsets = [];
+    var annotationList = [];
+    var offsetList = [];
     var entityId = 1;
     var attributeId = 1;
 
-    // Hide all attributes until an entity is selected
-    var checkboxes = $("input[type=checkbox]");
-    var checkboxNum = checkboxes.length;
-    for(var i=0; i<checkboxNum; i++) {
-        checkboxes[i].style.display = "none";
-        checkboxes[i].labels[0].style.display = "none";
+    var attributeCheckboxes = $("input[type=checkbox]");
+    var attributeRadiobuttons = $("input[type=radio]");
+    var attributeDropdowns = $("select[name=values]");
+    var allDropdowns = $("select");
+
+    /*
+    var labels = $('.l');
+
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+          color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+      }
+
+    for (var i = 0; i < labels.length; i++) {
+        labels[i].style.backgroundColor = getRandomColor();
+    }
+    */
+
+    // Toggle display of specified attributes
+    function toggleAttributeDisplay(vals, type, data) {
+        for (var i = 0; i < vals.length; i++) {
+            if (type == "checkbox") {
+                vals[i].style.display = data;
+                vals[i].labels[0].style.display = data;
+            } else if (type == "dropdown") {
+                vals[i].style.display = data;
+            }
+        }
     }
 
-    var dropdowns = $("select[name=values]");
-    var dropdownsNum = dropdowns.length;
-    for(var i=0; i<dropdownsNum; i++) {
-        dropdowns[i].style.display = "none";
+
+    // Toggle check-status of specified attributes
+    function toggleAttributeCheck(vals, data) {
+        for (var i = 0; i < vals.length; i++) {
+            $('#' + vals[i].id).prop('checked', data);
+        }
     }
+
+
+    // Reset specified dropdown lists
+    function resetDropdowns(vals) {
+        for (var i = 0; i < vals.length; i++) {
+            document.getElementById(vals[i].id).selectedIndex = 0;
+        }
+    }
+
+    toggleAttributeDisplay(attributeCheckboxes, "checkbox", "none");
+    toggleAttributeDisplay(attributeDropdowns, "dropdown", "none");
 
     // Checks if user has preset preference for color mode
     var darkMode;
@@ -28,7 +67,8 @@ $(document).ready(function () {
         initializeColor("light");
         darkMode = false;
     }
-    
+
+
     // Load annotations if there's an existing ann file
     $.ajax({
         type: "GET",
@@ -38,19 +78,12 @@ $(document).ready(function () {
         success: function (response) {
             response = JSON.parse(response);
 
-            if (response == null || response.length == 0) {
-                return;
-            }
-
-            function selectAndHighlightRange(entityValue, attributeValues, start, end) {
-                setSelectionRange(document.getElementById('file_data'), start, end);
-                populateAnnotations(entityValue, attributeValues, start, end);
-            }
+            if (response == null || response.length == 0) { return; }
 
             annotation = [];
-            for (var i=0; i<response.length; i++) {
+            for (var i = 0; i < response.length; i++) {
                 if (response[i][0] == "T" && annotation.length != 0) {
-                    allAnnotations.push(annotation);
+                    annotationList.push(annotation);
                     annotation = [];
                     annotation.push([response[i] + '\n']);
                 } else if (response[i][0] == "T") {
@@ -59,15 +92,15 @@ $(document).ready(function () {
                     annotation.push([response[i] + '\n']);
                 }
             }
-            allAnnotations.push(annotation);
+            annotationList.push(annotation);
 
-            for (var i=0; i<allAnnotations.length; i++) {
+            for (var i = 0; i < annotationList.length; i++) {
                 var attributeValues = [];
                 var entityValue = '';
                 var start = 0;
                 var end = 0;
-                for (var j=0; j< allAnnotations[i].length; j++) {
-                    var annotationWords = allAnnotations[i][j][0].split("\t");
+                for (var j = 0; j < annotationList[i].length; j++) {
+                    var annotationWords = annotationList[i][j][0].split("\t");
                     var data = annotationWords[1].split(" ");
 
                     if (annotationWords[0][0] == "T") {
@@ -75,7 +108,6 @@ $(document).ready(function () {
                         if (annotationId > entityId) {
                             entityId = annotationId
                         }
-
                         entityValue = data[0];
                         start = data[1];
                         end = data[2];
@@ -86,17 +118,22 @@ $(document).ready(function () {
                         if (annotationId > attributeId) {
                             attributeId = annotationId
                         }
-
                         attributeValues.push([data[0]]);
                     }
                 }
-                selectAndHighlightRange(entityValue, attributeValues, start, end);
+                highlightRange(entityValue, attributeValues, start, end);
             }
             entityId++;
             attributeId++;
             window.getSelection().removeAllRanges();
         }
     });
+
+
+    function highlightRange(entityValue, attributeValues, start, end) {
+        setSelectionRange(document.getElementById('file_data'), start, end);
+        populateAnnotations(entityValue, attributeValues, start, end);
+    }
 
 
     function setSelectionRange(el, start, end) {
@@ -106,8 +143,8 @@ $(document).ready(function () {
             var textNodes = getTextNodesIn(el);
             var foundStart = false;
             var charCount = 0, endCharCount;
-    
-            for (var i = 0, textNode; textNode = textNodes[i++]; ) {
+
+            for (var i = 0, textNode; textNode = textNodes[i++];) {
                 endCharCount = charCount + textNode.length;
                 if (!foundStart && start >= charCount && (start < endCharCount || (start == endCharCount && i <= textNodes.length))) {
                     range.setStart(textNode, start - charCount);
@@ -119,7 +156,7 @@ $(document).ready(function () {
                 }
                 charCount = endCharCount;
             }
-    
+
             var sel = window.getSelection();
             sel.removeAllRanges();
             sel.addRange(range);
@@ -156,7 +193,7 @@ $(document).ready(function () {
 
         // Color-highlight selected text
         document.getElementById('file_data').contentEditable = 'true';
-        document.execCommand('insertHTML', false, '<span id="' + startIndex + '_' + endIndex + '_aid" style="background-color:' + highlightColor + '; color:black;">' + highlighted + '</span>');
+        document.execCommand('insertHTML', false, '<span id="' + startIndex + '_' + endIndex + '_aid" style="background-color:' + highlightColor + '; color:black; border-radius:5px; padding:2px;">' + highlighted + '</span>');
         document.getElementById('file_data').contentEditable = 'false';
 
         var entityHoverInfo = [];
@@ -173,12 +210,12 @@ $(document).ready(function () {
         }
 
         // Keep track of offets for each annotation
-        offsets.push([startIndex, endIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
+        offsetList.push([startIndex, endIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
 
         // Add annotation to annotaion_data display
         var annotationClass = 'class="test"';
         var annotationId = 'id="' + startIndex + '_' + endIndex + '"';
-        var annotationStyle = 'style="border-radius:5px; background-color:#33FFB5; font-family:\'Nunito\'; padding:10px; border:2px solid #333; display:inline-block; clear:both; float:left; '
+        var annotationStyle = 'style="border-radius:5px; background-color:#33FFB5; font-family:\'Nunito\'; padding:5px; display:inline-block; clear:both; float:left; '
         if (darkMode) {
             annotationStyle += 'color:black;"';
         } else {
@@ -190,7 +227,7 @@ $(document).ready(function () {
 
     $('#addAnnotation').click(function () {
         var highlighted = window.getSelection().toString();
-        
+
         // Check whether selected text is valid
         var validAnnotation = false;
         for (k in dict) {
@@ -203,7 +240,7 @@ $(document).ready(function () {
         }
 
         if (!validAnnotation || highlighted == '') { return; }
-        
+
         // Get start and end indicies (offsets) of selected text
         var doc = document.getElementById('file_data');
         var range = window.getSelection().getRangeAt(0);
@@ -217,8 +254,8 @@ $(document).ready(function () {
 
         // Change annotation color if there's an overlap between two annotations
         highlightColor = '#33FFB5';
-        for (var i = 0; i < offsets.length; i++) {
-            if ((startIndex >= offsets[i][0] && startIndex <= offsets[i][1]) || (endIndex >= offsets[i][0] && endIndex <= offsets[i][1])) {
+        for (var i = 0; i < offsetList.length; i++) {
+            if ((startIndex >= offsetList[i][0] && startIndex <= offsetList[i][1]) || (endIndex >= offsetList[i][0] && endIndex <= offsetList[i][1])) {
                 highlightColor = 'rgb(35, 200, 130)';
                 break;
             }
@@ -226,7 +263,7 @@ $(document).ready(function () {
 
         // Color-highlight selected text
         document.getElementById('file_data').contentEditable = 'true';
-        document.execCommand('insertHTML', false, '<span id="' + startIndex + '_' + endIndex + '_aid" style="background-color:' + highlightColor + '; color:black;">' + highlighted + '</span>');
+        document.execCommand('insertHTML', false, '<span id="' + startIndex + '_' + endIndex + '_aid" style="background-color:' + highlightColor + '; color:black; border-radius:5px; padding:2px;">' + highlighted + '</span>');
         document.getElementById('file_data').contentEditable = 'false';
 
         // Output annotation in stand-off format
@@ -245,7 +282,7 @@ $(document).ready(function () {
         // Prepare attribute data to annotation list and add hover info
         var attributeValues = [];
         var attributeData = [];
-        for (var i=0; i < $("input[type=checkbox]:checked").length; i++) {
+        for (var i = 0; i < $("input[type=checkbox]:checked").length; i++) {
             var checkedAttribute = underscoreString($("input[type=checkbox]:checked")[i].id);
             attributeValues.push(checkedAttribute);
             attributeData.push('A' + attributeId + '\t' + checkedAttribute + ' T' + (entityId - 1) + '\n');
@@ -253,7 +290,7 @@ $(document).ready(function () {
         }
         attributeHoverInfo.push(attributeValues);
 
-        for (var i=0; i < $("select").length; i++) {
+        for (var i = 0; i < $("select").length; i++) {
             var currentSelect = $("select")[i];
             var currentValue = underscoreString(currentSelect.options[currentSelect.selectedIndex].value);
 
@@ -311,20 +348,20 @@ $(document).ready(function () {
         }
 
         // Add attributes to annotation list
-        for (var i=0; i<attributeData.length; i++) {
+        for (var i = 0; i < attributeData.length; i++) {
             annotation.push([attributeData[i]]);
         }
 
         // Keep track of offets for each annotation
-        offsets.push([startIndex, endIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
+        offsetList.push([startIndex, endIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
 
         // Add annotations to current-annotation list
-        allAnnotations.push(annotation);
+        annotationList.push(annotation);
 
         // Add annotation to annotaion_data display
         var annotationClass = 'class="test"';
         var annotationId = 'id="' + startIndex + '_' + endIndex + '"';
-        var annotationStyle = 'style="border-radius:5px; background-color:#33FFB5; font-family:\'Nunito\'; padding:10px; border:2px solid #333; display:inline-block; clear:both; float:left; '
+        var annotationStyle = 'style="border-radius:5px; background-color:#33FFB5; font-family:\'Nunito\'; padding:5px; display:inline-block; clear:both; float:left; ';
         if (darkMode) {
             annotationStyle += 'color:black;"';
         } else {
@@ -334,27 +371,12 @@ $(document).ready(function () {
 
         // Removes selection of newly-annotated text
         window.getSelection().removeAllRanges();
-    
-        var checkboxes = $("input[type=checkbox]");
-        var checkboxNum = checkboxes.length;
 
-        var radiobuttons = $("input[type=radio]");
-        var radiobuttonNum = radiobuttons.length;
-        // Deselect all checkboxes
-        for(var i=0; i<checkboxNum; i++) {
-            $('#' + checkboxes[i].id).prop('checked', false);
-        }
-
-        // Deselect all radiobuttons
-        for(var i=0; i<radiobuttonNum; i++) {
-            $('#' + radiobuttons[i].id).prop('checked', false);
-        }
-
-        var dropdowns = $("select");
-        var dropdownsNum = dropdowns.length;
-        for(var i=0; i<dropdownsNum; i++) {
-            document.getElementById(dropdowns[i].id).selectedIndex = 0;
-        }
+        toggleAttributeCheck(attributeCheckboxes, false);
+        toggleAttributeCheck(attributeRadiobuttons, false);
+        toggleAttributeDisplay(attributeCheckboxes, "checkbox", "none");
+        toggleAttributeDisplay(attributeDropdowns, "dropdown", "none");
+        resetDropdowns(allDropdowns);
 
         writeToAnn();
     });
@@ -371,10 +393,10 @@ $(document).ready(function () {
         document.getElementById(id + '_aid').outerHTML = document.getElementById(id + '_aid').innerHTML;
 
         // Finds correct annotation index based on offset list and removes
-        for (var i = 0; i < offsets.length; i++) {
-            if (offsets[i][0] == startIndex && offsets[i][1] == endIndex) {
-                allAnnotations.splice(i, 1);
-                offsets.splice(i, 1);
+        for (var i = 0; i < offsetList.length; i++) {
+            if (offsetList[i][0] == startIndex && offsetList[i][1] == endIndex) {
+                annotationList.splice(i, 1);
+                offsetList.splice(i, 1);
 
                 writeToAnn();
 
@@ -401,13 +423,13 @@ $(document).ready(function () {
     // Save annotations to .ann file
     function writeToAnn() {
         removeAnnFile();
-        for(var i=0; i<allAnnotations.length; i++) {
-            for(var j=0; j<allAnnotations[i].length; j++) {
+        for (var i = 0; i < annotationList.length; i++) {
+            for (var j = 0; j < annotationList[i].length; j++) {
                 $.ajax({
                     type: 'GET',
                     async: false,
                     url: '~/write_to_ann',
-                    data: {annotations: allAnnotations[i][j][0], ann_filename: dict['ann_filename'] }
+                    data: { annotations: annotationList[i][j][0], ann_filename: dict['ann_filename'] }
                 });
             }
         }
@@ -419,36 +441,39 @@ $(document).ready(function () {
         var indicies = id.split("_");
         var startIndex = indicies[0];
         var endIndex = indicies[1];
+
         if (id != type) {
-            for (var i = 0; i < offsets.length; i++) {
-                if (offsets[i][0] == startIndex && offsets[i][1] == endIndex) {
+            for (var i = 0; i < offsetList.length; i++) {
+                if (offsetList[i][0] == startIndex && offsetList[i][1] == endIndex) {
                     for (var j = 2; j < 5; j++) {
-                        if (offsets[i][j].length == 0) {
-                            offsets[i][j] = 'None';
+                        if (offsetList[i][j].length == 0) {
+                            offsetList[i][j] = 'None';
                         }
                     }
-                    document.getElementById(id).title = "Text: " + offsets[i][4] + "\nEntity: " + offsets[i][2] + "\nAttributes: " + offsets[i][3];
+                    document.getElementById(id).title = "Text: " + offsetList[i][4] + "\nEntity: " + offsetList[i][2] + "\nAttributes: " + offsetList[i][3];
+                    //document.getElementById(id).style.backgroundColor = "blue";
+                    //document.getElementById(id + '_aid').style.backgroundColor = "blue";
                     return;
                 }
             };
-        } 
+        }
     }
 
 
     // Display information about annotation on hover of annotation_data display
-    $("#annotation_data").mouseover(function(eventObj) {
+    $("#annotation_data").mouseover(function (eventObj) {
         hoverInfo(eventObj.target.id, 'annotation_data');
     });
 
 
     // Display information about annotation on hover of file_data display
-    $("#file_data").mouseover(function(eventObj) {
-        hoverInfo(eventObj.target.id, 'file_data') ;
+    $("#file_data").mouseover(function (eventObj) {
+        hoverInfo(eventObj.target.id, 'file_data');
     });
 
 
     // Prevent deselection of text when deleting annotation
-    $('#annotation_data').mousedown(function() {
+    $('#annotation_data').mousedown(function () {
         return false;
     });
 
@@ -460,7 +485,7 @@ $(document).ready(function () {
 
         if (type == "dark") {
             document.getElementById('darkMode').innerHTML = 'Light Mode';
-            for (var i=0; i < document.getElementsByTagName('select').length; i++) {
+            for (var i = 0; i < document.getElementsByTagName('select').length; i++) {
                 document.getElementById(document.getElementsByTagName('select')[i].id).style.backgroundColor = 'white';
             }
             backgroundColor = '#333';
@@ -473,7 +498,7 @@ $(document).ready(function () {
 
         $('body').css({
             "background-color": backgroundColor,
-            "color" : textColor
+            "color": textColor
         });
     }
 
@@ -487,8 +512,12 @@ $(document).ready(function () {
             document.getElementById('config_data_options').style.color = 'white';
             document.getElementById('annotation_data').style.color = 'black';
             document.getElementsByTagName('body')[0].style.backgroundColor = '#333';
-            for (var i=0; i < document.getElementsByTagName('select').length; i++) {
+            for (var i = 0; i < document.getElementsByTagName('select').length; i++) {
                 document.getElementById(document.getElementsByTagName('select')[i].id).style.backgroundColor = 'white';
+            }
+            var spans = $('span');
+            for (var i = 0; i<spans.length; i++) {
+                spans[i].style.color = 'black';
             }
             darkMode = true;
         } else {
@@ -508,56 +537,48 @@ $(document).ready(function () {
         suggest_cui(window.getSelection().toString(), 'matchList');
     });
 
-    
+
     // Dynamic entity / attribute configurations
-    var conditionalSelectionBoxes = JSON.parse(dict['args'].replace(/&#39;/gi, '"'));
-    var conditionalSelectionBoxes2 = JSON.parse(dict['vals'].replace(/&#39;/gi, '"'));
+    var argBoxes = JSON.parse(dict['args'].replace(/&#39;/gi, '"'));
+    var valBoxes = JSON.parse(dict['vals'].replace(/&#39;/gi, '"'));
     $("input[type=radio]").click(function () {
         // Get selected radiobutton id
         var selected = $(this).context.id.substring(0, $(this).context.id.length - 6);
 
-        // Deselect all checkboxes and remove hiding of all attributes
-        for(var i=0; i<checkboxNum; i++) {
-            $('#' + checkboxes[i].id).prop('checked', false);
-            checkboxes[i].style.display = "";
-            checkboxes[i].labels[0].style.display = "";
-        }
-
-        for(var i=0; i<dropdownsNum; i++) {
-            dropdowns[i].style.display = "";
-        }
+        // Deselect and remove hiding of all attributes
+        toggleAttributeCheck(attributeCheckboxes, false);
+        toggleAttributeDisplay(attributeCheckboxes, "checkbox", "");
+        toggleAttributeDisplay(attributeDropdowns, "dropdown", "");
 
         // Determine which attributes should be displayed
         var visibleCheckboxes = [];
-        for(var i=0; i<conditionalSelectionBoxes.length; i++) {
-            if (conditionalSelectionBoxes[i][1] == selected) {
-                visibleCheckboxes.push(conditionalSelectionBoxes[i][0]);
+        for (var i = 0; i < argBoxes.length; i++) {
+            if (argBoxes[i][1] == selected) {
+                visibleCheckboxes.push(argBoxes[i][0]);
             }
         }
 
         var visibleDropdowns = [];
-        for(var i=0; i<conditionalSelectionBoxes2.length; i++) {
-            if (conditionalSelectionBoxes2[i][0] == selected) {
-                visibleDropdowns.push(conditionalSelectionBoxes2[i][1] + conditionalSelectionBoxes2[i][0]);
+        for (var i = 0; i < valBoxes.length; i++) {
+            if (valBoxes[i][0] == selected) {
+                visibleDropdowns.push(valBoxes[i][1] + valBoxes[i][0]);
             }
         }
 
         // Hide all unwanted attributes
-        for(var i=0; i<checkboxNum; i++) {
-            if (!visibleCheckboxes.includes(checkboxes[i].id)) {
-                checkboxes[i].style.display = "none";
-                checkboxes[i].labels[0].style.display = "none";
+        for (var i = 0; i < attributeCheckboxes.length; i++) {
+            if (!visibleCheckboxes.includes(attributeCheckboxes[i].id)) {
+                attributeCheckboxes[i].style.display = "none";
+                attributeCheckboxes[i].labels[0].style.display = "none";
             }
         }
 
         // Hide all unwanted attributes
-        for(var i=0; i<dropdownsNum; i++) {
-            if (!visibleDropdowns.includes(dropdowns[i].id)) {
-                dropdowns[i].style.display = "none";
+        for (var i = 0; i < attributeDropdowns.length; i++) {
+            if (!visibleDropdowns.includes(attributeDropdowns[i].id)) {
+                attributeDropdowns[i].style.display = "none";
             }
         }
-
-        // To-do: clean up above & deal with duplicate conf file entries
     });
 
 
@@ -567,7 +588,7 @@ $(document).ready(function () {
             type: 'GET',
             async: false,
             url: '~/move_to_next_file',
-            success: function(data) {
+            success: function (data) {
                 window.location.href = data;
             }
         });
@@ -580,7 +601,7 @@ $(document).ready(function () {
             type: 'GET',
             async: false,
             url: '~/move_to_previous_file',
-            success: function(data) {
+            success: function (data) {
                 window.location.href = data;
             }
         });
@@ -596,8 +617,8 @@ $(document).ready(function () {
             type: 'GET',
             async: false,
             url: '~/auto_annotate',
-            data: {'document_text': text},
-            success: function(response) {
+            data: { 'document_text': text },
+            success: function (response) {
                 annotations = JSON.parse(response);
             }
         });
@@ -611,7 +632,7 @@ $(document).ready(function () {
                 continue;
             }
 
-            allAnnotations.push([["T" + entityId + "\tDOB " + startIndex + " " + endIndex + "\t" + annotations[i][0] + '\n'], ["A" + attributeId + "\t" + annotations[i][1] + "\tT" + entityId + "\n"], ["A" + (attributeId + 1) + "\t" + annotations[i][2] + "\tT" + entityId + "\n"]]);
+            annotationList.push([["T" + entityId + "\tDOB " + startIndex + " " + endIndex + "\t" + annotations[i][0] + '\n'], ["A" + attributeId + "\t" + annotations[i][1] + "\tT" + entityId + "\n"], ["A" + (attributeId + 1) + "\t" + annotations[i][2] + "\tT" + entityId + "\n"]]);
 
             entityId++;
             attributeId++;
@@ -623,7 +644,7 @@ $(document).ready(function () {
         writeToAnn();
     });
 
-    
+
     var clicks = 0;
     $('#file_data').click(function () {
         if (window.getSelection().toString() == '' && clicks >= 2) {
@@ -637,30 +658,31 @@ $(document).ready(function () {
             var doc = document.getElementById('file_data');
             var range = window.getSelection().getRangeAt(0);
             var preCaretRange = range.cloneRange();
-    
+
             preCaretRange.selectNodeContents(doc);
             preCaretRange.setEnd(range.startContainer, range.startOffset);
-    
+
             startIndex = preCaretRange.toString().length;
             endIndex = startIndex + range.toString().length;
             endIndex++;
 
-            while (doc.innerText[endIndex] != ' ' && 
-                   doc.innerText[endIndex] != '' &&
-                   doc.innerText[endIndex] != '.' && 
-                   doc.innerText[endIndex] != '\n' &&  
-                   doc.innerText[endIndex] != '!' && 
-                   doc.innerText[endIndex] != ',' && 
-                   doc.innerText[endIndex] != ';' && 
-                   doc.innerText[endIndex] != ':' && 
-                   doc.innerText[endIndex] != '?') {
+            while (doc.innerText[endIndex] != ' ' &&
+                doc.innerText[endIndex] != '' &&
+                doc.innerText[endIndex] != '.' &&
+                doc.innerText[endIndex] != '\n' &&
+                doc.innerText[endIndex] != '!' &&
+                doc.innerText[endIndex] != ',' &&
+                doc.innerText[endIndex] != ';' &&
+                doc.innerText[endIndex] != ':' &&
+                doc.innerText[endIndex] != '?') {
                 endIndex++;
             }
             setSelectionRange(document.getElementById('file_data'), startIndex, endIndex);
         }
     });
 
-    $('#file_data').bind("contextmenu",function(){
+
+    $('#file_data').bind("contextmenu", function () {
         // TO-DO: Update UMLS suggestion on right-click
 
         if (window.getSelection().toString() == '' && clicks >= 2) {
@@ -672,41 +694,43 @@ $(document).ready(function () {
             var doc = document.getElementById('file_data');
             var range = window.getSelection().getRangeAt(0);
             var preCaretRange = range.cloneRange();
-    
+
             preCaretRange.selectNodeContents(doc);
             preCaretRange.setEnd(range.startContainer, range.startOffset);
-    
+
             startIndex = preCaretRange.toString().length;
             endIndex = startIndex + range.toString().length;
             endIndex--;
 
-            while (doc.innerText[endIndex] != ' ' && 
-                   doc.innerText[endIndex] != '' &&
-                   doc.innerText[endIndex] != '.' && 
-                   doc.innerText[endIndex] != '\n' &&  
-                   doc.innerText[endIndex] != '!' && 
-                   doc.innerText[endIndex] != ',' && 
-                   doc.innerText[endIndex] != ';' && 
-                   doc.innerText[endIndex] != ':' && 
-                   doc.innerText[endIndex] != '?') {
+            while (doc.innerText[endIndex] != ' ' &&
+                doc.innerText[endIndex] != '' &&
+                doc.innerText[endIndex] != '.' &&
+                doc.innerText[endIndex] != '\n' &&
+                doc.innerText[endIndex] != '!' &&
+                doc.innerText[endIndex] != ',' &&
+                doc.innerText[endIndex] != ';' &&
+                doc.innerText[endIndex] != ':' &&
+                doc.innerText[endIndex] != '?') {
                 endIndex--;
             }
 
             setSelectionRange(document.getElementById('file_data'), startIndex, endIndex);
         }
         return false;
-     });
+    });
+
 
     $('#searchDictBtn').click(function () {
         suggest_cui(document.getElementById('searchDict').value, 'searchList');
     });
 
+
     function suggest_cui(inp, type) {
         $.ajax({
             type: "GET",
             url: "~/suggest_cui",
-            data: {selectedTerm: inp.toLowerCase()}
-        }).done(function(data){
+            data: { selectedTerm: inp.toLowerCase() }
+        }).done(function (data) {
             // Empty drop-down list
             document.getElementById(type).options.length = 0;
             if (data != '') {
@@ -716,7 +740,7 @@ $(document).ready(function () {
                 var newOption = document.createElement("option");
                 newOption.text = '';
                 searchList.add(newOption);
-                for (var i=0; i < arr.length; i++) {
+                for (var i = 0; i < arr.length; i++) {
                     newOption = document.createElement("option");
                     newOption.text = arr[i];
                     searchList.add(newOption);
@@ -735,8 +759,10 @@ $(document).ready(function () {
         });
     }
 
+
     function underscoreString(string) {
-        return string.split(' ').join('_');
+        string = string.split(' ').join('_');
+        return string.split('\n').join('_');
     }
 });
 

@@ -8,6 +8,9 @@ import pickle
 import json
 import os
 
+from simstring.measure.cosine import CosineMeasure
+from simstring.searcher import Searcher
+
 next_files = []
 previous_files = []
 current_file = ''
@@ -18,6 +21,7 @@ def annotate_data(request, data_file_path):
     # Adds all text files from selected directory to a list and opens first document to start annotating
     global total_file_count
     global current_file
+    global next_files
     if os.path.isdir(data_file_path):
         for afile in os.listdir(data_file_path):
             if afile.endswith('.txt'):
@@ -129,9 +133,6 @@ def annotate_data(request, data_file_path):
     context = dict()
     context['dict'] = data
 
-    for i in data:
-        print(data[i],'\n\n')
-
     return render(request, 'annotate/annotate.html', context)
 
 
@@ -172,9 +173,13 @@ def finished(request):
 
 
 # Performs lookup of cui based on selected UMLS term
+'''
 def get_cui(request, data_file_path):
     r = requests.get('http://www.getmarkup.com/umls_api/get_cui/' + request.GET['match'])
     return HttpResponse(json.dumps(r.json()['cui']))
+'''
+def get_cui(request, data_file_path):
+    return HttpResponse(term_to_cui[request.GET['match']])
 
 
 # Outputs the input annotations to .ann file
@@ -197,11 +202,21 @@ def remove_ann_file(request, data_file_path):
     return HttpResponse(None)
 
 
+'''
 # Returns all relevant UMLS matches that have a cosine similarity value over 0.75, in descending order
 def suggest_cui(request, data_file_path):
     r = requests.get('http://www.getmarkup.com/umls_api/' + request.GET['selectedTerm'])
     output = []
     for i in r.json()['results']:
+        output.append(i[1] + ',')
+    if output != []:
+        output[-1] = output[-1][:-1]
+    return HttpResponse(output)
+'''
+# Returns all relevant UMLS matches that have a cosine similarity value over 0.75, in descending order
+def suggest_cui(request, data_file_path):
+    output = []
+    for i in searcher.ranked_search(request.GET['selectedTerm'], COSINE_THRESHOLD):
         output.append(i[1] + ',')
     if output != []:
         output[-1] = output[-1][:-1]
@@ -276,4 +291,9 @@ def auto_annotate(request, data_file_path):
         final_results += i
 
     return HttpResponse(json.dumps(final_results))
- 
+
+COSINE_THRESHOLD = 0.75
+
+term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
+db = pickle.load(open('db.pickle', 'rb'))
+searcher = Searcher(db, CosineMeasure())
