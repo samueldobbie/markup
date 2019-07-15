@@ -217,9 +217,9 @@ def suggest_cui(request, data_file_path):
 def suggest_cui(request, data_file_path):
     output = []
     for i in searcher.ranked_search(request.GET['selectedTerm'], COSINE_THRESHOLD):
-        output.append(i[1] + ',')
+        output.append(i[1] + '***')
     if output != []:
-        output[-1] = output[-1][:-1]
+        output[-1] = output[-1][:-3]
     return HttpResponse(output)
 
 
@@ -238,6 +238,7 @@ def load_existing(request, data_file_path):
         return HttpResponse(json.dumps(None))
 
 
+'''
 def auto_annotate(request, data_file_path):
     doc_text = request.GET['document_text']
     doc_ngrams = []
@@ -289,6 +290,49 @@ def auto_annotate(request, data_file_path):
     final_results = []
     for i in results:
         final_results += i
+
+    return HttpResponse(json.dumps(final_results))
+'''
+def auto_annotate(request, data_file_path):
+    doc_text = request.GET['document_text']
+
+    doc_ngrams = []
+    for sentence in sent_tokenize(doc_text):
+        tokens = sentence.split()
+        token_count = len(tokens)
+        if token_count > 3:
+            token_count = 4
+
+        for n in range(2, token_count):
+            for ngram in ngrams(tokens, n):
+                term = ' '.join(list(ngram))
+                if term not in doc_ngrams:
+                    doc_ngrams.append(term)
+
+    raw_sentence_ngrams = []
+    clean_sentence_ngrams = []
+    for raw_ngram in doc_ngrams:
+        if not raw_ngram[-1].isalnum():
+            raw_ngram = raw_ngram[:-1]
+
+        clean_ngram = ""
+        for char in raw_ngram:
+            if char.isalnum():
+                clean_ngram += char.lower()
+            else:
+                clean_ngram += ' '
+        clean_ngram = ' '.join([word for word in clean_ngram.split()])
+        if clean_ngram is not '':
+            raw_sentence_ngrams.append(raw_ngram)
+            clean_sentence_ngrams.append(clean_ngram)
+
+    final_results = []
+    for i in range(len(raw_sentence_ngrams)):
+        result = searcher.ranked_search(raw_sentence_ngrams[i].lower(), COSINE_THRESHOLD + 0.20)
+        if result == []:
+            continue
+        else:
+            final_results.append([raw_sentence_ngrams[i]] + [result[0][1]] + [term_to_cui[result[0][1]]])
 
     return HttpResponse(json.dumps(final_results))
 

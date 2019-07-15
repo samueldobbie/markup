@@ -379,6 +379,7 @@ $(document).ready(function () {
         resetDropdowns(allDropdowns);
 
         writeToAnn();
+        location.reload();
     });
 
 
@@ -734,7 +735,7 @@ $(document).ready(function () {
             // Empty drop-down list
             document.getElementById(type).options.length = 0;
             if (data != '') {
-                var arr = data.split(',');
+                var arr = data.split('***');
                 var searchList = document.getElementById(type);
                 var count = 0;
                 var newOption = document.createElement("option");
@@ -764,5 +765,29 @@ $(document).ready(function () {
         string = string.split(' ').join('_');
         return string.split('\n').join('_');
     }
+
+    // Change annotation to new colour when hovered over in annotation data
+    $('#annotation_data p').mouseover(function (e) {
+        document.getElementById(e.target.id).style.backgroundColor = "pink";
+        document.getElementById(e.target.id + "_aid").style.backgroundColor = "pink";
+    });
+
+    // Return annotation to existing colour when stop hovering over in annotation data
+    $('#annotation_data p').mouseout(function (e) {
+        document.getElementById(e.target.id).style.backgroundColor = "#33FFB5";
+        document.getElementById(e.target.id + "_aid").style.backgroundColor = "#33FFB5";
+    });
+
+    // Change annotation to new colour when hovered over in file data
+    $('#file_data span').mouseover(function (e) {
+        document.getElementById(e.target.id).style.backgroundColor = "pink";
+        document.getElementById(e.target.id.split("_aid")[0]).style.backgroundColor = "pink";
+    });
+
+    // Change annotation to new colour when stop hovering over in file data
+    $('#file_data span').mouseout(function (e) {
+        document.getElementById(e.target.id).style.backgroundColor = "#33FFB5";
+        document.getElementById(e.target.id.split("_aid")[0]).style.backgroundColor = "#33FFB5";
+    });
 });
 
