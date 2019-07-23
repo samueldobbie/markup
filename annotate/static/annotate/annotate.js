@@ -7,25 +7,8 @@ $(document).ready(function () {
 
     var attributeCheckboxes = $("input[type=checkbox]");
     var attributeRadiobuttons = $("input[type=radio]");
-    var attributeDropdowns = $("select[name=values]");
+    var attributeDropdowns = $("input[name=values]");
     var allDropdowns = $("select");
-
-    /*
-    var labels = $('.l');
-
-    function getRandomColor() {
-        var letters = '0123456789ABCDEF';
-        var color = '#';
-        for (var i = 0; i < 6; i++) {
-          color += letters[Math.floor(Math.random() * 16)];
-        }
-        return color;
-      }
-
-    for (var i = 0; i < labels.length; i++) {
-        labels[i].style.backgroundColor = getRandomColor();
-    }
-    */
 
     // Toggle display of specified attributes
     function toggleAttributeDisplay(vals, type, data) {
@@ -226,6 +209,9 @@ $(document).ready(function () {
 
 
     $('#addAnnotation').click(function () {
+        var highlightedIndicies = document.getElementById('highlighted').className.split('_');
+        setSelectionRange(document.getElementById('file_data'), highlightedIndicies[0], highlightedIndicies[1]);
+
         var highlighted = window.getSelection().toString();
 
         // Check whether selected text is valid
@@ -289,6 +275,24 @@ $(document).ready(function () {
             attributeId++;
         }
         attributeHoverInfo.push(attributeValues);
+
+        for (var i = 0; i < attributeDropdowns.length; i++) {
+            var currentSelect = attributeDropdowns[i];
+            var currentValue = currentSelect.value.split(': ');
+            if (currentValue.length > 1) {
+                currentValue = underscoreString(currentValue[1]);
+            } else {
+                currentValue = underscoreString(currentValue[0]);
+            }
+
+            var chosenField = currentSelect.list.options[0].value.split(': ')[1];
+
+            if (currentValue != "") {
+                attributeValues.push(currentValue);
+                attributeData.push('A' + attributeId + '\t' + chosenField + ' T' + (entityId - 1) + ' ' + currentValue + '\n');
+                attributeId++;
+            }
+        }
 
         for (var i = 0; i < $("select").length; i++) {
             var currentSelect = $("select")[i];
@@ -573,10 +577,10 @@ $(document).ready(function () {
                 attributeCheckboxes[i].labels[0].style.display = "none";
             }
         }
-
+        
         // Hide all unwanted attributes
         for (var i = 0; i < attributeDropdowns.length; i++) {
-            if (!visibleDropdowns.includes(attributeDropdowns[i].id)) {
+            if (!visibleDropdowns.includes(attributeDropdowns[i].list.id)) {
                 attributeDropdowns[i].style.display = "none";
             }
         }
@@ -682,7 +686,7 @@ $(document).ready(function () {
         }
     });
 
-
+    // FIX SINCE ALLOWING MULTIPLE FOCUS
     $('#file_data').bind("contextmenu", function () {
         // TO-DO: Update UMLS suggestion on right-click
 
@@ -722,6 +726,7 @@ $(document).ready(function () {
 
 
     $('#searchDictBtn').click(function () {
+        //console.log(alert($('#myFrame').contents().find('#searchDict').val()));
         suggest_cui(document.getElementById('searchDict').value, 'searchList');
     });
 
@@ -788,6 +793,35 @@ $(document).ready(function () {
     $('#file_data span').mouseout(function (e) {
         document.getElementById(e.target.id).style.backgroundColor = "#33FFB5";
         document.getElementById(e.target.id.split("_aid")[0]).style.backgroundColor = "#33FFB5";
+    });
+
+    $('#file_data').mouseup(function () {
+        if (window.getSelection() == "") {
+            $("#highlighted").replaceWith(function() { return this.innerHTML; });
+        } else {
+            if (document.getElementById('highlighted') != null) {
+                $("#highlighted").replaceWith(function() { return this.innerHTML; });
+            }
+            var highlighted = window.getSelection().toString();
+            var doc = document.getElementById('file_data');
+            var range = window.getSelection().getRangeAt(0);
+            var preCaretRange = range.cloneRange();
+    
+            preCaretRange.selectNodeContents(doc);
+            preCaretRange.setEnd(range.startContainer, range.startOffset);
+    
+            startIndex = preCaretRange.toString().length;
+            endIndex = startIndex + range.toString().length;
+    
+            highlightColor = '#33FFB5';
+    
+            // Color-highlight selected text
+            document.getElementById('file_data').contentEditable = 'true';
+            document.execCommand('insertHTML', false, '<span id="highlighted" class="' + startIndex + '_' + endIndex + '" style="background-color: rgb(79, 120, 255); opacity: 0.9">' + highlighted + '</span>');
+            document.getElementById('file_data').contentEditable = 'false';
+
+            //setSelectionRange(document.getElementById('file_data'), startIndex, endIndex);
+        }
     });
 });
 

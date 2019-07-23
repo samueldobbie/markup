@@ -1,3 +1,10 @@
+::-moz-selection {
+  background-color:rgb(79, 120, 255);
+}
+::selection {
+  background-color: rgb(79, 120, 255);
+}
+
 .container {
     display:flex;
 }

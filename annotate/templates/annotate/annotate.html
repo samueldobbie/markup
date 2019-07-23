@@ -43,27 +43,6 @@
     </style>
 </head>
 
-
-
-<!--
-
-<div>This is some random text.</div>
-
-<iframe id="myframe" srcdoc="<input>"></iframe>
-
-<script type="text/javascript">
-window.onload = function() {
-    var oFrame = document.getElementById("myframe");
-    oFrame.contentWindow.document.onclick = function() {
-        alert(window.getSelection());
-    };
-};
-</script>
-
--->
-
-
-
 <body>
     <nav>
         <div class="nav-wrapper" style="background-color:#333; box-shadow: 0px 0px 8px 0px #111;">
@@ -96,6 +75,15 @@ window.onload = function() {
                                 {% if k == "vals" %}
                                     {% for dropdown in v %}   
                                         <p style="margin:0; padding:0;">
+                                            <input type="text" list="{{ dropdown.1|add:dropdown.0 }}" placeholder="{{ dropdown.1|add:dropdown.0 }}" name="values" class="drop-down" style="padding:2px;"/>
+                                            <datalist id="{{ dropdown.1|add:dropdown.0 }}">
+                                                {% for option in dropdown|slice:"1:" %}
+                                                    <option value="{{ dropdown.1 }}: {{ option }}">
+                                                        {{ option }}
+                                                    </option>
+                                                {% endfor %}
+                                            </datalist>
+                                            <!--
                                             <select id="{{ dropdown.1|add:dropdown.0 }}" name="values" class="drop-down" style="padding:2px;">
                                                 {% for option in dropdown|slice:"1:" %}
                                                     <option value="{{ option }}">
@@ -103,6 +91,7 @@ window.onload = function() {
                                                     </option>
                                                 {% endfor %}
                                             </select>
+                                            -->
                                         </p>
                                     {% endfor %}
                                 {% endif %}
@@ -137,67 +126,6 @@ window.onload = function() {
                 <br>
             </div>
         </div>
-
-        <!--
-        <iframe id="myFrame" style="border:none; height:1500px;" srcdoc='
-            <div id="config_data_options">
-                {% for key, value in dict.items %}
-                    {% if key != "file_data" and key != "ann_filename" and key != "args" and key != "vals" and key != "events" %}
-                        <b style="font-size:1.2em; font-family:Nunito; color:white;">{{ key }}</b>
-                        <br>
-                        {% if key == "attributes" %}
-                            {% for val in value %}
-                                <p style="margin:0; padding:0;">
-                                    <input style="display:none;" type="checkbox" id="{{ val }}" name="{{ key }}" value="{{ val }}">
-                                    <label style="display:none;" for="{{ val }}">{{ val }}</label>
-                                </p>
-                            {% endfor %}
-                            {% for k, v in dict.items %}
-                                {% if k == "vals" %}
-                                    {% for dropdown in v %}   
-                                        <p style="margin:0; padding:0;">
-                                            <select id="{{ dropdown.1|add:dropdown.0 }}" name="values" class="drop-down" style="padding:2px; display:none;">
-                                                {% for option in dropdown|slice:"1:" %}
-                                                    <option value="{{ option }}">
-                                                        {{ option }}
-                                                    </option>
-                                                {% endfor %}
-                                            </select>
-                                        </p>
-                                    {% endfor %}
-                                {% endif %}
-                            {% endfor %}
-                        {% else %}
-                            {% for val in value %}
-                                <p style="margin:0; padding:0;">
-                                    <input type="radio" id="{{ val }}_radio" name="{{ key }}" value="{{ val }}_radio">
-                                    <label for="{{ val }}_radio">{{ val }}</label>
-                                </p>
-                            {% endfor %}
-                        {% endif %}
-                        <br>
-                    {% endif %}
-                {% endfor %}
-                
-                <b>settings</b>
-                <br>
-                <select id="matchList" class="drop-down">
-                    <option>No match</option>
-                </select>
-                <select id="searchList" class="drop-down">
-                    <option>No match</option>
-                </select>
-                <br>
-                <input id="searchDict" placeholder="Search UMLS" style="padding:2%; border-radius:5px; font-weight:bold; font-size:0.75em; font-family:Nunito; outline:0px solid transparent; color:#666; background-color:rgb(235, 235, 235); border:2px solid #999;"/>
-                <button id="searchDictBtn" class="btn">Search</button>
-                <br>
-                <button id="addAnnotation" class="btn">Add Annotation</button>
-                <br>
-                <button id="autoAnnotate" class="btn">Suggest Annotations</button>
-                <br>
-            </div>'>
-        </iframe>
-        -->
 
         <div id="file_data" class="item item-2 standard-text">{{dict.file_data}}</div>
 
