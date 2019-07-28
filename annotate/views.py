@@ -338,10 +338,6 @@ def auto_annotate(request, data_file_path):
 
 COSINE_THRESHOLD = 0.75
 
-#term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
-#db = pickle.load(open('db.pickle', 'rb'))
-#searcher = Searcher(db, CosineMeasure())
-
-term_to_cui = None
-db = None
-searcher = None
+term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
+db = pickle.load(open('db.pickle', 'rb'))
+searcher = Searcher(db, CosineMeasure())
