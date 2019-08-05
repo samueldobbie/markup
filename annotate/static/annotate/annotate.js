@@ -824,6 +824,7 @@ $(document).ready(function () {
         }
     });
 
+
     $("#exportHighlighted").click(function() {
         var addedEntities = [];
         var addedAnnotations = [];
@@ -852,6 +853,15 @@ $(document).ready(function () {
                 }
             }
         }
+    });
+
+
+    $("#loadUserDictionary").click(function() {
+        $.ajax({
+            type: 'GET',
+            async: false,
+            url: '~/load_user_dictionary'
+        });
     });
 });
 

@@ -11,6 +11,11 @@ import pickle
 import json
 import os
 
+from simstring.feature_extractor.character_ngram import CharacterNgramFeatureExtractor
+from simstring.database.dict import DictDatabase
+
+import PySimpleGUI as gui
+
 next_files = []
 previous_files = []
 current_file = ''
@@ -342,6 +347,45 @@ def auto_annotate(request, data_file_path):
             final_results.append([raw_sentence_ngrams[i]] + [result[0][1]] + [term_to_cui[result[0][1]]])
 
     return HttpResponse(json.dumps(final_results))
+
+
+def load_user_dictionary(request, data_file_path):
+    try:
+        chosen_file = gui.PopupGetFile("Choose a file", no_window=True)
+    except:
+        return HttpResponse(None)
+
+    # Read in tab-delimited UMLS file in form of (CUI/tTERM)
+    user_dict = open(chosen_file).read().split('\n')
+
+    # Split tab-delimited UMLS file into seperate lists of cuis and terms
+    cui_list = []
+    term_list = []
+
+    for row in user_dict:
+        data = row.split('\t')
+        if len(data) > 1:
+            cui_list.append(data[0])
+            term_list.append(data[1])
+
+    global term_to_cui
+    global db
+    global searcher
+
+    # Map cleaned UMLS term to its original
+    term_to_cui = dict()
+
+    for i in range(len(term_list)):
+        term_to_cui[term_list[i]] =  cui_list[i]
+
+    # Create simstring model
+    db = DictDatabase(CharacterNgramFeatureExtractor(2))
+
+    for term in term_list:
+        db.add(term)
+
+    searcher = Searcher(db, CosineMeasure())
+    return HttpResponse(None)
 
 COSINE_THRESHOLD = 0.75
 
