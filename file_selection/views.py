@@ -13,15 +13,15 @@ def file_selection_template(request):
     file_path = ''
     if request.method == 'GET':
         if request.GET.get('open_file_button'):
-            file_path = gui.PopupGetFile("Choose a file", no_window=True)
-            if file_path != None and file_path != ():
+            try:
+                file_path = gui.PopupGetFile("Choose a file", no_window=True)
                 return redirect('/annotate' + file_path)
-            else:
+            except:
                 return redirect('/')
         elif request.GET.get('open_dir_button'):
-            dir_path = gui.PopupGetFolder("Choose a folder", no_window=True)
-            if dir_path != None and dir_path != ():
+            try:
+                dir_path = gui.PopupGetFolder("Choose a folder", no_window=True)
                 return redirect('/annotate' + dir_path)
-            else:
+            except:
                 return redirect('/')
     return render(request, 'file_selection/index.html', {})

@@ -1,15 +1,15 @@
+from simstring.measure.cosine import CosineMeasure
 from django.shortcuts import render, redirect
+from simstring.searcher import Searcher
 from django.http import HttpResponse
 from nltk import sent_tokenize
 from nltk import word_tokenize
+import PySimpleGUI as gui
 from nltk import ngrams
 import requests
 import pickle
 import json
 import os
-
-from simstring.measure.cosine import CosineMeasure
-from simstring.searcher import Searcher
 
 next_files = []
 previous_files = []
@@ -17,6 +17,16 @@ current_file = ''
 total_file_count = 1
 def annotate_data(request, data_file_path):
     os.chdir('/')
+
+    # Check for (and read) configuration file
+    config_file_path = os.path.dirname(data_file_path) + '/annotation.conf'
+    try:
+        config_data = open(config_file_path, encoding='utf8').readlines()
+        config_data = [x.strip() for x in config_data]
+    except:
+        # Redirect to annotation.conf creation page
+        gui.Popup("Missing annotation.conf file. Create one is the directory you're trying to open.", title="Error: Missing annotation.conf")
+        return redirect('/')
 
     # Adds all text files from selected directory to a list and opens first document to start annotating
     global total_file_count
@@ -36,10 +46,6 @@ def annotate_data(request, data_file_path):
 
     data = dict()
     data['file_data'] = open(data_file_path, encoding='utf8').read()
-
-    config_file_path = os.path.dirname(data_file_path) + '/annotation.conf'
-    config_data = open(config_file_path, encoding='utf8').readlines()
-    config_data = [x.strip() for x in config_data]
 
     # Read in all the configuration values
     entity_list = []
@@ -183,18 +189,19 @@ def get_cui(request, data_file_path):
 
 
 # Outputs the input annotations to .ann file
-def write_to_ann(request, data_file_path):
-    annotations = request.GET['annotations']
-    ann_filename = request.GET['ann_filename']
+def write_to_file(request, data_file_path):
+    file_name = request.GET['file_name']
+    annotation = request.GET['annotations']
 
-    file_path = os.path.dirname(data_file_path) + '/' + ann_filename
+    file_path = os.path.dirname(data_file_path) + '/' + file_name
     with open(file_path, 'a') as f:
-        f.write(annotations)
+        f.write(annotation)
+
     return HttpResponse(None)
 
 
 # Removes current .ann file if exists
-def remove_ann_file(request, data_file_path):
+def delete_file(request, data_file_path):
     ann_filename = request.GET['ann_filename']
     file_path = os.path.dirname(data_file_path) + '/' + ann_filename
     if os.path.exists(file_path):

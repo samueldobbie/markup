@@ -1,12 +1,12 @@
 $(document).ready(function () {
     // Checks if user has preset preference for color mode
     var darkMode;
-    if (localStorage.getItem("mode") == "dark") {
-        initializeColor("dark");
-        darkMode = true;
-    } else {
+    if (localStorage.getItem("mode") == "light") {
         initializeColor("light");
         darkMode = false;
+    } else {
+        initializeColor("dark");
+        darkMode = true;
     }
 
     // Sets inital color mode based on users stored preference (light or dark mode)

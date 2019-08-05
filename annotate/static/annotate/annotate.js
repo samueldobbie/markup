@@ -9,6 +9,42 @@ $(document).ready(function () {
     var attributeRadiobuttons = $("input[type=radio]");
     var attributeDropdowns = $("input[name=values]");
     var allDropdowns = $("select");
+    var darkMode;
+
+    var cleanEntityLists = {};
+
+    // Checks if user has preset preference for color mode
+    if (localStorage.getItem("mode") == "light") {
+        initializeColor("light");
+        darkMode = false;
+    } else {
+        initializeColor("dark");
+        darkMode = true;
+    }
+
+    // Sets inital color mode based on users stored preference (light or dark mode)
+    function initializeColor(type) {
+        var backgroundColor = '';
+        var textColor = '';
+
+        if (type == "dark") {
+            document.getElementById('darkMode').innerHTML = 'Light Mode';
+            for (var i = 0; i < document.getElementsByTagName('select').length; i++) {
+                document.getElementById(document.getElementsByTagName('select')[i].id).style.backgroundColor = 'white';
+            }
+            backgroundColor = '#333';
+            textColor = 'rgb(210, 210, 210)';
+        } else {
+            document.getElementById('darkMode').innerHTML = 'Dark Mode';
+            backgroundColor = 'white';
+            textColor = 'black';
+        }
+
+        $('body').css({
+            "background-color": backgroundColor,
+            "color": textColor
+        });
+    }
 
     // Toggle display of specified attributes
     function toggleAttributeDisplay(vals, type, data) {
@@ -40,17 +76,6 @@ $(document).ready(function () {
 
     toggleAttributeDisplay(attributeCheckboxes, "checkbox", "none");
     toggleAttributeDisplay(attributeDropdowns, "dropdown", "none");
-
-    // Checks if user has preset preference for color mode
-    var darkMode;
-    if (localStorage.getItem("mode") == "dark") {
-        initializeColor("dark");
-        darkMode = true;
-    } else {
-        initializeColor("light");
-        darkMode = false;
-    }
-
 
     // Load annotations if there's an existing ann file
     $.ajax({
@@ -419,7 +444,7 @@ $(document).ready(function () {
         $.ajax({
             type: 'GET',
             async: false,
-            url: '~/remove_ann_file',
+            url: '~/delete_file',
             data: { ann_filename: dict['ann_filename'] }
         });
     }
@@ -433,8 +458,8 @@ $(document).ready(function () {
                 $.ajax({
                     type: 'GET',
                     async: false,
-                    url: '~/write_to_ann',
-                    data: { annotations: annotationList[i][j][0], ann_filename: dict['ann_filename'] }
+                    url: '~/write_to_file',
+                    data: { annotations: annotationList[i][j][0], file_name: dict['ann_filename']}
                 });
             }
         }
@@ -481,31 +506,6 @@ $(document).ready(function () {
     $('#annotation_data').mousedown(function () {
         return false;
     });
-
-
-    // Sets inital color mode based on users stored preference (light or dark mode)
-    function initializeColor(type) {
-        var backgroundColor = '';
-        var textColor = '';
-
-        if (type == "dark") {
-            document.getElementById('darkMode').innerHTML = 'Light Mode';
-            for (var i = 0; i < document.getElementsByTagName('select').length; i++) {
-                document.getElementById(document.getElementsByTagName('select')[i].id).style.backgroundColor = 'white';
-            }
-            backgroundColor = '#333';
-            textColor = 'rgb(210, 210, 210)';
-        } else {
-            document.getElementById('darkMode').innerHTML = 'Dark Mode';
-            backgroundColor = 'white';
-            textColor = 'black';
-        }
-
-        $('body').css({
-            "background-color": backgroundColor,
-            "color": textColor
-        });
-    }
 
 
     // Allows users to switch between to light and dark mode
@@ -821,6 +821,36 @@ $(document).ready(function () {
             document.getElementById('file_data').contentEditable = 'false';
 
             //setSelectionRange(document.getElementById('file_data'), startIndex, endIndex);
+        }
+    });
+
+    $("#exportHighlighted").click(function() {
+        var addedEntities = [];
+        var addedAnnotations = [];
+        var cleanedAnnotation = '';
+        var entity = '';
+        for (var i=0; i<annotationList.length; i++) {
+            var annotationData = annotationList[i][0][0].split('\t');
+            if (annotationData[0][0] == 'T') {
+                entity = annotationData[1].split(' ');
+                entity.pop();
+                entity.pop();
+                entity = entity.join(' ');
+
+                cleanedAnnotation = annotationData[annotationData.length - 1];
+
+                if (!addedEntities.includes(entity) || !addedAnnotations.includes(cleanedAnnotation)) {
+                    addedEntities.push(entity);
+                    addedAnnotations.push(cleanedAnnotation);
+
+                    $.ajax({
+                        type: 'GET',
+                        async: false,
+                        url: '~/write_to_file',
+                        data: { annotations: cleanedAnnotation, file_name: entity + '.txt'}
+                    });
+                }
+            }
         }
     });
 });
