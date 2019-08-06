@@ -207,8 +207,8 @@ def write_to_file(request, data_file_path):
 
 # Removes current .ann file if exists
 def delete_file(request, data_file_path):
-    ann_filename = request.GET['ann_filename']
-    file_path = os.path.dirname(data_file_path) + '/' + ann_filename
+    file_name = request.GET['file_name']
+    file_path = os.path.dirname(data_file_path) + '/' + file_name
     if os.path.exists(file_path):
         os.remove(file_path)
     return HttpResponse(None)

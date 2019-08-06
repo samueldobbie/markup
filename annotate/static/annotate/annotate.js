@@ -440,19 +440,19 @@ $(document).ready(function () {
 
 
     // Remove annotate file in order to update with newest annotations (To-do: update existing ann file without removal)
-    function removeAnnFile() {
+    function deleteFile(fn) {
         $.ajax({
             type: 'GET',
             async: false,
             url: '~/delete_file',
-            data: { ann_filename: dict['ann_filename'] }
+            data: {file_name: fn}
         });
     }
 
 
     // Save annotations to .ann file
     function writeToAnn() {
-        removeAnnFile();
+        deleteFile(dict['ann_filename']);
         for (var i = 0; i < annotationList.length; i++) {
             for (var j = 0; j < annotationList[i].length; j++) {
                 $.ajax({
@@ -826,6 +826,9 @@ $(document).ready(function () {
 
 
     $("#exportHighlighted").click(function() {
+        var entities = [];
+        var annotations = [];
+
         var addedEntities = [];
         var addedAnnotations = [];
         var cleanedAnnotation = '';
@@ -836,21 +839,28 @@ $(document).ready(function () {
                 entity = annotationData[1].split(' ');
                 entity.pop();
                 entity.pop();
-                entity = entity.join(' ');
+                entities.push(entity.join(' '));
+                annotations.push(annotationData[annotationData.length - 1].split('_').join(' '));
+            }
+        }
 
-                cleanedAnnotation = annotationData[annotationData.length - 1];
+        for (var i=0; i<entities.length; i++) {
+            deleteFile(entities[i] + '.txt');
+        }
 
-                if (!addedEntities.includes(entity) || !addedAnnotations.includes(cleanedAnnotation)) {
-                    addedEntities.push(entity);
-                    addedAnnotations.push(cleanedAnnotation);
+        for (var i=0; i<entities.length; i++) {
+            entity = entities[i];
+            cleanedAnnotation = annotations[i];
+            if (!addedEntities.includes(entity) || !addedAnnotations.includes(cleanedAnnotation)) {
+                addedEntities.push(entity);
+                addedAnnotations.push(cleanedAnnotation);
 
-                    $.ajax({
-                        type: 'GET',
-                        async: false,
-                        url: '~/write_to_file',
-                        data: { annotations: cleanedAnnotation, file_name: entity + '.txt'}
-                    });
-                }
+                $.ajax({
+                    type: 'GET',
+                    async: false,
+                    url: '~/write_to_file',
+                    data: { annotations: cleanedAnnotation, file_name: entity + '.txt'}
+                });
             }
         }
     });
