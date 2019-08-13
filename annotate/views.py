@@ -27,10 +27,15 @@ def annotate_data(request, data_file_path):
     config_file_path = os.path.dirname(data_file_path) + '/annotation.conf'
     try:
         config_data = open(config_file_path, encoding='utf8').readlines()
-        config_data = [x.strip() for x in config_data]
     except:
         # Redirect to annotation.conf creation page
         gui.Popup("Missing annotation.conf file. Create one is the directory you're trying to open.", title="Error: Missing annotation.conf")
+        return redirect('/')
+
+    try:
+        config_data = [x.strip() for x in config_data]
+    except:
+        gui.Popup("Issue with formatting of annotation.conf file.", title="Error: Bad annotation.conf Format")
         return redirect('/')
 
     # Adds all text files from selected directory to a list and opens first document to start annotating
