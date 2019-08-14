@@ -53,7 +53,10 @@ def annotate_data(request, data_file_path):
             data_file_path = next_files[0]
             current_file = next_files[0]
             del next_files[0]
-            return redirect('/annotate/' + data_file_path)
+            if data_file_path[0] != '/':
+                return redirect('/annotate/' + data_file_path)
+            else:
+                return redirect('/annotate' + data_file_path)
 
     data = dict()
     data['file_data'] = open(data_file_path, encoding='utf8').read()
