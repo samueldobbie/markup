@@ -14,13 +14,12 @@ import os
 from simstring.feature_extractor.character_ngram import CharacterNgramFeatureExtractor
 from simstring.database.dict import DictDatabase
 
-import PySimpleGUI as gui
-
 next_files = []
 previous_files = []
 current_file = ''
 total_file_count = 1
 def annotate_data(request, data_file_path):
+    '''
     os.chdir('/')
 
     # Check for (and read) configuration file
@@ -56,6 +55,32 @@ def annotate_data(request, data_file_path):
 
     data = dict()
     data['file_data'] = open(data_file_path, encoding='utf8').read()
+    '''
+
+    os.chdir('/')
+
+    # Adds all text files from selected directory to a list and opens first document to start annotating
+    global total_file_count
+    global current_file
+    global next_files
+    if os.path.isdir(data_file_path):
+        for afile in os.listdir(data_file_path):
+            if afile.endswith('.txt'):
+                next_files.append(os.path.join(data_file_path, afile))
+                total_file_count += 1
+        next_files.sort()
+        if len(next_files) > 0:
+            data_file_path = next_files[0]
+            current_file = next_files[0]
+            del next_files[0]
+            return redirect('/annotate/' + data_file_path)
+
+    data = dict()
+    data['file_data'] = open(data_file_path, encoding='utf8').read()
+
+    config_file_path = os.path.dirname(data_file_path) + '/annotation.conf'
+    config_data = open(config_file_path, encoding='utf8').readlines()
+    config_data = [x.strip() for x in config_data]
 
     # Read in all the configuration values
     entity_list = []
