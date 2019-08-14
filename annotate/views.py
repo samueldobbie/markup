@@ -21,7 +21,11 @@ def annotate_data(request, data_file_path):
     os.chdir('/')
 
     # Check for (and read) configuration file
-    config_file_path = os.path.dirname(data_file_path) + '/annotation.conf'
+    if data_file_path[-4:] == '.txt':
+        config_file_path = os.path.dirname(data_file_path) + '/annotation.conf'
+    else:
+        config_file_path = data_file_path + '/annotation.conf'
+
     try:
         config_data = open(config_file_path, encoding='utf8').readlines()
     except:
