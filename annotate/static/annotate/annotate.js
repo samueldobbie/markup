@@ -11,8 +11,6 @@ $(document).ready(function () {
     var allDropdowns = $("select");
     var darkMode;
 
-    var cleanEntityLists = {};
-
     // Checks if user has preset preference for color mode
     if (localStorage.getItem("mode") == "light") {
         initializeColor("light");
@@ -647,6 +645,7 @@ $(document).ready(function () {
             populateAnnotations("DOB", attributeValues, startIndex, endIndex);
         }
         writeToAnn();
+        location.reload();
     });
 
 
@@ -708,14 +707,14 @@ $(document).ready(function () {
             endIndex--;
 
             while (doc.innerText[endIndex] != ' ' &&
-                doc.innerText[endIndex] != '' &&
-                doc.innerText[endIndex] != '.' &&
-                doc.innerText[endIndex] != '\n' &&
-                doc.innerText[endIndex] != '!' &&
-                doc.innerText[endIndex] != ',' &&
-                doc.innerText[endIndex] != ';' &&
-                doc.innerText[endIndex] != ':' &&
-                doc.innerText[endIndex] != '?') {
+                   doc.innerText[endIndex] != '' &&
+                   doc.innerText[endIndex] != '.' &&
+                   doc.innerText[endIndex] != '\n' &&
+                   doc.innerText[endIndex] != '!' &&
+                   doc.innerText[endIndex] != ',' &&
+                   doc.innerText[endIndex] != ';' &&
+                   doc.innerText[endIndex] != ':' &&
+                   doc.innerText[endIndex] != '?') {
                 endIndex--;
             }
 

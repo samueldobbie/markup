@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 
     'file_selection',
     'annotate',
+    'config_creator',
 ]
 
 MIDDLEWARE = [
