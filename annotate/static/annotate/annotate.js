@@ -5,18 +5,18 @@ $(document).ready(function () {
     var entityId = 1;
     var attributeId = 1;
 
-    var attributeCheckboxes = $("input[type=checkbox]");
-    var attributeRadiobuttons = $("input[type=radio]");
-    var attributeDropdowns = $("input[name=values]");
-    var allDropdowns = $("select");
+    var attributeCheckboxes = $('input[type=checkbox]');
+    var attributeRadiobuttons = $('input[type=radio]');
+    var attributeDropdowns = $('input[name=values]');
+    var allDropdowns = $('select');
     var darkMode;
 
     // Checks if user has preset preference for color mode
-    if (localStorage.getItem("mode") == "light") {
-        initializeColor("light");
+    if (localStorage.getItem('mode') == 'light') {
+        initializeColor('light');
         darkMode = false;
     } else {
-        initializeColor("dark");
+        initializeColor('dark');
         darkMode = true;
     }
 
@@ -25,7 +25,7 @@ $(document).ready(function () {
         var backgroundColor = '';
         var textColor = '';
 
-        if (type == "dark") {
+        if (type == 'dark') {
             document.getElementById('darkMode').innerHTML = 'Light Mode';
             for (var i = 0; i < document.getElementsByTagName('select').length; i++) {
                 document.getElementById(document.getElementsByTagName('select')[i].id).style.backgroundColor = 'white';
@@ -39,18 +39,18 @@ $(document).ready(function () {
         }
 
         $('body').css({
-            "background-color": backgroundColor,
-            "color": textColor
+            'background-color': backgroundColor,
+            'color': textColor
         });
     }
 
     // Toggle display of specified attributes
     function toggleAttributeDisplay(vals, type, data) {
         for (var i = 0; i < vals.length; i++) {
-            if (type == "checkbox") {
+            if (type == 'checkbox') {
                 vals[i].style.display = data;
                 vals[i].labels[0].style.display = data;
-            } else if (type == "dropdown") {
+            } else if (type == 'dropdown') {
                 vals[i].style.display = data;
             }
         }
@@ -72,13 +72,13 @@ $(document).ready(function () {
         }
     }
 
-    toggleAttributeDisplay(attributeCheckboxes, "checkbox", "none");
-    toggleAttributeDisplay(attributeDropdowns, "dropdown", "none");
+    toggleAttributeDisplay(attributeCheckboxes, 'checkbox', 'none');
+    toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
 
     // Load annotations if there's an existing ann file
     $.ajax({
-        type: "GET",
-        url: "~/load_existing",
+        type: 'GET',
+        url: '~/load_existing',
         async: false,
         data: { ann_filename: dict['ann_filename'] },
         success: function (response) {
@@ -88,13 +88,13 @@ $(document).ready(function () {
 
             annotation = [];
             for (var i = 0; i < response.length; i++) {
-                if (response[i][0] == "T" && annotation.length != 0) {
+                if (response[i][0] == 'T' && annotation.length != 0) {
                     annotationList.push(annotation);
                     annotation = [];
                     annotation.push([response[i] + '\n']);
-                } else if (response[i][0] == "T") {
+                } else if (response[i][0] == 'T') {
                     annotation.push([response[i] + '\n']);
-                } else if (response[i][0] == "A") {
+                } else if (response[i][0] == 'A') {
                     annotation.push([response[i] + '\n']);
                 }
             }
@@ -106,10 +106,10 @@ $(document).ready(function () {
                 var start = 0;
                 var end = 0;
                 for (var j = 0; j < annotationList[i].length; j++) {
-                    var annotationWords = annotationList[i][j][0].split("\t");
-                    var data = annotationWords[1].split(" ");
+                    var annotationWords = annotationList[i][j][0].split('\t');
+                    var data = annotationWords[1].split(' ');
 
-                    if (annotationWords[0][0] == "T") {
+                    if (annotationWords[0][0] == 'T') {
                         var annotationId = parseInt(annotationWords[0].split('T')[1]);
                         if (annotationId > entityId) {
                             entityId = annotationId
@@ -119,7 +119,7 @@ $(document).ready(function () {
                         end = data[2];
                     }
 
-                    if (annotationWords[0][0] == "A") {
+                    if (annotationWords[0][0] == 'A') {
                         var annotationId = parseInt(annotationWords[0].split('A')[1]);
                         if (annotationId > attributeId) {
                             attributeId = annotationId
@@ -170,8 +170,8 @@ $(document).ready(function () {
             var textRange = document.body.createTextRange();
             textRange.moveToElementText(el);
             textRange.collapse(true);
-            textRange.moveEnd("character", end);
-            textRange.moveStart("character", start);
+            textRange.moveEnd('character', end);
+            textRange.moveStart('character', start);
             textRange.select();
         }
     }
@@ -281,7 +281,7 @@ $(document).ready(function () {
         var attributeHoverInfo = [];
 
         // Add entity data to annotation list and hover info
-        var entityValue = $("input[type=radio]:checked")[0].id.substring(0, $("input[type=radio]:checked")[0].id.length - 6);
+        var entityValue = $('input[type=radio]:checked')[0].id.substring(0, $('input[type=radio]:checked')[0].id.length - 6);
         entityHoverInfo.push(entityValue);
         entityData = 'T' + entityId + '\t' + entityValue + ' ' + startIndex + ' ' + endIndex + '\t' + underscoreString(highlighted) + '\n';
         entityId++;
@@ -291,8 +291,8 @@ $(document).ready(function () {
         // Prepare attribute data to annotation list and add hover info
         var attributeValues = [];
         var attributeData = [];
-        for (var i = 0; i < $("input[type=checkbox]:checked").length; i++) {
-            var checkedAttribute = underscoreString($("input[type=checkbox]:checked")[i].id);
+        for (var i = 0; i < $('input[type=checkbox]:checked').length; i++) {
+            var checkedAttribute = underscoreString($('input[type=checkbox]:checked')[i].id);
             attributeValues.push(checkedAttribute);
             attributeData.push('A' + attributeId + '\t' + checkedAttribute + ' T' + (entityId - 1) + '\n');
             attributeId++;
@@ -310,15 +310,15 @@ $(document).ready(function () {
 
             var chosenField = currentSelect.list.options[0].value.split(': ')[1];
 
-            if (currentValue != "") {
+            if (currentValue != '') {
                 attributeValues.push(currentValue);
                 attributeData.push('A' + attributeId + '\t' + chosenField + ' T' + (entityId - 1) + ' ' + currentValue + '\n');
                 attributeId++;
             }
         }
 
-        for (var i = 0; i < $("select").length; i++) {
-            var currentSelect = $("select")[i];
+        for (var i = 0; i < $('select').length; i++) {
+            var currentSelect = $('select')[i];
             var currentValue = underscoreString(currentSelect.options[currentSelect.selectedIndex].value);
 
             if (currentValue != currentSelect[0].value && currentSelect.id == currentSelect[0].value + entityValue) {
@@ -335,8 +335,8 @@ $(document).ready(function () {
 
         if (!((optionWords[optionWords.length - 2] == 'matches' && optionWords[optionWords.length - 1] == 'found') || option == 'No match')) {
             $.ajax({
-                type: "GET",
-                url: "~/get_cui",
+                type: 'GET',
+                url: '~/get_cui',
                 async: false,
                 data: { match: option },
                 success: function (response) {
@@ -358,8 +358,8 @@ $(document).ready(function () {
 
         if (!((optionWords[optionWords.length - 2] == 'matches' && optionWords[optionWords.length - 1] == 'found') || option == 'No match')) {
             $.ajax({
-                type: "GET",
-                url: "~/get_cui",
+                type: 'GET',
+                url: '~/get_cui',
                 async: false,
                 data: { match: option },
                 success: function (response) {
@@ -401,8 +401,8 @@ $(document).ready(function () {
 
         toggleAttributeCheck(attributeCheckboxes, false);
         toggleAttributeCheck(attributeRadiobuttons, false);
-        toggleAttributeDisplay(attributeCheckboxes, "checkbox", "none");
-        toggleAttributeDisplay(attributeDropdowns, "dropdown", "none");
+        toggleAttributeDisplay(attributeCheckboxes, 'checkbox', 'none');
+        toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
         resetDropdowns(allDropdowns);
 
         writeToAnn();
@@ -413,7 +413,7 @@ $(document).ready(function () {
     // Delete clicked annotation
     $('#annotation_data').on('click', '.test', function (event) {
         var id = event.target.id;
-        var indicies = id.split("_");
+        var indicies = id.split('_');
         var startIndex = indicies[0];
         var endIndex = indicies[1];
 
@@ -466,7 +466,7 @@ $(document).ready(function () {
 
     // Display information about chosen annotation on hover
     function hoverInfo(id, type) {
-        var indicies = id.split("_");
+        var indicies = id.split('_');
         var startIndex = indicies[0];
         var endIndex = indicies[1];
 
@@ -478,7 +478,7 @@ $(document).ready(function () {
                             offsetList[i][j] = 'None';
                         }
                     }
-                    document.getElementById(id).title = "Text: " + offsetList[i][4] + "\nEntity: " + offsetList[i][2] + "\nAttributes: " + offsetList[i][3];
+                    document.getElementById(id).title = 'Text: ' + offsetList[i][4] + '\nEntity: ' + offsetList[i][2] + '\nAttributes: ' + offsetList[i][3];
                     //document.getElementById(id).style.backgroundColor = "blue";
                     //document.getElementById(id + '_aid').style.backgroundColor = "blue";
                     return;
@@ -489,13 +489,13 @@ $(document).ready(function () {
 
 
     // Display information about annotation on hover of annotation_data display
-    $("#annotation_data").mouseover(function (eventObj) {
+    $('#annotation_data').mouseover(function (eventObj) {
         hoverInfo(eventObj.target.id, 'annotation_data');
     });
 
 
     // Display information about annotation on hover of file_data display
-    $("#file_data").mouseover(function (eventObj) {
+    $('#file_data').mouseover(function (eventObj) {
         hoverInfo(eventObj.target.id, 'file_data');
     });
 
@@ -509,7 +509,7 @@ $(document).ready(function () {
     // Allows users to switch between to light and dark mode
     $('#darkMode').click(function () {
         if (!darkMode) {
-            localStorage.setItem("mode", "dark");
+            localStorage.setItem('mode', 'dark');
             document.getElementById('darkMode').innerHTML = 'Light Mode';
             document.getElementById('file_data').style.color = 'rgb(210, 210, 210)';
             document.getElementById('config_data_options').style.color = 'white';
@@ -524,7 +524,7 @@ $(document).ready(function () {
             }
             darkMode = true;
         } else {
-            localStorage.setItem("mode", "light");
+            localStorage.setItem('mode', 'light');
             document.getElementById('darkMode').innerHTML = 'Dark Mode';
             document.getElementById('file_data').style.color = 'black';
             document.getElementById('config_data_options').style.color = 'black';
@@ -544,14 +544,14 @@ $(document).ready(function () {
     // Dynamic entity / attribute configurations
     var argBoxes = JSON.parse(dict['args'].replace(/&#39;/gi, '"'));
     var valBoxes = JSON.parse(dict['vals'].replace(/&#39;/gi, '"'));
-    $("input[type=radio]").click(function () {
+    $('input[type=radio]').click(function () {
         // Get selected radiobutton id
         var selected = $(this).context.id.substring(0, $(this).context.id.length - 6);
 
         // Deselect and remove hiding of all attributes
         toggleAttributeCheck(attributeCheckboxes, false);
-        toggleAttributeDisplay(attributeCheckboxes, "checkbox", "");
-        toggleAttributeDisplay(attributeDropdowns, "dropdown", "");
+        toggleAttributeDisplay(attributeCheckboxes, 'checkbox', '');
+        toggleAttributeDisplay(attributeDropdowns, 'dropdown', '');
 
         // Determine which attributes should be displayed
         var visibleCheckboxes = [];
@@ -571,15 +571,15 @@ $(document).ready(function () {
         // Hide all unwanted attributes
         for (var i = 0; i < attributeCheckboxes.length; i++) {
             if (!visibleCheckboxes.includes(attributeCheckboxes[i].id)) {
-                attributeCheckboxes[i].style.display = "none";
-                attributeCheckboxes[i].labels[0].style.display = "none";
+                attributeCheckboxes[i].style.display = 'none';
+                attributeCheckboxes[i].labels[0].style.display = 'none';
             }
         }
         
         // Hide all unwanted attributes
         for (var i = 0; i < attributeDropdowns.length; i++) {
             if (!visibleDropdowns.includes(attributeDropdowns[i].list.id)) {
-                attributeDropdowns[i].style.display = "none";
+                attributeDropdowns[i].style.display = 'none';
             }
         }
     });
@@ -635,14 +635,14 @@ $(document).ready(function () {
                 continue;
             }
 
-            annotationList.push([["T" + entityId + "\tDOB " + startIndex + " " + endIndex + "\t" + annotations[i][0] + '\n'], ["A" + attributeId + "\t" + annotations[i][1] + "\tT" + entityId + "\n"], ["A" + (attributeId + 1) + "\t" + annotations[i][2] + "\tT" + entityId + "\n"]]);
+            annotationList.push([['T' + entityId + '\tDOB ' + startIndex + ' ' + endIndex + '\t' + annotations[i][0] + '\n'], ['A' + attributeId + '\t' + annotations[i][1] + '\tT' + entityId + '\n'], ['A' + (attributeId + 1) + '\t' + annotations[i][2] + '\tT' + entityId + '\n']]);
 
             entityId++;
             attributeId++;
             attributeId++;
 
             setSelectionRange(document.getElementById('file_data'), startIndex, endIndex);
-            populateAnnotations("DOB", attributeValues, startIndex, endIndex);
+            populateAnnotations('DOB', attributeValues, startIndex, endIndex);
         }
         writeToAnn();
         location.reload();
@@ -686,7 +686,7 @@ $(document).ready(function () {
     });
 
     // FIX SINCE ALLOWING MULTIPLE FOCUS
-    $('#file_data').bind("contextmenu", function () {
+    $('#file_data').bind('contextmenu', function () {
         // TO-DO: Update UMLS suggestion on right-click
 
         if (window.getSelection().toString() == '' && clicks >= 2) {
@@ -732,8 +732,8 @@ $(document).ready(function () {
 
     function suggest_cui(inp, type) {
         $.ajax({
-            type: "GET",
-            url: "~/suggest_cui",
+            type: 'GET',
+            url: '~/suggest_cui',
             data: { selectedTerm: inp.toLowerCase() }
         }).done(function (data) {
             // Empty drop-down list
@@ -742,23 +742,23 @@ $(document).ready(function () {
                 var arr = data.split('***');
                 var searchList = document.getElementById(type);
                 var count = 0;
-                var newOption = document.createElement("option");
+                var newOption = document.createElement('option');
                 newOption.text = '';
                 searchList.add(newOption);
                 for (var i = 0; i < arr.length; i++) {
-                    newOption = document.createElement("option");
+                    newOption = document.createElement('option');
                     newOption.text = arr[i];
                     searchList.add(newOption);
                     count = i;
                 }
                 count++;
-                searchList.childNodes[0].nextElementSibling.text = count + " matches found";
+                searchList.childNodes[0].nextElementSibling.text = count + ' matches found';
             }
 
             if (document.getElementById(type).options.length == 0) {
                 var searchList = document.getElementById(type);
-                var option = document.createElement("option");
-                option.text = "No match";
+                var option = document.createElement('option');
+                option.text = 'No match';
                 searchList.add(option);
             }
         });
@@ -772,34 +772,34 @@ $(document).ready(function () {
 
     // Change annotation to new colour when hovered over in annotation data
     $('#annotation_data p').mouseover(function (e) {
-        document.getElementById(e.target.id).style.backgroundColor = "pink";
-        document.getElementById(e.target.id + "_aid").style.backgroundColor = "pink";
+        document.getElementById(e.target.id).style.backgroundColor = 'pink';
+        document.getElementById(e.target.id + '_aid').style.backgroundColor = 'pink';
     });
 
     // Return annotation to existing colour when stop hovering over in annotation data
     $('#annotation_data p').mouseout(function (e) {
-        document.getElementById(e.target.id).style.backgroundColor = "#33FFB5";
-        document.getElementById(e.target.id + "_aid").style.backgroundColor = "#33FFB5";
+        document.getElementById(e.target.id).style.backgroundColor = '#33FFB5';
+        document.getElementById(e.target.id + '_aid').style.backgroundColor = '#33FFB5';
     });
 
     // Change annotation to new colour when hovered over in file data
     $('#file_data span').mouseover(function (e) {
-        document.getElementById(e.target.id).style.backgroundColor = "pink";
-        document.getElementById(e.target.id.split("_aid")[0]).style.backgroundColor = "pink";
+        document.getElementById(e.target.id).style.backgroundColor = 'pink';
+        document.getElementById(e.target.id.split('_aid')[0]).style.backgroundColor = 'pink';
     });
 
     // Change annotation to new colour when stop hovering over in file data
     $('#file_data span').mouseout(function (e) {
-        document.getElementById(e.target.id).style.backgroundColor = "#33FFB5";
-        document.getElementById(e.target.id.split("_aid")[0]).style.backgroundColor = "#33FFB5";
+        document.getElementById(e.target.id).style.backgroundColor = '#33FFB5';
+        document.getElementById(e.target.id.split('_aid')[0]).style.backgroundColor = '#33FFB5';
     });
 
     $('#file_data').mouseup(function () {
-        if (window.getSelection() == "") {
-            $("#highlighted").replaceWith(function() { return this.innerHTML; });
+        if (window.getSelection() == '') {
+            $('#highlighted').replaceWith(function() { return this.innerHTML; });
         } else {
             if (document.getElementById('highlighted') != null) {
-                $("#highlighted").replaceWith(function() { return this.innerHTML; });
+                $('#highlighted').replaceWith(function() { return this.innerHTML; });
             }
             var highlighted = window.getSelection().toString();
             var doc = document.getElementById('file_data');
@@ -824,7 +824,7 @@ $(document).ready(function () {
     });
 
 
-    $("#exportHighlighted").click(function() {
+    $('#exportHighlighted').click(function() {
         var entities = [];
         var annotations = [];
 
@@ -865,7 +865,7 @@ $(document).ready(function () {
     });
 
 
-    $("#loadUserDictionary").click(function() {
+    $('#loadUserDictionary').click(function() {
         $.ajax({
             type: 'GET',
             async: false,

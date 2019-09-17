@@ -43,7 +43,7 @@ def get_config_data(config_file_path):
             you\'re trying to open.', title='Error: Missing annotation.conf')
         return redirect('ccf/')
 
-    return [x.strip() for x in config_data] 
+    return [x.strip() for x in config_data]
 
 
 def initialize_file_lists(data_file_path):

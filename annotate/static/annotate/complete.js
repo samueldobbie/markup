@@ -1,11 +1,11 @@
 $(document).ready(function () {
     // Checks if user has preset preference for color mode
     var darkMode;
-    if (localStorage.getItem("mode") == "dark") {
-        initializeColor("dark");
+    if (localStorage.getItem('mode') == 'dark') {
+        initializeColor('dark');
         darkMode = true;
     } else {
-        initializeColor("light");
+        initializeColor('light');
         darkMode = false;
     }
 
@@ -14,7 +14,7 @@ $(document).ready(function () {
         var backgroundColor = '';
         var textColor = '';
 
-        if (type == "dark") {
+        if (type == 'dark') {
             document.getElementById('darkMode').innerHTML = 'Light Mode';
             backgroundColor = '#333';
             textColor = 'rgb(210, 210, 210)';
@@ -25,8 +25,8 @@ $(document).ready(function () {
         }
 
         $('body').css({
-            "background-color": backgroundColor,
-            "color" : textColor
+            'background-color': backgroundColor,
+            'color' : textColor
         });
     }
 
@@ -34,16 +34,16 @@ $(document).ready(function () {
     // Allows users to switch between to light and dark mode
     $('#darkMode').click(function () {
         if (!darkMode) {
-            localStorage.setItem("mode", "dark");
+            localStorage.setItem('mode', 'dark');
             document.getElementById('darkMode').innerHTML = 'Light Mode';
             document.getElementsByTagName('body')[0].style.backgroundColor = '#333';
-            document.getElementById('congrats').style.color = "rgb(210, 210, 210)";
+            document.getElementById('congrats').style.color = 'rgb(210, 210, 210)';
             darkMode = true;
         } else {
-            localStorage.setItem("mode", "light");
+            localStorage.setItem('mode', 'light');
             document.getElementById('darkMode').innerHTML = 'Dark Mode';
             document.getElementsByTagName('body')[0].style.backgroundColor = 'white';
-            document.getElementById('congrats').style.color = "black";
+            document.getElementById('congrats').style.color = 'black';
             darkMode = false;
         }
     });
