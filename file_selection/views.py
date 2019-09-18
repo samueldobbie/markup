@@ -5,6 +5,14 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 
+def getting_started(request):
+    return render(request, 'file_selection/getting_started.html', {})
+
+
+def learn_more(request):
+    return render(request, 'file_selection/learn_more.html', {})
+
+
 def file_selection(request):
     # Reset currently opened file lists
     annotate_views.current_file = ''
