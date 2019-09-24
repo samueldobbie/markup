@@ -732,6 +732,8 @@ function hoverInfo(id, type) {
 
 function suggestCui(event) {
     var type = event.data.type;
+    var myCipher = event.data.myCipher;
+    var myDecipher = event.data.myDecipher;
     var selectedTerm;
 
     if (type == 'matchList') {
@@ -744,10 +746,14 @@ function suggestCui(event) {
         return;
     }
 
+    var selectedTerm = selectedTerm.toLowerCase();
+    var encryptedTerm = myCipher(selectedTerm);
+    console.log(encryptedTerm);
+
     $.ajax({
         type: 'GET',
         url: '~/suggest_cui',
-        data: { selectedTerm: selectedTerm.toLowerCase() }
+        data: { selectedTerm: encryptedTerm }
     }).done(function (data) {
         // Empty drop-down list
         document.getElementById(type).options.length = 0;
@@ -760,7 +766,7 @@ function suggestCui(event) {
             searchList.add(newOption);
             for (var i = 0; i < arr.length; i++) {
                 newOption = document.createElement('option');
-                newOption.text = arr[i];
+                newOption.text = myDecipher(arr[i]);
                 searchList.add(newOption);
                 count = i;
             }
@@ -783,7 +789,9 @@ $(document).ready(function () {
     var documentText = localStorage.getItem('documentText');
     var annotationText = localStorage.getItem('annotationText');
     var configText = localStorage.getItem('configText');
-    var dictionarySelection = localStorage.getItem('dictionarySelection');
+    var salt = localStorage.getItem('salt');
+    var myCipher = cipher(salt);
+    var myDecipher = decipher(salt);
 
     // Check that documentText isn't empty, otherwise return to homepage
     validateDocumentSelection(documentText);
@@ -877,7 +885,10 @@ $(document).ready(function () {
     $('#annotation_data').on('click', '.displayedAnnotation', deleteClickedAnnotation);
 
     // Suggest most relevant UMLS matches based on highlighted term 
-    $('#file_data').mouseup({ 'type': 'matchList' }, suggestCui);
+    $('#file_data').mouseup({'type': 'matchList',
+                             'myCipher': myCipher,
+                             'myDecipher': myDecipher
+    }, suggestCui);
 
     // Suggest most relevant UMLS matches based on searched term
     $('#searchDict').keypress({ 'type': 'searchList' }, suggestCui);
@@ -890,6 +901,32 @@ $(document).ready(function () {
     //    return "Don't forget to save your annotations before leaving!";
     //};
 });
+
+
+let cipher = salt => {
+    let textToChars = text => text.split('').map(c => c.charCodeAt(0))
+    let byteHex = n => ("0" + Number(n).toString(16)).substr(-2)
+    let applySaltToChar = code => textToChars(salt).reduce((a,b) => a ^ b, code)    
+
+    return text => text.split('')
+        .map(textToChars)
+        .map(applySaltToChar)
+        .map(byteHex)
+        .join('')
+}
+
+
+let decipher = salt => {
+    let textToChars = text => text.split('').map(c => c.charCodeAt(0))
+    let saltChars = textToChars(salt)
+    let applySaltToChar = code => textToChars(salt).reduce((a,b) => a ^ b, code)
+    return encoded => encoded.match(/.{1,2}/g)
+        .map(hex => parseInt(hex, 16))
+        .map(applySaltToChar)
+        .map(charCode => String.fromCharCode(charCode))
+        .join('')
+}
+
 
 /*
 // Automatically annotate the document

@@ -122,3 +122,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 # STATIC_ROOT = ''
+
+# Determine why such a substantial increase is req.
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000000000
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10000000000000

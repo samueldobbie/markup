@@ -2,7 +2,14 @@
 localStorage.removeItem('documentText');
 localStorage.removeItem('annotationText');
 localStorage.removeItem('configText');
-localStorage.removeItem('dictionarySelection');
+
+var salt;
+if (localStorage.getItem('salt') != null) {
+    salt = localStorage.getItem('salt');
+} else {
+    salt = generateSalt(25);
+    localStorage.setItem('salt', salt);
+}
 
 $(document).ready(function () {
     var darkMode;
@@ -10,7 +17,7 @@ $(document).ready(function () {
     var documentFileList;
     var annotationFileList;
     var configFileList;
-    var dictionarySelection;
+    var myCipher = cipher(salt);
 
 
     // Checks if user has preset preference for color mode
@@ -69,6 +76,7 @@ $(document).ready(function () {
 
         localStorage.setItem('documentOpenType', documentOpenType);
     });
+
 
     /*
     $('#multipleDocs').click(function () {
@@ -157,7 +165,7 @@ $(document).ready(function () {
         annotationFileList = document.getElementById('annotationFileOpener').files;
 
         var reader = new FileReader();
-        reader.onload = function (e) {
+        reader.onload = function () {
             localStorage.setItem('annotationText', reader.result);
         };
 
@@ -177,32 +185,72 @@ $(document).ready(function () {
     });
 
 
-    $('.dictionaryOption').click(function (e) {
-        dictionarySelection = e.target.id;
+    document.getElementById('dictionaryFileOpener').onchange = function () {
+        dictionaryFileList = document.getElementById('dictionaryFileOpener').files;
 
-        if (dictionarySelection != 'userDictionary') {
-            $("#questionFive").fadeOut();
-            $("#dictionaryOptions").fadeOut();
+        var encryptedDictionary = {};
 
-            sleep(500).then(() => {
-                $("#finishedQuestions").fadeIn();
-                startAnnotating();
-            });
-        } else {
-            $("#questionFive").fadeOut();
-            // Add user dictionary path
+        for (var i=0; i <= dictionaryFileList[0].size; i += (5 * 1024 * 1024)) {
+            var reader = new FileReader();
+            reader.readAsBinaryString(dictionaryFileList[0].slice(i, i + 5 * 1024 * 1024));
+
+            reader.onloadend = function () {
+                var unencryptedDictionary = reader.result.split('\n');
+                for (var i = 0; i < unencryptedDictionary.length; i++) {
+                    let values = unencryptedDictionary[i].split('\t');
+                    if (values.length == 2 && values[0] != null && values[0] != '' && values[1] != null && values[1] != '') {
+                        encryptedDictionary[myCipher(values[0])] = myCipher(values[1]);
+                    }
+                }
+            }
         }
 
-        localStorage.setItem('dictionarySelection', dictionarySelection);
-    });
-
-
-    function startAnnotating() {
-        location.href = '/annotate';
-    }
-
-
-    function sleep(time) {
-        return new Promise((resolve) => setTimeout(resolve, time));
-    }
+        sleep(10000).then(() => {
+            $.ajax({
+                type: 'POST',
+                url: '/setup-dictionary',
+                data: {
+                    'dict': JSON.stringify(encryptedDictionary), 
+                    csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value
+                }
+            });
+            sleep(10000).then(() => {
+                startAnnotating();
+            });
+        });
+    };
 });
+
+function generateSalt(length) {
+    var salt = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789,./<>?;<:"|[]{}"';
+    var charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+        salt += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return salt;
+}
+
+
+let cipher = salt => {
+    let textToChars = text => text.split('').map(c => c.charCodeAt(0))
+    let byteHex = n => ("0" + Number(n).toString(16)).substr(-2)
+    let applySaltToChar = code => textToChars(salt).reduce((a, b) => a ^ b, code)
+
+    return text => text.split('')
+        .map(textToChars)
+        .map(applySaltToChar)
+        .map(byteHex)
+        .join('')
+}
+
+// remove localStorage dictionary
+
+function startAnnotating() {
+    location.href = '/annotate';
+}
+
+
+function sleep(time) {
+    return new Promise((resolve) => setTimeout(resolve, time));
+}

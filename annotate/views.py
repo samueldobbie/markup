@@ -41,6 +41,31 @@ def suggest_cui(request):
     return HttpResponse(output)
 
 
+def setup_dictionary(request):
+    user_dict = json.loads(request.POST.dict()['dict'])
+    setup_db(user_dict)
+    return HttpResponse(None)
+
+
+def setup_db(user_dict):
+    db = DictDatabase(CharacterNgramFeatureExtractor(2))
+
+    for value in user_dict.values():
+        value = clean_dictionary_term(value)
+        db.add(value)
+
+    setup_searcher(db)
+
+
+def setup_searcher(db):
+    global searcher
+    searcher = Searcher(db, CosineMeasure())
+
+
+def clean_dictionary_term(value):
+    return value.lower()
+
+
 '''
 def auto_annotate(request):
     doc_text = request.GET['document_text']
@@ -127,10 +152,10 @@ def load_user_dictionary(request, data_file_path):
 
     searcher = Searcher(db, CosineMeasure())
     return HttpResponse(None)
+'''
 
 
 COSINE_THRESHOLD = 0.75
-term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
-db = pickle.load(open('db.pickle', 'rb'))
-searcher = Searcher(db, CosineMeasure())
-'''
+# term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
+# db = pickle.load(open('db.pickle', 'rb'))
+# searcher = Searcher(db, CosineMeasure())
