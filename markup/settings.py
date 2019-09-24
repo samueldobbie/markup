@@ -10,10 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
-# from .secret_settings import *
-# temporary secret_key for sake of demoing
-SECRET_KEY = '^@xk97zk8n@ui+307d-&=htf37km=0__-*mq(+z0feyuce_ici'
-
+from .secret_settings import *
 
 import os
 
@@ -28,7 +25,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # TO-DO: Run through deployment checklist
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'www.getmarkup.com']
 
 
 # Application definition
@@ -124,3 +121,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+# STATIC_ROOT = ''
