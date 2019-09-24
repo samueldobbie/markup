@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load staticfiles %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Create Configuration File - Markup</title>
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,700" rel="stylesheet" />
+    <link href="{% static 'file_selection/create_config.css' %}" rel="stylesheet" />
+    <link rel="shortcut icon" href="{% static 'file_selection/favicon.ico' %}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+    <script src="{% static 'file_selection/create_config.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</head>
+
+<body style="background-blend-mode: overlay;">
+    <nav>
+        <div class="nav-wrapper" style="background-color:#333;">
+            <a href="/" class="brand-logo" style="margin-left:2%;  font-family: 'Nunito'; font-weight:bold;">markup</a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down" style="margin-right:2%;  font-family: 'Nunito'; color:#33FFB5; font-weight:bold;">
+                <li><a href="/getting-started">Getting Started</a></li>
+                <li><a href="/learn-more">Documentation</a></li>
+                <li><a target="_blank" href="https://github.com/samueldobbie/markup">Github</a></li>
+                <li><a id="darkMode">Dark Mode</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div style="margin-top:6.5%; text-align:center;">
+        <p style="text-align:center; color:red; font-weight:bold;">This is a temporary configuration file creator which I plan make much more intuitive to use soon.<br>
+            For now, it would be best to ignore this tool and instead reference the brat configuration formatting guide <a target="_blank" href="https://brat.nlplab.org/configuration.html">here</a>.</p>
+        <div>
+            <p style="font-size:25px; font-weight:bold;">Entities</p>
+            <input id="entityInput" type="text" placeholder="Epilepsy, DrugName, etc." style="width:300px; background-color: rgb(255, 255, 255); border:1px solid rgb(211, 211, 211); border-radius:5px; padding-left:10px;">
+            <button id="addEntity" style="padding:11px; border-radius: 5px; outline:none; border:none; background-color: #33FFB5; font-size:15px;">Add</button>
+            <div id="entityList" style="margin-top:1%;"></div>
+            <br>
+            <br>
+        </div>
+
+        <div>
+            <p style="font-size:25px; font-weight:bold;">Attributes</p>
+            <input id="entityInput" type="text" placeholder="SeizureFree Arg:Seizure, Value:Yes|No" style="width:300px; background-color: rgb(255, 255, 255); border:1px solid rgb(211, 211, 211); border-radius:5px; padding-left:10px;">
+            <button id="addEntity" style="padding:11px; border-radius: 5px; outline:none; border:none; background-color: #33FFB5; font-size:15px;">Add</button>
+            <div id="entityList" style="margin-top:1%;"></div>
+            <br>
+            <br>
+        </div>
+        
+        <button style="padding:15px; border-radius: 5px; outline:none; border:none; background-color: #33FFB5; font-size:25px;">Save configuration file</button>
+    </div>
+</body>
+
+</html>

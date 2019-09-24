@@ -1,6 +1,19 @@
+// Remove data from local storage to avoid being able to revisit page and see outdated information
+localStorage.removeItem('documentText');
+localStorage.removeItem('annotationText');
+localStorage.removeItem('configText');
+localStorage.removeItem('dictionarySelection');
+
 $(document).ready(function () {
-    // Checks if user has preset preference for color mode
     var darkMode;
+    var documentOpenType;
+    var documentFileList;
+    var annotationFileList;
+    var configFileList;
+    var dictionarySelection;
+
+
+    // Checks if user has preset preference for color mode
     if (localStorage.getItem('mode') == 'light') {
         initialize('light');
         darkMode = false;
@@ -8,6 +21,7 @@ $(document).ready(function () {
         initialize('dark');
         darkMode = true;
     }
+
 
     // Sets inital color mode based on users stored preference (light or dark mode)
     function initialize(type) {
@@ -40,14 +54,9 @@ $(document).ready(function () {
         }
     });
 
-    var openType;
-    var documentFileList;
-    var annotationFileList;
-    var configFileList;
-    var dictionarySelection;
 
     $('#aSingleDoc').click(function () {
-        openType = 'single';
+        documentOpenType = 'single';
 
         $("#questionOne").fadeOut();
         $("#aSingleDoc").fadeOut();
@@ -57,10 +66,13 @@ $(document).ready(function () {
             $("#questionTwoA").fadeIn();
             $("#documentFileOpenerOverlay").fadeIn();
         });
+
+        localStorage.setItem('documentOpenType', documentOpenType);
     });
 
+    /*
     $('#multipleDocs').click(function () {
-        openType = 'multiple';
+        documentOpenType = 'multiple';
 
         $("#questionOne").fadeOut();
         $("#aSingleDoc").fadeOut();
@@ -70,9 +82,13 @@ $(document).ready(function () {
             $("#questionTwoB").fadeIn();
             $("#documentFolderOpenerOverlay").fadeIn();
         });
-    });
 
-    document.getElementById('documentFileOpener').onchange = function() {
+        localStorage.setItem('documentOpenType', documentOpenType);
+    });
+    */
+
+
+    document.getElementById('documentFileOpener').onchange = function () {
         $("#questionTwoA").fadeOut();
         $("#documentFileOpenerOverlay").fadeOut();
 
@@ -83,9 +99,17 @@ $(document).ready(function () {
         });
 
         documentFileList = document.getElementById('documentFileOpener').files;
+
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            localStorage.setItem('documentText', reader.result);
+        };
+
+        reader.readAsText(documentFileList[0]);
     }
 
-    document.getElementById('documentFolderOpener').onchange = function() {
+
+    document.getElementById('documentFolderOpener').onchange = function () {
         $("#questionTwoB").fadeOut();
         $("#documentFolderOpenerOverlay").fadeOut();
 
@@ -97,11 +121,12 @@ $(document).ready(function () {
         documentFileList = document.getElementById('documentFolderOpener').files;
     }
 
-    document.getElementById('configFileOpener').onchange = function() {
+
+    document.getElementById('configFileOpener').onchange = function () {
         $("#questionThreeA").fadeOut();
         $("#configFileOpenerOverlay").fadeOut();
         $("#configFileCreator").fadeOut();
-        
+
         sleep(500).then(() => {
             $("#questionFourA").fadeIn();
             $("#annotationFileOpenerOverlay").fadeIn();
@@ -109,31 +134,48 @@ $(document).ready(function () {
         });
 
         configFileList = document.getElementById('configFileOpener').files;
+
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            localStorage.setItem('configText', reader.result);
+        };
+
+        reader.readAsBinaryString(configFileList[0]);
     }
 
-    document.getElementById('annotationFileOpener').onchange = function() {
+
+    document.getElementById('annotationFileOpener').onchange = function () {
         $("#questionFourA").fadeOut();
         $("#annotationFileOpenerOverlay").fadeOut();
         $("#skipAnnotationFileOpening").fadeOut();
-        
+
         sleep(500).then(() => {
             $("#questionFive").fadeIn();
             $("#dictionaryOptions").fadeIn();
         });
 
         annotationFileList = document.getElementById('annotationFileOpener').files;
+
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            localStorage.setItem('annotationText', reader.result);
+        };
+
+        reader.readAsBinaryString(annotationFileList[0]);
     }
 
-    $('#skipAnnotationFileOpening').click(function() {
+
+    $('#skipAnnotationFileOpening').click(function () {
         $("#questionFourA").fadeOut();
         $("#annotationFileOpenerOverlay").fadeOut();
         $("#skipAnnotationFileOpening").fadeOut();
-        
+
         sleep(500).then(() => {
             $("#questionFive").fadeIn();
             $("#dictionaryOptions").fadeIn();
         });
     });
+
 
     $('.dictionaryOption').click(function (e) {
         dictionarySelection = e.target.id;
@@ -144,34 +186,23 @@ $(document).ready(function () {
 
             sleep(500).then(() => {
                 $("#finishedQuestions").fadeIn();
+                startAnnotating();
             });
         } else {
             $("#questionFive").fadeOut();
+            // Add user dictionary path
         }
 
-        if (openType == 'single') {
-            console.log(documentFileList);
-            console.log(annotationFileList);
-            console.log(configFileList);
-            console.log(dictionarySelection);
-        } else if (openType == 'multiple') {
-            console.log(documentFileList);
-            console.log(dictionarySelection);
-        }
+        localStorage.setItem('dictionarySelection', dictionarySelection);
     });
+
+
+    function startAnnotating() {
+        location.href = '/annotate';
+    }
+
+
+    function sleep(time) {
+        return new Promise((resolve) => setTimeout(resolve, time));
+    }
 });
-
-function sleep (time) {
-    return new Promise((resolve) => setTimeout(resolve, time));
-}
-
-
-/*
-var reader = new FileReader();
-    
-reader.addEventListener('load', function (e) {
-    console.log(e.target.result);
-});
-            
-reader.readAsBinaryString(documentFileList[0]);
-*/

@@ -1,8 +1,10 @@
-import PySimpleGUI as gui
-
 from annotate import views as annotate_views
 from django.shortcuts import render, redirect
 from django.urls import reverse
+
+
+def create_config(request):
+    return render(request, 'file_selection/create_config.html', {})
 
 
 def getting_started(request):

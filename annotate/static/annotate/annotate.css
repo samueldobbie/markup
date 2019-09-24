@@ -15,7 +15,7 @@
 
 .item-1 {
     flex-grow:1;
-    max-width:20%;
+    max-width:22%;
 }
 
 .item-2 {
@@ -24,16 +24,16 @@
 }
 
 .btn {
-    background-color:rgb(210, 210, 210);
+    background-color:rgb(213, 255, 234);
     margin-bottom:2%;
-    padding:2.5%;
+    padding:2%;
     color:#666;
     border-radius:5px;
     font-weight:bold;
     border:none;
     font-size:0.75em;
     font-family:"Nunito";
-    outline:0px solid transparent;
+    outline:none;
 }
 
 .drop-down {
@@ -45,7 +45,11 @@
     font-weight:bold;
     font-size:0.75em;
     font-family:"Nunito";
-    outline:0px solid transparent;
+    outline:none;
+    background-color:rgb(235, 235, 235);
+    border:none;
+    border:2px solid rgb(235, 235, 235);
+    color:rgb(145, 145, 145);
 }
 
 ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
@@ -81,8 +85,6 @@ select {
   background: url(data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0Ljk1IDEwIj48ZGVmcz48c3R5bGU+LmNscy0xe2ZpbGw6I2ZmZjt9LmNscy0ye2ZpbGw6IzQ0NDt9PC9zdHlsZT48L2RlZnM+PHRpdGxlPmFycm93czwvdGl0bGU+PHJlY3QgY2xhc3M9ImNscy0xIiB3aWR0aD0iNC45NSIgaGVpZ2h0PSIxMCIvPjxwb2x5Z29uIGNsYXNzPSJjbHMtMiIgcG9pbnRzPSIxLjQxIDQuNjcgMi40OCAzLjE4IDMuNTQgNC42NyAxLjQxIDQuNjciLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMy41NCA1LjMzIDIuNDggNi44MiAxLjQxIDUuMzMgMy41NCA1LjMzIi8+PC9zdmc+) no-repeat 100% 50%;
   -moz-appearance: none;
   -webkit-appearance: none;
-  /*width: 10em;*/
-  border:2px solid #999;
   appearance: none;
 }
 

@@ -1,7 +1,6 @@
 import json
 import os
 import pickle
-import PySimpleGUI as gui
 import requests
 
 from django.http import HttpResponse
@@ -18,6 +17,11 @@ from simstring.measure.cosine import CosineMeasure
 from simstring.searcher import Searcher
 
 
+def annotate_data_two(request):
+    return render(request, 'annotate/annotate_two.html', {})
+
+
+'''
 def get_config_file_path(data_file_path):
     """
     Return config file path based on whether a single
@@ -232,15 +236,17 @@ def finished(request):
         doc_no = str(total_file_count - 1) + ' documents'
     total_file_count = 1
     return render(request, 'annotate/finished.html', {'count': doc_no})
+'''
 
 
-def get_cui(request, data_file_path):
+def get_cui(request):
     """
     Performs lookup of cui based on selected UMLS term
     """
     return HttpResponse(term_to_cui[request.GET['match']])
 
 
+'''
 def write_to_file(request, data_file_path):
     """
     Outputs the input annotations to .ann file
@@ -264,9 +270,10 @@ def delete_file(request, data_file_path):
     if os.path.exists(file_path):
         os.remove(file_path)
     return HttpResponse(None)
+'''
 
 
-def suggest_cui(request, data_file_path):
+def suggest_cui(request):
     """
     Returns all relevant UMLS matches that have a cosine
     similarity value over 0.75, in descending order
@@ -280,6 +287,7 @@ def suggest_cui(request, data_file_path):
     return HttpResponse(output)
 
 
+'''
 # Reads existing .ann file if exists and returns the annotations
 def load_existing(request, data_file_path):
     ann_filename = request.GET['ann_filename']
@@ -295,7 +303,7 @@ def load_existing(request, data_file_path):
         return HttpResponse(json.dumps(None))
 
 
-def auto_annotate(request, data_file_path):
+def auto_annotate(request):
     doc_text = request.GET['document_text']
 
     doc_ngrams = []
@@ -396,9 +404,9 @@ else:
     term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
     db = pickle.load(open('db.pickle', 'rb'))
     searcher = Searcher(db, CosineMeasure())
-
-
 '''
+
+
 def get_cui(request, data_file_path):
     r = requests.get('http://www.getmarkup.com/umls_api/get_cui/' +
                      request.GET['match'])
@@ -420,6 +428,7 @@ def suggest_cui(request, data_file_path):
     return HttpResponse(output)
 
 
+'''
 def auto_annotate(request, data_file_path):
     doc_text = request.GET['document_text']
     doc_ngrams = []

@@ -14,6 +14,43 @@
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
     <script src="{% static 'file_selection/index.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <style>
+        .optionButton {
+            box-shadow: 0px 0px 2px rgb(49, 49, 49);
+            margin-right:5px;
+            padding:20px 60px;
+            border:none;
+            outline:none;
+            border-radius: 5px;
+            font-size:25px;
+            font-family:'Nunito';
+            font-weight:bold;
+        }
+
+        .documentation {
+            background-color: rgb(182, 204, 196);
+        }
+        
+        .getStarted {
+            background-color: #33FFB5;
+        }
+
+        .documentation:hover {
+            background-color:rgb(179, 179, 179);
+        }
+
+        .documentation:active {
+            background-color:rgb(160, 160, 160);
+        }
+
+        .getStarted:hover {
+            background-color:rgb(39, 212, 149);
+        }
+
+        .getStarted:active {
+            background-color:rgb(26, 167, 115);
+        }
+    </style>
 </head>
 
 <body style="background-blend-mode: overlay;">
@@ -22,7 +59,7 @@
             <a href="/" class="brand-logo" style="margin-left:2%;  font-family: 'Nunito'; font-weight:bold;">markup</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down" style="margin-right:2%;  font-family: 'Nunito'; color:#33FFB5; font-weight:bold;">
                 <li><a href="/getting-started">Getting Started</a></li>
-                <li><a href="#">FAQ</a></li>
+                <li><a href="/learn-more">Documentation</a></li>
                 <li><a target="_blank" href="https://github.com/samueldobbie/markup">Github</a></li>
                 <li><a id="darkMode">Dark Mode</a></li>
             </ul>
@@ -30,16 +67,9 @@
     </nav>
 
     <div id="openFile" style="text-align: center; margin-top:12%">
-        <p id="tagline" style="font-weight:bold; font-size: 75px;">Markup: <span id="taglineSpan1" style="background-color:#33FFB5;">Quick</span> & <span id="taglineSpan2" style="background-color:#33FFB5;">Easy</span> Annotation</p>
-        
-            <button onclick="location.href='/learn-more';" style="box-shadow: 0px 0px 2px rgb(49, 49, 49); margin-right:5px; padding:20px 60px; border:none; outline:none; border-radius: 5px; font-size:25px; font-family:'Nunito'; background-color: rgb(182, 204, 196); font-weight:bold;">Documentation</button>
-            <button onclick="location.href='/getting-started';" style="box-shadow: 0px 0px 2px rgb(49, 49, 49); padding:20px 60px; border:none; outline:none; border-radius: 5px; font-size:25px; font-family:'Nunito'; background-color: #33FFB5; font-weight:bold;">Get started ></button>
-            <!--
-            <form action="" method="GET" style="margin-top:4%;">
-                <input style="border-radius:100px; font-family: 'Nunito'; font-size:24px; background-color:#333; color:white; font-weight: bold;" type="submit" class="btn" value="Single file" name="open_file_button">
-                <input style="border-radius:100px; margin-left:2%; font-family: 'Nunito'; font-size:24px; background-color:#333; color:white; font-weight: bold;" type="submit" class="btn" value="Multiple files" name="open_dir_button">
-            </form>-->
-    </div>
+        <p id="tagline" style="font-weight:bold; font-size: 75px;">Markup - Quick & Easy Annotation</p>
+            <button onclick="location.href='/learn-more';" class="optionButton documentation">Documentation</button>
+            <button onclick="location.href='/getting-started';" class="optionButton getStarted">Get started ></button>
 </body>
 
 </html>

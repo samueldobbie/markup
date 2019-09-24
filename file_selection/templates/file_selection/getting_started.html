@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Home - Markup</title>
+    <title>Annotation Setup - Markup</title>
     <link href="https://fonts.googleapis.com/css?family=Nunito:400,700" rel="stylesheet" />
     <link href="{% static 'file_selection/getting_started.css' %}" rel="stylesheet" />
     <link rel="shortcut icon" href="{% static 'file_selection/favicon.ico' %}" />
@@ -41,7 +41,8 @@
         }
 
         .dictionaryOption:hover {
-            background-color:rgb(190, 255, 213);
+            background-color:rgb(65, 255, 185);
+            color:black;
             padding:5px;
             border-radius: 5px;
             cursor: pointer;
@@ -55,7 +56,7 @@
             <a href="/" class="brand-logo" style="margin-left:2%;  font-family: 'Nunito'; font-weight:bold;">markup</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down" style="margin-right:2%;  font-family: 'Nunito'; color:#33FFB5; font-weight:bold;">
                 <li><a href="/getting-started">Getting Started</a></li>
-                <li><a href="#">FAQ</a></li>
+                <li><a href="/learn-more">Documentation</a></li>
                 <li><a target="_blank" href="https://github.com/samueldobbie/markup">Github</a></li>
                 <li><a id="darkMode">Dark Mode</a></li>
             </ul>
@@ -78,28 +79,29 @@
     </div>
 
     <div style="padding-top:1.5%; text-align:center;">
-        <button id="aSingleDoc" class="optionButton" style="margin-right:25px;">A single doc</button>
-        <button id="multipleDocs" class="optionButton">Multiple docs <span style="font-size:15px;">*quickest setup</span></button>
-
-        <label for="documentFileOpener" id="documentFileOpenerOverlay" class="optionButton" style="color:black; background-color:rgb(233, 233, 233); display:none;">Choose file to annotate</label>
+        <button id="aSingleDoc" class="optionButton">A single doc</button>
+        <button id="multipleDocs" class="optionButton" onclick="return false" style="background-color:lightgray;">Multiple docs (coming soon)</button>
+        <!--<span style="font-size:15px;">*quickest setup</span>-->
+        <label for="documentFileOpener" id="documentFileOpenerOverlay" class="optionButton" style="color:black; display:none;">Choose file to annotate</label>
         <input id="documentFileOpener" type="file" accept=".txt" style="display:none;">
-        
+        <!--background-color:rgb(233, 233, 233);-->
         <label for="documentFolderOpener" id="documentFolderOpenerOverlay" class="optionButton" style="color:black; background-color:rgb(233, 233, 233); display:none;">Choose folder</label>
         <input id="documentFolderOpener" type="file" style="display:none;" webkitdirectory directory multiple>
 
-        <label for="configFileOpener" id="configFileOpenerOverlay" class="optionButton" style="color:black; background-color:rgb(233, 233, 233); display:none;">Choose configuration file</label>
+        <label for="configFileOpener" id="configFileOpenerOverlay" class="optionButton" style="color:black; display:none;">Choose configuration file</label>
         <input id="configFileOpener" type="file" accept=".conf" style="display:none;" >
-        <button id="configFileCreator" class="optionButton" style="display:none;">Create configuration file</button>
+        <a href="/create-configuration-file/"><label id="configFileCreator" class="optionButton" style="display:none; background-color:rgb(233, 233, 233); color:black;">Create configuration file</label></a>
 
-        <label for="annotationFileOpener" id="annotationFileOpenerOverlay" class="optionButton" style="color:black; background-color:rgb(233, 233, 233); display:none;">Choose annotation file</label>
+        <label for="annotationFileOpener" id="annotationFileOpenerOverlay" class="optionButton" style="color:black; display:none;">Choose annotation file</label>
         <input id="annotationFileOpener" type="file" accept=".ann" style="display:none;">
-        <button id="skipAnnotationFileOpening" class="optionButton" style="display:none;">Skip</button>
+        <label id="skipAnnotationFileOpening" class="optionButton" style="display:none; color:black; background-color:rgb(233, 233, 233); ">Skip</label>
 
         <div id="dictionaryOptions" style="display:none;">
             <p><span id="umlsDictionary" class="dictionaryOption">> Unified Medical Language System (UMLS)</span></p>
             <p><span id="snomedDictionary" class="dictionaryOption">> SNOMED CT</span></p>
-            <p><span id="userDictionary" class="dictionaryOption">> My own dictionary</span></p>
+            <!--<p><span id="userDictionary" class="dictionaryOption">> My own dictionary (coming soon)</span></p>-->
             <p><span id="noDictionary" class="dictionaryOption">> None</span></p>
+            <p>*Ability to use your own dictionary coming soon</p>
         </div>
 
     </div>
