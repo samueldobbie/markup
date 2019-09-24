@@ -4,7 +4,6 @@ certifi==2019.3.9
 chardet==3.0.4
 Click==7.0
 Django==2.1.7
-easygui==0.98.1
 future==0.17.1
 idna==2.8
 l==0.11.0
@@ -18,5 +17,3 @@ vcversioner==2.16.0.0
 virtualenv==16.4.3
 zope.interface==4.6.0
 nltk==3.4.1
-PySimpleGUI==4.0.0
-
