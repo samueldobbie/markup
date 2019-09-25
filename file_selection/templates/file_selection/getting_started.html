@@ -95,12 +95,18 @@
         <label for="annotationFileOpener" id="annotationFileOpenerOverlay" class="optionButton" style="color:black; display:none;">Choose annotation file</label>
         <input id="annotationFileOpener" type="file" accept=".ann" style="display:none;">
         <label id="skipAnnotationFileOpening" class="optionButton" style="display:none; color:black; background-color:rgb(233, 233, 233); ">Skip</label>
-
+        
         <div id="dictionaryOptions" style="display:none;">
             <form action="" method="post">
                 {% csrf_token %}
+                <p><span id="umlsDictionary" class="dictionaryOption">> Unified Medical Language System (UMLS)</span></p>
+                <!--<p><span id="snomedDictionary" class="dictionaryOption">> SNOMED CT</span></p>-->
+                <p><span id="noDictionary" class="dictionaryOption">> None</span></p>
+                <p style="color:red;">Ability to use additional dictionaries (incl. your own dictionary) coming soon.</p>
+                <!--
                 <label for="dictionaryFileOpener" id="dictionaryFileOpenerOverlay" class="optionButton" style="color:black;">Choose dictionary file</label>
                 <input id="dictionaryFileOpener" type="file" accept="*" style="display:none;">
+                -->
             </form>
         </div>
     </div>

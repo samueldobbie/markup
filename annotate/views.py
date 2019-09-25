@@ -24,6 +24,10 @@ def get_cui(request):
     """
     Performs lookup of cui based on selected UMLS term
     """
+    global searcher
+    if searcher is None:
+        return HttpResponse('')
+
     return HttpResponse(term_to_cui[request.GET['match']])
 
 
@@ -32,6 +36,10 @@ def suggest_cui(request):
     Returns all relevant UMLS matches that have a cosine
     similarity value over 0.75, in descending order
     """
+    global searcher
+    if searcher is None:
+        return HttpResponse('')
+
     output = []
     for i in searcher.ranked_search(request.GET['selectedTerm'],
                                     COSINE_THRESHOLD):
@@ -42,23 +50,46 @@ def suggest_cui(request):
 
 
 def setup_dictionary(request):
-    user_dict = json.loads(request.POST.dict()['dict'])
-    setup_db(user_dict)
+    """
+    Setup user-specified dictionary to be used for
+    phrase approximation
+    """
+
+    dictionary_selection = request.POST['dictionarySelection']
+
+    global searcher
+    if dictionary_selection == 'umlsDictionary':
+        searcher = Searcher(umls_db, CosineMeasure())
+    elif dictionary_selection == 'noDictionary':
+        searcher = None
+
+    return HttpResponse(None)
+
+
+'''
+def setup_dictionary(request):
+    user_dictionary = json.loads(request.POST['dictionary']).split('\n')
+    data = {}
+    for row in user_dictionary:
+        values = row.split('\t')
+        if len(values) == 2:
+            data[values[0]] = values[1]
+    setup_db(data)
     return HttpResponse(None)
 
 
 def setup_db(user_dict):
-    db = DictDatabase(CharacterNgramFeatureExtractor(2))
-
+    global db
     for value in user_dict.values():
         value = clean_dictionary_term(value)
         db.add(value)
 
-    setup_searcher(db)
+    setup_searcher()
 
 
-def setup_searcher(db):
+def setup_searcher():
     global searcher
+    global db
     searcher = Searcher(db, CosineMeasure())
 
 
@@ -66,7 +97,6 @@ def clean_dictionary_term(value):
     return value.lower()
 
 
-'''
 def auto_annotate(request):
     doc_text = request.GET['document_text']
 
@@ -154,8 +184,6 @@ def load_user_dictionary(request, data_file_path):
     return HttpResponse(None)
 '''
 
-
-COSINE_THRESHOLD = 0.75
-# term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
-# db = pickle.load(open('db.pickle', 'rb'))
-# searcher = Searcher(db, CosineMeasure())
+COSINE_THRESHOLD = 0.85
+term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
+umls_db = pickle.load(open('db.pickle', 'rb'))
