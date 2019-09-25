@@ -17,7 +17,7 @@ from simstring.searcher import Searcher
 
 
 def annotate_data(request):
-    return render(request, 'annotate/annotate_two.html', {})
+    return render(request, 'annotate/annotate.html', {})
 
 
 def get_cui(request):

@@ -668,7 +668,7 @@ function loadExistingAnnotations(annotationText) {
                 if (annotationId > attributeId) {
                     attributeId = annotationId
                 }
-                attributeValues.push([data[0]]);
+                attributeValues.push(data[0] + ': ' + data[2]);
             }
         }
         highlightRange(entityValue, attributeValues, start, end);
@@ -722,7 +722,11 @@ function hoverInfo(id, type) {
                         offsetList[i][j] = 'None';
                     }
                 }
-                document.getElementById(id).title = 'Text: ' + offsetList[i][4] + '\nEntity: ' + offsetList[i][2] + '\nAttributes: ' + offsetList[i][3];
+                var titleString = 'Entity: ' + offsetList[i][2] + '\n';
+                for (var k=0; k<offsetList[i][3][0].length; k++) {
+                    titleString += offsetList[i][3][0][k];
+                }
+                document.getElementById(id).title = titleString;
                 return;
             }
         };
