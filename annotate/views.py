@@ -46,6 +46,7 @@ def suggest_cui(request):
         output.append(i[1] + '***')
     if output != []:
         output[-1] = output[-1][:-3]
+
     return HttpResponse(output)
 
 
@@ -54,7 +55,6 @@ def setup_dictionary(request):
     Setup user-specified dictionary to be used for
     phrase approximation
     """
-
     dictionary_selection = request.POST['dictionarySelection']
 
     global searcher

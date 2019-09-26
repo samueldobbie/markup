@@ -10,9 +10,18 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
-from .secret_settings import *
-
 import os
+import random
+import string
+
+
+try:
+    SECRET_KEY = open(os.path.dirname(__file__) + '/secretkey.txt').read().strip()
+except:
+    SECRET_KEY = ''.join([random.SystemRandom().choice(string.ascii_letters + string.digits + string.punctuation) for _ in range(50)])
+    secret_key_file = open(os.path.dirname(__file__) + '/secretkey.txt', 'w')
+    secret_key_file.write(SECRET_KEY)
+    secret_key_file.close()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -122,7 +131,3 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 # STATIC_ROOT = ''
-
-# Determine why such a substantial increase is req.
-DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000000000
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10000000000000

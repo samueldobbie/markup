@@ -4,6 +4,20 @@
 
 The online version of markup can be used [here](http://www.getmarkup.com/).
 
+### Usage (Offline)
+
+Run the following:
+```
+pip3 install virtualenv
+virtualenv -p python3 markup-demo
+cd markup-demo
+source bin/activate
+git clone https://github.com/samueldobbie/markup.git
+cd markup
+pip3 install -r requirements.txt
+python3 manage.py runserver
+```
+
 ### Documentation
 
 Documentation can be read [here](http://www.getmarkup.com/learn-more).
