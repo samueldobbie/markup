@@ -2,6 +2,15 @@
 <html lang="en">
 
 <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-148811237-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-148811237-1');
+    </script>
     {% load staticfiles %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,8 +39,8 @@
     </nav>
 
     <div style="margin-top:6.5%; text-align:center;">
-        <p style="text-align:center; color:red; font-weight:bold;">This is a temporary configuration file creator which I plan make much more intuitive to use soon.<br>
-            For now, it would be best to ignore this tool and instead reference the brat configuration formatting guide <a target="_blank" href="https://brat.nlplab.org/configuration.html">here</a>.</p>
+        <p style="text-align:center; color:red; font-weight:bold;">This is a temporary configuration file creator which I plan to make much more intuitive to use soon.<br>
+            It would be best to ignore this tool (for now) and instead reference the brat configuration file formatting guide <a target="_blank" href="https://brat.nlplab.org/configuration.html">here</a>.</p>
         <div>
             <p style="font-size:25px; font-weight:bold;">Entities</p>
             <input id="entityInput" type="text" placeholder="Epilepsy, DrugName, etc." style="width:300px; background-color: rgb(255, 255, 255); border:1px solid rgb(211, 211, 211); border-radius:5px; padding-left:10px;">

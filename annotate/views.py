@@ -33,8 +33,8 @@ def get_cui(request):
 
 def suggest_cui(request):
     """
-    Returns all relevant UMLS matches that have a cosine
-    similarity value over 0.75, in descending order
+    Returns all relevant UMLS matches that have a cosine similarity
+    value over the specified threshold, in descending order
     """
     global searcher
     if searcher is None:
@@ -59,7 +59,7 @@ def setup_dictionary(request):
 
     global searcher
     if dictionary_selection == 'umlsDictionary':
-        searcher = Searcher(umls_db, CosineMeasure())
+        searcher = umls_searcher
     elif dictionary_selection == 'noDictionary':
         searcher = None
 
@@ -187,3 +187,4 @@ def load_user_dictionary(request, data_file_path):
 COSINE_THRESHOLD = 0.85
 term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
 umls_db = pickle.load(open('db.pickle', 'rb'))
+umls_searcher = Searcher(umls_db, CosineMeasure())

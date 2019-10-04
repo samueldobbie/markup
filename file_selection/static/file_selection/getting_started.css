@@ -1,0 +1,35 @@
+.optionButton {
+    box-shadow: 0px 0px 2px rgb(49, 49, 49);
+    margin-right:5px;
+    padding:20px 60px;
+    border:none;
+    outline:none;
+    border-radius: 5px;
+    font-size:25px;
+    background-color: rgb(65, 255, 185);
+}
+
+.optionButton:hover {
+    background-color:rgb(39, 212, 149);
+}
+
+.optionButton:active {
+    background-color:rgb(26, 167, 115);
+}
+
+.dictionaryOption {
+    font-size:22px;
+}
+
+.dictionaryOption:hover {
+    background-color:rgb(65, 255, 185);
+    color:black;
+    padding:5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.questionHeadline {
+    font-size:65px;
+    font-weight:bold;
+}

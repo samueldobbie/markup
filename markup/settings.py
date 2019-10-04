@@ -16,9 +16,12 @@ import string
 
 
 try:
-    SECRET_KEY = open(os.path.dirname(__file__) + '/secretkey.txt').read().strip()
+    SECRET_KEY = open(os.path.dirname(__file__) +
+                      '/secretkey.txt').read().strip()
 except:
-    SECRET_KEY = ''.join([random.SystemRandom().choice(string.ascii_letters + string.digits + string.punctuation) for _ in range(50)])
+    SECRET_KEY = ''.join([random.SystemRandom().choice(
+        string.ascii_letters + string.digits + string.punctuation)
+        for _ in range(50)])
     secret_key_file = open(os.path.dirname(__file__) + '/secretkey.txt', 'w')
     secret_key_file.write(SECRET_KEY)
     secret_key_file.close()
@@ -98,16 +101,20 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME': 'django.contrib.auth.password_validation. \
+                 UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': 'django.contrib.auth.password_validation. \
+                 MinimumLengthValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation. \
+                 CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation. \
+                 NumericPasswordValidator',
     },
 ]
 
@@ -130,4 +137,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
-# STATIC_ROOT = ''
+
+# STATIC_ROOT = '/home/samueldobbie/markup_two/markup/static/'

@@ -5,6 +5,26 @@
   background-color: rgb(79, 120, 255);
 }
 
+::-webkit-input-placeholder {
+  font-size:14px;
+  font-weight:bold;
+}
+
+:-moz-placeholder {
+  font-size:14px;
+  font-weight:bold;
+}
+
+::-moz-placeholder {
+  font-size:14px;
+  font-weight:bold;
+}
+
+:-ms-input-placeholder {
+  font-size:14px;
+  font-weight:bold;
+}
+
 .container {
     display:flex;
 }

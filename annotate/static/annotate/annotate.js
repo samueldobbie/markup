@@ -440,7 +440,7 @@ function addAnnotation(event) {
     var highlighted = window.getSelection().toString();
 
     // Check whether selected text is valid
-    if (!validateAnnotationSelection(highlighted, attributeRadiobuttons)) { return; }
+    if (!validateAnnotationSelection(highlighted, attributeRadiobuttons)) { document.getElementById('entities').style.color = 'red'; return; }
 
     // Get start and end indicies (offsets) of selected text
     var doc = document.getElementById('file_data');
@@ -597,7 +597,6 @@ function addAnnotation(event) {
     resetDropdowns(allDropdowns);
 
     updateAnnotationFileURL();
-    location.reload();
 }
 
 
@@ -723,7 +722,7 @@ function hoverInfo(id, type) {
                     }
                 }
                 var titleString = 'Entity: ' + offsetList[i][2] + '\n';
-                for (var k=0; k<offsetList[i][3][0].length; k++) {
+                for (var k = 0; k < offsetList[i][3][0].length; k++) {
                     titleString += offsetList[i][3][0][k];
                 }
                 document.getElementById(id).title = titleString;
@@ -781,6 +780,17 @@ function suggestCui(event) {
             searchList.add(option);
         }
     });
+}
+
+
+function resetEntityColor() {
+    var col;
+    if (darkMode == true) {
+        col = 'white';
+    } else {
+        col = 'black';
+    }
+    document.getElementById('entities').style.color = col;
 }
 
 
@@ -882,18 +892,23 @@ $(document).ready(function () {
     $('#annotation_data').on('click', '.displayedAnnotation', deleteClickedAnnotation);
 
     // Suggest most relevant UMLS matches based on highlighted term 
-    $('#file_data').mouseup({'type': 'matchList'}, suggestCui);
+    $('#file_data').mouseup({ 'type': 'matchList' }, suggestCui);
 
     // Suggest most relevant UMLS matches based on searched term
     $('#searchDict').keypress({ 'type': 'searchList' }, suggestCui);
+
+    // Reset color of entities (which changes upon errors)
+    $('input[name=entities]').click(resetEntityColor);
 
     // Automatically suggest annotations
     //$('#autoAnnotate').click(autoAnnotate);
 
     // Prompt user to save annotations before leaving page
-    //window.onbeforeunload = function () {
-    //    return "Don't forget to save your annotations before leaving!";
-    //};
+    $('a[name=nav-element]').click(function() {
+        $(window).bind('beforeunload', function(){
+            return 'You have unsaved changes, are you sure you want to leave?';
+        });
+    });
 });
 
 
@@ -1075,14 +1090,5 @@ $('#exportHighlighted').click(function () {
             });
         }
     }
-});
-
-
-$('#loadUserDictionary').click(function () {
-    $.ajax({
-        type: 'GET',
-        async: false,
-        url: '~/load_user_dictionary'
-    });
 });
 */

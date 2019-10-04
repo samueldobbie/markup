@@ -2,6 +2,15 @@
 <html lang="en">
 
 <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-148811237-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-148811237-1');
+    </script>
     {% load staticfiles %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,45 +23,14 @@
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
     <script src="{% static 'file_selection/getting_started.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <style>
-        .optionButton {
-            box-shadow: 0px 0px 2px rgb(49, 49, 49);
-            margin-right:5px;
-            padding:20px 60px;
-            border:none;
-            outline:none;
-            border-radius: 5px;
-            font-size:25px;
-            background-color: rgb(65, 255, 185);
-        }
-
-        .optionButton:hover {
-            background-color:rgb(39, 212, 149);
-        }
-
-        .optionButton:active {
-            background-color:rgb(26, 167, 115);
-        }
-
-        .dictionaryOption {
-            font-size:22px;
-        }
-
-        .dictionaryOption:hover {
-            background-color:rgb(65, 255, 185);
-            color:black;
-            padding:5px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
 </head>
 
 <body>
     <nav>
         <div class="nav-wrapper" style="background-color:#333;">
             <a href="/" class="brand-logo" style="margin-left:2%;  font-family: 'Nunito'; font-weight:bold;">markup</a>
-            <ul id="nav-mobile" class="right hide-on-med-and-down" style="margin-right:2%;  font-family: 'Nunito'; color:#33FFB5; font-weight:bold;">
+            <ul id="nav-mobile" class="right hide-on-med-and-down"
+                style="margin-right:2%;  font-family: 'Nunito'; color:#33FFB5; font-weight:bold;">
                 <li><a href="/getting-started">Getting Started</a></li>
                 <li><a href="/learn-more">Documentation</a></li>
                 <li><a target="_blank" href="https://github.com/samueldobbie/markup">Github</a></li>
@@ -62,45 +40,65 @@
     </nav>
 
     <div style="text-align:center; padding-top:5%;">
-        <p id="questionOne" style="font-size:65px; font-weight:bold;">I want to annotate...</p>
-        
-        <p id="questionTwoA" style="font-size:65px; font-weight:bold; display:none;">The doc I want to annotate is...</p>
-        <p id="questionTwoB" style="font-size:65px; font-weight:bold; display:none;">The folder containing the docs is...</p>
+        <p id="questionOne" class="questionHeadline">I want to annotate...</p>
 
-        <p id="questionThreeA" style="font-size:65px; font-weight:bold; display:none;">My configuration file is...</p>
+        <p id="questionTwoA" class="questionHeadline" style="display:none;">The doc I want to annotate is...</p>
+        <p id="questionTwoB" class="questionHeadline" style="display:none;">My docs and annotation files are...</p>
 
-        <p id="questionFourA" style="font-size:65px; font-weight:bold; display:none;">My existing annotation file is...</p>
+        <p id="questionThreeA" class="questionHeadline" style="display:none;">My configuration file is...</p>
 
-        <p id="questionFive" style="font-size:65px; font-weight:bold; display:none;">The dictionary I want to use is...</p>
+        <p id="questionFourA" class="questionHeadline" style="display:none;">My existing annotation file is...</p>
 
-        <p id="finishedQuestions" style="font-size:65px; font-weight:bold; display:none;">Here we go!</p>
+        <p id="questionFive" class="questionHeadline" style="display:none;">The dictionary I want to use is...</p>
+
+        <p id="finishedQuestions" class="questionHeadline" style="display:none;">Here we go!</p>
     </div>
 
     <div style="padding-top:1.5%; text-align:center;">
         <button id="aSingleDoc" class="optionButton">A single doc</button>
-        <button id="multipleDocs" class="optionButton" onclick="return false" style="background-color:lightgray;">Multiple docs (coming soon)</button>
+        <button id="multipleDocs" class="optionButton" onclick="return false"
+            style="background-color:lightgray;">Multiple docs (coming soon)</button>
 
-        <label for="documentFileOpener" id="documentFileOpenerOverlay" class="optionButton" style="color:black; display:none;">Choose file to annotate</label>
+        <label for="documentFileOpener" id="documentFileOpenerOverlay" class="optionButton"
+            style="color:black; display:none;">Choose file to annotate</label>
         <input id="documentFileOpener" type="file" accept=".txt" style="display:none;">
 
-        <label for="documentFolderOpener" id="documentFolderOpenerOverlay" class="optionButton" style="color:black; background-color:rgb(233, 233, 233); display:none;">Choose folder</label>
-        <input id="documentFolderOpener" type="file" style="display:none;" webkitdirectory directory multiple>
+        <!--
+        <div id="multipleDocOptions">
+            <div id="left" style="float:left;">
+                <p>Document</p>
+                <p><input id="documentFileOpener" type="file" accept=".txt"></p>
+            </div>
+            <div id="right" style="float:left;">
+                <p>[Optional] Annotation file</p>
+                <p><input id="documentFileOpener" type="file" accept=".txt"></p>
+            </div>
+        </div>
+        -->
+        <input id="documentFolderOpener" style="display:none;" type="file" accept=".txt">
 
-        <label for="configFileOpener" id="configFileOpenerOverlay" class="optionButton" style="color:black; display:none;">Choose configuration file</label>
-        <input id="configFileOpener" type="file" accept=".conf" style="display:none;" >
-        <a href="/create-configuration-file/"><label id="configFileCreator" class="optionButton" style="display:none; background-color:rgb(233, 233, 233); color:black;">Create configuration file</label></a>
+        <label for="configFileOpener" id="configFileOpenerOverlay" class="optionButton"
+            style="color:black; display:none;">Choose configuration file</label>
+        <input id="configFileOpener" type="file" accept=".conf" style="display:none;">
+        <a href="/create-configuration-file/"><label id="configFileCreator" class="optionButton"
+                style="display:none; background-color:rgb(233, 233, 233); color:black;">Create configuration
+                file</label></a>
 
-        <label for="annotationFileOpener" id="annotationFileOpenerOverlay" class="optionButton" style="color:black; display:none;">Choose annotation file</label>
+        <label for="annotationFileOpener" id="annotationFileOpenerOverlay" class="optionButton"
+            style="color:black; display:none;">Choose annotation file</label>
         <input id="annotationFileOpener" type="file" accept=".ann" style="display:none;">
-        <label id="skipAnnotationFileOpening" class="optionButton" style="display:none; color:black; background-color:rgb(233, 233, 233); ">Skip</label>
-        
+        <label id="skipAnnotationFileOpening" class="optionButton"
+            style="display:none; color:black; background-color:rgb(233, 233, 233); ">Skip</label>
+
         <div id="dictionaryOptions" style="display:none;">
             <form action="" method="post">
                 {% csrf_token %}
-                <p><span id="umlsDictionary" class="dictionaryOption">> Unified Medical Language System (UMLS)</span></p>
+                <p><span id="umlsDictionary" class="dictionaryOption">> Unified Medical Language System (UMLS)</span>
+                </p>
                 <!--<p><span id="snomedDictionary" class="dictionaryOption">> SNOMED CT</span></p>-->
                 <p><span id="noDictionary" class="dictionaryOption">> None</span></p>
-                <p style="color:red;">Ability to use additional dictionaries (incl. your own dictionary) coming soon.</p>
+                <p style="color:red;">Ability to use additional dictionaries (incl. your own dictionary) coming soon.
+                </p>
                 <!--
                 <label for="dictionaryFileOpener" id="dictionaryFileOpenerOverlay" class="optionButton" style="color:black;">Choose dictionary file</label>
                 <input id="dictionaryFileOpener" type="file" accept="*" style="display:none;">

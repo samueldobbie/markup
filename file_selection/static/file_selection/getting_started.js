@@ -2,13 +2,12 @@
 localStorage.removeItem('documentText');
 localStorage.removeItem('annotationText');
 localStorage.removeItem('configText');
+localStorage.removeItem('documentOpenType');
+
 
 $(document).ready(function () {
     var darkMode;
     var documentOpenType;
-    var documentFileList;
-    var annotationFileList;
-    var configFileList;
 
     // Checks if user has preset preference for color mode
     if (localStorage.getItem('mode') == 'light') {
@@ -68,7 +67,6 @@ $(document).ready(function () {
     });
 
 
-    /*
     $('#multipleDocs').click(function () {
         documentOpenType = 'multiple';
 
@@ -83,7 +81,6 @@ $(document).ready(function () {
 
         localStorage.setItem('documentOpenType', documentOpenType);
     });
-    */
 
 
     document.getElementById('documentFileOpener').onchange = function () {
@@ -96,14 +93,7 @@ $(document).ready(function () {
             $("#configFileCreator").fadeIn();
         });
 
-        documentFileList = document.getElementById('documentFileOpener').files;
-
-        var reader = new FileReader();
-        reader.onload = function (e) {
-            localStorage.setItem('documentText', reader.result);
-        };
-
-        reader.readAsText(documentFileList[0]);
+        storeFileDataLocally('documentFileOpener', 'documentText');
     }
 
 
@@ -131,14 +121,7 @@ $(document).ready(function () {
             $("#skipAnnotationFileOpening").fadeIn();
         });
 
-        configFileList = document.getElementById('configFileOpener').files;
-
-        var reader = new FileReader();
-        reader.onload = function (e) {
-            localStorage.setItem('configText', reader.result);
-        };
-
-        reader.readAsBinaryString(configFileList[0]);
+        storeFileDataLocally('configFileOpener', 'configText');
     }
 
 
@@ -152,14 +135,7 @@ $(document).ready(function () {
             $("#dictionaryOptions").fadeIn();
         });
 
-        annotationFileList = document.getElementById('annotationFileOpener').files;
-
-        var reader = new FileReader();
-        reader.onload = function () {
-            localStorage.setItem('annotationText', reader.result);
-        };
-
-        reader.readAsBinaryString(annotationFileList[0]);
+        storeFileDataLocally('annotationFileOpener' , 'annotationText');
     }
 
 
@@ -188,7 +164,7 @@ $(document).ready(function () {
                     type: 'POST',
                     url: '/setup-dictionary',
                     data: {
-                        'dictionarySelection': dictionarySelection,    
+                        'dictionarySelection': dictionarySelection,
                         csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value
                     },
                     success: startAnnotating()
@@ -225,7 +201,6 @@ $(document).ready(function () {
     });
 });
 
-// remove localStorage dictionary
 
 function startAnnotating() {
     location.href = '/annotate';
@@ -234,4 +209,16 @@ function startAnnotating() {
 
 function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
+}
+
+
+function storeFileDataLocally(fileOpenerId, localStorageName) {
+    fileList = document.getElementById(fileOpenerId).files;
+
+    var reader = new FileReader();
+    reader.onload = function () {
+        localStorage.setItem(localStorageName, reader.result);
+    };
+
+    reader.readAsText(fileList[0]);
 }

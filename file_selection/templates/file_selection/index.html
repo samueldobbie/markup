@@ -2,6 +2,15 @@
 <html lang="en">
 
 <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-148811237-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-148811237-1');
+    </script>
     {% load staticfiles %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,41 +23,6 @@
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
     <script src="{% static 'file_selection/index.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <style>
-        .optionButton {
-            box-shadow: 0px 0px 2px rgb(49, 49, 49);
-            margin-right:5px;
-            padding:20px 60px;
-            border:none;
-            outline:none;
-            border-radius: 5px;
-            font-size:25px;
-        }
-
-        .documentation {
-            background-color: rgb(182, 204, 196);
-        }
-        
-        .getStarted {
-            background-color: #33FFB5;
-        }
-
-        .documentation:hover {
-            background-color:rgb(179, 179, 179);
-        }
-
-        .documentation:active {
-            background-color:rgb(160, 160, 160);
-        }
-
-        .getStarted:hover {
-            background-color:rgb(39, 212, 149);
-        }
-
-        .getStarted:active {
-            background-color:rgb(26, 167, 115);
-        }
-    </style>
 </head>
 
 <body style="background-blend-mode: overlay;">

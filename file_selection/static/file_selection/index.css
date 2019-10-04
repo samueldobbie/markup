@@ -1,0 +1,33 @@
+.optionButton {
+    box-shadow: 0px 0px 2px rgb(49, 49, 49);
+    margin-right:5px;
+    padding:20px 60px;
+    border:none;
+    outline:none;
+    border-radius: 5px;
+    font-size:25px;
+}
+
+.documentation {
+    background-color: rgb(182, 204, 196);
+}
+
+.getStarted {
+    background-color: #33FFB5;
+}
+
+.documentation:hover {
+    background-color:rgb(179, 179, 179);
+}
+
+.documentation:active {
+    background-color:rgb(160, 160, 160);
+}
+
+.getStarted:hover {
+    background-color:rgb(39, 212, 149);
+}
+
+.getStarted:active {
+    background-color:rgb(26, 167, 115);
+}

@@ -1,9 +1,8 @@
-secret_settings.py
+secretkey.txt
 __pycache__/
 .vscode/
 *.pyc
 *.pickle
 *.ann
-*.txt
 *.sqlite3
 *.conf
