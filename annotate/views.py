@@ -40,10 +40,31 @@ def suggest_cui(request):
     if searcher is None:
         return HttpResponse('')
 
-    output = []
-    for i in searcher.ranked_search(request.GET['selectedTerm'],
-                                    COSINE_THRESHOLD):
-        output.append(i[1] + '***')
+    selected_term = request.GET['selectedTerm']
+    selected_term_words = selected_term.split(' ')
+    selected_term_weights = [i for i in range(len(selected_term_words), 0, -1)]
+    selected_term_weights_count = len(selected_term_weights)
+
+    # Weight relevant UMLS matches based on word ordering
+    weighted_outputs = {}
+    for umls_match in searcher.ranked_search(selected_term, COSINE_THRESHOLD):
+        umls_term = umls_match[1]
+        umls_term_words = umls_term.split(' ')
+
+        score = 0
+        for i in range(len(umls_term_words)):
+            if i == selected_term_weights_count:
+                break
+            elif umls_term_words[i] == selected_term_words[i]:
+                score += selected_term_weights[i]
+        # Add divsor to each term
+        weighted_outputs[umls_term + '***'] = score
+
+    # Sort order matches will be displayed based on weights
+    output = [i[0] for i in sorted(weighted_outputs.items(), key=lambda kv: kv[1])]
+    output.reverse()
+
+    # Remove divisor from final term
     if output != []:
         output[-1] = output[-1][:-3]
 
