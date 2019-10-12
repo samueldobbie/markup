@@ -39,12 +39,10 @@
     </nav>
 
     <div style="margin-top:6.5%; text-align:center;">
-        <p style="text-align:center; color:red; font-weight:bold;">This is a temporary configuration file creator which I plan to make much more intuitive to use soon.<br>
-            It would be best to ignore this tool (for now) and instead reference the brat configuration file formatting guide <a target="_blank" href="https://brat.nlplab.org/configuration.html">here</a>.</p>
         <div>
             <p style="font-size:25px; font-weight:bold;">Entities</p>
-            <input id="entityInput" type="text" placeholder="Epilepsy, DrugName, etc." style="width:300px; background-color: rgb(255, 255, 255); border:1px solid rgb(211, 211, 211); border-radius:5px; padding-left:10px;">
-            <button id="addEntity" style="padding:11px; border-radius: 5px; outline:none; border:none; background-color: #33FFB5; font-size:15px;">Add</button>
+            <input id="entityName" type="text" placeholder="Entity name (e.g. Epilepsy)" style="width:300px; background-color: rgb(255, 255, 255); border:1px solid rgb(211, 211, 211); padding-left:10px;">
+            <br><button id="addEntity" style="padding:11px; outline:none; border:none; background-color: #33FFB5; font-size:15px; text-transform: uppercase; font-weight:bold;">+</button>
             <div id="entityList" style="margin-top:1%;"></div>
             <br>
             <br>
@@ -52,14 +50,16 @@
 
         <div>
             <p style="font-size:25px; font-weight:bold;">Attributes</p>
-            <input id="entityInput" type="text" placeholder="SeizureFree Arg:Seizure, Value:Yes|No" style="width:300px; background-color: rgb(255, 255, 255); border:1px solid rgb(211, 211, 211); border-radius:5px; padding-left:10px;">
-            <button id="addEntity" style="padding:11px; border-radius: 5px; outline:none; border:none; background-color: #33FFB5; font-size:15px;">Add</button>
-            <div id="entityList" style="margin-top:1%;"></div>
+            <input id="attributeName" type="text" placeholder="Attribute name (e.g. SeizureFrequency)" style="width:300px; background-color: rgb(255, 255, 255); border:1px solid rgb(211, 211, 211); padding-left:10px;">
+            <br><input id="attributeRelation" type="text" placeholder="Related entity (e.g. Epilepsy)" style="width:300px; background-color: rgb(255, 255, 255); border:1px solid rgb(211, 211, 211); padding-left:10px;">
+            <br><input id="attributeDropdown" type="text" placeholder="All dropdown values (comma-seperated)" style="width:300px; background-color: rgb(255, 255, 255); border:1px solid rgb(211, 211, 211); padding-left:10px;">
+            <br><button id="addAttribute" style="padding:11px; outline:none; border:none; background-color: #33FFB5; font-size:15px; text-transform: uppercase; font-weight:bold;">+</button>
+            <div id="attributeList" style="margin-top:1%;"></div>
             <br>
             <br>
         </div>
         
-        <button style="padding:15px; border-radius: 5px; outline:none; border:none; background-color: #33FFB5; font-size:25px;">Save configuration file</button>
+        <a id="saveConfigurationFile" style="padding:15px; margin-bottom:5%; outline:none; border:none; background-color: #33FFB5; font-size:18px; text-transform: uppercase; font-weight:bold;">Save configuration file</a>
     </div>
 </body>
 

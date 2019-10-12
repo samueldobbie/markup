@@ -39,11 +39,11 @@
         </div>
     </nav>
 
-    <div style="text-align:center; padding-top:5%;">
+    <div style="text-align:center; padding-top:9%;">
         <p id="questionOne" class="questionHeadline">I want to annotate...</p>
 
         <p id="questionTwoA" class="questionHeadline" style="display:none;">The doc I want to annotate is...</p>
-        <p id="questionTwoB" class="questionHeadline" style="display:none;">My docs and annotation files are...</p>
+        <p id="questionTwoB" class="questionHeadline" style="display:none;">The folder containing the docs is...</p>
 
         <p id="questionThreeA" class="questionHeadline" style="display:none;">My configuration file is...</p>
 
@@ -55,55 +55,52 @@
     </div>
 
     <div style="padding-top:1.5%; text-align:center;">
+        <!-- Choose method to open file (single or multiple) -->
         <button id="aSingleDoc" class="optionButton">A single doc</button>
-        <button id="multipleDocs" class="optionButton" onclick="return false"
-            style="background-color:lightgray;">Multiple docs (coming soon)</button>
+        <button id="multipleDocs" class="optionButton" onclick="return false">Multiple docs</button>
 
+        <!-- START SINGLE FILE PATH -->
+        <!-- Allow selection of a single text file -->
         <label for="documentFileOpener" id="documentFileOpenerOverlay" class="optionButton"
             style="color:black; display:none;">Choose file to annotate</label>
         <input id="documentFileOpener" type="file" accept=".txt" style="display:none;">
 
-        <!--
-        <div id="multipleDocOptions">
-            <div id="left" style="float:left;">
-                <p>Document</p>
-                <p><input id="documentFileOpener" type="file" accept=".txt"></p>
-            </div>
-            <div id="right" style="float:left;">
-                <p>[Optional] Annotation file</p>
-                <p><input id="documentFileOpener" type="file" accept=".txt"></p>
-            </div>
-        </div>
-        -->
-        <input id="documentFolderOpener" style="display:none;" type="file" accept=".txt">
-
+        <!-- Allow opening of a single configuration file-->
         <label for="configFileOpener" id="configFileOpenerOverlay" class="optionButton"
             style="color:black; display:none;">Choose configuration file</label>
         <input id="configFileOpener" type="file" accept=".conf" style="display:none;">
         <a href="/create-configuration-file/"><label id="configFileCreator" class="optionButton"
-                style="display:none; background-color:rgb(233, 233, 233); color:black;">Create configuration
+                style="display:none; color:black;">Create configuration
                 file</label></a>
 
+        <!-- Allow opening of a single annotation file -->
         <label for="annotationFileOpener" id="annotationFileOpenerOverlay" class="optionButton"
             style="color:black; display:none;">Choose annotation file</label>
         <input id="annotationFileOpener" type="file" accept=".ann" style="display:none;">
         <label id="skipAnnotationFileOpening" class="optionButton"
-            style="display:none; color:black; background-color:rgb(233, 233, 233); ">Skip</label>
+            style="display:none; color:black;">Skip</label>
+        <!-- END SINGLE FILE PATH -->
 
+        <!-- START MULTIPLE FILES PATH -->
+        <p id="multipleFileSpec" style="color:red; display:none;">The selected folder must contain a single configuration file (ending in .conf) and all the documents you want to annotate (ending in .txt).<br>Any existing annotation files (ending in .ann) must have the same name as the document it's associated with.<br>For example, if your folder contains a document called EpilepsyLetter.txt, then its corresponding annotation file must be called EpilepsyLetter.ann</p>
+        <input id="documentFolderOpener" style="display:none;" type="file" accept=".txt" webkitdirectory multiple>
+        <!-- END MULTIPLE FILES PATH -->    
+
+        <!-- Allow selection of dictionary -->
         <div id="dictionaryOptions" style="display:none;">
             <form action="" method="post">
                 {% csrf_token %}
-                <p><span id="umlsDictionary" class="dictionaryOption">> Unified Medical Language System (UMLS)</span>
-                </p>
-                <!--<p><span id="snomedDictionary" class="dictionaryOption">> SNOMED CT</span></p>-->
-                <p><span id="noDictionary" class="dictionaryOption">> None</span></p>
-                <p style="color:red;">Ability to use additional dictionaries (incl. your own dictionary) coming soon.
-                </p>
-                <!--
-                <label for="dictionaryFileOpener" id="dictionaryFileOpenerOverlay" class="optionButton" style="color:black;">Choose dictionary file</label>
-                <input id="dictionaryFileOpener" type="file" accept="*" style="display:none;">
+                <!--<span id="umlsDictionary" class="optionButton dictionaryOption" style="color:black;">Unified Medical Language System (UMLS)</span>
+                <span id="noDictionary" class="optionButton dictionaryOption" style="color:black;">No dictionary</span>
                 -->
+                <label for="dictionaryFileOpener" id="dictionaryFileOpenerOverlay" class="optionButton" style="color:black;">Use your own dictionary</label>
+                <input id="dictionaryFileOpener" type="file" accept="*" style="display:none;">
             </form>
+        </div>
+
+        <div id="loader" style="display:none; text-align:center;">
+            <div class="loader" style="margin:0 auto;"></div>
+            <p style="font-size:18px;">Setting up dictionary...</p>
         </div>
     </div>
 

@@ -1,11 +1,11 @@
 .optionButton {
-    box-shadow: 0px 0px 2px rgb(49, 49, 49);
     margin-right:5px;
     padding:20px 60px;
+    text-transform: uppercase;
+    font-weight:bold;
     border:none;
     outline:none;
-    border-radius: 5px;
-    font-size:25px;
+    font-size:18px;
     background-color: rgb(65, 255, 185);
 }
 
@@ -17,19 +17,44 @@
     background-color:rgb(26, 167, 115);
 }
 
-.dictionaryOption {
-    font-size:22px;
-}
-
-.dictionaryOption:hover {
-    background-color:rgb(65, 255, 185);
-    color:black;
-    padding:5px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
 .questionHeadline {
-    font-size:65px;
-    font-weight:bold;
+    font-size:50px;
+}
+
+#multipleDocs {
+    background-color:lightgray;
+}
+
+#multipleDocs:hover {
+    background-color:darkgray;
+}
+
+#configFileCreator {
+    background-color:rgb(233, 233, 233);
+}
+
+#configFileCreator:hover {
+    background-color:darkgray;
+}
+
+#skipAnnotationFileOpening {
+    background-color:rgb(233, 233, 233);
+}
+
+#skipAnnotationFileOpening:hover {
+    background-color:darkgray;
+}
+
+.loader {
+    border: 16px solid rgb(65, 255, 185);
+    border-top: 16px solid rgb(39, 212, 149);
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+  }
+  
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

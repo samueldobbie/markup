@@ -33,8 +33,8 @@ function parseConfigValues(configText) {
         if (sent.length >= 3 && sent[0] == '[' && sent[sent.length - 1] == ']') {
             if (configKey != '') {
                 if (document.getElementById(configKey) != null) {
-                    for (var i = 0; i < configValues.length; i++) {
-                        document.getElementById(configKey).innerHTML += '<p style="margin:0; padding:0;"><input type="radio" id="' + configValues[i] + '_radio" name="' + configKey + '" value="' + configValues[i] + '_radio"> <label class="l" for="' + configValues[i] + '_radio">' + configValues[i] + '</label> </p>';
+                    for (var j = 0; j < configValues.length; j++) {
+                        document.getElementById(configKey).innerHTML += '<p style="margin:0; padding:0;"><input type="radio" id="' + configValues[j] + '_radio" name="' + configKey + '" value="' + configValues[j] + '_radio"> <label class="l" for="' + configValues[j] + '_radio">' + configValues[j] + '</label> </p>';
                     }
                     document.getElementById(configKey).innerHTML += '<br>';
                 }
@@ -63,7 +63,7 @@ function parseConfigValues(configText) {
 
 
 // Display configuration values
-function displayConfiurationValues(configValues, entityList) {
+function displayConfigurationValues(configValues, entityList) {
     var configArgs = [];
     var configVals = [];
     for (var i = 0; i < configValues.length; i++) {
@@ -293,7 +293,7 @@ function populateAnnotations(entityValue, attributeValues, startIndex, endIndex)
 
     // Color-highlight selected text
     document.getElementById('file_data').contentEditable = 'true';
-    document.execCommand('insertHTML', false, '<span id="' + startIndex + '_' + endIndex + '_aid" style="background-color:' + highlightColor + '; color:black; border-radius:5px; padding:2px;">' + highlighted + '</span>');
+    document.execCommand('insertHTML', false, '<span id="' + startIndex + '_' + endIndex + '_aid" style="background-color:' + highlightColor + '; color:black;">' + highlighted + '</span>');
     document.getElementById('file_data').contentEditable = 'false';
 
     var entityHoverInfo = [];
@@ -315,7 +315,7 @@ function populateAnnotations(entityValue, attributeValues, startIndex, endIndex)
     // Add annotation to annotaion_data display
     var annotationClass = 'class="displayedAnnotation"';
     var annotationId = 'id="' + startIndex + '_' + endIndex + '"';
-    var annotationStyle = 'style="border-radius:5px; background-color:#33FFB5; font-family:\'Nunito\'; padding:5px; display:inline-block; clear:both; float:left; '
+    var annotationStyle = 'style="background-color:#33FFB5; font-family:\'Nunito\'; padding:5px; display:inline-block; clear:both; float:left; '
     if (darkMode) {
         annotationStyle += 'color:black;"';
     } else {
@@ -464,7 +464,7 @@ function addAnnotation(event) {
 
     // Color-highlight selected text
     document.getElementById('file_data').contentEditable = 'true';
-    document.execCommand('insertHTML', false, '<span id="' + startIndex + '_' + endIndex + '_aid" style="background-color:' + highlightColor + '; color:black; border-radius:5px; padding:2px;">' + highlighted + '</span>');
+    document.execCommand('insertHTML', false, '<span id="' + startIndex + '_' + endIndex + '_aid" style="background-color:' + highlightColor + '; color:black; padding:2px;">' + highlighted + '</span>');
     document.getElementById('file_data').contentEditable = 'false';
 
     // Output annotation in stand-off format
@@ -578,7 +578,7 @@ function addAnnotation(event) {
     // Add annotation to annotaion_data display
     var annotationClass = 'class="displayedAnnotation"';
     var annotationId = 'id="' + startIndex + '_' + endIndex + '"';
-    var annotationStyle = 'style="border-radius:5px; background-color:#33FFB5; font-family:\'Nunito\'; padding:5px; display:inline-block; clear:both; float:left; ';
+    var annotationStyle = 'style="background-color:#33FFB5; font-family:\'Nunito\'; padding:5px; display:inline-block; clear:both; float:left; ';
     if (darkMode) {
         annotationStyle += 'color:black;"';
     } else {
@@ -793,12 +793,31 @@ function resetEntityColor() {
     document.getElementById('entities').style.color = col;
 }
 
+var documentTextList = [];
+var annotationTextList = [];
+var currentDocumentId = 0;
+
 
 $(document).ready(function () {
+    var documentOpenType = localStorage.getItem('documentOpenType');
+
     // Read local data of files user selected
-    var documentText = localStorage.getItem('documentText');
-    var annotationText = localStorage.getItem('annotationText');
-    var configText = localStorage.getItem('configText');
+    if (documentOpenType == "single") {
+        var annotationText = localStorage.getItem('annotationText');
+        var configText = localStorage.getItem('configText');
+        var documentText = localStorage.getItem('documentText');
+    } else if (documentOpenType == "multiple") {
+        var documentCount = localStorage.getItem('documentCount');
+        var configText = localStorage.getItem('configText');
+        for (var i=1; i<=documentCount; i++) {
+            annotationTextList.push(localStorage.getItem('annotationText' + i));
+            documentTextList.push(localStorage.getItem('documentText' + i));
+        }
+        var documentText = documentTextList[currentDocumentId];
+        var annotationText = annotationTextList[currentDocumentId];
+        document.getElementById('previousFile').style.display = "";
+        document.getElementById('nextFile').style.display = "";
+    }
 
     // Check that documentText isn't empty, otherwise return to homepage
     validateDocumentSelection(documentText);
@@ -812,7 +831,7 @@ $(document).ready(function () {
     var entityList = parsedConfigurationValues[1];
 
     // Display 'attributes' configuration list
-    var detailedConfigurationValues = displayConfiurationValues(configValues, entityList);
+    var detailedConfigurationValues = displayConfigurationValues(configValues, entityList);
     var configArgs = detailedConfigurationValues[0];
     var configVals = detailedConfigurationValues[1];
 
@@ -895,6 +914,7 @@ $(document).ready(function () {
     $('#file_data').mouseup({ 'type': 'matchList' }, suggestCui);
 
     // Suggest most relevant UMLS matches based on searched term
+    // Add delay to avoid too many requests
     $('#searchDict').keypress({ 'type': 'searchList' }, suggestCui);
 
     // Reset color of entities (which changes upon errors)
@@ -908,6 +928,20 @@ $(document).ready(function () {
         $(window).bind('beforeunload', function(){
             return 'You have unsaved changes, are you sure you want to leave?';
         });
+    });
+
+    // Move to next when multiple documents opened
+    $('#nextFile').click(function () {
+        if (currentDocumentId < documentCount-1) {
+            document.getElementById('file_data').innerText = documentTextList[++currentDocumentId];
+        }
+    });
+
+    // Move to previous when multiple documents opened
+    $('#previousFile').click(function () {
+        if (currentDocumentId > 0) {
+            document.getElementById('file_data').innerText = documentTextList[--currentDocumentId];
+        }
     });
 });
 
@@ -948,32 +982,6 @@ function autoAnnotate() {
     }
     //location.reload();
 }
-
-
-// Move to next when multiple documents opened
-$('#nextFile').click(function () {
-    $.ajax({
-        type: 'GET',
-        async: false,
-        url: '~/move_to_next_file',
-        success: function (data) {
-            window.location.href = data;
-        }
-    });
-});
-
-
-// Move to previous when multiple documents opened
-$('#previousFile').click(function () {
-    $.ajax({
-        type: 'GET',
-        async: false,
-        url: '~/move_to_previous_file',
-        success: function (data) {
-            window.location.href = data;
-        }
-    });
-});
 
 
 var clicks = 0;

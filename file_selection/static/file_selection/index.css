@@ -1,11 +1,15 @@
+#tagline {
+    margin-bottom:5%;
+}
+
 .optionButton {
-    box-shadow: 0px 0px 2px rgb(49, 49, 49);
     margin-right:5px;
     padding:20px 60px;
     border:none;
     outline:none;
-    border-radius: 5px;
-    font-size:25px;
+    font-size:18px;
+    text-transform: uppercase;
+    font-weight:bold;
 }
 
 .documentation {

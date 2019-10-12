@@ -34,8 +34,8 @@
                 <li><a name="nav-element" href="/learn-more">Documentation</a></li>
                 <li><a target="_blank" href="https://github.com/samueldobbie/markup">Github</a></li>
                 <li><a id="darkMode">Dark Mode</a></li>
-                <!--<li><a id="previousFile" style="font-size:20px; color:#33FFB5;"><</a></li>
-                <li><a id="nextFile" style="font-size:20px; color:#33FFB5;">></a></li>-->
+                <li id="previousFile" style="display:none;"><a style="font-size:20px; color:#33FFB5;"><</a></li>
+                <li id="nextFile" style="display:none;"><a style="font-size:20px; color:#33FFB5;">></a></li>
             </ul>
         </div>
     </nav>
@@ -70,7 +70,7 @@
                         <option>No match</option>
                     </select>
                     <br>
-                    <input id="searchDict" placeholder="Search UMLS" style="padding:2%; border-radius:5px; font-weight:bold; font-size:0.75em; font-family:'Nunito'; outline:0px solid transparent; color:#666; background-color:rgb(235, 235, 235); border:none;"/>
+                    <input id="searchDict" placeholder="Search UMLS" style="padding:2%; font-weight:bold; font-size:0.75em; font-family:'Nunito'; outline:0px solid transparent; color:#666; background-color:rgb(235, 235, 235); border:none;"/>
                     <br>
                     <button id="addAnnotation" class="btn" style="margin-top:8.5px;">Add Annotation</button>
                     <br>

@@ -3,6 +3,7 @@ localStorage.removeItem('documentText');
 localStorage.removeItem('annotationText');
 localStorage.removeItem('configText');
 localStorage.removeItem('documentOpenType');
+localStorage.removeItem('documentCount');
 
 
 $(document).ready(function () {
@@ -76,7 +77,8 @@ $(document).ready(function () {
 
         sleep(500).then(() => {
             $("#questionTwoB").fadeIn();
-            $("#documentFolderOpenerOverlay").fadeIn();
+            $("#documentFolderOpener").fadeIn();
+            $("#multipleFileSpec").fadeIn();
         });
 
         localStorage.setItem('documentOpenType', documentOpenType);
@@ -93,20 +95,33 @@ $(document).ready(function () {
             $("#configFileCreator").fadeIn();
         });
 
-        storeFileDataLocally('documentFileOpener', 'documentText');
+        storeFileDataLocally(document.getElementById('documentFileOpener').files[0], 'documentText');
     }
 
 
     document.getElementById('documentFolderOpener').onchange = function () {
         $("#questionTwoB").fadeOut();
-        $("#documentFolderOpenerOverlay").fadeOut();
+        $("#documentFolderOpener").fadeOut();
+        $("#multipleFileSpec").fadeOut();
 
         sleep(500).then(() => {
             $("#questionFive").fadeIn();
             $("#dictionaryOptions").fadeIn();
         });
 
+        var documentCount = 0;
         documentFileList = document.getElementById('documentFolderOpener').files;
+        for (var i=0; i<documentFileList.length; i++) {
+            if (documentFileList[i].name.split('.')[1] == 'txt') {
+                documentCount++;
+                storeFileDataLocally(documentFileList[i], 'documentText' + documentCount);
+            } else if (documentFileList[i].name.split('.')[1] == 'ann') {
+                storeFileDataLocally(documentFileList[i], 'annotationText' + documentCount);
+            } else if (documentFileList[i].name.split('.')[1] == 'conf') {
+                storeFileDataLocally(documentFileList[i], 'configText');
+            }
+        }
+        localStorage.setItem('documentCount', documentCount);
     }
 
 
@@ -121,7 +136,7 @@ $(document).ready(function () {
             $("#skipAnnotationFileOpening").fadeIn();
         });
 
-        storeFileDataLocally('configFileOpener', 'configText');
+        storeFileDataLocally(document.getElementById('configFileOpener').files[0], 'configText');
     }
 
 
@@ -135,7 +150,7 @@ $(document).ready(function () {
             $("#dictionaryOptions").fadeIn();
         });
 
-        storeFileDataLocally('annotationFileOpener' , 'annotationText');
+        storeFileDataLocally(document.getElementById('annotationFileOpener').files[0], 'annotationText');
     }
 
 
@@ -170,35 +185,49 @@ $(document).ready(function () {
                     success: startAnnotating()
                 });
             });
-        } else {
-            /*
-            $("#questionFive").fadeOut();
-            $('.dictionaryOption').click(function (e) {
-                dictionaryFileList = document.getElementById('dictionaryFileOpener').files;
+        }
+    });
 
-                for (var i=0; i<dictionaryFileList[0].size; i += 5*1024*1024) {
-                    var reader = new FileReader();
-                    reader.readAsBinaryString(dictionaryFileList[0].slice(i, 5*1024*1024));
+
+    document.getElementById('dictionaryFileOpener').onchange = function () {
+        var dictionaryFileList = document.getElementById('dictionaryFileOpener').files;
+        var dataSlice = 10*1024*1024;
+        var dictionaryData = [];
+        var completedLoadCount = 0;
+        var requiredLoadCount = Math.ceil(dictionaryFileList[0].size / dataSlice);
+
+        document.getElementById("loader").style.display = "";
+        document.getElementById("questionFive").style.display = "none";
+        document.getElementById("dictionaryOptions").style.display = "none";
+
+        for (var i=0; i<dictionaryFileList[0].size; i+=dataSlice) {
+            var reader = new FileReader();
+            reader.onload = function () {
+                var split = reader.result.split('\n');
+                for (var j=0; j<split.length; j++) {
+                    dictionaryData.push(split[j]);
+                    if (j == split.length-1) {
+                        completedLoadCount++;
+                    }
                 }
-
-                reader.onloadend = function () {
+                if (completedLoadCount == requiredLoadCount) {
                     $.ajax({
                         type: 'POST',
                         url: '/setup-dictionary',
                         data: {
-                            'dictionary': JSON.stringify(reader.result), 
+                            'dictionarySelection': 'userDictionary',
+                            'dictionaryData': JSON.stringify(dictionaryData), 
                             csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value
+                        },
+                        success: function(response) {
+                            startAnnotating();
                         }
                     });
                 }
-
-                sleep(30000).then(() => {
-                    startAnnotating();
-                });
-            };
-            */
+            }
+            reader.readAsBinaryString(dictionaryFileList[0].slice(i, i+dataSlice));
         }
-    });
+    }
 });
 
 
@@ -212,13 +241,10 @@ function sleep(time) {
 }
 
 
-function storeFileDataLocally(fileOpenerId, localStorageName) {
-    fileList = document.getElementById(fileOpenerId).files;
-
+function storeFileDataLocally(file, localStorageName) {
     var reader = new FileReader();
     reader.onload = function () {
         localStorage.setItem(localStorageName, reader.result);
     };
-
-    reader.readAsText(fileList[0]);
+    reader.readAsText(file);
 }

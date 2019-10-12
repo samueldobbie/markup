@@ -48,7 +48,6 @@
     margin-bottom:2%;
     padding:2%;
     color:#666;
-    border-radius:5px;
     font-weight:bold;
     border:none;
     font-size:0.75em;
@@ -56,12 +55,16 @@
     outline:none;
 }
 
+.btn:hover {
+    background-color:rgb(52, 236, 144);
+    color:white;
+}
+
 .drop-down {
     margin-bottom:2%;
     padding:2.5%;
     padding-right:17.5px;
     color:#666;
-    border-radius:5px;
     font-weight:bold;
     font-size:0.75em;
     font-family:"Nunito";

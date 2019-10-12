@@ -77,47 +77,34 @@ def setup_dictionary(request):
     phrase approximation
     """
     dictionary_selection = request.POST['dictionarySelection']
-
+    global term_to_cui
     global searcher
     if dictionary_selection == 'umlsDictionary':
         searcher = umls_searcher
     elif dictionary_selection == 'noDictionary':
         searcher = None
-
+    elif dictionary_selection == 'userDictionary':
+        i = 0
+        json_data = json.loads(request.POST['dictionaryData'])
+        db = DictDatabase(CharacterNgramFeatureExtractor(2))
+        term_to_cui = {}
+        for row in json_data:
+            values = row.split('\t')
+            if len(values) == 2:
+                term_to_cui[values[1]] = values[0]
+        for value in term_to_cui.keys():
+            value = clean_dictionary_term(value)
+            i += 1
+            db.add(value)
+        searcher = Searcher(db, CosineMeasure())
     return HttpResponse(None)
-
-
-'''
-def setup_dictionary(request):
-    user_dictionary = json.loads(request.POST['dictionary']).split('\n')
-    data = {}
-    for row in user_dictionary:
-        values = row.split('\t')
-        if len(values) == 2:
-            data[values[0]] = values[1]
-    setup_db(data)
-    return HttpResponse(None)
-
-
-def setup_db(user_dict):
-    global db
-    for value in user_dict.values():
-        value = clean_dictionary_term(value)
-        db.add(value)
-
-    setup_searcher()
-
-
-def setup_searcher():
-    global searcher
-    global db
-    searcher = Searcher(db, CosineMeasure())
 
 
 def clean_dictionary_term(value):
     return value.lower()
 
 
+'''
 def auto_annotate(request):
     doc_text = request.GET['document_text']
 
@@ -204,8 +191,17 @@ def load_user_dictionary(request, data_file_path):
     searcher = Searcher(db, CosineMeasure())
     return HttpResponse(None)
 '''
+COSINE_THRESHOLD = 0.7
 
-COSINE_THRESHOLD = 0.85
-term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
-umls_db = pickle.load(open('db.pickle', 'rb'))
-umls_searcher = Searcher(umls_db, CosineMeasure())
+'''
+TEST = True
+
+if TEST:
+    term_to_cui = None
+    umls_db = None
+    umls_searcher = None
+else:
+    term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
+    umls_db = pickle.load(open('db.pickle', 'rb'))
+    umls_searcher = Searcher(umls_db, CosineMeasure())
+'''
