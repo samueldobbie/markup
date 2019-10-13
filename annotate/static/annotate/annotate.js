@@ -1,4 +1,4 @@
-var annotationList = [];
+var annotationList;
 var offsetList = [];
 var entityId = 1;
 var attributeId = 1;
@@ -379,15 +379,15 @@ function updateAnnotationFileURL() {
 
     var finalList = [];
     annotationText = '';
-    for (var i = 0; i < annotationList.length; i++) {
-        if (annotationList[i].length > 1) {
-            for (var j = 0; j < annotationList[i].length; j++) {
-                finalList.push(annotationList[i][j]);
-                annotationText += annotationList[i][j];
+    for (var i = 0; i < annotationList[currentDocumentId].length; i++) {
+        if (annotationList[currentDocumentId][i].length > 1) {
+            for (var j = 0; j < annotationList[currentDocumentId][i].length; j++) {
+                finalList.push(annotationList[currentDocumentId][i][j]);
+                annotationText += annotationList[currentDocumentId][i][j];
             }
         } else {
-            finalList.push(annotationList[i]);
-            annotationText += annotationList[i];
+            finalList.push(annotationList[currentDocumentId][i]);
+            annotationText += annotationList[currentDocumentId][i];
         }
     }
 
@@ -573,7 +573,7 @@ function addAnnotation(event) {
     offsetList.push([startIndex, endIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
 
     // Add annotations to current-annotation list
-    annotationList.push(annotation);
+    annotationList[currentDocumentId].push(annotation);
 
     // Add annotation to annotaion_data display
     var annotationClass = 'class="displayedAnnotation"';
@@ -597,6 +597,7 @@ function addAnnotation(event) {
     resetDropdowns(allDropdowns);
 
     updateAnnotationFileURL();
+    bindEvents();
 }
 
 
@@ -624,7 +625,7 @@ function underscoreString(string) {
 
 
 // Load annotations if user supplied existing annotation file
-function loadExistingAnnotations(annotationText) {
+function setupExistingAnnotations(annotationText) {
     if (annotationText == null || annotationText.trim() == '') { return; }
 
     var annotationSentences = annotationText.split('\n');
@@ -632,7 +633,7 @@ function loadExistingAnnotations(annotationText) {
     annotation = [];
     for (var i = 0; i < annotationSentences.length; i++) {
         if (annotationSentences[i][0] == 'T' && annotation.length != 0) {
-            annotationList.push(annotation);
+            annotationList[currentDocumentId].push(annotation);
             annotation = [];
             annotation.push([annotationSentences[i] + '\n']);
         } else if (annotationSentences[i][0] == 'T') {
@@ -641,15 +642,19 @@ function loadExistingAnnotations(annotationText) {
             annotation.push([annotationSentences[i] + '\n']);
         }
     }
-    annotationList.push(annotation);
+    annotationList[currentDocumentId].push(annotation);
+}
 
-    for (var i = 0; i < annotationList.length; i++) {
+
+// Load annotations if user supplied existing annotation file
+function loadExistingAnnotations() {
+    for (var i = 0; i < annotationList[currentDocumentId].length; i++) {
         var attributeValues = [];
         var entityValue = '';
         var start = 0;
         var end = 0;
-        for (var j = 0; j < annotationList[i].length; j++) {
-            var annotationWords = annotationList[i][j][0].split('\t');
+        for (var j = 0; j < annotationList[currentDocumentId][i].length; j++) {
+            var annotationWords = annotationList[currentDocumentId][i][j][0].split('\t');
             var data = annotationWords[1].split(' ');
 
             if (annotationWords[0][0] == 'T') {
@@ -693,7 +698,7 @@ function deleteClickedAnnotation(event) {
     // Finds correct annotation index based on offset list and removes
     for (var i = 0; i < offsetList.length; i++) {
         if (offsetList[i][0] == startIndex && offsetList[i][1] == endIndex) {
-            annotationList.splice(i, 1);
+            annotationList[currentDocumentId].splice(i, 1);
             offsetList.splice(i, 1);
 
             // Removes annotation from annotation_data display
@@ -793,30 +798,37 @@ function resetEntityColor() {
     document.getElementById('entities').style.color = col;
 }
 
-var documentTextList = [];
-var annotationTextList = [];
 var currentDocumentId = 0;
-
-
 $(document).ready(function () {
-    var documentOpenType = localStorage.getItem('documentOpenType');
+    onPageLoad();
+});
 
+var parsedConfigurationValues, configValues, entityList, detailedConfigurationValues, configArgs, configVals;
+function onPageLoad(initalLoad=true) {
     // Read local data of files user selected
-    if (documentOpenType == "single") {
-        var annotationText = localStorage.getItem('annotationText');
-        var configText = localStorage.getItem('configText');
-        var documentText = localStorage.getItem('documentText');
-    } else if (documentOpenType == "multiple") {
-        var documentCount = localStorage.getItem('documentCount');
-        var configText = localStorage.getItem('configText');
-        for (var i=1; i<=documentCount; i++) {
-            annotationTextList.push(localStorage.getItem('annotationText' + i));
-            documentTextList.push(localStorage.getItem('documentText' + i));
-        }
-        var documentText = documentTextList[currentDocumentId];
-        var annotationText = annotationTextList[currentDocumentId];
+    var documentOpenType = localStorage.getItem('documentOpenType');
+    var documentCount = localStorage.getItem('documentCount');
+    var configText = localStorage.getItem('configText');
+    var documentText = localStorage.getItem('documentText' + currentDocumentId);
+    
+    // Show buttons to navigate between multiple files
+    if (documentOpenType == "multiple") {
         document.getElementById('previousFile').style.display = "";
         document.getElementById('nextFile').style.display = "";
+    }
+
+    if (initalLoad) {
+        annotationList = [];
+        for (var i=0; i<=documentCount; i++) {
+            annotationList.push([]);
+        }
+
+        for (var j=0; j<=documentCount; j++) {
+            var currentAnnotationText = localStorage.getItem('annotationText' + j);
+            if (currentAnnotationText != null) {
+                setupExistingAnnotations(currentAnnotationText);
+            }
+        }
     }
 
     // Check that documentText isn't empty, otherwise return to homepage
@@ -825,43 +837,143 @@ $(document).ready(function () {
     // Display selected documentText
     document.getElementById('file_data').innerText = documentText;
 
-    // Display 'entities' configuration list
-    var parsedConfigurationValues = parseConfigValues(configText);
-    var configValues = parsedConfigurationValues[0];
-    var entityList = parsedConfigurationValues[1];
+    // Reset annotation_data list
+    document.getElementById('annotation_data').innerHTML = "";
 
-    // Display 'attributes' configuration list
-    var detailedConfigurationValues = displayConfigurationValues(configValues, entityList);
-    var configArgs = detailedConfigurationValues[0];
-    var configVals = detailedConfigurationValues[1];
+    // Load annotations from current annotationList
+    loadExistingAnnotations();
 
-    // Check and set users' display mode preference
-    checkUserDisplayPreference(annotationText);
+    if (initalLoad) {
+        // Display 'entities' configuration list
+        parsedConfigurationValues = parseConfigValues(configText);
+        configValues = parsedConfigurationValues[0];
+        entityList = parsedConfigurationValues[1];
 
-    // Allow users to change the display mode
-    $('#darkMode').click(switchDisplayMode);
+        // Display 'attributes' configuration list
+        detailedConfigurationValues = displayConfigurationValues(configValues, entityList);
+        configArgs = detailedConfigurationValues[0];
+        configVals = detailedConfigurationValues[1];
 
-    // Get all configuration elements for manipulation
-    var attributeCheckboxes = $('input[type=checkbox]');
-    var attributeRadiobuttons = $('input[type=radio]');
-    var attributeDropdowns = $('input[name=values]');
-    var allDropdowns = $('select');
+        // Check and set users' display mode preference
+        checkUserDisplayPreference();
 
-    // Initialise all configurations boxes
-    toggleAttributeDisplay(attributeCheckboxes, 'checkbox', 'none');
-    toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
+        // Allow users to change the display mode
+        $('#darkMode').click(switchDisplayMode);
 
-    // Load existing annotations
-    loadExistingAnnotations(annotationText);
+        // Get all configuration elements for manipulation
+        var attributeCheckboxes = $('input[type=checkbox]');
+        var attributeRadiobuttons = $('input[type=radio]');
+        var attributeDropdowns = $('input[name=values]');
+        var allDropdowns = $('select');
 
-    // Display correct attributes upon clicking an entity
-    $('input[type=radio]').click({
-        'configArgs': configArgs,
-        'configVals': configVals,
-        'attributeCheckboxes': attributeCheckboxes,
-        'attributeDropdowns': attributeDropdowns
-    }, displayDynamicAttributes);
+        // Initialise all configurations boxes
+        toggleAttributeDisplay(attributeCheckboxes, 'checkbox', 'none');
+        toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
 
+        // Display correct attributes upon clicking an entity
+        $('input[type=radio]').click({
+            'configArgs': configArgs,
+            'configVals': configVals,
+            'attributeCheckboxes': attributeCheckboxes,
+            'attributeDropdowns': attributeDropdowns
+        }, displayDynamicAttributes);
+
+        // Change annotation to new colour when hovered over in annotation data
+        $('#annotation_data p').mouseover(function (e) {
+            document.getElementById(e.target.id).style.backgroundColor = 'pink';
+            document.getElementById(e.target.id + '_aid').style.backgroundColor = 'pink';
+        });
+
+        // Return annotation to existing colour when stop hovering over in annotation data
+        $('#annotation_data p').mouseout(function (e) {
+            document.getElementById(e.target.id).style.backgroundColor = '#33FFB5';
+            document.getElementById(e.target.id + '_aid').style.backgroundColor = '#33FFB5';
+        });
+
+        // Change annotation to new colour when hovered over in file data
+        $('#file_data span').mouseover(function (e) {
+            document.getElementById(e.target.id).style.backgroundColor = 'pink';
+            document.getElementById(e.target.id.split('_aid')[0]).style.backgroundColor = 'pink';
+        });
+
+        // Change annotation to new colour when stop hovering over in file data
+        $('#file_data span').mouseout(function (e) {
+            document.getElementById(e.target.id).style.backgroundColor = '#33FFB5';
+            document.getElementById(e.target.id.split('_aid')[0]).style.backgroundColor = '#33FFB5';
+        });
+
+        // Change colour of highlighted text
+        $('#file_data').mouseup(changeHighlightedTextColor);
+
+        // Display information about annotation on hover of annotation_data display
+        $('#annotation_data').mouseover(function (eventObj) {
+            hoverInfo(eventObj.target.id, 'annotation_data');
+        });
+
+        // Display information about annotation on hover of file_data display
+        $('#file_data').mouseover(function (eventObj) {
+            hoverInfo(eventObj.target.id, 'file_data');
+        });
+
+        // Allow users to add an annotation
+        $('#addAnnotation').click({
+            'attributeCheckboxes': attributeCheckboxes,
+            'attributeDropdowns': attributeDropdowns,
+            'attributeRadiobuttons': attributeRadiobuttons,
+            'allDropdowns': allDropdowns
+        }, addAnnotation);
+
+        // Allow users to delete clicked annotation
+        $('#annotation_data').on('click', '.displayedAnnotation', deleteClickedAnnotation);
+
+        // Suggest most relevant UMLS matches based on highlighted term 
+        $('#file_data').mouseup({ 'type': 'matchList' }, suggestCui);
+
+        // Suggest most relevant UMLS matches based on searched term
+        // Add delay to avoid too many requests
+        $('#searchDict').keypress({ 'type': 'searchList' }, suggestCui);
+
+        // Reset color of entities (which changes upon errors)
+        $('input[name=entities]').click(resetEntityColor);
+
+        // Automatically suggest annotations
+        //$('#autoAnnotate').click(autoAnnotate);
+
+        // Prompt user to save annotations before leaving page
+        $('a[name=nav-element]').click(function() {
+            $(window).bind('beforeunload', function(){
+                return 'You have unsaved changes, are you sure you want to leave?';
+            });
+        });
+
+        // Move to next when multiple documents opened
+        $('#nextFile').click(function () {
+            if (currentDocumentId < documentCount-1) {
+                currentDocumentId++;
+                onPageLoad(false);
+            }
+        });
+
+        // Move to previous when multiple documents opened
+        $('#previousFile').click(function () {
+            if (currentDocumentId > 0) {
+                currentDocumentId--;
+                onPageLoad(false);
+            }
+        });
+
+        // Prevent highlighting of nextFile arrow button on double click
+        $('#nextFile').mousedown(function(e){ e.preventDefault(); });
+
+        // Prevent highlighting of previousFile arrow button on double click
+        $('#previousFile').mousedown(function(e){ e.preventDefault(); });
+    } else {
+        bindEvents();
+    }
+}
+
+
+function bindEvents() {
     // Change annotation to new colour when hovered over in annotation data
     $('#annotation_data p').mouseover(function (e) {
         document.getElementById(e.target.id).style.backgroundColor = 'pink';
@@ -885,65 +997,7 @@ $(document).ready(function () {
         document.getElementById(e.target.id).style.backgroundColor = '#33FFB5';
         document.getElementById(e.target.id.split('_aid')[0]).style.backgroundColor = '#33FFB5';
     });
-
-    // Change colour of highlighted text
-    $('#file_data').mouseup(changeHighlightedTextColor);
-
-    // Display information about annotation on hover of annotation_data display
-    $('#annotation_data').mouseover(function (eventObj) {
-        hoverInfo(eventObj.target.id, 'annotation_data');
-    });
-
-    // Display information about annotation on hover of file_data display
-    $('#file_data').mouseover(function (eventObj) {
-        hoverInfo(eventObj.target.id, 'file_data');
-    });
-
-    // Allow users to add an annotation
-    $('#addAnnotation').click({
-        'attributeCheckboxes': attributeCheckboxes,
-        'attributeDropdowns': attributeDropdowns,
-        'attributeRadiobuttons': attributeRadiobuttons,
-        'allDropdowns': allDropdowns
-    }, addAnnotation);
-
-    // Allow users to delete clicked annotation
-    $('#annotation_data').on('click', '.displayedAnnotation', deleteClickedAnnotation);
-
-    // Suggest most relevant UMLS matches based on highlighted term 
-    $('#file_data').mouseup({ 'type': 'matchList' }, suggestCui);
-
-    // Suggest most relevant UMLS matches based on searched term
-    // Add delay to avoid too many requests
-    $('#searchDict').keypress({ 'type': 'searchList' }, suggestCui);
-
-    // Reset color of entities (which changes upon errors)
-    $('input[name=entities]').click(resetEntityColor);
-
-    // Automatically suggest annotations
-    //$('#autoAnnotate').click(autoAnnotate);
-
-    // Prompt user to save annotations before leaving page
-    $('a[name=nav-element]').click(function() {
-        $(window).bind('beforeunload', function(){
-            return 'You have unsaved changes, are you sure you want to leave?';
-        });
-    });
-
-    // Move to next when multiple documents opened
-    $('#nextFile').click(function () {
-        if (currentDocumentId < documentCount-1) {
-            document.getElementById('file_data').innerText = documentTextList[++currentDocumentId];
-        }
-    });
-
-    // Move to previous when multiple documents opened
-    $('#previousFile').click(function () {
-        if (currentDocumentId > 0) {
-            document.getElementById('file_data').innerText = documentTextList[--currentDocumentId];
-        }
-    });
-});
+}
 
 
 /*

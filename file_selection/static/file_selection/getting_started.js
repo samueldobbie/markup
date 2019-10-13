@@ -96,6 +96,7 @@ $(document).ready(function () {
         });
 
         storeFileDataLocally(document.getElementById('documentFileOpener').files[0], 'documentText');
+        localStorage.setItem('documentCount', 0);
     }
 
 
@@ -110,17 +111,25 @@ $(document).ready(function () {
         });
 
         var documentCount = 0;
+        var documentIndex = {};
         documentFileList = document.getElementById('documentFolderOpener').files;
         for (var i=0; i<documentFileList.length; i++) {
             if (documentFileList[i].name.split('.')[1] == 'txt') {
-                documentCount++;
+                documentIndex[documentFileList[i].name.split('.')[0]] = documentCount; 
                 storeFileDataLocally(documentFileList[i], 'documentText' + documentCount);
-            } else if (documentFileList[i].name.split('.')[1] == 'ann') {
-                storeFileDataLocally(documentFileList[i], 'annotationText' + documentCount);
+                documentCount++;
             } else if (documentFileList[i].name.split('.')[1] == 'conf') {
                 storeFileDataLocally(documentFileList[i], 'configText');
             }
         }
+
+        for (var j=0; j<documentFileList.length; j++) {
+            if (documentFileList[j].name.split('.')[1] == 'ann') {
+                var index = documentFileList[documentFileList[j].name.split('.')[0]];
+                storeFileDataLocally(documentFileList[j], 'annotationText' + index);
+            }
+        }
+
         localStorage.setItem('documentCount', documentCount);
     }
 
@@ -150,7 +159,7 @@ $(document).ready(function () {
             $("#dictionaryOptions").fadeIn();
         });
 
-        storeFileDataLocally(document.getElementById('annotationFileOpener').files[0], 'annotationText');
+        storeFileDataLocally(document.getElementById('annotationFileOpener').files[0], 'annotationText' + 0);
     }
 
 
