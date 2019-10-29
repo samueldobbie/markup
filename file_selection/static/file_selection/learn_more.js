@@ -1,8 +1,10 @@
 // Remove data from local storage to avoid being able to revisit page and see outdated information
-localStorage.removeItem('documentText');
-localStorage.removeItem('annotationText');
-localStorage.removeItem('configText');
-localStorage.removeItem('dictionarySelection');
+var temp = localStorage.getItem('mode');
+localStorage.clear();
+if (temp != null) {
+    localStorage.setItem('mode', temp);
+}
+
 
 $(document).ready(function () {
     var darkMode;

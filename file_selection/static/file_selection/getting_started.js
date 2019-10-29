@@ -1,9 +1,9 @@
 // Remove data from local storage to avoid being able to revisit page and see outdated information
-localStorage.removeItem('documentText');
-localStorage.removeItem('annotationText');
-localStorage.removeItem('configText');
-localStorage.removeItem('documentOpenType');
-localStorage.removeItem('documentCount');
+var temp = localStorage.getItem('mode');
+localStorage.clear();
+if (temp != null) {
+    localStorage.setItem('mode', temp);
+}
 
 
 $(document).ready(function () {
@@ -95,7 +95,7 @@ $(document).ready(function () {
             $("#configFileCreator").fadeIn();
         });
 
-        storeFileDataLocally(document.getElementById('documentFileOpener').files[0], 'documentText');
+        storeFileDataLocally(document.getElementById('documentFileOpener').files[0], 'documentText' + 0);
         localStorage.setItem('documentCount', 0);
     }
 
@@ -144,7 +144,6 @@ $(document).ready(function () {
             $("#annotationFileOpenerOverlay").fadeIn();
             $("#skipAnnotationFileOpening").fadeIn();
         });
-
         storeFileDataLocally(document.getElementById('configFileOpener').files[0], 'configText');
     }
 

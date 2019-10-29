@@ -7,6 +7,7 @@ var darkMode;
 // Return to homepage if no / invalid document selected
 function validateDocumentSelection(documentText) {
     if (documentText == null || documentText.trim() == '') {
+        alert('There was an issue loading your document. Redirecting to the homepage!')
         location.href = '/';
     }
 }
@@ -493,17 +494,18 @@ function addAnnotation(event) {
 
     for (var i = 0; i < attributeDropdowns.length; i++) {
         var currentSelect = attributeDropdowns[i];
-        var currentValue = currentSelect.value.split(': ');
-        var chosenField;
+        if (currentSelect.value != '') {
+            var currentValue = currentSelect.value.split(': ');
 
-        if (currentValue.length > 1) {
-            chosenField = currentValue[0];
+            if (currentValue.length == 1) {
+                currentValue = [currentSelect.getAttribute('placeholder'), currentValue[0]];
+            }
+
+            var chosenField = currentValue[0];
             currentValue = underscoreString(currentValue[1]);
             attributeValues.push(currentValue);
             attributeData.push('A' + attributeId + '\t' + chosenField + ' T' + (entityId - 1) + ' ' + currentValue + '\n');
             attributeId++;
-        } else {
-            continue;
         }
     }
 

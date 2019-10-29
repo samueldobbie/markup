@@ -1,12 +1,15 @@
 // Remove data from local storage to avoid being able to revisit page and see outdated information
-localStorage.removeItem('documentText');
-localStorage.removeItem('annotationText');
-localStorage.removeItem('configText');
-localStorage.removeItem('dictionarySelection');
+var temp = localStorage.getItem('mode');
+localStorage.clear();
+if (temp != null) {
+    localStorage.setItem('mode', temp);
+}
+
 
 $(document).ready(function () {
     // Checks if user has preset preference for color mode
     var darkMode;
+
     if (localStorage.getItem('mode') == 'light') {
         initialize('light');
         darkMode = false;
@@ -14,6 +17,7 @@ $(document).ready(function () {
         initialize('dark');
         darkMode = true;
     }
+
 
     // Sets inital color mode based on users stored preference (light or dark mode)
     function initialize(type) {
@@ -26,8 +30,6 @@ $(document).ready(function () {
             document.getElementsByTagName('body')[0].style.backgroundImage = 'url("https://i.imgur.com/uEPMJ0H.jpg"), linear-gradient(rgba(255,255,255,0.1),rgba(255,255,255,0.1))';
             document.getElementsByTagName('body')[0].style.color = 'black';
         }
-        //document.getElementById('taglineSpan1').style.color = 'black';
-        //document.getElementById('taglineSpan2').style.color = 'black';
     }
 
 
