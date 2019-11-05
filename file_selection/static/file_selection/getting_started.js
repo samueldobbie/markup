@@ -77,7 +77,7 @@ $(document).ready(function () {
 
         sleep(500).then(() => {
             $("#questionTwoB").fadeIn();
-            $("#documentFolderOpener").fadeIn();
+            $("#documentFolderOpenerOverlay").fadeIn();
             $("#multipleFileSpec").fadeIn();
         });
 
@@ -96,13 +96,14 @@ $(document).ready(function () {
         });
 
         storeFileDataLocally(document.getElementById('documentFileOpener').files[0], 'documentText' + 0);
+        localStorage.setItem('fileName' + 0, document.getElementById('documentFileOpener').files[0].name.split(".").slice(0, -1).join("."));
         localStorage.setItem('documentCount', 0);
     }
 
 
     document.getElementById('documentFolderOpener').onchange = function () {
         $("#questionTwoB").fadeOut();
-        $("#documentFolderOpener").fadeOut();
+        $("#documentFolderOpenerOverlay").fadeOut();
         $("#multipleFileSpec").fadeOut();
 
         sleep(500).then(() => {
@@ -117,6 +118,7 @@ $(document).ready(function () {
             if (documentFileList[i].name.split('.')[1] == 'txt') {
                 documentIndex[documentFileList[i].name.split('.')[0]] = documentCount; 
                 storeFileDataLocally(documentFileList[i], 'documentText' + documentCount);
+                localStorage.setItem('fileName' + documentCount, documentFileList[i].name.split(".").slice(0, -1).join("."));
                 documentCount++;
             } else if (documentFileList[i].name.split('.')[1] == 'conf') {
                 storeFileDataLocally(documentFileList[i], 'configText');

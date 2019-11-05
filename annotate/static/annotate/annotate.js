@@ -159,6 +159,11 @@ function setDisplayMode(type) {
         }
         backgroundColor = '#333';
         textColor = 'rgb(210, 210, 210)';
+        var spans = $('span');
+        for (var i = 0; i < spans.length; i++) {
+            spans[i].style.color = 'black';
+        }
+        document.getElementById('annotation_data').style.color = 'black';
     } else {
         document.getElementById('darkMode').innerHTML = 'Dark Mode';
         backgroundColor = 'white';
@@ -375,7 +380,7 @@ function displayDynamicAttributes(event) {
 
 function updateAnnotationFileURL() {
     var a = document.getElementById('saveAnnotationFile');
-    var fileName = 'annotations.ann';
+    var fileName = localStorage.getItem('fileName' + currentDocumentId) + '.ann';
     var contentType = 'text/plain';
 
     var finalList = [];

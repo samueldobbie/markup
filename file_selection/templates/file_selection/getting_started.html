@@ -82,7 +82,14 @@
         <!-- END SINGLE FILE PATH -->
 
         <!-- START MULTIPLE FILES PATH -->
-        <p id="multipleFileSpec" style="color:red; display:none;">The selected folder must contain a single configuration file (ending in .conf) and all the documents you want to annotate (ending in .txt).<br>Any existing annotation files (ending in .ann) must have the same name as the document it's associated with.<br>For example, if your folder contains a document called EpilepsyLetter.txt, then its corresponding annotation file must be called EpilepsyLetter.ann</p>
+        <ul id="multipleFileSpec" style="color:red; display:none; font-size:1.2em; margin-top:-35px;">
+            Folder must contain:
+            <li>(1) A single configuration file (ending in .conf)</li>
+            <li>(2) All documents you want to annotate (ending in .txt)</li>
+            <li>(3) Any existing annotation files (ending in .ann), with names that<br> match the document they correspond with</li>
+        </ul>
+        <br>
+        <label for="documentFolderOpener" style="display:none; color:black;" id="documentFolderOpenerOverlay" class="optionButton" style="color:black;">Choose folder</label>
         <input id="documentFolderOpener" style="display:none;" type="file" accept=".txt" webkitdirectory multiple>
         <!-- END MULTIPLE FILES PATH -->    
 
