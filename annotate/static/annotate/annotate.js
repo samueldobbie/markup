@@ -415,11 +415,18 @@ function updateAnnotationFileURL() {
     localStorage.setItem('annotationText' + currentDocumentId, annotationText);
 }
 
-
+var next = false;
 // Change colour of highlighted text
 function changeHighlightedTextColor() {
     if (window.getSelection() == '') {
-        $('#highlighted').replaceWith(function () { return this.innerHTML; });
+        // Prevent annotations from being visually disappearing upon highlighting over them
+        if (document.getElementById('highlighted') != null) {
+            $('#highlighted').replaceWith(function () { return this.innerHTML; });
+            document.getElementById('file_data').innerText = localStorage.getItem('documentText' + currentDocumentId);
+            loadExistingAnnotations();
+        } else {
+            $('#highlighted').replaceWith(function () { return this.innerHTML; });
+        }
     } else {
         if (document.getElementById('highlighted') != null) {
             $('#highlighted').replaceWith(function () { return this.innerHTML; });
