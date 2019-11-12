@@ -77,7 +77,6 @@ def setup_dictionary(request):
     """
     Setup user-specified dictionary to be used for
     phrase approximation
-    """
     dictionary_selection = request.POST['dictionarySelection']
     global term_to_cui
     global searcher
@@ -98,9 +97,8 @@ def setup_dictionary(request):
             value = clean_dictionary_term(value)
             i += 1
             db.add(value)
-        print(i)
-        print('COMPLETE')
         searcher = Searcher(db, CosineMeasure())
+    """
     return HttpResponse(None)
 
 
@@ -197,15 +195,6 @@ def load_user_dictionary(request, data_file_path):
 '''
 COSINE_THRESHOLD = 0.7
 
-'''
-TEST = True
-
-if TEST:
-    term_to_cui = None
-    umls_db = None
-    umls_searcher = None
-else:
-    term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
-    umls_db = pickle.load(open('db.pickle', 'rb'))
-    umls_searcher = Searcher(umls_db, CosineMeasure())
-'''
+term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
+umls_db = pickle.load(open('db.pickle', 'rb'))
+searcher = Searcher(umls_db, CosineMeasure())
