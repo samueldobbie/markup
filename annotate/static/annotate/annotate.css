@@ -25,6 +25,18 @@
   font-weight:bold;
 }
 
+#config_data::-webkit-scrollbar {
+  display: none;
+}
+
+#file_data::-webkit-scrollbar {
+  display: none;
+}
+
+#annotation_data::-webkit-scrollbar {
+  display: none;
+}
+
 .container {
     display:flex;
 }
@@ -57,7 +69,7 @@
 
 .btn:hover {
     background-color:rgb(52, 236, 144);
-    color:white;
+    color:#333;
 }
 
 .drop-down {

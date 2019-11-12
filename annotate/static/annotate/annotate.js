@@ -1,3 +1,9 @@
+var colors = [
+    "#33FFB5", "#7B68EE", "#FFD700", "#FFA500", "#DC143C", "#FFC0CB", "#00BFFF",
+    "#FFA07A", "#C71585", "#32CD32", "#48D1CC", "#FF6347", "#2E8B57", "#FF69B4",
+    "#008B8B", "#FFF0F5", "#FFFACD", "#E6E6FA", "#B22222", "#4169E1", "#C0C0C0"
+];
+
 var annotationList;
 var offsetList = [];
 var entityId = 1;
@@ -35,7 +41,7 @@ function parseConfigValues(configText) {
             if (configKey != '') {
                 if (document.getElementById(configKey) != null) {
                     for (var j = 0; j < configValues.length; j++) {
-                        document.getElementById(configKey).innerHTML += '<p style="margin:0; padding:0;"><input type="radio" id="' + configValues[j] + '_radio" name="' + configKey + '" value="' + configValues[j] + '_radio"> <label class="l" for="' + configValues[j] + '_radio">' + configValues[j] + '</label> </p>';
+                        document.getElementById(configKey).innerHTML += '<p style="margin:0; margin-top:3px; padding:0;"><input type="radio" id="' + configValues[j] + '_radio" name="' + configKey + '" value="' + configValues[j] + '_radio"> <label colorIndex="' + j + '"style="border-radius:5px; padding:0 5px; background-color:' + colors[j] + '; color:black;" class="l" for="' + configValues[j] + '_radio">' + configValues[j] + '</label> </p>';
                     }
                     document.getElementById(configKey).innerHTML += '<br>';
                 }
@@ -294,8 +300,12 @@ function getTextNodesIn(node) {
 function populateAnnotations(entityValue, attributeValues, startIndex, endIndex) {
     var highlighted = window.getSelection().toString();
 
-    // Change annotation color if there's an overlap between two annotations
-    highlightColor = '#33FFB5';
+    // Get highlight color
+    for (var i=0; i<$('label').length; i++) {
+        if ($('label')[i].innerText == entityValue) {
+            highlightColor = colors[$('label')[i].getAttribute('colorIndex')];
+        }
+    }
 
     // Color-highlight selected text
     document.getElementById('file_data').contentEditable = 'true';
@@ -321,7 +331,7 @@ function populateAnnotations(entityValue, attributeValues, startIndex, endIndex)
     // Add annotation to annotaion_data display
     var annotationClass = 'class="displayedAnnotation"';
     var annotationId = 'id="' + startIndex + '_' + endIndex + '"';
-    var annotationStyle = 'style="background-color:#33FFB5; font-family:\'Nunito\'; padding:5px; display:inline-block; clear:both; float:left; '
+    var annotationStyle = 'style="background-color:' + highlightColor + '; font-family:\'Nunito\'; padding:5px; display:inline-block; clear:both; float:left; '
     if (darkMode) {
         annotationStyle += 'color:black;"';
     } else {
@@ -402,7 +412,7 @@ function updateAnnotationFileURL() {
     a.href = URL.createObjectURL(blob);
     a.download = fileName;
 
-    localStorage.setItem('annotationText', annotationText);
+    localStorage.setItem('annotationText' + currentDocumentId, annotationText);
 }
 
 
@@ -424,8 +434,6 @@ function changeHighlightedTextColor() {
 
         startIndex = preCaretRange.toString().length;
         endIndex = startIndex + range.toString().length;
-
-        highlightColor = '#33FFB5';
 
         // Color-highlight selected text
         document.getElementById('file_data').contentEditable = 'true';
@@ -459,8 +467,14 @@ function addAnnotation(event) {
     startIndex = preCaretRange.toString().length;
     endIndex = startIndex + range.toString().length;
 
-    // Change annotation color if there's an overlap between two annotations
-    highlightColor = '#33FFB5';
+    // Get highlight color
+    for (var i=0; i<$('label').length; i++) {
+        if ($('label')[i].getAttribute('for') == $('input[type=radio]:checked')[0].id) {
+            highlightColor = colors[$('label')[i].getAttribute('colorIndex')];
+        }
+    }
+
+    // Change annotation color if there's an overlap between two annotations TODO
     for (var i = 0; i < offsetList.length; i++) {
         if ((startIndex >= offsetList[i][0] && startIndex <= offsetList[i][1]) || (endIndex >= offsetList[i][0] && endIndex <= offsetList[i][1])) {
             highlightColor = 'rgb(35, 200, 130)';
@@ -585,7 +599,7 @@ function addAnnotation(event) {
     // Add annotation to annotaion_data display
     var annotationClass = 'class="displayedAnnotation"';
     var annotationId = 'id="' + startIndex + '_' + endIndex + '"';
-    var annotationStyle = 'style="background-color:#33FFB5; font-family:\'Nunito\'; padding:5px; display:inline-block; clear:both; float:left; ';
+    var annotationStyle = 'style="background-color:' + highlightColor + '; font-family:\'Nunito\'; padding:5px; display:inline-block; clear:both; float:left; ';
     if (darkMode) {
         annotationStyle += 'color:black;"';
     } else {
@@ -604,7 +618,7 @@ function addAnnotation(event) {
     resetDropdowns(allDropdowns);
 
     updateAnnotationFileURL();
-    bindEvents();
+    //bindEvents();
 }
 
 
@@ -838,6 +852,9 @@ function onPageLoad(initalLoad=true) {
         }
     }
 
+    // Set title to annotation file name
+    document.getElementsByTagName('title')[0].innerText = localStorage.getItem('fileName' + currentDocumentId) + " - Markup";
+
     // Check that documentText isn't empty, otherwise return to homepage
     validateDocumentSelection(documentText);
 
@@ -846,9 +863,6 @@ function onPageLoad(initalLoad=true) {
 
     // Reset annotation_data list
     document.getElementById('annotation_data').innerHTML = "";
-
-    // Load annotations from current annotationList
-    loadExistingAnnotations();
 
     if (initalLoad) {
         // Display 'entities' configuration list
@@ -885,6 +899,7 @@ function onPageLoad(initalLoad=true) {
             'attributeDropdowns': attributeDropdowns
         }, displayDynamicAttributes);
 
+        /*
         // Change annotation to new colour when hovered over in annotation data
         $('#annotation_data p').mouseover(function (e) {
             document.getElementById(e.target.id).style.backgroundColor = 'pink';
@@ -908,6 +923,7 @@ function onPageLoad(initalLoad=true) {
             document.getElementById(e.target.id).style.backgroundColor = '#33FFB5';
             document.getElementById(e.target.id.split('_aid')[0]).style.backgroundColor = '#33FFB5';
         });
+        */
 
         // Change colour of highlighted text
         $('#file_data').mouseup(changeHighlightedTextColor);
@@ -974,9 +990,15 @@ function onPageLoad(initalLoad=true) {
 
         // Prevent highlighting of previousFile arrow button on double click
         $('#previousFile').mousedown(function(e){ e.preventDefault(); });
-    } else {
+    }
+    /*
+    else {
         bindEvents();
     }
+    */
+
+    // Load annotations from current annotationList
+    loadExistingAnnotations();
 }
 
 

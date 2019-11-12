@@ -64,6 +64,8 @@ def suggest_cui(request):
     output = [i[0] for i in sorted(weighted_outputs.items(), key=lambda kv: kv[1])]
     output.reverse()
 
+    print(output)
+
     # Remove divisor from final term
     if output != []:
         output[-1] = output[-1][:-3]
@@ -96,6 +98,8 @@ def setup_dictionary(request):
             value = clean_dictionary_term(value)
             i += 1
             db.add(value)
+        print(i)
+        print('COMPLETE')
         searcher = Searcher(db, CosineMeasure())
     return HttpResponse(None)
 
