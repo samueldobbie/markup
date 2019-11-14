@@ -961,7 +961,7 @@ function onPageLoad(initalLoad=true) {
 
         // Suggest most relevant UMLS matches based on searched term
         // Add delay to avoid too many requests
-        $('#searchDict').keypress({ 'type': 'searchList' }, suggestCui);
+        $('#searchDict').keyup({ 'type': 'searchList' }, suggestCui);
 
         // Reset color of entities (which changes upon errors)
         $('input[name=entities]').click(resetEntityColor);

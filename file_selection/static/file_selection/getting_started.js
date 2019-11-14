@@ -200,27 +200,30 @@ $(document).ready(function () {
 
 
     document.getElementById('dictionaryFileOpener').onchange = function () {
-        var dictionaryFileList = document.getElementById('dictionaryFileOpener').files;
+        startAnnotating();
+        /*
+        var dictionaryFile = document.getElementById('dictionaryFileOpener').files[0];
         var dataSlice = 10*1024*1024;
         var dictionaryData = [];
         var completedLoadCount = 0;
-        var requiredLoadCount = Math.ceil(dictionaryFileList[0].size / dataSlice);
+        var requiredLoadCount = Math.ceil(dictionaryFile.size / dataSlice);
 
         document.getElementById("loader").style.display = "";
         document.getElementById("questionFive").style.display = "none";
         document.getElementById("dictionaryOptions").style.display = "none";
 
-        for (var i=0; i<dictionaryFileList[0].size; i+=dataSlice) {
+        for (var i=0; i<dictionaryFile.size; i+=dataSlice) {
             var reader = new FileReader();
             reader.onload = function () {
-                var split = reader.result.split('\n');
-                for (var j=0; j<split.length; j++) {
-                    dictionaryData.push(split[j]);
-                    if (j == split.length-1) {
+                var sentences = reader.result.split('\n');
+                for (var j=0; j<sentences.length; j++) {
+                    dictionaryData.push(sentences[j]);
+                    if (j == sentences.length-1) {
                         completedLoadCount++;
                     }
                 }
                 if (completedLoadCount == requiredLoadCount) {
+                    console.log(dictionaryData.length);
                     $.ajax({
                         type: 'POST',
                         url: '/setup-dictionary',
@@ -235,8 +238,9 @@ $(document).ready(function () {
                     });
                 }
             }
-            reader.readAsBinaryString(dictionaryFileList[0].slice(i, i+dataSlice));
+            reader.readAsBinaryString(dictionaryFile.slice(i, i+dataSlice));
         }
+        */
     }
 });
 

@@ -1,6 +1,7 @@
 import json
 import pickle
 import requests
+import stringdist
 
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -24,8 +25,8 @@ def get_cui(request):
     """
     Performs lookup of cui based on selected UMLS term
     """
-    global searcher
-    if searcher is None:
+    global term_to_cui
+    if term_to_cui is None:
         return HttpResponse('')
 
     return HttpResponse(term_to_cui[request.GET['match']])
@@ -41,30 +42,16 @@ def suggest_cui(request):
         return HttpResponse('')
 
     selected_term = request.GET['selectedTerm']
-    selected_term_words = selected_term.split(' ')
-    selected_term_weights = [i for i in range(len(selected_term_words), 0, -1)]
-    selected_term_weights_count = len(selected_term_weights)
 
     # Weight relevant UMLS matches based on word ordering
     weighted_outputs = {}
     for umls_match in searcher.ranked_search(selected_term, COSINE_THRESHOLD):
         umls_term = umls_match[1]
-        umls_term_words = umls_term.split(' ')
-
-        score = 0
-        for i in range(len(umls_term_words)):
-            if i == selected_term_weights_count:
-                break
-            elif umls_term_words[i] == selected_term_words[i]:
-                score += selected_term_weights[i]
         # Add divsor to each term
-        weighted_outputs[umls_term + '***'] = score
+        weighted_outputs[umls_term + '***'] = stringdist.levenshtein(umls_term, selected_term)
 
     # Sort order matches will be displayed based on weights
     output = [i[0] for i in sorted(weighted_outputs.items(), key=lambda kv: kv[1])]
-    output.reverse()
-
-    print(output)
 
     # Remove divisor from final term
     if output != []:
@@ -77,15 +64,17 @@ def setup_dictionary(request):
     """
     Setup user-specified dictionary to be used for
     phrase approximation
+    """
     dictionary_selection = request.POST['dictionarySelection']
     global term_to_cui
     global searcher
     if dictionary_selection == 'umlsDictionary':
-        searcher = umls_searcher
+        # searcher = umls_searcher
+        pass
     elif dictionary_selection == 'noDictionary':
-        searcher = None
+        # searcher = None
+        pass
     elif dictionary_selection == 'userDictionary':
-        i = 0
         json_data = json.loads(request.POST['dictionaryData'])
         db = DictDatabase(CharacterNgramFeatureExtractor(2))
         term_to_cui = {}
@@ -95,10 +84,8 @@ def setup_dictionary(request):
                 term_to_cui[values[1]] = values[0]
         for value in term_to_cui.keys():
             value = clean_dictionary_term(value)
-            i += 1
             db.add(value)
         searcher = Searcher(db, CosineMeasure())
-    """
     return HttpResponse(None)
 
 
@@ -192,9 +179,17 @@ def load_user_dictionary(request, data_file_path):
 
     searcher = Searcher(db, CosineMeasure())
     return HttpResponse(None)
+
 '''
 COSINE_THRESHOLD = 0.7
 
-term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
-umls_db = pickle.load(open('db.pickle', 'rb'))
-searcher = Searcher(umls_db, CosineMeasure())
+TEST = False
+
+if TEST:
+    term_to_cui = None
+    db = None
+    searcher = None
+else:
+    term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
+    db = pickle.load(open('db.pickle', 'rb'))
+    searcher = Searcher(db, CosineMeasure())
