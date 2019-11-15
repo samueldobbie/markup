@@ -51,6 +51,14 @@
   display: none;
 }
 
+input[type=radio] {
+  display:none;
+}
+
+.l:hover {
+  filter: brightness(130%);
+}
+
 .container {
     display:flex;
 }

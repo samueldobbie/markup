@@ -729,8 +729,13 @@ function deleteClickedAnnotation(event) {
     // Finds correct annotation index based on offset list and removes
     for (var i = 0; i < offsetList.length; i++) {
         if (offsetList[i][0] == startIndex && offsetList[i][1] == endIndex) {
-            annotationList[currentDocumentId].splice(i, 1);
-            offsetList.splice(i, 1);
+            if (annotationList[currentDocumentId].length == 1) {
+                annotationList[currentDocumentId] = [];
+            } else {
+                annotationList[currentDocumentId].splice(i, 1);
+                offsetList.splice(i, 1);
+            }
+            console.log(annotationList);
 
             // Removes annotation from annotation_data display
             var elem = document.getElementById(id);
