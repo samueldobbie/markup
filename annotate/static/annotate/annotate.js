@@ -481,6 +481,7 @@ function addAnnotation(event) {
         }
     }
 
+    /*
     // Change annotation color if there's an overlap between two annotations TODO
     for (var i = 0; i < offsetList.length; i++) {
         if ((startIndex >= offsetList[i][0] && startIndex <= offsetList[i][1]) || (endIndex >= offsetList[i][0] && endIndex <= offsetList[i][1])) {
@@ -488,6 +489,7 @@ function addAnnotation(event) {
             break;
         }
     }
+    */
 
     // Color-highlight selected text
     document.getElementById('file_data').contentEditable = 'true';
@@ -676,6 +678,7 @@ function setupExistingAnnotations(annotationText) {
 
 // Load annotations if user supplied existing annotation file
 function loadExistingAnnotations() {
+    document.getElementById('annotation_data').innerText = '';
     for (var i = 0; i < annotationList[currentDocumentId].length; i++) {
         var attributeValues = [];
         var entityValue = '';

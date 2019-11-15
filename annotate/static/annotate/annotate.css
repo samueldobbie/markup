@@ -25,6 +25,20 @@
   font-weight:bold;
 }
 
+/*
+::-webkit-scrollbar {
+  background-color:rgba(235, 235, 235, 0);
+  width:7.5px;
+  border-radius:5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color:rgba(235, 235, 235, 0.322);
+  width:7.5px;
+  border-radius:5px;
+}
+*/
+
 #config_data::-webkit-scrollbar {
   display: none;
 }
