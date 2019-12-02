@@ -654,7 +654,9 @@ function validateAnnotationSelection(highlighted, attributeRadiobuttons) {
 
 function underscoreString(string) {
     string = string.split('<br>').join('_');
-    return string.split('\n').join('_');
+    string = string.split(' ').join('_');
+    string = string.split('\n').join('_');
+    return string;
 }
 
 
