@@ -298,7 +298,8 @@ function getTextNodesIn(node) {
 
 
 function populateAnnotations(entityValue, attributeValues, startIndex, endIndex) {
-    var highlighted = window.getSelection().toString();
+    var highlighted = window.getSelection().toString().replace(/\n|\r/g, "<br>");;
+    //var highlighted = window.getSelection().toString();
 
     // Get highlight color
     for (var i=0; i<$('label').length; i++) {
@@ -431,7 +432,9 @@ function changeHighlightedTextColor() {
         if (document.getElementById('highlighted') != null) {
             $('#highlighted').replaceWith(function () { return this.innerHTML; });
         }
-        var highlighted = window.getSelection().toString();
+
+        //var highlighted = window.getSelection().toString();
+        var highlighted = window.getSelection().toString().replace(/\n|\r/g, "<br>");;
         var doc = document.getElementById('file_data');
         var range = window.getSelection().getRangeAt(0);
         var preCaretRange = range.cloneRange();
@@ -458,7 +461,8 @@ function addAnnotation(event) {
 
     var highlightedIndicies = document.getElementById('highlighted').className.split('_');
     setSelectionRange(document.getElementById('file_data'), highlightedIndicies[0], highlightedIndicies[1]);
-    var highlighted = window.getSelection().toString();
+    var highlighted = window.getSelection().toString().replace(/\n|\r/g, "<br>");;
+    //var highlighted = window.getSelection().toString();
 
     // Check whether selected text is valid
     if (!validateAnnotationSelection(highlighted, attributeRadiobuttons)) { document.getElementById('entities').style.color = 'red'; return; }
@@ -649,7 +653,7 @@ function validateAnnotationSelection(highlighted, attributeRadiobuttons) {
 
 
 function underscoreString(string) {
-    string = string.split(' ').join('_');
+    string = string.split('<br>').join('_');
     return string.split('\n').join('_');
 }
 
@@ -735,7 +739,6 @@ function deleteClickedAnnotation(event) {
                 annotationList[currentDocumentId].splice(i, 1);
                 offsetList.splice(i, 1);
             }
-            console.log(annotationList);
 
             // Removes annotation from annotation_data display
             var elem = document.getElementById(id);

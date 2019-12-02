@@ -37,6 +37,18 @@
   width:7.5px;
   border-radius:5px;
 }
+
+#config_data:hover::-webkit-scrollbar {
+  display: unset;
+}
+
+#file_data:hover::-webkit-scrollbar {
+  display: unset;
+}
+
+#annotation_data:hover::-webkit-scrollbar {
+  display: unset;
+}
 */
 
 #config_data::-webkit-scrollbar {
