@@ -169,7 +169,6 @@ function setDisplayMode(type) {
         for (var i = 0; i < spans.length; i++) {
             spans[i].style.color = 'black';
         }
-        document.getElementById('annotation_data').style.color = 'black';
     } else {
         document.getElementById('darkMode').innerHTML = 'Dark Mode';
         backgroundColor = 'white';
@@ -180,11 +179,16 @@ function setDisplayMode(type) {
         'background-color': backgroundColor,
         'color': textColor
     });
+
+    $('.sectionTitle').css({
+        'color': textColor
+    });
 }
 
 
 // Allows users to switch between to light and dark mode
 function switchDisplayMode() {
+    var textColor = '';
     if (!darkMode) {
         localStorage.setItem('mode', 'dark');
         document.getElementById('darkMode').innerHTML = 'Light Mode';
@@ -199,6 +203,7 @@ function switchDisplayMode() {
         for (var i = 0; i < spans.length; i++) {
             spans[i].style.color = 'black';
         }
+        textColor = 'rgb(210, 210, 210)';
         darkMode = true;
     } else {
         localStorage.setItem('mode', 'light');
@@ -207,8 +212,13 @@ function switchDisplayMode() {
         document.getElementById('config_data_options').style.color = 'black';
         document.getElementById('annotation_data').style.color = 'black';
         document.getElementsByTagName('body')[0].style.backgroundColor = 'white';
+        textColor = 'black';
         darkMode = false;
     }
+
+    $('.sectionTitle').css({
+        'color': textColor
+    });
 }
 
 
@@ -332,13 +342,14 @@ function populateAnnotations(entityValue, attributeValues, startIndex, endIndex)
     // Add annotation to annotaion_data display
     var annotationClass = 'class="displayedAnnotation"';
     var annotationId = 'id="' + startIndex + '_' + endIndex + '"';
-    var annotationStyle = 'style="background-color:' + highlightColor + '; font-family:\'Nunito\'; padding:5px; display:inline-block; clear:both; float:left; '
+    var annotationStyle = 'style="background-color:' + highlightColor + '; font-family:\'Nunito\'; padding:2px;'
     if (darkMode) {
         annotationStyle += 'color:black;"';
     } else {
         annotationStyle += '"'
     }
-    document.getElementById('annotation_data').innerHTML += '<p ' + annotationClass + ' ' + annotationId + ' ' + annotationStyle + '>' + highlighted + '</p>';
+    document.getElementById(entityValue + '_section').style.display = '';
+    document.getElementById(entityValue + '_section').innerHTML += '<p ' + annotationClass + ' ' + annotationId + ' ' + annotationStyle + '>' + highlighted + '</p>';
 };
 
 
@@ -613,13 +624,14 @@ function addAnnotation(event) {
     // Add annotation to annotaion_data display
     var annotationClass = 'class="displayedAnnotation"';
     var annotationId = 'id="' + startIndex + '_' + endIndex + '"';
-    var annotationStyle = 'style="background-color:' + highlightColor + '; font-family:\'Nunito\'; padding:5px; display:inline-block; clear:both; float:left; ';
+    var annotationStyle = 'style="background-color:' + highlightColor + '; font-family:\'Nunito\'; padding:2px;';
     if (darkMode) {
         annotationStyle += 'color:black;"';
     } else {
         annotationStyle += '"'
     }
-    document.getElementById('annotation_data').innerHTML += '<p ' + annotationClass + ' ' + annotationId + ' ' + annotationStyle + '>' + highlighted + '</p>';
+    document.getElementById(entityValue + '_section').style.display = '';
+    document.getElementById(entityValue + '_section').innerHTML += '<p ' + annotationClass + ' ' + annotationId + ' ' + annotationStyle + '>' + highlighted + '</p>';
 
     // Removes selection of newly-annotated text
     window.getSelection().removeAllRanges();
@@ -686,6 +698,12 @@ function setupExistingAnnotations(annotationText) {
 // Load annotations if user supplied existing annotation file
 function loadExistingAnnotations() {
     document.getElementById('annotation_data').innerText = '';
+    
+    // Add sections to annotation_data display
+    for (var i=0; i<entityList.length; i++) {
+        document.getElementById("annotation_data").innerHTML += "<div id='" + entityList[i] + "_section' style='display:none;'><p class='sectionTitle'>" + entityList[i] + "</p></div>";
+    }
+
     for (var i = 0; i < annotationList[currentDocumentId].length; i++) {
         var attributeValues = [];
         var entityValue = '';
@@ -883,9 +901,6 @@ function onPageLoad(initalLoad=true) {
 
     // Display selected documentText
     document.getElementById('file_data').innerText = documentText;
-
-    // Reset annotation_data list
-    document.getElementById('annotation_data').innerHTML = "";
 
     if (initalLoad) {
         // Display 'entities' configuration list
