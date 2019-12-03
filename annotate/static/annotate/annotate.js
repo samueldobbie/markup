@@ -298,8 +298,8 @@ function getTextNodesIn(node) {
 
 
 function populateAnnotations(entityValue, attributeValues, startIndex, endIndex) {
-    var highlighted = window.getSelection().toString().replace(/\n|\r/g, "<br>");;
-    //var highlighted = window.getSelection().toString();
+    //var highlighted = window.getSelection().toString().replace(/\n|\r/g, "<br>");
+    var highlighted = window.getSelection().toString();
 
     // Get highlight color
     for (var i=0; i<$('label').length; i++) {
@@ -416,6 +416,7 @@ function updateAnnotationFileURL() {
     localStorage.setItem('annotationText' + currentDocumentId, annotationText);
 }
 
+
 var next = false;
 // Change colour of highlighted text
 function changeHighlightedTextColor() {
@@ -423,7 +424,7 @@ function changeHighlightedTextColor() {
         // Prevent annotations from being visually disappearing upon highlighting over them
         if (document.getElementById('highlighted') != null) {
             $('#highlighted').replaceWith(function () { return this.innerHTML; });
-            document.getElementById('file_data').innerText = localStorage.getItem('documentText' + currentDocumentId);
+            document.getElementById('file_data').innerText = localStorage.getItem('documentText' + currentDocumentId).replace(/\n/g, " ");
             loadExistingAnnotations();
         } else {
             $('#highlighted').replaceWith(function () { return this.innerHTML; });
@@ -433,8 +434,8 @@ function changeHighlightedTextColor() {
             $('#highlighted').replaceWith(function () { return this.innerHTML; });
         }
 
-        //var highlighted = window.getSelection().toString();
-        var highlighted = window.getSelection().toString().replace(/\n|\r/g, "<br>");;
+        var highlighted = window.getSelection().toString();
+        //var highlighted = window.getSelection().toString().replace(/\n|\r/g, "<br>");
         var doc = document.getElementById('file_data');
         var range = window.getSelection().getRangeAt(0);
         var preCaretRange = range.cloneRange();
@@ -461,8 +462,8 @@ function addAnnotation(event) {
 
     var highlightedIndicies = document.getElementById('highlighted').className.split('_');
     setSelectionRange(document.getElementById('file_data'), highlightedIndicies[0], highlightedIndicies[1]);
-    var highlighted = window.getSelection().toString().replace(/\n|\r/g, "<br>");;
-    //var highlighted = window.getSelection().toString();
+    //var highlighted = window.getSelection().toString().replace(/\n|\r/g, "<br>");
+    var highlighted = window.getSelection().toString();
 
     // Check whether selected text is valid
     if (!validateAnnotationSelection(highlighted, attributeRadiobuttons)) { document.getElementById('entities').style.color = 'red'; return; }
@@ -839,10 +840,12 @@ function resetEntityColor() {
     document.getElementById('entities').style.color = col;
 }
 
+
 var currentDocumentId = 0;
 $(document).ready(function () {
     onPageLoad();
 });
+
 
 var parsedConfigurationValues, configValues, entityList, detailedConfigurationValues, configArgs, configVals;
 function onPageLoad(initalLoad=true) {
@@ -850,7 +853,7 @@ function onPageLoad(initalLoad=true) {
     var documentOpenType = localStorage.getItem('documentOpenType');
     var documentCount = localStorage.getItem('documentCount');
     var configText = localStorage.getItem('configText');
-    var documentText = localStorage.getItem('documentText' + currentDocumentId);
+    var documentText = localStorage.getItem('documentText' + currentDocumentId).replace(/\n/g, " ");
     
     // Show buttons to navigate between multiple files
     if (documentOpenType == "multiple") {
