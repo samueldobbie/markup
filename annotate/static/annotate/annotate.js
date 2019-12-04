@@ -308,7 +308,6 @@ function getTextNodesIn(node) {
 
 
 function populateAnnotations(entityValue, attributeValues, startIndex, endIndex) {
-    //var highlighted = window.getSelection().toString().replace(/\n|\r/g, "<br>");
     var highlighted = window.getSelection().toString();
 
     // Get highlight color
@@ -435,7 +434,7 @@ function changeHighlightedTextColor() {
         // Prevent annotations from being visually disappearing upon highlighting over them
         if (document.getElementById('highlighted') != null) {
             $('#highlighted').replaceWith(function () { return this.innerHTML; });
-            document.getElementById('file_data').innerText = localStorage.getItem('documentText' + currentDocumentId).replace(/\n/g, " ");
+            document.getElementById('file_data').innerText = localStorage.getItem('documentText' + currentDocumentId);
             loadExistingAnnotations();
         } else {
             $('#highlighted').replaceWith(function () { return this.innerHTML; });
@@ -446,7 +445,7 @@ function changeHighlightedTextColor() {
         }
 
         var highlighted = window.getSelection().toString();
-        //var highlighted = window.getSelection().toString().replace(/\n|\r/g, "<br>");
+
         var doc = document.getElementById('file_data');
         var range = window.getSelection().getRangeAt(0);
         var preCaretRange = range.cloneRange();
@@ -454,8 +453,37 @@ function changeHighlightedTextColor() {
         preCaretRange.selectNodeContents(doc);
         preCaretRange.setEnd(range.startContainer, range.startOffset);
 
-        startIndex = preCaretRange.toString().length;
-        endIndex = startIndex + range.toString().length;
+        var documentText = doc.innerText;
+        var startIndex = 0;
+        var preCaretRangeLength = preCaretRange.toString().replace(/\n/g, "").length;
+        for (var i=0; i<documentText.length; i++) {
+            if (preCaretRangeLength == 0) {
+                while (documentText[i] == '\n') {
+                    console.log('secondary', documentText[i], 'startIndex', startIndex);
+                    startIndex++;
+                    i++;
+                }
+                break;
+            }
+            
+            if (documentText[i] != '\n') {
+                preCaretRangeLength--;
+            }
+            startIndex++;
+        }
+
+        var endIndex = startIndex;
+        var highlightedLength = range.toString().replace(/\n/g, "").length;
+        for (var i=startIndex; i<documentText.length; i++) {
+            if (highlightedLength == 0) {
+                break;
+            }
+            
+            if (documentText[i] != '\n') {
+                highlightedLength--;
+            }
+            endIndex++;
+        }
 
         // Color-highlight selected text
         document.getElementById('file_data').contentEditable = 'true';
@@ -472,23 +500,40 @@ function addAnnotation(event) {
     var allDropdowns = event.data.allDropdowns;
 
     var highlightedIndicies = document.getElementById('highlighted').className.split('_');
-    setSelectionRange(document.getElementById('file_data'), highlightedIndicies[0], highlightedIndicies[1]);
-    //var highlighted = window.getSelection().toString().replace(/\n|\r/g, "<br>");
-    var highlighted = window.getSelection().toString();
+    var highlighted = "";
+    var tempStartIndex = parseInt(highlightedIndicies[0]);
+    var trueStartIndex = parseInt(highlightedIndicies[0]);
+    var trueEndIndex = parseInt(highlightedIndicies[1]);
+    var startIndex = 0;
+    var endIndex = 0;
+    var documentText = document.getElementById('file_data').innerText;
+
+    for (var i=0; i<documentText.length; i++) {
+        if (tempStartIndex == 0) {
+            while (documentText[i] == '\n') {
+                startIndex++;
+                i++;
+            }
+            var diff = 0;
+            for (var j=trueStartIndex; j< trueEndIndex; j++) {
+                if (documentText[j] != '\n') {
+                    diff++;
+                }
+                highlighted += documentText[j];
+            }
+            endIndex = startIndex + diff;
+            break;
+        }
+        if (documentText[i] != '\n') {
+            startIndex++;
+        }
+        tempStartIndex--;
+    }
+
+    setSelectionRange(document.getElementById('file_data'), startIndex, endIndex);
 
     // Check whether selected text is valid
     if (!validateAnnotationSelection(highlighted, attributeRadiobuttons)) { document.getElementById('entities').style.color = 'red'; return; }
-
-    // Get start and end indicies (offsets) of selected text
-    var doc = document.getElementById('file_data');
-    var range = window.getSelection().getRangeAt(0);
-    var preCaretRange = range.cloneRange();
-
-    preCaretRange.selectNodeContents(doc);
-    preCaretRange.setEnd(range.startContainer, range.startOffset);
-
-    startIndex = preCaretRange.toString().length;
-    endIndex = startIndex + range.toString().length;
 
     // Get highlight color
     for (var i=0; i<$('label').length; i++) {
@@ -509,7 +554,7 @@ function addAnnotation(event) {
 
     // Color-highlight selected text
     document.getElementById('file_data').contentEditable = 'true';
-    document.execCommand('insertHTML', false, '<span id="' + startIndex + '_' + endIndex + '_aid" style="background-color:' + highlightColor + '; color:black; padding:2px;">' + highlighted + '</span>');
+    document.execCommand('insertHTML', false, '<span id="' + trueStartIndex + '_' + trueEndIndex + '_aid" style="background-color:' + highlightColor + '; color:black; padding:2px;">' + highlighted + '</span>');
     document.getElementById('file_data').contentEditable = 'false';
 
     // Output annotation in stand-off format
@@ -520,7 +565,7 @@ function addAnnotation(event) {
     // Add entity data to annotation list and hover info
     var entityValue = $('input[type=radio]:checked')[0].id.substring(0, $('input[type=radio]:checked')[0].id.length - 6);
     entityHoverInfo.push(entityValue);
-    entityData = 'T' + entityId + '\t' + entityValue + ' ' + startIndex + ' ' + endIndex + '\t' + underscoreString(highlighted) + '\n';
+    entityData = 'T' + entityId + '\t' + entityValue + ' ' + trueStartIndex + ' ' + trueEndIndex + '\t' + underscoreString(highlighted) + '\n';
     entityId++;
 
     annotation.push([entityData]);
@@ -616,14 +661,14 @@ function addAnnotation(event) {
     }
 
     // Keep track of offets for each annotation
-    offsetList.push([startIndex, endIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
+    offsetList.push([trueStartIndex, trueEndIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
 
     // Add annotations to current-annotation list
     annotationList[currentDocumentId].push(annotation);
 
     // Add annotation to annotaion_data display
     var annotationClass = 'class="displayedAnnotation"';
-    var annotationId = 'id="' + startIndex + '_' + endIndex + '"';
+    var annotationId = 'id="' + trueStartIndex + '_' + trueEndIndex + '"';
     var annotationStyle = 'style="background-color:' + highlightColor + '; font-family:\'Nunito\'; padding:2px;';
     if (darkMode) {
         annotationStyle += 'color:black;"';
@@ -645,6 +690,8 @@ function addAnnotation(event) {
 
     updateAnnotationFileURL();
     //bindEvents();
+    document.getElementById('file_data').innerText = localStorage.getItem('documentText' + currentDocumentId);
+    loadExistingAnnotations();
 }
 
 
@@ -697,8 +744,7 @@ function setupExistingAnnotations(annotationText) {
 
 // Load annotations if user supplied existing annotation file
 function loadExistingAnnotations() {
-    document.getElementById('annotation_data').innerText = '';
-    
+    /*
     // Add sections to annotation_data display
     for (var i=0; i<entityList.length; i++) {
         document.getElementById("annotation_data").innerHTML += "<div id='" + entityList[i] + "_section' style='display:none;'><p class='sectionTitle'>" + entityList[i] + "</p></div>";
@@ -706,9 +752,9 @@ function loadExistingAnnotations() {
 
     for (var i = 0; i < annotationList[currentDocumentId].length; i++) {
         var attributeValues = [];
-        var entityValue = '';
-        var start = 0;
-        var end = 0;
+        var entityValue = "";
+        var startIndex = 0;
+        var endIndex = 0;
         for (var j = 0; j < annotationList[currentDocumentId][i].length; j++) {
             var annotationWords = annotationList[currentDocumentId][i][j][0].split('\t');
             var data = annotationWords[1].split(' ');
@@ -719,8 +765,30 @@ function loadExistingAnnotations() {
                     entityId = annotationId
                 }
                 entityValue = data[0];
-                start = data[1];
-                end = data[2];
+                var tempStartIndex = data[1];
+                var trueStartIndex = data[1];
+                var trueEndIndex = data[2];
+                var documentText = document.getElementById('file_data').innerText;
+                for (var i=0; i<documentText.length; i++) {
+                    if (tempStartIndex == 0) {
+                        while (documentText[i] == '\n') {
+                            startIndex++;
+                            i++;
+                        }
+                        var diff = 0;
+                        for (var j=trueStartIndex; j< trueEndIndex; j++) {
+                            if (documentText[j] != '\n') {
+                                diff++;
+                            }
+                        }
+                        endIndex = startIndex + diff;
+                        break;
+                    }
+                    if (documentText[i] != '\n') {
+                        startIndex++;
+                    }
+                    tempStartIndex--;
+                }
             }
 
             if (annotationWords[0][0] == 'A') {
@@ -731,7 +799,78 @@ function loadExistingAnnotations() {
                 attributeValues.push(data[0] + ': ' + data[2]);
             }
         }
-        highlightRange(entityValue, attributeValues, start, end);
+        highlightRange(entityValue, attributeValues, startIndex, endIndex);
+    }
+    entityId++;
+    attributeId++;
+    window.getSelection().removeAllRanges();
+
+    updateAnnotationFileURL();
+    */
+
+    document.getElementById('annotation_data').innerText = '';
+    
+    // Add sections to annotation_data display
+    for (var i=0; i<entityList.length; i++) {
+        document.getElementById("annotation_data").innerHTML += "<div id='" + entityList[i] + "_section' style='display:none;'><p class='sectionTitle'>" + entityList[i] + "</p></div>";
+    }
+
+    for (var i = 0; i < annotationList[currentDocumentId].length; i++) {
+        var attributeValues = [];
+        var entityValue = '';
+        var startIndex = 0;
+        var endIndex = 0;
+
+        console.log(annotationList);
+
+        for (var j = 0; j < annotationList[currentDocumentId][i].length; j++) {
+            var annotationWords = annotationList[currentDocumentId][i][j][0].split('\t');
+            var data = annotationWords[1].split(' ');
+
+            if (annotationWords[0][0] == 'T') {
+                var annotationId = parseInt(annotationWords[0].split('T')[1]);
+                if (annotationId > entityId) {
+                    entityId = annotationId
+                }
+                entityValue = data[0];
+
+                var tempStartIndex = parseInt(data[1]);
+                var trueStartIndex = parseInt(data[1]);
+                var trueEndIndex = parseInt(data[2]);
+                var documentText = document.getElementById('file_data').innerText;
+                for (var k=0; k<documentText.length; k++) {
+                    if (tempStartIndex == 0) {
+                        while (documentText[k] == '\n') {
+                            startIndex++;
+                            k++;
+                        }
+                        var diff = 0;
+                        for (var n=trueStartIndex; n<trueEndIndex; n++) {
+                            if (documentText[n] != '\n') {
+                                diff++;
+                            }
+                        }
+                        endIndex = startIndex + diff;
+                        break;
+                    }
+                    if (documentText[k] != '\n') {
+                        startIndex++;
+                    }
+                    tempStartIndex--;
+                }
+            }
+
+            if (annotationWords[0][0] == 'A') {
+                var annotationId = parseInt(annotationWords[0].split('A')[1]);
+                if (annotationId > attributeId) {
+                    attributeId = annotationId
+                }
+                attributeValues.push(data[0] + ': ' + endIndex);
+            }
+        }
+        console.log('startIndex', startIndex);
+        console.log('endIndex', endIndex);
+        highlightRange(entityValue, attributeValues, startIndex, endIndex);
     }
     entityId++;
     attributeId++;
@@ -871,7 +1010,7 @@ function onPageLoad(initalLoad=true) {
     var documentOpenType = localStorage.getItem('documentOpenType');
     var documentCount = localStorage.getItem('documentCount');
     var configText = localStorage.getItem('configText');
-    var documentText = localStorage.getItem('documentText' + currentDocumentId).replace(/\n/g, " ");
+    var documentText = localStorage.getItem('documentText' + currentDocumentId);
     
     // Show buttons to navigate between multiple files
     if (documentOpenType == "multiple") {
