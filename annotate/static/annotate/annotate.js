@@ -5,7 +5,7 @@ var colors = [
 ];
 
 var annotationList;
-var offsetList = [];
+//var offsetList = [];
 var entityId = 1;
 var attributeId = 1;
 var darkMode;
@@ -252,9 +252,9 @@ function resetDropdowns(vals) {
 }
 
 
-function highlightRange(entityValue, attributeValues, start, end) {
-    setSelectionRange(document.getElementById('file_data'), start, end);
-    populateAnnotations(entityValue, attributeValues, start, end);
+function highlightRange(entityValue, attributeValues, startIndex, endIndex, trueStartIndex, trueEndIndex) {
+    setSelectionRange(document.getElementById('file_data'), startIndex, endIndex);
+    populateAnnotations(entityValue, attributeValues, trueStartIndex, trueEndIndex);
 }
 
 
@@ -336,7 +336,7 @@ function populateAnnotations(entityValue, attributeValues, startIndex, endIndex)
     }
 
     // Keep track of offets for each annotation
-    offsetList.push([startIndex, endIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
+    //offsetList.push([startIndex, endIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
 
     // Add annotation to annotaion_data display
     var annotationClass = 'class="displayedAnnotation"';
@@ -664,26 +664,25 @@ function addAnnotation(event) {
         annotation.push([attributeData[i]]);
     }
 
-    // Keep track of offets for each annotation
-    offsetList.push([trueStartIndex, trueEndIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
-
-    // Add annotations to current-annotation list
+    // Add annotations to current-annotation list and offsets to offset list
     if (annotationList[currentDocumentId].length == 0) {
         annotationList[currentDocumentId].push(annotation);
+        //offsetList.push([trueStartIndex, trueEndIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
     } else {
         for (var i=0; i < annotationList[currentDocumentId].length; i++) {
             if (trueStartIndex > parseInt(annotationList[currentDocumentId][i][0][0].split(' ')[1])) {
                 annotationList[currentDocumentId].splice(i, 0, annotation);
+                //offsetList.splice(i, 0, [trueStartIndex, trueEndIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
                 break;
             } 
             
             if (i == (annotationList[currentDocumentId].length - 1)) {
                 annotationList[currentDocumentId].push(annotation);
+                //offsetList.push([trueStartIndex, trueEndIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
                 break;
             }
         }
     }
-    console.log(annotationList[currentDocumentId]);
 
     // Add annotation to annotaion_data display
     var annotationClass = 'class="displayedAnnotation"';
@@ -707,8 +706,6 @@ function addAnnotation(event) {
     toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
     resetDropdowns(allDropdowns);
 
-    updateAnnotationFileURL();
-    //bindEvents();
     document.getElementById('file_data').innerText = localStorage.getItem('documentText' + currentDocumentId);
     loadExistingAnnotations();
 }
@@ -774,6 +771,8 @@ function loadExistingAnnotations() {
         var entityValue = '';
         var startIndex = 0;
         var endIndex = 0;
+        var tempStartIndex = 0;
+        var tempEndIndex = 0;
 
         for (var j = 0; j < annotationList[currentDocumentId][i].length; j++) {
             var annotationWords = annotationList[currentDocumentId][i][j][0].split('\t');
@@ -786,9 +785,9 @@ function loadExistingAnnotations() {
                 }
                 entityValue = data[0];
 
-                var tempStartIndex = parseInt(data[1]);
-                var trueStartIndex = parseInt(data[1]);
-                var trueEndIndex = parseInt(data[2]);
+                tempStartIndex = parseInt(data[1]);
+                trueStartIndex = parseInt(data[1]);
+                trueEndIndex = parseInt(data[2]);
                 var documentText = document.getElementById('file_data').innerText;
                 for (var k=0; k<documentText.length; k++) {
                     if (tempStartIndex == 0) {
@@ -820,7 +819,7 @@ function loadExistingAnnotations() {
                 attributeValues.push(data[0] + ': ' + data[2]);
             }
         }
-        highlightRange(entityValue, attributeValues, startIndex, endIndex);
+        highlightRange(entityValue, attributeValues, startIndex, endIndex, trueStartIndex, trueEndIndex);
     }
     entityId++;
     attributeId++;
@@ -834,33 +833,39 @@ function loadExistingAnnotations() {
 function deleteClickedAnnotation(event) {
     var id = event.target.id;
     var indicies = id.split('_');
-    var startIndex = indicies[0];
-    var endIndex = indicies[1];
+    var targetStartIndex = parseInt(indicies[0]);
+    var targetEndIndex = parseInt(indicies[1]);
 
     // Remove span tag from file_data text
     document.getElementById(id + '_aid').outerHTML = document.getElementById(id + '_aid').innerHTML;
 
     // Finds correct annotation index based on offset list and removes
-    for (var i = 0; i < offsetList.length; i++) {
-        if (offsetList[i][0] == startIndex && offsetList[i][1] == endIndex) {
-            if (annotationList[currentDocumentId].length == 1) {
-                annotationList[currentDocumentId] = [];
-            } else {
-                annotationList[currentDocumentId].splice(i, 1);
-                offsetList.splice(i, 1);
-            }
+    for (var i = 0; i < annotationList[currentDocumentId].length; i++) {
+        var currentStartIndex = parseInt(annotationList[currentDocumentId][i][0][0].split(' ')[1]);
+        var currentEndIndex = parseInt(annotationList[currentDocumentId][i][0][0].split(' ')[2].split('\t')[0]);
+
+        if (currentStartIndex == targetStartIndex && currentEndIndex == targetEndIndex) {
+            // Remove annotation and offset
+            annotationList[currentDocumentId].splice(i, 1);
+            //offsetList.splice(i, 1);
 
             // Removes annotation from annotation_data display
-            var elem = document.getElementById(id);
-            elem.parentElement.removeChild(elem);
+            //var elem = document.getElementById(id);
+            //elem.parentElement.removeChild(elem);
 
-            updateAnnotationFileURL();
+            // changed to loadExisting to get rid of catergory name updateAnnotationFileURL();
+            loadExistingAnnotations();
             return;
         }
     }
 }
 
 
+function hoverInfo(id, type) {
+    return;
+}
+
+/*
 // Display information about chosen annotation on hover
 function hoverInfo(id, type) {
     var indicies = id.split('_');
@@ -885,6 +890,7 @@ function hoverInfo(id, type) {
         };
     }
 }
+*/
 
 
 function suggestCui(event) {
