@@ -27,39 +27,27 @@
 
 
 ::-webkit-scrollbar {
-  background-color:rgba(235, 235, 235, 0);
+  background-color:rgba(255, 255, 255, 0);
   width:7.5px;
   border-radius:5px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color:rgba(235, 235, 235, 0.322);
+  background-color:rgba(255, 255, 255, 0);
   width:7.5px;
   border-radius:5px;
 }
 
-#config_data:hover::-webkit-scrollbar {
-  display: unset;
+#config_data:hover::-webkit-scrollbar-thumb {
+  background-color:rgba(155, 155, 155, 0.75);
 }
 
-#file_data:hover::-webkit-scrollbar {
-  display: unset;
+#file_data:hover::-webkit-scrollbar-thumb {
+  background-color:rgba(155, 155, 155, 0.75);
 }
 
-#annotation_data:hover::-webkit-scrollbar {
-  display: unset;
-}
-
-#config_data::-webkit-scrollbar {
-  display: none;
-}
-
-#file_data::-webkit-scrollbar {
-  display: none;
-}
-
-#annotation_data::-webkit-scrollbar {
-  display: none;
+#annotation_data:hover::-webkit-scrollbar-thumb {
+  background-color:rgba(155, 155, 155, 0.75);
 }
 
 input[type=radio] {
