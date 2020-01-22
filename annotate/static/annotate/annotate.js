@@ -459,7 +459,6 @@ function changeHighlightedTextColor() {
         for (var i=0; i<documentText.length; i++) {
             if (preCaretRangeLength == 0) {
                 while (documentText[i] == '\n') {
-                    console.log('secondary', documentText[i], 'startIndex', startIndex);
                     startIndex++;
                     i++;
                 }
@@ -499,14 +498,16 @@ function addAnnotation(event) {
     var attributeRadiobuttons = event.data.attributeRadiobuttons;
     var allDropdowns = event.data.allDropdowns;
 
+    var documentText = document.getElementById('file_data').innerText;
+
     var highlightedIndicies = document.getElementById('highlighted').className.split('_');
     var highlighted = "";
+
     var tempStartIndex = parseInt(highlightedIndicies[0]);
     var trueStartIndex = parseInt(highlightedIndicies[0]);
     var trueEndIndex = parseInt(highlightedIndicies[1]);
     var startIndex = 0;
     var endIndex = 0;
-    var documentText = document.getElementById('file_data').innerText;
 
     for (var i=0; i<documentText.length; i++) {
         if (tempStartIndex == 0) {
@@ -533,7 +534,10 @@ function addAnnotation(event) {
     setSelectionRange(document.getElementById('file_data'), startIndex, endIndex);
 
     // Check whether selected text is valid
-    if (!validateAnnotationSelection(highlighted, attributeRadiobuttons)) { document.getElementById('entities').style.color = 'red'; return; }
+    if (!validateAnnotationSelection(highlighted, attributeRadiobuttons)) {
+        document.getElementById('entities').style.color = 'red';
+        return;
+    }
 
     // Get highlight color
     for (var i=0; i<$('label').length; i++) {
@@ -664,7 +668,22 @@ function addAnnotation(event) {
     offsetList.push([trueStartIndex, trueEndIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
 
     // Add annotations to current-annotation list
-    annotationList[currentDocumentId].push(annotation);
+    if (annotationList[currentDocumentId].length == 0) {
+        annotationList[currentDocumentId].push(annotation);
+    } else {
+        for (var i=0; i < annotationList[currentDocumentId].length; i++) {
+            if (trueStartIndex > parseInt(annotationList[currentDocumentId][i][0][0].split(' ')[1])) {
+                annotationList[currentDocumentId].splice(i, 0, annotation);
+                break;
+            } 
+            
+            if (i == (annotationList[currentDocumentId].length - 1)) {
+                annotationList[currentDocumentId].push(annotation);
+                break;
+            }
+        }
+    }
+    console.log(annotationList[currentDocumentId]);
 
     // Add annotation to annotaion_data display
     var annotationClass = 'class="displayedAnnotation"';
@@ -706,9 +725,8 @@ function validateAnnotationSelection(highlighted, attributeRadiobuttons) {
 
     if (validAnnotation && highlighted.trim() != '' && highlighted != null) {
         return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
 
@@ -744,70 +762,6 @@ function setupExistingAnnotations(annotationText) {
 
 // Load annotations if user supplied existing annotation file
 function loadExistingAnnotations() {
-    /*
-    // Add sections to annotation_data display
-    for (var i=0; i<entityList.length; i++) {
-        document.getElementById("annotation_data").innerHTML += "<div id='" + entityList[i] + "_section' style='display:none;'><p class='sectionTitle'>" + entityList[i] + "</p></div>";
-    }
-
-    for (var i = 0; i < annotationList[currentDocumentId].length; i++) {
-        var attributeValues = [];
-        var entityValue = "";
-        var startIndex = 0;
-        var endIndex = 0;
-        for (var j = 0; j < annotationList[currentDocumentId][i].length; j++) {
-            var annotationWords = annotationList[currentDocumentId][i][j][0].split('\t');
-            var data = annotationWords[1].split(' ');
-
-            if (annotationWords[0][0] == 'T') {
-                var annotationId = parseInt(annotationWords[0].split('T')[1]);
-                if (annotationId > entityId) {
-                    entityId = annotationId
-                }
-                entityValue = data[0];
-                var tempStartIndex = data[1];
-                var trueStartIndex = data[1];
-                var trueEndIndex = data[2];
-                var documentText = document.getElementById('file_data').innerText;
-                for (var i=0; i<documentText.length; i++) {
-                    if (tempStartIndex == 0) {
-                        while (documentText[i] == '\n') {
-                            startIndex++;
-                            i++;
-                        }
-                        var diff = 0;
-                        for (var j=trueStartIndex; j< trueEndIndex; j++) {
-                            if (documentText[j] != '\n') {
-                                diff++;
-                            }
-                        }
-                        endIndex = startIndex + diff;
-                        break;
-                    }
-                    if (documentText[i] != '\n') {
-                        startIndex++;
-                    }
-                    tempStartIndex--;
-                }
-            }
-
-            if (annotationWords[0][0] == 'A') {
-                var annotationId = parseInt(annotationWords[0].split('A')[1]);
-                if (annotationId > attributeId) {
-                    attributeId = annotationId
-                }
-                attributeValues.push(data[0] + ': ' + data[2]);
-            }
-        }
-        highlightRange(entityValue, attributeValues, startIndex, endIndex);
-    }
-    entityId++;
-    attributeId++;
-    window.getSelection().removeAllRanges();
-
-    updateAnnotationFileURL();
-    */
-
     document.getElementById('annotation_data').innerText = '';
     
     // Add sections to annotation_data display
@@ -820,8 +774,6 @@ function loadExistingAnnotations() {
         var entityValue = '';
         var startIndex = 0;
         var endIndex = 0;
-
-        console.log(annotationList);
 
         for (var j = 0; j < annotationList[currentDocumentId][i].length; j++) {
             var annotationWords = annotationList[currentDocumentId][i][j][0].split('\t');
@@ -859,17 +811,15 @@ function loadExistingAnnotations() {
                     tempStartIndex--;
                 }
             }
-
+            
             if (annotationWords[0][0] == 'A') {
                 var annotationId = parseInt(annotationWords[0].split('A')[1]);
                 if (annotationId > attributeId) {
                     attributeId = annotationId
                 }
-                attributeValues.push(data[0] + ': ' + endIndex);
+                attributeValues.push(data[0] + ': ' + data[2]);
             }
         }
-        console.log('startIndex', startIndex);
-        console.log('endIndex', endIndex);
         highlightRange(entityValue, attributeValues, startIndex, endIndex);
     }
     entityId++;
