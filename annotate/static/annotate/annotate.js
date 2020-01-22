@@ -706,7 +706,7 @@ function addAnnotation(event) {
     toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
     resetDropdowns(allDropdowns);
 
-    document.getElementById('file_data').innerText = localStorage.getItem('documentText' + currentDocumentId);
+    updateAnnotationFileURL();
     loadExistingAnnotations();
 }
 
@@ -760,6 +760,7 @@ function setupExistingAnnotations(annotationText) {
 // Load annotations if user supplied existing annotation file
 function loadExistingAnnotations() {
     document.getElementById('annotation_data').innerText = '';
+    document.getElementById('file_data').innerText = localStorage.getItem('documentText' + currentDocumentId);
     
     // Add sections to annotation_data display
     for (var i=0; i<entityList.length; i++) {
@@ -772,7 +773,6 @@ function loadExistingAnnotations() {
         var startIndex = 0;
         var endIndex = 0;
         var tempStartIndex = 0;
-        var tempEndIndex = 0;
 
         for (var j = 0; j < annotationList[currentDocumentId][i].length; j++) {
             var annotationWords = annotationList[currentDocumentId][i][j][0].split('\t');
@@ -824,8 +824,6 @@ function loadExistingAnnotations() {
     entityId++;
     attributeId++;
     window.getSelection().removeAllRanges();
-
-    updateAnnotationFileURL();
 }
 
 
@@ -853,9 +851,8 @@ function deleteClickedAnnotation(event) {
             //var elem = document.getElementById(id);
             //elem.parentElement.removeChild(elem);
 
-            // changed to loadExisting to get rid of catergory name updateAnnotationFileURL();
+            updateAnnotationFileURL();
             loadExistingAnnotations();
-            return;
         }
     }
 }
