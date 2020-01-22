@@ -17,3 +17,4 @@ vcversioner==2.16.0.0
 virtualenv==16.4.3
 zope.interface==4.6.0
 nltk==3.4.1
+StringDist==1.0.9
