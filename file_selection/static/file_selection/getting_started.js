@@ -53,7 +53,6 @@ $(document).ready(function () {
 
 
     $('#aSingleDoc').click(function () {
-        alert('single');
         documentOpenType = 'single';
 
         $("#questionOne").fadeOut();
@@ -70,7 +69,6 @@ $(document).ready(function () {
 
 
     $('#multipleDocs').click(function () {
-        alert('multiple');
         documentOpenType = 'multiple';
 
         $("#questionOne").fadeOut();
@@ -104,7 +102,6 @@ $(document).ready(function () {
 
 
     document.getElementById('documentFolderOpener').onchange = function () {
-        alert(2);
         $("#questionTwoB").fadeOut();
         $("#documentFolderOpenerOverlay").fadeOut();
         $("#multipleFileSpec").fadeOut();
@@ -180,7 +177,6 @@ $(document).ready(function () {
 
 
     $('.dictionaryOption').click(function (e) {
-        alert(3);
         var dictionarySelection = e.target.id;
 
         if (dictionarySelection != 'userDictionary') {
