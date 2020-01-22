@@ -48,7 +48,7 @@ def suggest_cui(request):
     for umls_match in searcher.ranked_search(selected_term, COSINE_THRESHOLD):
         umls_term = umls_match[1]
         # Add divsor to each term
-        weighted_outputs[umls_term + '***'] = stringdist.levenshtein(umls_term, selected_term)
+        weighted_outputs[umls_term + ' :: UMLS ' + term_to_cui[umls_term] + '***'] = stringdist.levenshtein(umls_term, selected_term)
 
     # Sort order matches will be displayed based on weights
     output = [i[0] for i in sorted(weighted_outputs.items(), key=lambda kv: kv[1])]

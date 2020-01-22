@@ -619,21 +619,17 @@ function addAnnotation(event) {
     var optionWords = option.split(' ');
 
     if (!((optionWords[optionWords.length - 2] == 'matches' && optionWords[optionWords.length - 1] == 'found') || option == 'No match')) {
-        $.ajax({
-            type: 'GET',
-            url: '~/get_cui',
-            async: false,
-            data: { match: option },
-            success: function (response) {
-                var term = 'A' + attributeId + '\tCUIPhrase' + ' T' + (entityId - 1) + ' ' + underscoreString(option) + '\n';
-                attributeData.push(term);
-                attributeId++;
+        var optionData = option.split(' :: ');
+        var optionText = optionData[0];
+        var optionCode = optionData[1].split(' ')[1];
 
-                var cui = 'A' + attributeId + '\tCUI' + ' T' + (entityId - 1) + ' ' + response.replace(/['"]+/g, '') + '\n';
-                attributeId++;
-                attributeData.push(cui);
-            }
-        });
+        var term = 'A' + attributeId + '\tCUIPhrase' + ' T' + (entityId - 1) + ' ' + underscoreString(optionText) + '\n';
+        attributeData.push(term);
+        attributeId++;
+
+        var cui = 'A' + attributeId + '\tCUI' + ' T' + (entityId - 1) + ' ' + optionCode + '\n';
+        attributeId++;
+        attributeData.push(cui);
     }
 
     // TEMP: Get chosen option cui from dropdown and ignore if default selected or no matches found
