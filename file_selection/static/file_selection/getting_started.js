@@ -53,6 +53,7 @@ $(document).ready(function () {
 
 
     $('#aSingleDoc').click(function () {
+        alert('single');
         documentOpenType = 'single';
 
         $("#questionOne").fadeOut();
@@ -69,6 +70,7 @@ $(document).ready(function () {
 
 
     $('#multipleDocs').click(function () {
+        alert('multiple');
         documentOpenType = 'multiple';
 
         $("#questionOne").fadeOut();
@@ -102,6 +104,7 @@ $(document).ready(function () {
 
 
     document.getElementById('documentFolderOpener').onchange = function () {
+        alert(2);
         $("#questionTwoB").fadeOut();
         $("#documentFolderOpenerOverlay").fadeOut();
         $("#multipleFileSpec").fadeOut();
@@ -114,24 +117,24 @@ $(document).ready(function () {
         var documentCount = 0;
         var documentIndex = {};
         documentFileList = document.getElementById('documentFolderOpener').files;
+
         for (var i=0; i<documentFileList.length; i++) {
-            if (documentFileList[i].name.split('.')[1] == 'txt') {
+            if (documentFileList[i].name.split('.').includes('txt')) {
                 documentIndex[documentFileList[i].name.split('.')[0]] = documentCount; 
                 storeFileDataLocally(documentFileList[i], 'documentText' + documentCount);
                 localStorage.setItem('fileName' + documentCount, documentFileList[i].name.split(".").slice(0, -1).join("."));
                 documentCount++;
-            } else if (documentFileList[i].name.split('.')[1] == 'conf') {
+            } else if (documentFileList[i].name.split('.').includes('conf')) {
                 storeFileDataLocally(documentFileList[i], 'configText');
             }
         }
 
         for (var j=0; j<documentFileList.length; j++) {
-            if (documentFileList[j].name.split('.')[1] == 'ann') {
-                var index = documentFileList[documentFileList[j].name.split('.')[0]];
+            if (documentFileList[j].name.split('.').includes('ann')) {
+                var index = documentIndex[documentFileList[j].name.split('.')[0]];
                 storeFileDataLocally(documentFileList[j], 'annotationText' + index);
             }
         }
-
         localStorage.setItem('documentCount', documentCount);
     }
 
@@ -177,6 +180,7 @@ $(document).ready(function () {
 
 
     $('.dictionaryOption').click(function (e) {
+        alert(3);
         var dictionarySelection = e.target.id;
 
         if (dictionarySelection != 'userDictionary') {

@@ -13,7 +13,7 @@ var darkMode;
 // Return to homepage if no / invalid document selected
 function validateDocumentSelection(documentText) {
     if (documentText == null || documentText.trim() == '') {
-        alert('There was an issue loading your document. Redirecting to the homepage!')
+        alert('This document is empty. Redirecting to the homepage!')
         location.href = '/';
     }
 }
@@ -736,7 +736,7 @@ function underscoreString(string) {
 
 
 // Load annotations if user supplied existing annotation file
-function setupExistingAnnotations(annotationText) {
+function setupExistingAnnotations(annotationText, documentId) {
     if (annotationText == null || annotationText.trim() == '') { return; }
 
     var annotationSentences = annotationText.split('\n');
@@ -744,7 +744,7 @@ function setupExistingAnnotations(annotationText) {
     annotation = [];
     for (var i = 0; i < annotationSentences.length; i++) {
         if (annotationSentences[i][0] == 'T' && annotation.length != 0) {
-            annotationList[currentDocumentId].push(annotation);
+            annotationList[documentId].push(annotation);
             annotation = [];
             annotation.push([annotationSentences[i] + '\n']);
         } else if (annotationSentences[i][0] == 'T') {
@@ -753,7 +753,7 @@ function setupExistingAnnotations(annotationText) {
             annotation.push([annotationSentences[i] + '\n']);
         }
     }
-    annotationList[currentDocumentId].push(annotation);
+    annotationList[documentId].push(annotation);
 }
 
 
@@ -980,7 +980,7 @@ function onPageLoad(initalLoad=true) {
         for (var j=0; j<=documentCount; j++) {
             var currentAnnotationText = localStorage.getItem('annotationText' + j);
             if (currentAnnotationText != null) {
-                setupExistingAnnotations(currentAnnotationText);
+                setupExistingAnnotations(currentAnnotationText, j);
             }
         }
     }
@@ -1128,6 +1128,7 @@ function onPageLoad(initalLoad=true) {
     */
 
     // Load annotations from current annotationList
+    updateAnnotationFileURL();
     loadExistingAnnotations();
 }
 
