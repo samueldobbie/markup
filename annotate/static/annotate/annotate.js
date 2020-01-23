@@ -5,7 +5,7 @@ var colors = [
 ];
 
 var annotationList;
-//var offsetList = [];
+var offsetList = [];
 var entityId = 1;
 var attributeId = 1;
 var darkMode;
@@ -336,7 +336,7 @@ function populateAnnotations(entityValue, attributeValues, startIndex, endIndex)
     }
 
     // Keep track of offets for each annotation
-    //offsetList.push([startIndex, endIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
+    offsetList.push([startIndex, endIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
 
     // Add annotation to annotaion_data display
     var annotationClass = 'class="displayedAnnotation"';
@@ -583,7 +583,6 @@ function addAnnotation(event) {
         attributeData.push('A' + attributeId + '\t' + checkedAttribute + ' T' + (entityId - 1) + '\n');
         attributeId++;
     }
-    attributeHoverInfo.push(attributeValues);
 
     for (var i = 0; i < attributeDropdowns.length; i++) {
         var currentSelect = attributeDropdowns[i];
@@ -596,7 +595,7 @@ function addAnnotation(event) {
 
             var chosenField = currentValue[0];
             currentValue = underscoreString(currentValue[1]);
-            attributeValues.push(currentValue);
+            attributeValues.push(chosenField + ': ', currentValue + '\n');
             attributeData.push('A' + attributeId + '\t' + chosenField + ' T' + (entityId - 1) + ' ' + currentValue + '\n');
             attributeId++;
         }
@@ -625,11 +624,13 @@ function addAnnotation(event) {
 
         var term = 'A' + attributeId + '\tCUIPhrase' + ' T' + (entityId - 1) + ' ' + underscoreString(optionText) + '\n';
         attributeData.push(term);
+        attributeValues.push('CUIPhrase: ', optionText, '\n');
         attributeId++;
 
         var cui = 'A' + attributeId + '\tCUI' + ' T' + (entityId - 1) + ' ' + optionCode + '\n';
-        attributeId++;
         attributeData.push(cui);
+        attributeValues.push('CUI: ', optionCode, '\n');
+        attributeId++;
     }
 
     // TEMP: Get chosen option cui from dropdown and ignore if default selected or no matches found
@@ -638,22 +639,23 @@ function addAnnotation(event) {
     optionWords = option.split(' ');
 
     if (!((optionWords[optionWords.length - 2] == 'matches' && optionWords[optionWords.length - 1] == 'found') || option == 'No match')) {
-        $.ajax({
-            type: 'GET',
-            url: '~/get_cui',
-            async: false,
-            data: { match: option },
-            success: function (response) {
-                var term = 'A' + attributeId + '\tCUIPhrase' + ' T' + (entityId - 1) + ' ' + underscoreString(option) + '\n';
-                attributeData.push(term);
-                attributeId++;
+        var optionData = option.split(' :: ');
+        var optionText = optionData[0];
+        var optionCode = optionData[1].split(' ')[1];
+        
+        var term = 'A' + attributeId + '\tCUIPhrase' + ' T' + (entityId - 1) + ' ' + underscoreString(optionText) + '\n';
+        attributeData.push(term);
+        attributeValues.push('CUIPhrase: ', optionText, '\n');
+        attributeId++;
 
-                var cui = 'A' + attributeId + '\tCUI' + ' T' + (entityId - 1) + ' ' + response.replace(/['"]+/g, '') + '\n';
-                attributeId++;
-                attributeData.push(cui);
-            }
-        });
+        var cui = 'A' + attributeId + '\tCUI' + ' T' + (entityId - 1) + ' ' + optionCode + '\n';
+        attributeData.push(cui);
+        attributeValues.push('CUI: ', optionCode, '\n');
+        attributeId++;
     }
+
+    console.log(attributeValues);
+    attributeHoverInfo.push(attributeValues);
 
     // Add attributes to annotation list
     for (var i = 0; i < attributeData.length; i++) {
@@ -663,18 +665,18 @@ function addAnnotation(event) {
     // Add annotations to current-annotation list and offsets to offset list
     if (annotationList[currentDocumentId].length == 0) {
         annotationList[currentDocumentId].push(annotation);
-        //offsetList.push([trueStartIndex, trueEndIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
+        offsetList.push([trueStartIndex, trueEndIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
     } else {
         for (var i=0; i < annotationList[currentDocumentId].length; i++) {
             if (trueStartIndex > parseInt(annotationList[currentDocumentId][i][0][0].split(' ')[1])) {
                 annotationList[currentDocumentId].splice(i, 0, annotation);
-                //offsetList.splice(i, 0, [trueStartIndex, trueEndIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
+                offsetList.splice(i, 0, [trueStartIndex, trueEndIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
                 break;
             } 
             
             if (i == (annotationList[currentDocumentId].length - 1)) {
                 annotationList[currentDocumentId].push(annotation);
-                //offsetList.push([trueStartIndex, trueEndIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
+                offsetList.push([trueStartIndex, trueEndIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
                 break;
             }
         }
@@ -841,11 +843,7 @@ function deleteClickedAnnotation(event) {
         if (currentStartIndex == targetStartIndex && currentEndIndex == targetEndIndex) {
             // Remove annotation and offset
             annotationList[currentDocumentId].splice(i, 1);
-            //offsetList.splice(i, 1);
-
-            // Removes annotation from annotation_data display
-            //var elem = document.getElementById(id);
-            //elem.parentElement.removeChild(elem);
+            offsetList.splice(i, 1);
 
             updateAnnotationFileURL();
             loadExistingAnnotations();
@@ -854,11 +852,6 @@ function deleteClickedAnnotation(event) {
 }
 
 
-function hoverInfo(id, type) {
-    return;
-}
-
-/*
 // Display information about chosen annotation on hover
 function hoverInfo(id, type) {
     var indicies = id.split('_');
@@ -883,7 +876,6 @@ function hoverInfo(id, type) {
         };
     }
 }
-*/
 
 
 function suggestCui(event) {
@@ -1025,32 +1017,6 @@ function onPageLoad(initalLoad=true) {
             'attributeDropdowns': attributeDropdowns
         }, displayDynamicAttributes);
 
-        /*
-        // Change annotation to new colour when hovered over in annotation data
-        $('#annotation_data p').mouseover(function (e) {
-            document.getElementById(e.target.id).style.backgroundColor = 'pink';
-            document.getElementById(e.target.id + '_aid').style.backgroundColor = 'pink';
-        });
-
-        // Return annotation to existing colour when stop hovering over in annotation data
-        $('#annotation_data p').mouseout(function (e) {
-            document.getElementById(e.target.id).style.backgroundColor = '#33FFB5';
-            document.getElementById(e.target.id + '_aid').style.backgroundColor = '#33FFB5';
-        });
-
-        // Change annotation to new colour when hovered over in file data
-        $('#file_data span').mouseover(function (e) {
-            document.getElementById(e.target.id).style.backgroundColor = 'pink';
-            document.getElementById(e.target.id.split('_aid')[0]).style.backgroundColor = 'pink';
-        });
-
-        // Change annotation to new colour when stop hovering over in file data
-        $('#file_data span').mouseout(function (e) {
-            document.getElementById(e.target.id).style.backgroundColor = '#33FFB5';
-            document.getElementById(e.target.id.split('_aid')[0]).style.backgroundColor = '#33FFB5';
-        });
-        */
-
         // Change colour of highlighted text
         $('#file_data').mouseup(changeHighlightedTextColor);
 
@@ -1117,21 +1083,17 @@ function onPageLoad(initalLoad=true) {
         // Prevent highlighting of previousFile arrow button on double click
         $('#previousFile').mousedown(function(e){ e.preventDefault(); });
     }
-    /*
-    else {
-        bindEvents();
-    }
-    */
 
     // Load annotations from current annotationList
     updateAnnotationFileURL();
     loadExistingAnnotations();
 }
 
-
+// Change annotation to new colour when hovered over in annotation data
 function bindEvents() {
-    // Change annotation to new colour when hovered over in annotation data
-    $('#annotation_data p').mouseover(function (e) {
+    //filter: brightness(50%);
+    $('.displayedAnnotation').mouseover(function (e) {
+        alert(2);
         document.getElementById(e.target.id).style.backgroundColor = 'pink';
         document.getElementById(e.target.id + '_aid').style.backgroundColor = 'pink';
     });
