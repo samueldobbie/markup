@@ -49,6 +49,18 @@
   background-color:rgba(155, 155, 155, 0.75);
 }
 
+#reviewAnnotationSuggestions {
+  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+}
+
+#reviewAnnotationSuggestions:hover {
+  filter:brightness(130%);
+}
+
+.nav-item:hover {
+  color: #33FFB5;
+}
+
 input[type=radio] {
   display:none;
 }
@@ -67,12 +79,12 @@ input[type=radio] {
 
 .item-1 {
     flex-grow:1;
-    max-width:22%;
+    max-width:20%;
 }
 
 .item-2 {
     flex-grow:2;
-    max-width:47.5%;
+    max-width:49.5%;
 }
 
 .btn {
@@ -103,7 +115,10 @@ input[type=radio] {
     outline:none;
     background-color:rgb(235, 235, 235);
     border:none;
+    box-shadow: 0 0 10px rgba(0,0,0,0.6);
     border:2px solid rgb(235, 235, 235);
+    border-radius:5px;
+    
     color:rgb(145, 145, 145);
 }
 
@@ -113,7 +128,7 @@ input[type=radio] {
 }
 
 .standard-text {
-    font-size:1.2em;
+    font-size:1.15em;
     font-family:"Nunito";
 }
 
@@ -246,6 +261,10 @@ select {
   }
 */
 
+.l {
+  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+}
+
   .hide {
     display: none !important;
   }
@@ -266,6 +285,20 @@ select {
     line-height: 56px;
   }
   
+.inlineAnnotation {
+  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+  border-radius:5px;
+}
+
+.displayedAnnotation {
+  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+  border-radius:5px;
+}
+
+.displayedAnnotation:hover {
+  filter:brightness(90%);
+}
+
   nav.nav-extended {
     height: auto;
   }

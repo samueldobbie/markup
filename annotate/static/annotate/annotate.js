@@ -1,5 +1,5 @@
 var colors = [
-    "#33FFB5", "#7B68EE", "#FFD700", "#FFA500", "#DC143C", "#FFC0CB", "#00BFFF",
+    "#7B68EE", "#FFD700", "#FFA500", "#DC143C", "#FFC0CB", "#00BFFF",
     "#FFA07A", "#C71585", "#32CD32", "#48D1CC", "#FF6347", "#2E8B57", "#FF69B4",
     "#008B8B", "#FFF0F5", "#FFFACD", "#E6E6FA", "#B22222", "#4169E1", "#C0C0C0"
 ];
@@ -9,6 +9,42 @@ var offsetList = [];
 var entityId = 1;
 var attributeId = 1;
 var darkMode;
+
+// Function to GET csrftoken from Cookie
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
+
+// Function to set Request Header with `CSRFTOKEN`
+function setRequestHeader(csrftoken){
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+}
+
 
 // Return to homepage if no / invalid document selected
 function validateDocumentSelection(documentText) {
@@ -319,7 +355,7 @@ function populateAnnotations(entityValue, attributeValues, startIndex, endIndex)
 
     // Color-highlight selected text
     document.getElementById('file_data').contentEditable = 'true';
-    document.execCommand('insertHTML', false, '<span id="' + startIndex + '_' + endIndex + '_aid" style="background-color:' + highlightColor + '; color:black;">' + highlighted + '</span>');
+    document.execCommand('insertHTML', false, '<span class="inlineAnnotation" id="' + startIndex + '_' + endIndex + '_aid" style="background-color:' + highlightColor + '; color:black;">' + highlighted + '</span>');
     document.getElementById('file_data').contentEditable = 'false';
 
     var entityHoverInfo = [];
@@ -558,7 +594,7 @@ function addAnnotation(event) {
 
     // Color-highlight selected text
     document.getElementById('file_data').contentEditable = 'true';
-    document.execCommand('insertHTML', false, '<span id="' + trueStartIndex + '_' + trueEndIndex + '_aid" style="background-color:' + highlightColor + '; color:black; padding:2px;">' + highlighted + '</span>');
+    document.execCommand('insertHTML', false, '<span class="inlineAnnotation" id="' + trueStartIndex + '_' + trueEndIndex + '_aid" style="background-color:' + highlightColor + '; color:black; padding:2px;">' + highlighted + '</span>');
     document.getElementById('file_data').contentEditable = 'false';
 
     // Output annotation in stand-off format
@@ -654,7 +690,6 @@ function addAnnotation(event) {
         attributeId++;
     }
 
-    console.log(attributeValues);
     attributeHoverInfo.push(attributeValues);
 
     // Add attributes to annotation list
@@ -896,7 +931,7 @@ function suggestCui(event) {
 
     $.ajax({
         type: 'GET',
-        url: '~/suggest_cui',
+        url: '~/suggest-cui',
         data: { selectedTerm: selectedTerm }
     }).done(function (data) {
         // Empty drop-down list
@@ -952,6 +987,8 @@ function onPageLoad(initalLoad=true) {
     var documentCount = localStorage.getItem('documentCount');
     var configText = localStorage.getItem('configText');
     var documentText = localStorage.getItem('documentText' + currentDocumentId);
+    
+    setRequestHeader(getCookie('csrftoken'));
     
     // Show buttons to navigate between multiple files
     if (documentOpenType == "multiple") {
@@ -1038,6 +1075,11 @@ function onPageLoad(initalLoad=true) {
             'allDropdowns': allDropdowns
         }, addAnnotation);
 
+        // Allow users to see suggested annotations
+        $('#reviewAnnotationSuggestions').click(function () {
+            alert("Feature coming soon!");
+        });
+
         // Allow users to delete clicked annotation
         $('#annotation_data').on('click', '.displayedAnnotation', deleteClickedAnnotation);
 
@@ -1082,12 +1124,63 @@ function onPageLoad(initalLoad=true) {
 
         // Prevent highlighting of previousFile arrow button on double click
         $('#previousFile').mousedown(function(e){ e.preventDefault(); });
+
+        // Initialise active learner
+        initialiseActiveLearner(documentCount);
     }
+
+    // Get annotation suggestions
+    getAnnotationSuggestions();
 
     // Load annotations from current annotationList
     updateAnnotationFileURL();
     loadExistingAnnotations();
 }
+
+
+function initialiseActiveLearner(documentCount) {
+    var txtFiles = [];
+    var annFiles = [];
+    for (var i=0; i<=documentCount; i++) {
+        txtFiles.push(localStorage.getItem('documentText' + i));
+        annFiles.push(localStorage.getItem('annotationText' + i));
+    }
+    //var annFiles = annotationList;
+
+    $.ajax({
+        type: 'POST',
+        async: false,
+        url: '~/initialise-active-learner',
+        data: { 
+               'txtFiles': txtFiles[0],
+               'annFiles': annFiles[0],
+            },
+        success: function (response) {
+            console.log(response);
+        }
+    });
+}
+
+
+function getAnnotationSuggestions() {
+    var txtFile = localStorage.getItem('documentText' + currentDocumentId);
+    var currentAnnotations = 1; // Make sure suggestions haven't already been annotated
+
+    // get_annotation_suggestions
+    $.ajax({
+        type: 'POST',
+        async: false,
+        url: '~/get-annotation-suggestions',
+        data: { 
+               'txtFile': txtFile,
+               'currentAnnotations': currentAnnotations,
+              },
+        success: function (response) {
+            console.log(response);
+        }
+    });
+}
+
 
 // Change annotation to new colour when hovered over in annotation data
 function bindEvents() {

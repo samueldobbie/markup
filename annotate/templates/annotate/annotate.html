@@ -28,12 +28,12 @@
 <body style="background-color:#333;">
     <nav class="navbar navbar-expand">
         <div class="nav-wrapper" style="background-color:#333; box-shadow: 0px 0px 8px 0px #111;">
-            <a href="/" class="brand-logo" name="nav-element" style="margin-left:2%;  font-family: 'Nunito'; font-weight:bold;">markup</a>
+            <a href="/" class="brand-logo nav-item" name="nav-element" style="margin-left:2%;  font-family: 'Nunito'; font-weight:bold;">markup</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down" style="margin-right:2%;  font-family: 'Nunito'; color:#33FFB5; font-weight:bold;">
-                <li><a name="nav-element" href="/getting-started">Getting Started</a></li>
-                <li><a name="nav-element" href="/learn-more">Documentation</a></li>
-                <li><a target="_blank" href="https://github.com/samueldobbie/markup">Github</a></li>
-                <li><a id="darkMode">Dark Mode</a></li>
+                <li ><a class="nav-item" name="nav-element" href="/getting-started">Getting Started</a></li>
+                <li><a class="nav-item" name="nav-element" href="/learn-more">Documentation</a></li>
+                <li><a class="nav-item" target="_blank" href="https://github.com/samueldobbie/markup">Github</a></li>
+                <li><a class="nav-item" id="darkMode">Dark Mode</a></li>
                 <li id="previousFile" style="display:none;"><a style="font-size:20px; color:#33FFB5;"><</a></li>
                 <li id="nextFile" style="display:none;"><a style="font-size:20px; color:#33FFB5;">></a></li>
             </ul>
@@ -41,13 +41,15 @@
     </nav>
     <div class="container">
         <div id="config_data" style="overflow-y: scroll; max-height:80vh; margin-right:7.5px;" class="item item-1 standard-text">
+            <div id="annotation_suggestions" style="margin-bottom:25px;">
+                <button id="reviewAnnotationSuggestions" style="font-size:0.9em; border-radius:5px; color:black; background-color: #33FFB5; padding:5px; outline:none; border-radius:5px; border:none; font-weight:bold; font-family:'Nunito';">Suggested Annotations (13)</button>
+            </div>
+
             <div id="config_data_options">
 
                 <div id="entities">
                     <b>entities</b>
                     <br>
-
-
                 </div>
                 
                 <div id="attributes">
@@ -74,14 +76,6 @@
                     <br>
                     <button id="addAnnotation" class="btn" style="margin-top:8.5px; border-radius:5px;">Add Annotation</button>
                     <br>
-                    <!--
-                    <button id="autoAnnotate" class="btn" style="margin-bottom:8.5px;">Suggest Annotations</button>
-                    <br>
-                    <button id="exportHighlighted" class="btn">Export Annotations</button>
-                    <br>
-                    <button id="loadUserDictionary" class="btn">Load Dictionary</button>
-                    <br>
-                    -->
                     <a id="saveAnnotationFile" class="btn" style="border-radius:5px;">Save</a>
                 </div>
             </div>
@@ -89,7 +83,7 @@
 
         <div id="file_data" style="overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px;" class="item item-2 standard-text"></div>
 
-        <div id="annotation_data" style="overflow-y: scroll; max-height:80vh; margin-right:7.5px;" class="item item-1 standard-text"></div>
+        <div id="annotation_data" style="overflow-y: scroll; max-height:80vh; padding-right:7.5px;" class="item item-1 standard-text"></div>
     </div>
 </body>
 
