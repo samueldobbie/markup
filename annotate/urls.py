@@ -12,4 +12,8 @@ urlpatterns = [
         name='get_annotation_suggestions'),
     url(r'^annotate/~/setup-dictionary$', views.setup_dictionary,
         name='setup_dictionary'),
+    url(r'^annotate/~/query-active-learner', views.query_active_learner,
+        name='query_active_learner'),
+    url(r'^annotate/~/teach-active-learner', views.teach_active_learner,
+        name='teach_active_learner'),
 ]

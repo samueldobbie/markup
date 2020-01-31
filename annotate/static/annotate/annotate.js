@@ -741,6 +741,7 @@ function addAnnotation(event) {
 
     updateAnnotationFileURL();
     loadExistingAnnotations();
+    teachModel(highlighted, 1);
 }
 
 
@@ -1077,7 +1078,15 @@ function onPageLoad(initalLoad=true) {
 
         // Allow users to see suggested annotations
         $('#reviewAnnotationSuggestions').click(function () {
-            alert("Feature coming soon!");
+            getAnnotationSuggestions();
+        });
+
+        $('#trainAnnotationSuggestions').click(function () {
+            trainModel();
+        });
+
+        $('#stopTraining').click(function () {
+            stopTraining();
         });
 
         // Allow users to delete clicked annotation
@@ -1092,9 +1101,6 @@ function onPageLoad(initalLoad=true) {
 
         // Reset color of entities (which changes upon errors)
         $('input[name=entities]').click(resetEntityColor);
-
-        // Automatically suggest annotations
-        //$('#autoAnnotate').click(autoAnnotate);
 
         // Prompt user to save annotations before leaving page
         $('a[name=nav-element]').click(function() {
@@ -1138,20 +1144,83 @@ function onPageLoad(initalLoad=true) {
 }
 
 
+function teachModel(instance, label) {
+    $.ajax({
+        type: 'GET',
+        async: false,
+        data: {
+            'instance': instance,
+            'label': label,
+        },
+        url: '~/teach-active-learner'
+    });
+}
+
+
+function stopTraining() {
+    document.getElementById('file_data').style.display = '';
+    document.getElementById('trainAnnotationSuggestions').style.display = '';
+    document.getElementById('reviewAnnotationSuggestions').style.display = '';
+    document.getElementById('config_data_options').style.display = '';
+    document.getElementById('annotation_data').style.display = '';
+    document.getElementById('train_model').style.display = 'none';
+    document.getElementById('stopTraining').style.display = 'none';
+}
+
+
+function trainModel() {
+    document.getElementById('file_data').style.display = 'none';
+    document.getElementById('trainAnnotationSuggestions').style.display = 'none';
+    document.getElementById('reviewAnnotationSuggestions').style.display = 'none';
+    document.getElementById('config_data_options').style.display = 'none';
+    document.getElementById('annotation_data').style.display = 'none';
+    document.getElementById('train_model').style.display = '';
+    document.getElementById('stopTraining').style.display = '';
+
+    $.ajax({
+        type: 'GET',
+        async: false,
+        url: '~/query-active-learner',
+        success: function (response) {
+            console.log(response);
+        }
+    });
+
+    /*
+    var exit = false;
+    while (exit == false ){
+        $.ajax({
+            type: 'GET',
+            async: false,
+            url: '~/query-active-learner',
+            success: function (response) {
+                console.log(response);
+            }
+        });
+
+        // Wait for user response
+
+        teachModel('instance', 'label');
+    }
+    */
+}
+
+
 function initialiseActiveLearner(documentCount) {
     var txtFiles = [];
     var annFiles = [];
+    // var annFiles = annotationList;
     for (var i=0; i<=documentCount; i++) {
         txtFiles.push(localStorage.getItem('documentText' + i));
         annFiles.push(localStorage.getItem('annotationText' + i));
     }
-    //var annFiles = annotationList;
 
     $.ajax({
         type: 'POST',
         async: false,
         url: '~/initialise-active-learner',
         data: { 
+               // Get working for multiple files
                'txtFiles': txtFiles[0],
                'annFiles': annFiles[0],
             },
@@ -1163,8 +1232,10 @@ function initialiseActiveLearner(documentCount) {
 
 
 function getAnnotationSuggestions() {
+    // Only show suggestions if they haven't already been annotated
+
     var txtFile = localStorage.getItem('documentText' + currentDocumentId);
-    var currentAnnotations = 1; // Make sure suggestions haven't already been annotated
+    var currentAnnotations = localStorage.getItem('annotationText' + currentDocumentId);
 
     // get_annotation_suggestions
     $.ajax({

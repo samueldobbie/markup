@@ -57,6 +57,22 @@
   filter:brightness(130%);
 }
 
+#stopTraining {
+  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+}
+
+#stopTraining:hover {
+  filter:brightness(130%);
+}
+
+#trainAnnotationSuggestions {
+  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+}
+
+#trainAnnotationSuggestions:hover {
+  filter:brightness(130%);
+}
+
 .nav-item:hover {
   color: #33FFB5;
 }
@@ -284,7 +300,36 @@ select {
     height: 56px;
     line-height: 56px;
   }
-  
+
+#addAnnotation {
+  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+  border-radius:5px;
+  font-size:0.75em;
+  background-color: #33FFB5;
+  margin-bottom:7.5px;
+}
+
+#addAnnotation:hover {
+  filter:brightness(130%);
+}
+
+#saveAnnotationFile {
+  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+  border-radius:5px;
+  font-size:0.75em;
+  background-color: #33FFB5;
+}
+
+#saveAnnotationFile:hover {
+  filter:brightness(130%);
+}
+
+#searchDict {
+  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+  border-radius:5px;
+}
+
+
 .inlineAnnotation {
   box-shadow: 0 0 10px rgba(0,0,0,0.6);
   border-radius:5px;
