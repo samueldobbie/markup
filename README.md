@@ -2,7 +2,7 @@
 
 ### Usage (Online)
 
-The online version of markup can be used [here](https://samueldobbie.pythonanywhere.com).
+The online version of markup can be used [here](www.getmarkup.com).
 
 ### Usage (Offline)
 
@@ -20,7 +20,7 @@ python3 manage.py runserver
 
 ### Documentation
 
-Documentation can be read [here](https://samueldobbie.pythonanywhere.com/learn-more).
+Documentation can be read [here](www.getmarkup.com/learn-more).
 
 ### To-Do
 
