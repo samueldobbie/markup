@@ -1285,7 +1285,7 @@ function getAnnotationSuggestions() {
             var suggestions = JSON.parse(response);
             console.log(suggestions.length);
             for (var i=0; i<suggestions.length; i++) {
-                document.getElementById('view_suggestions').innerHTML += '<p class="standard-text">' + suggestions[i] + '</p>';
+                document.getElementById('view_suggestions').innerHTML += '<span class="standard-text" style="width:70%; display:inline-block; height:50px; background-color:#999; margin:15px; border-radius:5px; padding:25px;">' + suggestions[i] + '</span>';
             }
         }
     });
