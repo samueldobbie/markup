@@ -207,7 +207,7 @@ function setDisplayMode(type) {
         }
     } else {
         document.getElementById('darkMode').innerHTML = 'Dark Mode';
-        backgroundColor = 'white';
+        backgroundColor = '#999';
         textColor = 'black';
     }
 
@@ -350,13 +350,19 @@ function populateAnnotations(entityValue, attributeValues, startIndex, endIndex)
     for (var i=0; i<$('label').length; i++) {
         if ($('label')[i].innerText == entityValue) {
             highlightColor = colors[$('label')[i].getAttribute('colorIndex')];
+            break;
         }
     }
 
-    // Color-highlight selected text
+    // Deal with error where ann file contains invalid annotations
+    //try {
+        // Color-highlight selected text
     document.getElementById('file_data').contentEditable = 'true';
     document.execCommand('insertHTML', false, '<span class="inlineAnnotation" id="' + startIndex + '_' + endIndex + '_aid" style="background-color:' + highlightColor + '; color:black;">' + highlighted + '</span>');
     document.getElementById('file_data').contentEditable = 'false';
+    //} catch {
+    //    return;
+    //}
 
     var entityHoverInfo = [];
     var attributeHoverInfo = [];
@@ -795,7 +801,7 @@ function setupExistingAnnotations(annotationText, documentId) {
 function loadExistingAnnotations() {
     document.getElementById('annotation_data').innerText = '';
     document.getElementById('file_data').innerText = localStorage.getItem('documentText' + currentDocumentId);
-    
+
     // Add sections to annotation_data display
     for (var i=0; i<entityList.length; i++) {
         document.getElementById("annotation_data").innerHTML += "<div id='" + entityList[i] + "_section' style='display:none;'><p class='sectionTitle'>" + entityList[i] + "</p></div>";
@@ -988,7 +994,7 @@ function onPageLoad(initalLoad=true) {
     var documentCount = localStorage.getItem('documentCount');
     var configText = localStorage.getItem('configText');
     var documentText = localStorage.getItem('documentText' + currentDocumentId);
-    
+
     setRequestHeader(getCookie('csrftoken'));
     
     // Show buttons to navigate between multiple files
@@ -1077,8 +1083,9 @@ function onPageLoad(initalLoad=true) {
         }, addAnnotation);
 
         // Allow users to see suggested annotations
-        $('#reviewAnnotationSuggestions').click(function () {
+        $('#viewSuggestions').click(function () {
             getAnnotationSuggestions();
+            viewSuggestions();
         });
 
         $('#trainAnnotationSuggestions').click(function () {
@@ -1087,6 +1094,10 @@ function onPageLoad(initalLoad=true) {
 
         $('#stopTraining').click(function () {
             stopTraining();
+        });
+
+        $('#stopViewing').click(function () {
+            stopViewing();
         });
 
         // Allow users to delete clicked annotation
@@ -1131,6 +1142,16 @@ function onPageLoad(initalLoad=true) {
         // Prevent highlighting of previousFile arrow button on double click
         $('#previousFile').mousedown(function(e){ e.preventDefault(); });
 
+        $('#goodAnnotation').click(function() {
+            teachModel(null, 1);
+            queryActiveLearner(currentTxtFile);
+        });
+        
+        $('#badAnnotation').click(function() {
+            teachModel(null, 0);
+            queryActiveLearner(currentTxtFile);
+        });
+
         // Initialise active learner
         initialiseActiveLearner(documentCount);
     }
@@ -1146,7 +1167,7 @@ function onPageLoad(initalLoad=true) {
 
 function teachModel(instance, label) {
     $.ajax({
-        type: 'GET',
+        type: 'POST',
         async: false,
         data: {
             'instance': instance,
@@ -1154,13 +1175,29 @@ function teachModel(instance, label) {
         },
         url: '~/teach-active-learner'
     });
+    getAnnotationSuggestions();
+}
+
+var currentTxtFile;
+function trainModel() {
+    document.getElementById('file_data').style.display = 'none';
+    document.getElementById('trainAnnotationSuggestions').style.display = 'none';
+    document.getElementById('viewSuggestions').style.display = 'none';
+    document.getElementById('config_data_options').style.display = 'none';
+    document.getElementById('annotation_data').style.display = 'none';
+    document.getElementById('train_model').style.display = '';
+    document.getElementById('stopTraining').style.display = '';
+
+    // Change this to whatever the pool is for X
+    currentTxtFile = localStorage.getItem('documentText' + currentDocumentId);
+    queryActiveLearner(currentTxtFile);
 }
 
 
 function stopTraining() {
     document.getElementById('file_data').style.display = '';
     document.getElementById('trainAnnotationSuggestions').style.display = '';
-    document.getElementById('reviewAnnotationSuggestions').style.display = '';
+    document.getElementById('viewSuggestions').style.display = '';
     document.getElementById('config_data_options').style.display = '';
     document.getElementById('annotation_data').style.display = '';
     document.getElementById('train_model').style.display = 'none';
@@ -1168,41 +1205,42 @@ function stopTraining() {
 }
 
 
-function trainModel() {
+function viewSuggestions() {
     document.getElementById('file_data').style.display = 'none';
     document.getElementById('trainAnnotationSuggestions').style.display = 'none';
-    document.getElementById('reviewAnnotationSuggestions').style.display = 'none';
+    document.getElementById('viewSuggestions').style.display = 'none';
     document.getElementById('config_data_options').style.display = 'none';
     document.getElementById('annotation_data').style.display = 'none';
-    document.getElementById('train_model').style.display = '';
-    document.getElementById('stopTraining').style.display = '';
+    document.getElementById('view_suggestions').style.display = '';
+    document.getElementById('stopViewing').style.display = '';
+}
 
+
+function stopViewing() {
+    document.getElementById('file_data').style.display = '';
+    document.getElementById('trainAnnotationSuggestions').style.display = '';
+    document.getElementById('viewSuggestions').style.display = '';
+    document.getElementById('config_data_options').style.display = '';
+    document.getElementById('annotation_data').style.display = '';
+    document.getElementById('view_suggestions').style.display = 'none';
+    document.getElementById('stopViewing').style.display = 'none';
+}
+
+
+function queryActiveLearner(currentTxtFile) {
     $.ajax({
-        type: 'GET',
+        type: 'POST',
         async: false,
         url: '~/query-active-learner',
+        data: {
+            'txtFile': currentTxtFile,
+        },
         success: function (response) {
-            console.log(response);
+            var result = response.split('***');
+            document.getElementById('train_model_term').queryId = result[0];
+            document.getElementById('train_model_term').innerText = result[1];
         }
     });
-
-    /*
-    var exit = false;
-    while (exit == false ){
-        $.ajax({
-            type: 'GET',
-            async: false,
-            url: '~/query-active-learner',
-            success: function (response) {
-                console.log(response);
-            }
-        });
-
-        // Wait for user response
-
-        teachModel('instance', 'label');
-    }
-    */
 }
 
 
@@ -1220,12 +1258,9 @@ function initialiseActiveLearner(documentCount) {
         async: false,
         url: '~/initialise-active-learner',
         data: { 
-               // Get working for multiple files
-               'txtFiles': txtFiles[0],
-               'annFiles': annFiles[0],
-            },
-        success: function (response) {
-            console.log(response);
+            // Get working for multiple files
+            'txtFiles': txtFiles[0],
+            'annFiles': annFiles[0],
         }
     });
 }
@@ -1243,16 +1278,21 @@ function getAnnotationSuggestions() {
         async: false,
         url: '~/get-annotation-suggestions',
         data: { 
-               'txtFile': txtFile,
-               'currentAnnotations': currentAnnotations,
-              },
+            'txtFile': txtFile,
+            'currentAnnotations': currentAnnotations,
+        },
         success: function (response) {
-            console.log(response);
+            var suggestions = JSON.parse(response);
+            console.log(suggestions.length);
+            for (var i=0; i<suggestions.length; i++) {
+                document.getElementById('view_suggestions').innerHTML += '<p class="standard-text">' + suggestions[i] + '</p>';
+            }
         }
     });
 }
 
 
+/*
 // Change annotation to new colour when hovered over in annotation data
 function bindEvents() {
     //filter: brightness(50%);
@@ -1282,7 +1322,6 @@ function bindEvents() {
 }
 
 
-/*
 // Automatically annotate the document
 function autoAnnotate() {
     var text = document.getElementById('file_data').innerHTML;

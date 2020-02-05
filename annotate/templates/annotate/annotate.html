@@ -43,10 +43,10 @@
     <div class="container">
         <div id="config_data" style="overflow-y: scroll; max-height:80vh; margin-right:7.5px;" class="item item-1 standard-text">
             <div id="annotation_suggestions" style="margin-bottom:25px;">
-                <button id="reviewAnnotationSuggestions" style="font-size:0.9em; border-radius:5px; color:black; background-color: #33FFB5; padding:5px; outline:none; border-radius:5px; border:none; font-weight:bold; font-family:'Nunito';">Suggested Annotations (13)</button>
-                <button id="trainAnnotationSuggestions" style="font-size:0.9em; border-radius:5px; color:black; background-color: rgb(196, 196, 196); padding:5px; margin-top:5px; outline:none; border-radius:5px; border:none; font-weight:bold; font-family:'Nunito';">Train Model</button>
-                <button id="stopTraining" style="display:none; font-size:0.9em; border-radius:5px; color:black; background-color: rgb(255, 108, 108); padding:5px; margin-top:5px; outline:none; border-radius:5px; border:none; font-weight:bold; font-family:'Nunito';">Stop Training</button>
-            
+                <button id="viewSuggestions" class="greenButton mainButton">View Suggestions</button>
+                <button id="trainAnnotationSuggestions" class="grayButton mainButton">Train Model</button>
+                <button id="stopTraining" class="grayButton mainButton" style="display:none;">Back to document(s)</button>
+                <button id="stopViewing" class="grayButton mainButton" style="display:none;">Back to document(s)</button>
             </div>
 
             <div id="config_data_options">
@@ -85,7 +85,13 @@
             </div>
         </div>
 
-        <div id="train_model" class="item item-2 standard-text" style="display:none; overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px;"></div>
+        <div id="train_model" class="item item-2 standard-text" style="display:none; overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px;">
+            <p id="train_model_term"></p>
+            <button id="goodAnnotation" class="greenButton mainButton">Good annotation</button>
+            <button id="badAnnotation" class="redButton mainButton">Bad annotation</button>
+        </div>
+
+        <div id="view_suggestions" class="item item-2 standard-text" style="display:none; overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px;"></div>
 
         <div id="file_data" style="overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px;" class="item item-2 standard-text"></div>
 

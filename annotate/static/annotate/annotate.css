@@ -49,24 +49,50 @@
   background-color:rgba(155, 155, 155, 0.75);
 }
 
-#reviewAnnotationSuggestions {
-  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+#viewAnnotationSuggestions {
+  box-shadow: 0 0 7px rgba(0,0,0,0.6);
 }
 
-#reviewAnnotationSuggestions:hover {
+#viewAnnotationSuggestions:hover {
   filter:brightness(130%);
 }
 
-#stopTraining {
-  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+.mainAnnotation {
+  font-size:10em;
 }
 
-#stopTraining:hover {
+.greenButton {
+  background-color: #33FFB5;
+}
+
+.grayButton {
+  background-color: rgb(196, 196, 196);
+}
+
+.redButton {
+  background-color: rgb(255, 108, 108);
+}
+
+.mainButton {
+  box-shadow: 0 0 7px rgba(0,0,0,0.6);
+  font-size:0.9em;
+  border-radius:5px;
+  color:black;
+  padding:5px;
+  margin-top:5px;
+  outline:none;
+  border-radius:5px;
+  border:none;
+  font-weight:bold;
+  font-family:'Nunito';
+}
+
+.mainButton:hover {
   filter:brightness(130%);
 }
 
 #trainAnnotationSuggestions {
-  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+  box-shadow: 0 0 7px rgba(0,0,0,0.6);
 }
 
 #trainAnnotationSuggestions:hover {
@@ -131,7 +157,7 @@ input[type=radio] {
     outline:none;
     background-color:rgb(235, 235, 235);
     border:none;
-    box-shadow: 0 0 10px rgba(0,0,0,0.6);
+    box-shadow: 0 0 7px rgba(0,0,0,0.6);
     border:2px solid rgb(235, 235, 235);
     border-radius:5px;
     
@@ -278,7 +304,7 @@ select {
 */
 
 .l {
-  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+  box-shadow: 0 0 7px rgba(0,0,0,0.6);
 }
 
   .hide {
@@ -302,7 +328,7 @@ select {
   }
 
 #addAnnotation {
-  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+  box-shadow: 0 0 7px rgba(0,0,0,0.6);
   border-radius:5px;
   font-size:0.75em;
   background-color: #33FFB5;
@@ -314,7 +340,7 @@ select {
 }
 
 #saveAnnotationFile {
-  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+  box-shadow: 0 0 7px rgba(0,0,0,0.6);
   border-radius:5px;
   font-size:0.75em;
   background-color: #33FFB5;
@@ -325,18 +351,18 @@ select {
 }
 
 #searchDict {
-  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+  box-shadow: 0 0 7px rgba(0,0,0,0.6);
   border-radius:5px;
 }
 
 
 .inlineAnnotation {
-  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+  box-shadow: 0 0 7px rgba(0,0,0,0.6);
   border-radius:5px;
 }
 
 .displayedAnnotation {
-  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+  box-shadow: 0 0 7px rgba(0,0,0,0.6);
   border-radius:5px;
 }
 

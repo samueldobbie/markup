@@ -94,6 +94,205 @@ def clean_dictionary_term(value):
     return value.lower()
 
 
+# Get all annotated texts from ann_files (positive samples)
+def get_annotated_texts(ann_files):
+    annotated = set()
+    for ann_file in ann_files:
+        annotations = ann_file.split('\n')
+        for annotation in annotations:
+            if len(annotation.strip()) > 0 and annotation[0] == 'T':
+                raw_annotation_text = annotation.split('\t')[-1]
+                # MOST ANNOTATION SPACES PROBABLY HAVEN'T BEEN REPLACED WITH '_'
+                annotated.add(' '.join(raw_annotation_text.split('_')).lower().strip())
+    return annotated
+
+
+# Get all unannotated texts from txt_files (negative samples)
+def get_unannotated_texts(txt_files, annotated):
+    unannotated = set()
+    for txt_file in txt_files:
+        sentences = txt_file.split('\n')
+        for sentence in sentences:
+            # NGRAM RANGE IS LIMITED TO 4
+            for n in range(5):
+                for ngram in ngrams(sentence.split(' '), n):
+                    term = ' '.join(ngram).lower().strip()
+                    if term not in annotated and len(term.strip()) > 0:
+                        unannotated.add(term)
+    return unannotated
+
+
+# Get training data
+def get_training_data(txt_files, ann_files, custom_dict=None):
+    # Get all annotated texts from ann_files (positive samples)
+    annotated = get_annotated_texts(ann_files)
+
+    '''
+    # Get all annotated texts from custom_dict (positive samples)
+    for term in custom_dict:
+        annotated.add(term)
+    '''
+
+    unannotated = get_unannotated_texts(txt_files, annotated)
+
+    # These are split to make them equal length -- CHANGE OR LIMIT TO CERTAIN NUMBER OF SAMPLES --
+    annotated_count = len(list(annotated))
+    X = list(annotated) + list(unannotated)[:annotated_count]
+    y = [1 for _ in range(annotated_count)] + [0 for _ in range(annotated_count)]
+
+    return X, y
+
+
+# Encode training data
+def encode_data(X, y=None):
+    global vectorizer
+    X = vectorizer.fit_transform(X).toarray()
+    
+    if y is None:
+        return np.array(X)
+    
+    # Shuffle all data - MAY NOT BE NESECESSARY IF ONLY USED FOR TRAINING
+    Xy = list(zip(X, y))
+    random.shuffle(Xy)
+    X, y = zip(*Xy)
+
+    return np.array(X), np.array(y)
+
+
+# Initialise learner
+def initialise_active_learner(request):
+    txt_files = request.POST.get('txtFiles')
+    ann_files = request.POST.get('annFiles')
+    # custom_dict = request.POST.get('customDict')
+
+    X_train, y_train = get_training_data([txt_files], [ann_files])
+    X_train, y_train = encode_data(X_train, y_train)
+
+    # Initialise the learner - CHANGE NUMBER OF ESTIMATORS, THE CLASSIFIER, THE QUERY STRATERGY, ETC.
+    global learner
+    learner = ActiveLearner(
+        estimator=RandomForestClassifier(n_estimators=100),
+        query_strategy=uncertainty_sampling,
+        X_training=X_train, y_training=y_train
+    )
+
+    return HttpResponse(None)
+
+
+def get_annotation_suggestions(request):
+    txt_file = request.POST.get('txtFile')
+    current_annotations = get_annotated_texts([request.POST.get('currentAnnotations')])
+
+    ngrams = get_ngram_data(txt_file)
+
+    global vectorizer
+    X = vectorizer.transform(ngrams)
+
+    predicted_labels = predict_labels(X)
+    predicted_terms = []
+    ngrams = list(ngrams)
+    for i in range(len(predicted_labels)):
+        if predicted_labels[i] == 1:
+            if ngrams[i] not in current_annotations:
+                predicted_terms.append(ngrams[i])
+            # else learn (existing annotations)
+
+    return HttpResponse(json.dumps(predicted_terms))
+
+
+# Get all possible ngrams from letter currently being annotated
+def get_ngram_data(txt_file):
+    potential_annotations = set()
+
+    sentences = txt_file.split('\n')
+    for sentence in sentences:
+        # NGRAM RANGE IS LIMITED TO 4
+        for n in range(5):
+            for ngram in ngrams(sentence.split(' '), n):
+                potential_annotation = ' '.join(ngram).lower().strip()
+                if potential_annotation != '':
+                    potential_annotations.add(' '.join(ngram).lower().strip())
+    
+    return potential_annotations
+
+
+'''
+Get online:
+
+GitLab internal (need to go to https://gitlab with a CHI machine, turn of proxy in IE if can't connect)
+Run pipeline to build
+Push to next stage
+Have to use special proxy to make external calls
+Website should be online at 192.168.70.63
+
+
+Issues:
+
+Fix css issues (i.e. shadows, light mode to dark mode annotation data category title colour)
+CHANGE ALL TO GET TO AVOID SIZE LIMITS
+TRIM SPACES FROM FRONT AND END OF ANNOTATION
+Add custom dictionary to train active learner
+Show original text (not lowercase) for training and annotation suggestions
+'''
+
+
+query_X = None
+query_idx = None
+# Query n-gram data (have a category for unsure to help improve & category of confident labels)
+def query_active_learner(request):
+    global vectorizer, learner, query_X, query_idx
+
+    txt_file = request.POST.get('txtFile')
+    ngrams = get_ngram_data(txt_file)
+
+    query_X = vectorizer.transform(ngrams).toarray()
+    query_idx, query_instance = learner.query(np.array(query_X))
+
+    return HttpResponse(str(query_idx[0]) + '***' + list(ngrams)[query_idx[0]])
+
+
+def teach_active_learner(request):
+    instance = request.POST.get('instance')
+    label = request.POST.get('label')
+    if instance:
+        teach_active_learner_with_text(instance, label)
+    else:
+        teach_active_learner_without_text(label)
+    return HttpResponse(None)
+
+
+def teach_active_learner_without_text(label):
+    global learner, query_X, query_idx
+    learner.teach(query_X[query_idx], [label])
+
+
+def teach_active_learner_with_text(instance, label):
+    global learner, vectorizer
+    data = np.array(vectorizer.transform([instance]).toarray())
+    learner.teach(data, [label])
+
+# Predict labels for n-gram data
+def predict_labels(X):
+    return learner.predict(X)
+
+
+vectorizer = CountVectorizer()
+learner = None
+COSINE_THRESHOLD = 0.7
+
+TEST = True
+
+if TEST:
+    term_to_cui = None
+    db = None
+    searcher = None
+else:
+    term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
+    db = pickle.load(open('db.pickle', 'rb'))
+    searcher = Searcher(db, CosineMeasure())
+
+
+
 '''
 def auto_annotate(request):
     doc_text = request.GET['document_text']
@@ -182,174 +381,3 @@ def load_user_dictionary(request, data_file_path):
     return HttpResponse(None)
 
 '''
-
-
-# Get all annotated texts from ann_files (positive samples)
-def get_annotated_texts(ann_files):
-    annotated = set()
-    for ann_file in ann_files:
-        annotations = ann_file.split('\n')
-        for annotation in annotations:
-            if len(annotation) > 0 and annotation[0] == 'T':
-                raw_annotation_text = annotation.split('\t')[-1]
-                # MOST ANNOTATION SPACES PROBABLY HAVEN'T BEEN REPLACED WITH '_'
-                annotated.add(' '.join(raw_annotation_text.split('_')).lower().strip())
-    return annotated
-
-
-# Get all unannotated texts from txt_files (negative samples)
-def get_unannotated_texts(txt_files, annotated):
-    unannotated = set()
-    for txt_file in txt_files:
-        sentences = txt_file.split('\n')
-        for sentence in sentences:
-            # NGRAM RANGE IS LIMITED TO 4
-            for n in range(5):
-                for ngram in ngrams(sentence.split(' '), n):
-                    term = ' '.join(ngram).lower().strip()
-                    if term not in annotated:
-                        unannotated.add(term)
-    return unannotated
-
-
-# Get training data
-def get_training_data(txt_files, ann_files, custom_dict=None):
-    # Get all annotated texts from ann_files (positive samples)
-    annotated = get_annotated_texts(ann_files)
-
-    '''
-    # Get all annotated texts from custom_dict (positive samples)
-    for term in custom_dict:
-        annotated.add(term)
-    '''
-
-    unannotated = get_unannotated_texts(txt_files, annotated)
-
-    # These are split to make them equal length -- CHANGE OR LIMIT TO CERTAIN NUMBER OF SAMPLES --
-    annotated_count = len(list(annotated))
-    X = list(annotated) + list(unannotated)[:annotated_count]
-    y = [1 for _ in range(annotated_count)] + [0 for _ in range(annotated_count)]
-
-    return X, y
-
-
-# Encode training data
-def encode_data(X, y=None):
-    global vectorizer
-    X = vectorizer.fit_transform(X).toarray()
-    
-    if y is None:
-        return np.array(X)
-    
-    # Shuffle all data - MAY NOT BE NESECESSARY IF ONLY USED FOR TRAINING
-    Xy = list(zip(X, y))
-    random.shuffle(Xy)
-    X, y = zip(*Xy)
-
-    return np.array(X), np.array(y)
-
-
-# Initialise learner
-def initialise_active_learner(request):
-    txt_files = request.POST.get('txtFiles')
-    ann_files = request.POST.get('annFiles')
-    # custom_dict = request.POST.get('customDict')
-
-    X_train, y_train = get_training_data([txt_files], [ann_files])
-    X_train, y_train = encode_data(X_train, y_train)
-
-    # Initialise the learner - CHANGE NUMBER OF ESTIMATORS, THE CLASSIFIER, THE QUERY STRATERGY, ETC.
-    global learner
-    learner = ActiveLearner(
-        estimator=RandomForestClassifier(n_estimators=100),
-        query_strategy=uncertainty_sampling,
-        X_training=X_train, y_training=y_train
-    )
-
-    return HttpResponse(None)
-
-
-def get_annotation_suggestions(request):
-    txt_file = request.POST.get('txtFile')
-    current_annotations = get_annotated_texts([request.POST.get('currentAnnotations')])
-
-    ngrams = get_ngram_data(txt_file)
-
-    global vectorizer
-    X = vectorizer.transform(ngrams)
-
-    predicted_labels = predict_labels(X)
-    predicted_terms = []
-    ngrams = list(ngrams)
-    for i in range(len(predicted_labels)):
-        if predicted_labels[i] == 1:
-            if ngrams[i] not in current_annotations:
-                predicted_terms.append(ngrams[i])
-            # else learn (existing annotations)
-    predicted_terms.append(ngrams[query_data(X)[0]])
-
-    return HttpResponse(predicted_terms)
-
-
-# Get all possible ngrams from letter currently being annotated
-def get_ngram_data(txt_file):
-    potential_annotations = set()
-
-    sentences = txt_file.split('\n')
-    for sentence in sentences:
-        # NGRAM RANGE IS LIMITED TO 4
-        for n in range(5):
-            for ngram in ngrams(sentence.split(' '), n):
-                potential_annotations.add(' '.join(ngram).lower().strip())
-    
-    return potential_annotations
-
-
-# Query n-gram data (have a category for unsure to help improve & category of confident labels)
-def query_active_learner(request):
-    query_idx, query_instance = learner.query(X)
-    return HttpResponse({'id': query_idx, 'instance': query_instance})
-
-
-def teach_active_learner(request):
-    instance = request.POST.get('instance')
-    label = request.POST.get('label')
-    learner.teach(instance, label)
-    return HttpResponse(None)
-
-
-# Predict labels for n-gram data
-def predict_labels(X):
-    return learner.predict(X)
-
-
-# Acceptance or rejection made
-def suggestion_feedback():
-    learner.teach("encoded text", "label")
-
-
-# Non-suggested annotation made
-def annotation_added():
-    learner.teach("encoded text", 1)
-
-
-# Refresh suggestions (each time a acceptance, rejection or non-suggested annotation added)
-def refresh_suggestions():
-    pass
-
-
-
-vectorizer = CountVectorizer()
-learner = None
-COSINE_THRESHOLD = 0.7
-
-TEST = True
-
-if TEST:
-    term_to_cui = None
-    db = None
-    searcher = None
-else:
-    term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
-    db = pickle.load(open('db.pickle', 'rb'))
-    searcher = Searcher(db, CosineMeasure())
