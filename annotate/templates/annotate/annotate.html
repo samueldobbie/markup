@@ -11,7 +11,7 @@
 
     gtag('config', 'UA-148811237-1');
     </script>
-    {% load staticfiles %}
+    {% load static %}
     <meta charset='UTF-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <meta http-equiv='X-UA-Compatible' content='ie=edge'>
@@ -91,7 +91,11 @@
             <button id="badAnnotation" class="redButton mainButton">Bad annotation</button>
         </div>
 
-        <div id="view_suggestions" class="item item-2 standard-text" style="display:none; overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px;"></div>
+        <div id="view_suggestions" class="item item-2 standard-text" style="display:none; overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px; text-align:center;">
+            <p id="loading" class="standard-text">Predicting annotations...</p>
+            <p id="noSuggestions" class="standard-text" style="display:none;">No suggestions currently available. Try adding more manual annotations, or training the model directly.</p>
+            <span id="suggestion_list"></span>
+        </div>
 
         <div id="file_data" style="overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px;" class="item item-2 standard-text"></div>
 

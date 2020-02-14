@@ -10,6 +10,8 @@
     font-size:18px;
     text-transform: uppercase;
     font-weight:bold;
+    border-radius:5px;
+    box-shadow: 0 0 7px rgba(0,0,0,0.6);
 }
 
 .documentation {

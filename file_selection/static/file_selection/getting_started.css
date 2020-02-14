@@ -7,6 +7,8 @@
     outline:none;
     font-size:18px;
     background-color: rgb(65, 255, 185);
+    border-radius:5px;
+    box-shadow: 0 0 7px rgba(0,0,0,0.6);
 }
 
 .optionButton:hover {
@@ -42,6 +44,14 @@
 }
 
 #skipAnnotationFileOpening:hover {
+    background-color:darkgray;
+}
+
+#noDictionary {
+    background-color:rgb(233, 233, 233);
+}
+
+#noDictionary:hover {
     background-color:darkgray;
 }
 

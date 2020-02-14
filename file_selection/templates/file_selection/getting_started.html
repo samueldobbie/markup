@@ -11,7 +11,7 @@
 
         gtag('config', 'UA-148811237-1');
     </script>
-    {% load staticfiles %}
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -42,8 +42,8 @@
     <div style="text-align:center; padding-top:9%;">
         <p id="questionOne" class="questionHeadline">I want to annotate...</p>
 
-        <p id="questionTwoA" class="questionHeadline" style="display:none;">The doc I want to annotate is...</p>
-        <p id="questionTwoB" class="questionHeadline" style="display:none;">The folder containing the docs is...</p>
+        <p id="questionTwoA" class="questionHeadline" style="display:none;">The document I want to annotate is...</p>
+        <p id="questionTwoB" class="questionHeadline" style="display:none;">The folder containing the documents is...</p>
 
         <p id="questionThreeA" class="questionHeadline" style="display:none;">My configuration file is...</p>
 
@@ -56,13 +56,13 @@
 
     <div style="padding-top:1.5%; text-align:center;">
         <!-- Choose method to open file (single or multiple) -->
-        <button id="aSingleDoc" class="optionButton">A single doc</button>
-        <button id="multipleDocs" class="optionButton" onclick="return false">Multiple docs</button>
+        <button id="aSingleDoc" class="optionButton">A single document</button>
+        <button id="multipleDocs" class="optionButton" onclick="return false">Multiple documents</button>
 
         <!-- START SINGLE FILE PATH -->
         <!-- Allow selection of a single text file -->
         <label for="documentFileOpener" id="documentFileOpenerOverlay" class="optionButton"
-            style="color:black; display:none;">Choose file to annotate</label>
+            style="color:black; display:none;">Choose document to annotate</label>
         <input id="documentFileOpener" type="file" accept=".txt" style="display:none;">
 
         <!-- Allow opening of a single configuration file-->
@@ -97,11 +97,10 @@
         <div id="dictionaryOptions" style="display:none;">
             <form action="" method="post">
                 {% csrf_token %}
-                <!--<span id="umlsDictionary" class="optionButton dictionaryOption" style="color:black;">Unified Medical Language System (UMLS)</span>
-                <span id="noDictionary" class="optionButton dictionaryOption" style="color:black;">No dictionary</span>
-                -->
-                <label for="dictionaryFileOpener" id="dictionaryFileOpenerOverlay" class="optionButton" style="color:black;">Use your own dictionary</label>
+                <span id="umlsDictionary" class="optionButton dictionaryOption" style="color:black;">Unified Medical Language System (UMLS)</span>
+                <label for="dictionaryFileOpener" id="dictionaryFileOpenerOverlay" class="optionButton" style="color:black;">Custom dictionary</label>
                 <input id="dictionaryFileOpener" type="file" accept="*" style="display:none;">
+                <span id="noDictionary" class="optionButton dictionaryOption" style="color:black;">Skip</span>
             </form>
         </div>
 

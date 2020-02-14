@@ -200,8 +200,8 @@ $(document).ready(function () {
 
 
     document.getElementById('dictionaryFileOpener').onchange = function () {
-        startAnnotating();
-        /*
+        //startAnnotating();
+        // /*
         var dictionaryFile = document.getElementById('dictionaryFileOpener').files[0];
         var dataSlice = 10*1024*1024;
         var dictionaryData = [];
@@ -240,7 +240,7 @@ $(document).ready(function () {
             }
             reader.readAsBinaryString(dictionaryFile.slice(i, i+dataSlice));
         }
-        */
+        // */
     }
 });
 

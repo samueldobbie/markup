@@ -14,6 +14,7 @@ from modAL.uncertainty import uncertainty_sampling
 from nltk import sent_tokenize
 from nltk import word_tokenize
 from nltk import ngrams
+from nltk.corpus import stopwords
 
 from os import listdir
 from os.path import isfile, join, splitext
@@ -127,46 +128,38 @@ def get_training_data(txt_files, ann_files, custom_dict=None):
     # Get all annotated texts from ann_files (positive samples)
     annotated = get_annotated_texts(ann_files)
 
-    '''
-    # Get all annotated texts from custom_dict (positive samples)
-    for term in custom_dict:
-        annotated.add(term)
-    '''
-
+    # Get all unannotated terms (negative samples)
     unannotated = get_unannotated_texts(txt_files, annotated)
 
-    # These are split to make them equal length -- CHANGE OR LIMIT TO CERTAIN NUMBER OF SAMPLES --
+    # Currently split to make equal length -- CHANGE OR LIMIT TO CERTAIN NUMBER OF SAMPLES --
     annotated_count = len(list(annotated))
     X = list(annotated) + list(unannotated)[:annotated_count]
     y = [1 for _ in range(annotated_count)] + [0 for _ in range(annotated_count)]
 
-    return X, y
-
-
-# Encode training data
-def encode_data(X, y=None):
-    global vectorizer
-    X = vectorizer.fit_transform(X).toarray()
-    
-    if y is None:
-        return np.array(X)
-    
     # Shuffle all data - MAY NOT BE NESECESSARY IF ONLY USED FOR TRAINING
     Xy = list(zip(X, y))
     random.shuffle(Xy)
     X, y = zip(*Xy)
 
+    return X, y
+
+
+# Encode training data
+def encode_training_data(X, y):
+    global vectorizer
+    X = vectorizer.fit_transform(X).toarray()
     return np.array(X), np.array(y)
 
 
 # Initialise learner
 def initialise_active_learner(request):
-    txt_files = request.POST.get('txtFiles')
-    ann_files = request.POST.get('annFiles')
-    # custom_dict = request.POST.get('customDict')
+    data = json.loads(request.body)
 
-    X_train, y_train = get_training_data([txt_files], [ann_files])
-    X_train, y_train = encode_data(X_train, y_train)
+    txt_files = data['txtFiles']
+    ann_files = data['annFiles']
+
+    X_train, y_train = get_training_data(txt_files, ann_files)
+    X_train, y_train = encode_training_data(X_train, y_train)
 
     # Initialise the learner - CHANGE NUMBER OF ESTIMATORS, THE CLASSIFIER, THE QUERY STRATERGY, ETC.
     global learner
@@ -210,30 +203,57 @@ def get_ngram_data(txt_file):
         for n in range(5):
             for ngram in ngrams(sentence.split(' '), n):
                 potential_annotation = ' '.join(ngram).lower().strip()
-                if potential_annotation != '':
-                    potential_annotations.add(' '.join(ngram).lower().strip())
+
+                if potential_annotation == '':
+                    continue
+
+                if potential_annotation[-1] in ('.', ',', '?', '!', ':'):
+                    potential_annotation = potential_annotation[:-1]
+
+                if potential_annotation == '':
+                    continue
+
+                potential_annotation_words = potential_annotation.split(' ')
+                stopword_count = 0
+                for word in potential_annotation_words:
+                    if word in stopwords:
+                        stopword_count += 1
+                if stopword_count == len(potential_annotation_words):
+                    continue
+
+                start_word_indx = 0
+                for word_indx in range(len(potential_annotation_words)):
+                    if potential_annotation_words[word_indx] in stopwords:
+                        start_word_indx += 1
+                    else:
+                        break
+
+                end_word_indx = len(potential_annotation_words)
+                for word_indx in range(len(potential_annotation_words) - 1, -1, -1):
+                    if potential_annotation_words[word_indx] in stopwords:
+                        end_word_indx -= 1
+                    else:
+                        break
+
+                potential_annotation = ' '.join(potential_annotation_words[start_word_indx:end_word_indx])
+
+                if potential_annotation == '':
+                    continue
+
+                if potential_annotation.count('(') != potential_annotation.count(')'):
+                    continue
+
+                if potential_annotation[-1] in ('.', ',', '?', '!'):
+                    potential_annotation = potential_annotation[:-1]
+
+                if potential_annotation == '':
+                    continue
+
+                potential_annotations.add(potential_annotation)
     
+    print('\n\n\n', potential_annotations, '\n\n\n')
+
     return potential_annotations
-
-
-'''
-Get online:
-
-GitLab internal (need to go to https://gitlab with a CHI machine, turn of proxy in IE if can't connect)
-Run pipeline to build
-Push to next stage
-Have to use special proxy to make external calls
-Website should be online at 192.168.70.63
-
-
-Issues:
-
-Fix css issues (i.e. shadows, light mode to dark mode annotation data category title colour)
-CHANGE ALL TO GET TO AVOID SIZE LIMITS
-TRIM SPACES FROM FRONT AND END OF ANNOTATION
-Add custom dictionary to train active learner
-Show original text (not lowercase) for training and annotation suggestions
-'''
 
 
 query_X = None
@@ -279,6 +299,7 @@ def predict_labels(X):
 vectorizer = CountVectorizer()
 learner = None
 COSINE_THRESHOLD = 0.7
+stopwords = stopwords.words()
 
 TEST = True
 
@@ -294,54 +315,6 @@ else:
 
 
 '''
-def auto_annotate(request):
-    doc_text = request.GET['document_text']
-
-    doc_ngrams = []
-    for sentence in sent_tokenize(doc_text):
-        tokens = sentence.split()
-        token_count = len(tokens)
-        if token_count > 2:
-            token_count = 3
-
-        for n in range(2, token_count):
-            for ngram in ngrams(tokens, n):
-                term = ' '.join(list(ngram))
-                if term not in doc_ngrams:
-                    doc_ngrams.append(term)
-
-    raw_sentence_ngrams = []
-    clean_sentence_ngrams = []
-    for raw_ngram in doc_ngrams:
-        if not raw_ngram[-1].isalnum():
-            raw_ngram = raw_ngram[:-1]
-        else:
-            continue
-
-        clean_ngram = ''
-        for char in raw_ngram:
-            if char.isalnum():
-                clean_ngram += char.lower()
-            else:
-                clean_ngram += ' '
-        clean_ngram = ' '.join([word for word in clean_ngram.split()])
-        if clean_ngram is not '':
-            raw_sentence_ngrams.append(raw_ngram)
-            clean_sentence_ngrams.append(clean_ngram)
-
-    final_results = []
-    for i in range(len(raw_sentence_ngrams)):
-        result = searcher.ranked_search(raw_sentence_ngrams[i].lower(),
-                                        COSINE_THRESHOLD + 0.2)
-        if result == []:
-            continue
-        else:
-            final_results.append([raw_sentence_ngrams[i]] + [result[0][1]] +
-                                 [term_to_cui[result[0][1]]])
-
-    return HttpResponse(json.dumps(final_results))
-
-
 def load_user_dictionary(request, data_file_path):
     try:
         chosen_file = gui.PopupGetFile('Choose a file', no_window=True)

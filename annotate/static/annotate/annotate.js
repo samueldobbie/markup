@@ -473,7 +473,7 @@ var next = false;
 // Change colour of highlighted text
 function changeHighlightedTextColor() {
     if (window.getSelection() == '') {
-        // Prevent annotations from being visually disappearing upon highlighting over them
+        // Prevent annotations from disappearing from visual display upon highlighting over them
         if (document.getElementById('highlighted') != null) {
             $('#highlighted').replaceWith(function () { return this.innerHTML; });
             document.getElementById('file_data').innerText = localStorage.getItem('documentText' + currentDocumentId);
@@ -1084,7 +1084,6 @@ function onPageLoad(initalLoad=true) {
 
         // Allow users to see suggested annotations
         $('#viewSuggestions').click(function () {
-            getAnnotationSuggestions();
             viewSuggestions();
         });
 
@@ -1156,9 +1155,6 @@ function onPageLoad(initalLoad=true) {
         initialiseActiveLearner(documentCount);
     }
 
-    // Get annotation suggestions
-    getAnnotationSuggestions();
-
     // Load annotations from current annotationList
     updateAnnotationFileURL();
     loadExistingAnnotations();
@@ -1175,7 +1171,6 @@ function teachModel(instance, label) {
         },
         url: '~/teach-active-learner'
     });
-    getAnnotationSuggestions();
 }
 
 var currentTxtFile;
@@ -1213,6 +1208,15 @@ function viewSuggestions() {
     document.getElementById('annotation_data').style.display = 'none';
     document.getElementById('view_suggestions').style.display = '';
     document.getElementById('stopViewing').style.display = '';
+    
+    // Loading -- get ngrams in the background to make it quicker
+    sleep(500).then(() => {
+        getAnnotationSuggestions();
+    });
+}
+
+function sleep(time) {
+    return new Promise((resolve) => setTimeout(resolve, time));
 }
 
 
@@ -1222,6 +1226,9 @@ function stopViewing() {
     document.getElementById('viewSuggestions').style.display = '';
     document.getElementById('config_data_options').style.display = '';
     document.getElementById('annotation_data').style.display = '';
+    document.getElementById('suggestion_list').innerText = '';
+    document.getElementById('loading').style.display = '';
+    document.getElementById('noSuggestions').style.display = 'none';
     document.getElementById('view_suggestions').style.display = 'none';
     document.getElementById('stopViewing').style.display = 'none';
 }
@@ -1247,21 +1254,23 @@ function queryActiveLearner(currentTxtFile) {
 function initialiseActiveLearner(documentCount) {
     var txtFiles = [];
     var annFiles = [];
-    // var annFiles = annotationList;
     for (var i=0; i<=documentCount; i++) {
-        txtFiles.push(localStorage.getItem('documentText' + i));
-        annFiles.push(localStorage.getItem('annotationText' + i));
+        var documentText = localStorage.getItem('documentText' + i);
+        var annotationText = localStorage.getItem('annotationText' + i);
+        if (documentText != null && annotationText != null) {  
+            txtFiles.push(documentText);
+            annFiles.push(annotationText);
+        }
     }
 
     $.ajax({
         type: 'POST',
         async: false,
         url: '~/initialise-active-learner',
-        data: { 
-            // Get working for multiple files
-            'txtFiles': txtFiles[0],
-            'annFiles': annFiles[0],
-        }
+        data: JSON.stringify({ 
+            'txtFiles': txtFiles,
+            'annFiles': annFiles,
+        })
     });
 }
 
@@ -1282,10 +1291,16 @@ function getAnnotationSuggestions() {
             'currentAnnotations': currentAnnotations,
         },
         success: function (response) {
+            document.getElementById("loading").style.display = "none";
+
             var suggestions = JSON.parse(response);
-            console.log(suggestions.length);
-            for (var i=0; i<suggestions.length; i++) {
-                document.getElementById('view_suggestions').innerHTML += '<span class="standard-text" style="width:70%; display:inline-block; height:50px; background-color:#999; margin:15px; border-radius:5px; padding:25px;">' + suggestions[i] + '</span>';
+            var suggestionCount = suggestions.length;
+            if (suggestionCount == 0) {
+                document.getElementById("noSuggestions").style.display = "";
+            }
+
+            for (var i=0; i<suggestionCount; i++) {
+                document.getElementById('suggestion_list').innerHTML += '<span class="standard-text" style="display:inline-block; background-color:rgb(243, 243, 243); margin:15px; border-radius:5px; padding:10px;">' + suggestions[i] + '</span>';
             }
         }
     });
