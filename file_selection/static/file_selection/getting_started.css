@@ -1,5 +1,6 @@
 .optionButton {
-    margin-right:5px;
+    margin:5px;
+    display:inline-block;
     padding:20px 60px;
     text-transform: uppercase;
     font-weight:bold;
@@ -21,14 +22,8 @@
 
 .questionHeadline {
     font-size:50px;
-}
-
-#multipleDocs {
-    background-color:lightgray;
-}
-
-#multipleDocs:hover {
-    background-color:darkgray;
+    margin:10px;
+    padding:10px;
 }
 
 #configFileCreator {
@@ -62,9 +57,45 @@
     width: 120px;
     height: 120px;
     animation: spin 2s linear infinite;
-  }
+}
   
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+#multipleFileSpec {
+    color:red;
+    display:none;
+    font-size:1.2em;
+    margin-top:-35px;
+}
+
+@media only screen and (max-width: 1000px) {
+    .optionButton {
+        padding:10px 20px;
+    }
+
+    .questionHeadline {
+        font-size:40px;
+    }
+
+    #multipleFileSpec {
+        font-size:18px;
+    }
+}
+
+
+@media only screen and (max-width: 700px) {
+    .optionButton {
+        padding:7.5px 7.5px;
+    }
+
+    .questionHeadline {
+        font-size:30px;
+    }
+
+    #multipleFileSpec {
+        font-size:15px;
+    }
 }

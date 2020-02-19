@@ -82,7 +82,7 @@
         <!-- END SINGLE FILE PATH -->
 
         <!-- START MULTIPLE FILES PATH -->
-        <ul id="multipleFileSpec" style="color:red; display:none; font-size:1.2em; margin-top:-35px;">
+        <ul id="multipleFileSpec">
             Folder must contain:
             <li>(1) A single configuration file (ending in .conf)</li>
             <li>(2) All documents you want to annotate (ending in .txt)</li>
@@ -98,7 +98,7 @@
             <form action="" method="post">
                 {% csrf_token %}
                 <span id="umlsDictionary" class="optionButton dictionaryOption" style="color:black;">Unified Medical Language System (UMLS)</span>
-                <label for="dictionaryFileOpener" id="dictionaryFileOpenerOverlay" class="optionButton" style="color:black;">Custom dictionary</label>
+                <label for="dictionaryFileOpener" id="dictionaryFileOpenerOverlay" class="optionButton dictionaryOption" style="color:black;">Custom dictionary</label>
                 <input id="dictionaryFileOpener" type="file" accept="*" style="display:none;">
                 <span id="noDictionary" class="optionButton dictionaryOption" style="color:black;">Skip</span>
             </form>

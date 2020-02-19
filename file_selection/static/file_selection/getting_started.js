@@ -113,6 +113,7 @@ $(document).ready(function () {
 
         var documentCount = 0;
         var documentIndex = {};
+
         documentFileList = document.getElementById('documentFolderOpener').files;
 
         for (var i=0; i<documentFileList.length; i++) {
