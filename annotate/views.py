@@ -14,7 +14,6 @@ from modAL.uncertainty import uncertainty_sampling
 from nltk import sent_tokenize
 from nltk import word_tokenize
 from nltk import ngrams
-from nltk.corpus import stopwords
 
 from os import listdir
 from os.path import isfile, join, splitext
@@ -299,7 +298,7 @@ def predict_labels(X):
 vectorizer = CountVectorizer()
 learner = None
 COSINE_THRESHOLD = 0.7
-stopwords = stopwords.words()
+stopwords = open('stopwords.txt').read().split('\n')
 
 TEST = True
 
