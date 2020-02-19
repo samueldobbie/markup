@@ -300,7 +300,7 @@ learner = None
 COSINE_THRESHOLD = 0.7
 stopwords = open('stopwords.txt').read().split('\n')
 
-TEST = True
+TEST = False
 
 if TEST:
     term_to_cui = None
