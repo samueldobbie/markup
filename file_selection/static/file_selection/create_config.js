@@ -55,7 +55,7 @@ $(document).ready(function () {
 
         if (inputEntity.trim() != '') {
             entityCount++;
-            document.getElementById('entityList').innerHTML += '<span style="padding:10px; font-size:15px; font-weight:bold; background-color:#33FFB5; margin:5px;">' + inputEntity + '</span>';
+            document.getElementById('entityList').innerHTML += '<span style="padding:10px; color:black; border-radius:5px; margin:5px; font-size:15px; font-weight:bold; background-color:lightgray;">' + inputEntity + '</span>';
             if (entityCount % 5 == 0) {
                 document.getElementById('entityList').innerHTML += '<br><br>';
             }
@@ -63,6 +63,7 @@ $(document).ready(function () {
         updateConfigurationFileURL();
     });
 
+    var attributeCount = 0;
     $('#addAttribute').click(function () {
         var inputAttributeName = document.getElementById('attributeName').value;
         var inputAttributeRelation = document.getElementById('attributeRelation').value;
@@ -76,12 +77,21 @@ $(document).ready(function () {
                 dropdownValues += inputAttributeDropdown[i];
             }
         }
-        attributeList.push(inputAttributeName + " " + "Arg:" + inputAttributeRelation + ", Value:" + dropdownValues + "\n");
+
+        var inputAttribute = inputAttributeName + " " + "Arg:" + inputAttributeRelation + ", Value:" + dropdownValues;
+        attributeList.push(inputAttribute + "\n");
 
         document.getElementById('attributeName').value = '';
         document.getElementById('attributeRelation').value = '';
         document.getElementById('attributeDropdown').value = '';
 
+        if (inputAttribute.trim() != '') {
+            attributeCount++;
+            document.getElementById('attributeList').innerHTML += '<span style="padding:10px; color:black; border-radius:5px; margin:5px; font-size:15px; font-weight:bold; background-color:lightgray;">' + inputAttribute + '</span>';
+            if (attributeCount % 5 == 0) {
+                document.getElementById('attributeList').innerHTML += '<br><br>';
+            }
+        }
         updateConfigurationFileURL();
     });
 

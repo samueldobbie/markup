@@ -28,12 +28,12 @@
 <body style="background-blend-mode: overlay;">
     <nav>
         <div class="nav-wrapper" style="background-color:#333;">
-            <a href="/" class="brand-logo" style="margin-left:2%;  font-family: 'Nunito'; font-weight:bold;">markup</a>
+            <a href="/" class="brand-logo nav-item" style="margin-left:2%;  font-family: 'Nunito'; font-weight:bold;">markup</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down" style="margin-right:2%;  font-family: 'Nunito'; color:#33FFB5; font-weight:bold;">
-                <li><a href="/getting-started">Getting Started</a></li>
-                <li><a href="/learn-more">Documentation</a></li>
-                <li><a target="_blank" href="https://github.com/samueldobbie/markup">Github</a></li>
-                <li><a id="darkMode">Dark Mode</a></li>
+                <li><a class="nav-item" href="/getting-started">Getting Started</a></li>
+                <li><a class="nav-item" href="/learn-more">Documentation</a></li>
+                <li><a class="nav-item" target="_blank" href="https://github.com/samueldobbie/markup">Github</a></li>
+                <li><a class="nav-item" id="darkMode">Dark Mode</a></li>
             </ul>
         </div>
     </nav>
@@ -41,8 +41,8 @@
     <div style="margin-top:6.5%; text-align:center;">
         <div>
             <p style="font-size:25px; font-weight:bold;">Entities</p>
-            <input id="entityName" type="text" placeholder="Entity name (e.g. Epilepsy)" style="width:300px; background-color: rgb(255, 255, 255); border:1px solid rgb(211, 211, 211); padding-left:10px;">
-            <br><button id="addEntity" style="padding:11px; outline:none; border:none; background-color: #33FFB5; font-size:15px; text-transform: uppercase; font-weight:bold;">+</button>
+            <input id="entityName" class="inputForm" type="text" placeholder="Entity name (e.g. Epilepsy)">
+            <br><button id="addEntity" class="addFormElement" style="padding:11px; outline:none; border:none; background-color: #33FFB5; font-size:15px; text-transform: uppercase; font-weight:bold;">+</button>
             <div id="entityList" style="margin-top:1%;"></div>
             <br>
             <br>
@@ -50,16 +50,16 @@
 
         <div>
             <p style="font-size:25px; font-weight:bold;">Attributes</p>
-            <input id="attributeName" type="text" placeholder="Attribute name (e.g. SeizureFrequency)" style="width:300px; background-color: rgb(255, 255, 255); border:1px solid rgb(211, 211, 211); padding-left:10px;">
-            <br><input id="attributeRelation" type="text" placeholder="Related entity (e.g. Epilepsy)" style="width:300px; background-color: rgb(255, 255, 255); border:1px solid rgb(211, 211, 211); padding-left:10px;">
-            <br><input id="attributeDropdown" type="text" placeholder="All dropdown values (comma-seperated)" style="width:300px; background-color: rgb(255, 255, 255); border:1px solid rgb(211, 211, 211); padding-left:10px;">
-            <br><button id="addAttribute" style="padding:11px; outline:none; border:none; background-color: #33FFB5; font-size:15px; text-transform: uppercase; font-weight:bold;">+</button>
+            <input id="attributeName" class="inputForm" type="text" placeholder="Attribute name (e.g. SeizureFrequency)">
+            <br><input id="attributeRelation" class="inputForm" type="text" placeholder="Related entity (e.g. Epilepsy)">
+            <br><input id="attributeDropdown" class="inputForm" type="text" placeholder="All dropdown values (comma-seperated)">
+            <br><button id="addAttribute" class="addFormElement" style="padding:11px; outline:none; border:none; background-color: #33FFB5; font-size:15px; text-transform: uppercase; font-weight:bold;">+</button>
             <div id="attributeList" style="margin-top:1%;"></div>
             <br>
             <br>
         </div>
-        
-        <a id="saveConfigurationFile" style="padding:15px; margin-bottom:5%; outline:none; border:none; background-color: #33FFB5; font-size:18px; text-transform: uppercase; font-weight:bold;">Save configuration file</a>
+
+        <a id="saveConfigurationFile">Save configuration file</a>
     </div>
 </body>
 

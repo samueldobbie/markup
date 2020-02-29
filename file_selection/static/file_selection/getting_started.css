@@ -1,3 +1,7 @@
+.nav-item:hover {
+    color: #33FFB5;
+}
+
 .optionButton {
     margin:5px;
     display:inline-block;

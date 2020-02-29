@@ -111,14 +111,10 @@ def get_annotated_texts(ann_files):
 def get_unannotated_texts(txt_files, annotated):
     unannotated = set()
     for txt_file in txt_files:
-        sentences = txt_file.split('\n')
-        for sentence in sentences:
-            # NGRAM RANGE IS LIMITED TO 4
-            for n in range(5):
-                for ngram in ngrams(sentence.split(' '), n):
-                    term = ' '.join(ngram).lower().strip()
-                    if term not in annotated and len(term.strip()) > 0:
-                        unannotated.add(term)
+        ngrams = get_ngram_data(txt_file)
+        for ngram in ngrams:
+            if ngram not in annotated:
+                unannotated.add(ngram)
     return unannotated
 
 
@@ -145,6 +141,7 @@ def get_training_data(txt_files, ann_files, custom_dict=None):
 
 # Encode training data
 def encode_training_data(X, y):
+    # ENCODE AS N-CHARS
     global vectorizer
     X = vectorizer.fit_transform(X).toarray()
     return np.array(X), np.array(y)
@@ -163,6 +160,7 @@ def initialise_active_learner(request):
     # Initialise the learner - CHANGE NUMBER OF ESTIMATORS, THE CLASSIFIER, THE QUERY STRATERGY, ETC.
     global learner
     learner = ActiveLearner(
+        #estimator=BertClassifier(),
         estimator=RandomForestClassifier(n_estimators=100),
         query_strategy=uncertainty_sampling,
         X_training=X_train, y_training=y_train
@@ -181,13 +179,14 @@ def get_annotation_suggestions(request):
     X = vectorizer.transform(ngrams)
 
     predicted_labels = predict_labels(X)
+
     predicted_terms = []
     ngrams = list(ngrams)
     for i in range(len(predicted_labels)):
-        if predicted_labels[i] == 1:
+        # Figure out why predicted labels are converted to strings after model has been actively trained
+        if int(predicted_labels[i]) == 1:
             if ngrams[i] not in current_annotations:
                 predicted_terms.append(ngrams[i])
-            # else learn (existing annotations)
 
     return HttpResponse(json.dumps(predicted_terms))
 
@@ -249,9 +248,6 @@ def get_ngram_data(txt_file):
                     continue
 
                 potential_annotations.add(potential_annotation)
-    
-    print('\n\n\n', potential_annotations, '\n\n\n')
-
     return potential_annotations
 
 
@@ -290,15 +286,18 @@ def teach_active_learner_with_text(instance, label):
     data = np.array(vectorizer.transform([instance]).toarray())
     learner.teach(data, [label])
 
+
 # Predict labels for n-gram data
 def predict_labels(X):
+    # ORDER BY CONFIDENCE
+
     return learner.predict(X)
 
 
 vectorizer = CountVectorizer()
 learner = None
 COSINE_THRESHOLD = 0.7
-stopwords = open('stopwords.txt').read().split('\n')
+stopwords = set(open('stopwords.txt').read().split('\n'))
 
 TEST = False
 

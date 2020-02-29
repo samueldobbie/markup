@@ -502,7 +502,7 @@ function changeHighlightedTextColor() {
             if (preCaretRangeLength == 0) {
                 while (documentText[i] == '\n') {
                     startIndex++;
-                    i++;
+                    i++; // unnecessary?
                 }
                 break;
             }
@@ -526,11 +526,72 @@ function changeHighlightedTextColor() {
             endIndex++;
         }
 
+
+        // To-do: Increment or decrement if starting on empty space / newline / tab, etc.
+        // To-do: Annotate with and without this to compare ann file index results
+
+        var q = 0;
+        while (isAlphanumeric(documentText[startIndex])) {
+            if (q > 0) {
+                highlighted = documentText[startIndex] + highlighted;
+            }
+            q++;
+            startIndex--;
+            if (!isAlphanumeric(documentText[startIndex])) {
+                break;
+            }
+        }
+        
+        if (!isAlphanumeric(documentText[startIndex])) {
+            startIndex++;
+        }
+
+        while (isAlphanumeric(documentText[endIndex])) {
+            highlighted = highlighted + documentText[endIndex];
+            endIndex++;
+        }
+
+        var tempStartIndex = startIndex;
+        var trueStartIndex = startIndex;
+        var trueEndIndex = endIndex;
+        var startIndex = 0;
+        var endIndex = 0;
+    
+        for (var i=0; i<documentText.length; i++) {
+            if (tempStartIndex == 0) {
+                while (documentText[i] == '\n') {
+                    startIndex++;
+                    i++;
+                }
+                var diff = 0;
+                for (var j=trueStartIndex; j< trueEndIndex; j++) {
+                    if (documentText[j] != '\n') {
+                        diff++;
+                    }
+                }
+                endIndex = startIndex + diff;
+                break;
+            }
+            if (documentText[i] != '\n') {
+                startIndex++;
+            }
+            tempStartIndex--;
+        }
+
+        console.log(startIndex, endIndex, documentText[startIndex], documentText[endIndex]);
+
+        setSelectionRange(document.getElementById('file_data'), startIndex, endIndex);
+
         // Color-highlight selected text
         document.getElementById('file_data').contentEditable = 'true';
-        document.execCommand('insertHTML', false, '<span id="highlighted" class="' + startIndex + '_' + endIndex + '" style="background-color: rgb(79, 120, 255); opacity: 0.9">' + highlighted + '</span>');
+        document.execCommand('insertHTML', false, '<span id="highlighted" class="' + trueStartIndex + '_' + trueEndIndex + '" style="background-color: rgb(79, 120, 255); opacity: 0.9">' + highlighted + '</span>');
         document.getElementById('file_data').contentEditable = 'false';
     }
+}
+
+
+function isAlphanumeric(char) {
+    return "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-".indexOf(char) > -1;
 }
 
 
@@ -871,11 +932,12 @@ function loadExistingAnnotations() {
 function deleteClickedAnnotation(event) {
     var id = event.target.id;
     var indicies = id.split('_');
+
     var targetStartIndex = parseInt(indicies[0]);
     var targetEndIndex = parseInt(indicies[1]);
 
     // Remove span tag from file_data text
-    document.getElementById(id + '_aid').outerHTML = document.getElementById(id + '_aid').innerHTML;
+    //document.getElementById(id + '_aid').outerHTML = document.getElementById(id + '_aid').innerHTML;
 
     // Finds correct annotation index based on offset list and removes
     for (var i = 0; i < annotationList[currentDocumentId].length; i++) {
@@ -1173,6 +1235,7 @@ function teachModel(instance, label) {
     });
 }
 
+
 var currentTxtFile;
 function trainModel() {
     document.getElementById('file_data').style.display = 'none';
@@ -1209,11 +1272,12 @@ function viewSuggestions() {
     document.getElementById('view_suggestions').style.display = '';
     document.getElementById('stopViewing').style.display = '';
     
-    // Loading -- get ngrams in the background to make it quicker
+    // Loading -- TO-DO: get vectorized ngrams in the background to make it quicker
     sleep(500).then(() => {
         getAnnotationSuggestions();
     });
 }
+
 
 function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
