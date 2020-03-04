@@ -502,7 +502,7 @@ function changeHighlightedTextColor() {
             if (preCaretRangeLength == 0) {
                 while (documentText[i] == '\n') {
                     startIndex++;
-                    i++; // unnecessary?
+                    i++;
                 }
                 break;
             }
@@ -526,65 +526,23 @@ function changeHighlightedTextColor() {
             endIndex++;
         }
 
-
-        // To-do: Increment or decrement if starting on empty space / newline / tab, etc.
-        // To-do: Annotate with and without this to compare ann file index results
-
-        var q = 0;
+        /*
         while (isAlphanumeric(documentText[startIndex])) {
-            if (q > 0) {
-                highlighted = documentText[startIndex] + highlighted;
-            }
-            q++;
             startIndex--;
-            if (!isAlphanumeric(documentText[startIndex])) {
-                break;
-            }
-        }
-        
-        if (!isAlphanumeric(documentText[startIndex])) {
-            startIndex++;
         }
 
         while (isAlphanumeric(documentText[endIndex])) {
-            highlighted = highlighted + documentText[endIndex];
             endIndex++;
         }
 
-        var tempStartIndex = startIndex;
-        var trueStartIndex = startIndex;
-        var trueEndIndex = endIndex;
-        var startIndex = 0;
-        var endIndex = 0;
-    
-        for (var i=0; i<documentText.length; i++) {
-            if (tempStartIndex == 0) {
-                while (documentText[i] == '\n') {
-                    startIndex++;
-                    i++;
-                }
-                var diff = 0;
-                for (var j=trueStartIndex; j< trueEndIndex; j++) {
-                    if (documentText[j] != '\n') {
-                        diff++;
-                    }
-                }
-                endIndex = startIndex + diff;
-                break;
-            }
-            if (documentText[i] != '\n') {
-                startIndex++;
-            }
-            tempStartIndex--;
-        }
-
-        console.log(startIndex, endIndex, documentText[startIndex], documentText[endIndex]);
-
         setSelectionRange(document.getElementById('file_data'), startIndex, endIndex);
+
+        var highlighted = window.getSelection().toString();
+        */
 
         // Color-highlight selected text
         document.getElementById('file_data').contentEditable = 'true';
-        document.execCommand('insertHTML', false, '<span id="highlighted" class="' + trueStartIndex + '_' + trueEndIndex + '" style="background-color: rgb(79, 120, 255); opacity: 0.9">' + highlighted + '</span>');
+        document.execCommand('insertHTML', false, '<span id="highlighted" class="' + startIndex + '_' + endIndex + '" style="background-color: rgb(79, 120, 255); opacity: 0.9">' + highlighted + '</span>');
         document.getElementById('file_data').contentEditable = 'false';
     }
 }
@@ -962,7 +920,44 @@ function hoverInfo(id, type) {
     var startIndex = indicies[0];
     var endIndex = indicies[1];
 
-    if (id != type) {
+    var inlineAnnotations = document.getElementsByClassName('inlineAnnotation');
+    for (var i = 0; i<inlineAnnotations.length; i++) {
+        inlineAnnotations[i].style.filter = 'brightness(100%)';
+    }
+
+    var displayedAnnotations = document.getElementsByClassName('displayedAnnotation');
+    for (var i = 0; i<displayedAnnotations.length; i++) {
+        displayedAnnotations[i].style.filter = 'brightness(100%)';
+    }
+
+    var sectionTitles = document.getElementsByClassName('sectionTitle');
+    for (var i = 0; i<sectionTitles.length; i++) {
+        sectionTitles[i].style.filter = 'brightness(100%)';
+    }
+
+    if (id != type && id != '') {
+        var inlineAnnotations = document.getElementsByClassName('inlineAnnotation');
+        for (var i = 0; i<inlineAnnotations.length; i++) {
+            inlineAnnotations[i].style.filter = 'brightness(40%)';
+        }
+
+        var displayedAnnotations = document.getElementsByClassName('displayedAnnotation');
+        for (var i = 0; i<displayedAnnotations.length; i++) {
+            displayedAnnotations[i].style.filter = 'brightness(40%)';
+        }
+
+        var displayedAnnotationTitle = document.getElementById(id).title;
+        var sectionTitles = document.getElementsByClassName('sectionTitle');
+        for (var i = 0; i<sectionTitles.length; i++) {
+            if (sectionTitles[i].innerText != displayedAnnotationTitle) {
+                sectionTitles[i].style.filter = 'brightness(40%)';
+            }
+        }
+
+        document.getElementById(id).style.filter = 'brightness(100%)';
+        document.getElementById(id + '_aid').style.filter = 'brightness(100%)';
+        document.getElementById(id + '_aid').style.filter = 'brightness(100%)';
+
         for (var i = 0; i < offsetList.length; i++) {
             if (offsetList[i][0] == startIndex && offsetList[i][1] == endIndex) {
                 for (var j = 2; j < 5; j++) {
@@ -987,16 +982,17 @@ function suggestCui(event) {
     var selectedTerm;
 
     if (type == 'matchList') {
-        selectedTerm = window.getSelection().anchorNode.textContent;
+        if (window.getSelection().anchorNode == null) {
+            return;
+        }
+        selectedTerm = window.getSelection().anchorNode.textContent.toLowerCase();
     } else if (type == 'searchList') {
-        selectedTerm = document.getElementById('searchDict').value
+        selectedTerm = document.getElementById('searchDict').value.toLowerCase();
     }
 
     if (selectedTerm.split(' ').length > 8) {
         return;
     }
-
-    var selectedTerm = selectedTerm.toLowerCase();
 
     $.ajax({
         type: 'GET',
