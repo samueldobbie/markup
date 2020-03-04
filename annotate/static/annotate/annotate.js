@@ -920,44 +920,46 @@ function hoverInfo(id, type) {
     var startIndex = indicies[0];
     var endIndex = indicies[1];
 
+    // Reset inline annotations to original brightness
     var inlineAnnotations = document.getElementsByClassName('inlineAnnotation');
     for (var i = 0; i<inlineAnnotations.length; i++) {
         inlineAnnotations[i].style.filter = 'brightness(100%)';
     }
 
+    // Reset displayed annotations to original brightness
     var displayedAnnotations = document.getElementsByClassName('displayedAnnotation');
     for (var i = 0; i<displayedAnnotations.length; i++) {
         displayedAnnotations[i].style.filter = 'brightness(100%)';
     }
 
+    // Reset section titles to original brightness
     var sectionTitles = document.getElementsByClassName('sectionTitle');
     for (var i = 0; i<sectionTitles.length; i++) {
         sectionTitles[i].style.filter = 'brightness(100%)';
     }
 
-    if (id != type && id != '') {
+    if (id != type && id != '' && parseInt(startIndex) >= 0 && parseInt(endIndex) >= 0) {
+        // Reduce brightness of all inline annotations
         var inlineAnnotations = document.getElementsByClassName('inlineAnnotation');
         for (var i = 0; i<inlineAnnotations.length; i++) {
             inlineAnnotations[i].style.filter = 'brightness(40%)';
         }
-
+        // Reduce brightness of all displayed annotations
         var displayedAnnotations = document.getElementsByClassName('displayedAnnotation');
         for (var i = 0; i<displayedAnnotations.length; i++) {
             displayedAnnotations[i].style.filter = 'brightness(40%)';
         }
-
-        var displayedAnnotationTitle = document.getElementById(id).title;
+        // Reduce brightness of all section titles (TO-DO: change to excl. title of target annotation)
         var sectionTitles = document.getElementsByClassName('sectionTitle');
         for (var i = 0; i<sectionTitles.length; i++) {
-            if (sectionTitles[i].innerText != displayedAnnotationTitle) {
-                sectionTitles[i].style.filter = 'brightness(40%)';
-            }
+            sectionTitles[i].style.filter = 'brightness(40%)';
         }
 
-        document.getElementById(id).style.filter = 'brightness(100%)';
-        document.getElementById(id + '_aid').style.filter = 'brightness(100%)';
-        document.getElementById(id + '_aid').style.filter = 'brightness(100%)';
+        // Reset brightness of inline and displayed target annotation
+        document.getElementById(startIndex + '_' + endIndex).style.filter = 'brightness(100%)';
+        document.getElementById(startIndex + '_' + endIndex + '_aid').style.filter = 'brightness(100%)';
 
+        // Add hover information to target annotation
         for (var i = 0; i < offsetList.length; i++) {
             if (offsetList[i][0] == startIndex && offsetList[i][1] == endIndex) {
                 for (var j = 2; j < 5; j++) {
