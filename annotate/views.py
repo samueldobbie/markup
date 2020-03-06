@@ -26,6 +26,8 @@ from simstring.searcher import Searcher
 
 from sklearn.metrics import accuracy_score
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.feature_extraction.text import CountVectorizer
 
 
@@ -127,8 +129,8 @@ def get_training_data(txt_files, ann_files, custom_dict=None):
     unannotated = get_unannotated_texts(txt_files, annotated)
 
     # Currently split to make equal length -- CHANGE OR LIMIT TO CERTAIN NUMBER OF SAMPLES --
-    annotated_count = len(list(annotated))
-    X = list(annotated) + list(unannotated)[:annotated_count]
+    annotated_count = len(set(annotated))
+    X = list(set(annotated)) + list(set(unannotated))[:annotated_count]
     y = [1 for _ in range(annotated_count)] + [0 for _ in range(annotated_count)]
 
     # Shuffle all data - MAY NOT BE NESECESSARY IF ONLY USED FOR TRAINING
@@ -141,7 +143,6 @@ def get_training_data(txt_files, ann_files, custom_dict=None):
 
 # Encode training data
 def encode_training_data(X, y):
-    # ENCODE AS N-CHARS
     global vectorizer
     X = vectorizer.fit_transform(X).toarray()
     return np.array(X), np.array(y)
@@ -157,15 +158,13 @@ def initialise_active_learner(request):
     X_train, y_train = get_training_data(txt_files, ann_files)
     X_train, y_train = encode_training_data(X_train, y_train)
 
-    # Initialise the learner - CHANGE NUMBER OF ESTIMATORS, THE CLASSIFIER, THE QUERY STRATERGY, ETC.
+    # Initialise the learner - update params, classifier, query strat, etc.
     global learner
     learner = ActiveLearner(
-        #estimator=BertClassifier(),
-        estimator=RandomForestClassifier(n_estimators=100),
+        estimator=KNeighborsClassifier(n_neighbors=3, algorithm='brute', weights='distance'),
         query_strategy=uncertainty_sampling,
         X_training=X_train, y_training=y_train
     )
-
     return HttpResponse(None)
 
 
@@ -197,7 +196,10 @@ def get_ngram_data(txt_file):
 
     sentences = txt_file.split('\n')
     for sentence in sentences:
-        # NGRAM RANGE IS LIMITED TO 4
+        if sentence.strip() == '':
+            continue
+
+        # Adjust n-gram range
         for n in range(5):
             for ngram in ngrams(sentence.split(' '), n):
                 potential_annotation = ' '.join(ngram).lower().strip()
@@ -205,8 +207,10 @@ def get_ngram_data(txt_file):
                 if potential_annotation == '':
                     continue
 
-                if potential_annotation[-1] in ('.', ',', '?', '!', ':'):
+                while potential_annotation[-1] in ('.', ',', '?', '!', ':'):
                     potential_annotation = potential_annotation[:-1]
+                    if potential_annotation == '':
+                        break
 
                 if potential_annotation == '':
                     continue
@@ -241,7 +245,7 @@ def get_ngram_data(txt_file):
                 if potential_annotation.count('(') != potential_annotation.count(')'):
                     continue
 
-                if potential_annotation[-1] in ('.', ',', '?', '!'):
+                while potential_annotation[-1] in ('.', ',', '?', '!'):
                     potential_annotation = potential_annotation[:-1]
 
                 if potential_annotation == '':
@@ -290,14 +294,12 @@ def teach_active_learner_with_text(instance, label):
 # Predict labels for n-gram data
 def predict_labels(X):
     # ORDER BY CONFIDENCE
-
     return learner.predict(X)
 
-
-vectorizer = CountVectorizer()
+stopwords = set(open('stopwords.txt').read().split('\n'))
+vectorizer = CountVectorizer(stop_words=stopwords, analyzer='char', ngram_range=(2,2))
 learner = None
 COSINE_THRESHOLD = 0.7
-stopwords = set(open('stopwords.txt').read().split('\n'))
 
 TEST = False
 

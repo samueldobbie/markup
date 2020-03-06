@@ -894,9 +894,6 @@ function deleteClickedAnnotation(event) {
     var targetStartIndex = parseInt(indicies[0]);
     var targetEndIndex = parseInt(indicies[1]);
 
-    // Remove span tag from file_data text
-    //document.getElementById(id + '_aid').outerHTML = document.getElementById(id + '_aid').innerHTML;
-
     // Finds correct annotation index based on offset list and removes
     for (var i = 0; i < annotationList[currentDocumentId].length; i++) {
         var currentStartIndex = parseInt(annotationList[currentDocumentId][i][0][0].split(' ')[1]);
@@ -977,6 +974,20 @@ function hoverInfo(id, type) {
         };
     }
 }
+
+
+var delay = function (elem, callback) {
+    var timeout = null;
+    elem.onmouseover = function() {
+        // Set timeout to be a timer which will invoke callback after 1s
+        timeout = setTimeout(callback, 1000);
+    };
+
+    elem.onmouseout = function() {
+        // Clear any timers set to timeout
+        clearTimeout(timeout);
+    }
+};
 
 
 function suggestCui(event) {
