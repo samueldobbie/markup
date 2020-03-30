@@ -20,6 +20,7 @@
     <link href="{% static 'file_selection/getting_started.css' %}" rel="stylesheet" />
     <link rel="shortcut icon" href="{% static 'file_selection/favicon.ico' %}" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/1.9.661/pdf.js"></script>
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
     <script src="{% static 'file_selection/getting_started.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
@@ -63,7 +64,7 @@
         <!-- Allow selection of a single text file -->
         <label for="documentFileOpener" id="documentFileOpenerOverlay" class="optionButton"
             style="color:black; display:none;">Choose document to annotate</label>
-        <input id="documentFileOpener" type="file" accept=".txt" style="display:none;">
+        <input id="documentFileOpener" type="file" accept=".txt,.pdf" style="display:none;">
 
         <!-- Allow opening of a single configuration file-->
         <label for="configFileOpener" id="configFileOpenerOverlay" class="optionButton"
@@ -90,7 +91,7 @@
         </ul>
         <br>
         <label for="documentFolderOpener" style="display:none; color:black;" id="documentFolderOpenerOverlay" class="optionButton" style="color:black;">Choose folder</label>
-        <input id="documentFolderOpener" style="display:none;" type="file" accept=".txt" webkitdirectory multiple>
+        <input id="documentFolderOpener" style="display:none;" type="file" accept=".txt,.pdf" webkitdirectory multiple>
         <!-- END MULTIPLE FILES PATH -->    
 
         <!-- Allow selection of dictionary -->

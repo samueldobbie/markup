@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-148811237-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-148811237-1');
+    </script>
+    {% load static %}
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <meta http-equiv='X-UA-Compatible' content='ie=edge'>
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,700" rel="stylesheet" />
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6/js/select2.min.js"></script>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+    {% block head %}
+    {% endblock %}
+</head>
+
+<body style="background-color:#333;">
+    <nav class="navbar navbar-expand">
+        <div class="nav-wrapper" style="background-color:#333; box-shadow: 0px 0px 8px 0px #111;">
+            <a href="/" class="brand-logo nav-item" name="nav-element" style="margin-left:2%;  font-family: 'Nunito'; font-weight:bold;">markup</a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down" style="margin-right:2%;  font-family: 'Nunito'; color:#33FFB5; font-weight:bold;">
+                <li ><a class="nav-item" name="nav-element" href="/getting-started">Start Annotating</a></li>
+                <li><a class="nav-item" name="nav-element" href="/learn-more">Documentation</a></li>
+                <li><a class="nav-item" target="_blank" href="https://github.com/samueldobbie/markup">Github</a></li>
+                <li id="previousFile" style="display:none;"><a style="font-size:20px; color:#33FFB5;"><</a></li>
+                <li id="nextFile" style="display:none;"><a style="font-size:20px; color:#33FFB5;">></a></li>
+            </ul>
+        </div>
+    </nav>
+
+    {% block content %}
+    {% endblock %}
+</body>
+
+</html>
