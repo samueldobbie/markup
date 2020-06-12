@@ -1,0 +1,27 @@
+{% extends 'file_selection/config_creator_head.html' %}
+
+{% block content %}
+    <div style="margin-top:6.5%; text-align:center;">
+        <div>
+            <p style="font-size:25px; font-weight:bold;">Entities</p>
+            <input id="entityName" class="inputForm" type="text" placeholder="Entity name (e.g. Epilepsy)">
+            <br><button id="addEntity" class="addFormElement" style="padding:11px; outline:none; border:none; background-color: #33FFB5; font-size:15px; text-transform: uppercase; font-weight:bold;">+</button>
+            <div id="entityList" style="margin-top:1%;"></div>
+            <br>
+            <br>
+        </div>
+
+        <div>
+            <p style="font-size:25px; font-weight:bold;">Attributes</p>
+            <input id="attributeName" class="inputForm" type="text" placeholder="Attribute name (e.g. SeizureFrequency)">
+            <br><input id="attributeRelation" class="inputForm" type="text" placeholder="Related entity (e.g. Epilepsy)">
+            <br><input id="attributeDropdown" class="inputForm" type="text" placeholder="All dropdown values (comma-seperated)">
+            <br><button id="addAttribute" class="addFormElement" style="padding:11px; outline:none; border:none; background-color: #33FFB5; font-size:15px; text-transform: uppercase; font-weight:bold;">+</button>
+            <div id="attributeList" style="margin-top:1%;"></div>
+            <br>
+            <br>
+        </div>
+
+        <a id="saveConfigurationFile">Save configuration file</a>
+    </div>
+{% endblock %}

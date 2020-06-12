@@ -1,3 +1,10 @@
+// Remove data from local storage to avoid being able to revisit page and see outdated information
+var existingDisplayMode = localStorage.getItem('mode');
+localStorage.clear();
+if (existingDisplayMode != null) {
+    localStorage.setItem('mode', existingDisplayMode);
+}
+
 $(document).ready(function () {
     var darkMode;
 
@@ -9,7 +16,6 @@ $(document).ready(function () {
         initialize('dark');
         darkMode = true;
     }
-
 
     // Sets inital color mode based on users stored preference (light or dark mode)
     function initialize(type) {

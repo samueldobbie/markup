@@ -1,50 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'file_selection/index_head.html' %}
 
-<head>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-148811237-1"></script>
-    <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'UA-148811237-1');
-    </script>
-    {% load static %}
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Home - Markup</title>
-    <link href="https://fonts.googleapis.com/css?family=Nunito:400,700" rel="stylesheet" />
-    <link href="{% static 'file_selection/index.css' %}" rel="stylesheet" />
-    <link rel="shortcut icon" href="{% static 'file_selection/favicon.ico' %}" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
-    <script src="{% static 'file_selection/index.js' %}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-</head>
-
-<body style="background-blend-mode: overlay;">
-    <nav>
-        <div class="nav-wrapper" style="background-color:#333;">
-            <a href="/" class="brand-logo nav-item" style="margin-left:2%;  font-family: 'Nunito'; font-weight:bold;">markup</a>
-            <ul id="nav-mobile" class="right hide-on-med-and-down" style="margin-right:2%;  font-family: 'Nunito'; color:#33FFB5; font-weight:bold;">
-                <li><a class="nav-item" href="/getting-started">Getting Started</a></li>
-                <li><a class="nav-item" href="/learn-more">Documentation</a></li>
-                <li><a class="nav-item" target="_blank" href="https://github.com/samueldobbie/markup">Github</a></li>
-                <li><a class="nav-item" id="darkMode">Dark Mode</a></li>
-            </ul>
-        </div>
-    </nav>
-
+{% block content %}
     <div id="openFile" style="text-align: center; margin-top:12%">
         <p id="tagline">
-            <span class="taglineComponent" style="font-weight:bold;">markup</span><span class="taglineComponent"> annotation tool</span>
+            <span class="tagline-component" style="font-weight:bold;">markup</span><span class="tagline-component"> annotation tool</span>
         </p>
-        <button onclick="location.href='/learn-more';" class="optionButton documentation">Documentation</button>
-        <button onclick="location.href='/getting-started';" class="optionButton getStarted">Get started</button>
+        <button onclick="location.href='/docs';" class="option-button documentation-button">Documentation</button>
+        <button onclick="location.href='/setup';" class="option-button">Annotate</button>
     </div>
-</body>
-
-</html>
+{% endblock %}

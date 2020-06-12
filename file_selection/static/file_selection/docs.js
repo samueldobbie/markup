@@ -1,10 +1,9 @@
 // Remove data from local storage to avoid being able to revisit page and see outdated information
-var temp = localStorage.getItem('mode');
+var existingDisplayMode = localStorage.getItem('mode');
 localStorage.clear();
-if (temp != null) {
-    localStorage.setItem('mode', temp);
+if (existingDisplayMode != null) {
+    localStorage.setItem('mode', existingDisplayMode);
 }
-
 
 $(document).ready(function () {
     var darkMode;

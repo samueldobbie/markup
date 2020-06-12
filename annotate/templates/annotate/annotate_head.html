@@ -1,11 +1,8 @@
 {% extends 'base.html' %}
 
 {% block head %}
-
+    {% load static %}
+    <title>Annotate - Markup</title>
+    <link href="{% static 'annotate/annotate.css' %}" rel="stylesheet" />
+    <script src="{% static 'annotate/annotate.js' %}"></script>
 {% endblock %}
-
-<!--
-{% block content %}
-
-{% endblock %}
--->

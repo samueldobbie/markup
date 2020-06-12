@@ -1,0 +1,56 @@
+.nav-item:hover {
+    color: #33FFB5;
+}
+
+.option-button {
+    margin-right: 1px;
+    min-width: 200px;
+    padding: 15px 20px;
+    border: none;
+    outline: none;
+    font-size: 18px;
+    text-transform: uppercase;
+    font-weight: bold;
+    border-radius: 2px;
+    box-shadow: 1px 1px 1px rgba(51, 51, 51, 0.4);
+    background-color: #33FFB5;
+    color: black;
+}
+
+.option-button:hover {
+    filter: brightness(95%);
+}
+
+@media only screen and (max-width: 600px) {
+    .option-button {
+        font-size: 16px;
+    }
+}
+
+@media only screen and (max-width: 500px) {
+    .option-button {
+        padding: 12px 18px;
+        font-size: 14px;
+    }
+}
+
+@media only screen and (max-width: 400px) {
+    .option-button {
+        padding: 10px 16px;
+        font-size: 12px;
+    }
+}
+
+@media only screen and (max-width: 350px) {
+    .option-button {
+        padding: 8px 14px;
+    }
+}
+
+@media only screen and (max-width: 300px) {
+    .option-button {
+        padding: 8px 18px;
+        font-size: 10px;
+        display: inline-block;
+    }
+}

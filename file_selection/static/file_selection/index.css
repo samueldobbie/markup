@@ -1,133 +1,41 @@
 #tagline {
-    margin-bottom:5%;
+    margin-bottom: 5%;
 }
 
-.nav-item:hover {
-    color: #33FFB5;
-  }
-
-.optionButton {
-    margin-right:5px;
-    padding:20px 60px;
-    border:none;
-    outline:none;
-    font-size:18px;
-    text-transform: uppercase;
-    font-weight:bold;
-    border-radius:5px;
-    box-shadow: 0 0 7px rgba(0,0,0,0.6);
-}
-
-.documentation {
+.documentation-button {
     background-color: rgb(182, 204, 196);
 }
 
-.getStarted {
-    background-color: #33FFB5;
-}
-
-.documentation:hover {
-    background-color:rgb(179, 179, 179);
-}
-
-.documentation:active {
-    background-color:rgb(160, 160, 160);
-}
-
-.getStarted:hover {
-    background-color:rgb(39, 212, 149);
-}
-
-.getStarted:active {
-    background-color:rgb(26, 167, 115);
-}
-
-.taglineComponent {
+.tagline-component {
     font-size: 50px;
 }
 
 @media only screen and (max-width: 600px) {
-    .optionButton {
-        padding:15px 35px;
-        border:none;
-        outline:none;
-        font-size:16px;
-        text-transform: uppercase;
-        font-weight:bold;
-        border-radius:5px;
-        box-shadow: 0 0 7px rgba(0,0,0,0.6);
-    }
-
-    .taglineComponent {
+    .tagline-component {
         font-size: 40px;
     }
 }
 
 @media only screen and (max-width: 500px) {
-    .optionButton {
-        padding:12px 25px;
-        border:none;
-        outline:none;
-        font-size:14px;
-        text-transform: uppercase;
-        font-weight:bold;
-        border-radius:5px;
-        box-shadow: 0 0 7px rgba(0,0,0,0.6);
-    }
-
-    .taglineComponent {
+    .tagline-component {
         font-size: 35px;
     }
 }
 
 @media only screen and (max-width: 400px) {
-    .optionButton {
-        padding:10px 20px;
-        border:none;
-        outline:none;
-        font-size:12px;
-        text-transform: uppercase;
-        font-weight:bold;
-        border-radius:5px;
-        box-shadow: 0 0 7px rgba(0,0,0,0.6);
-    }
-
-    .taglineComponent {
+    .tagline-component {
         font-size: 30px;
     }
 }
 
 @media only screen and (max-width: 350px) {
-    .optionButton {
-        padding:8px 18px;
-        border:none;
-        outline:none;
-        font-size:12px;
-        text-transform: uppercase;
-        font-weight:bold;
-        border-radius:5px;
-        box-shadow: 0 0 7px rgba(0,0,0,0.6);
-    }
-
-    .taglineComponent {
+    .tagline-component {
         font-size: 25px;
     }
 }
 
 @media only screen and (max-width: 300px) {
-    .optionButton {
-        padding:8px 18px;
-        border:none;
-        outline:none;
-        font-size:10px;
-        text-transform: uppercase;
-        font-weight:bold;
-        border-radius:5px;
-        box-shadow: 0 0 7px rgba(0,0,0,0.6);
-        display:inline-block;
-    }
-
-    .taglineComponent {
+    .tagline-component {
         font-size: 20px;
     }
 }

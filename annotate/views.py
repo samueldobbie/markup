@@ -1,34 +1,19 @@
+import re
 import json
 import pickle
 import random
-import requests
 import stringdist
 import numpy as np
 
 from django.http import HttpResponse
 from django.shortcuts import render
-
-from modAL.models import ActiveLearner
-from modAL.uncertainty import uncertainty_sampling
-
-from nltk import sent_tokenize
-from nltk import word_tokenize
 from nltk import ngrams
-
-from os import listdir
-from os.path import isfile, join, splitext
-
-from simstring.feature_extractor.character_ngram import (
-    CharacterNgramFeatureExtractor)
 from simstring.database.dict import DictDatabase
 from simstring.measure.cosine import CosineMeasure
 from simstring.searcher import Searcher
-
-from sklearn.metrics import accuracy_score
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.neural_network import MLPClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.feature_extraction.text import CountVectorizer
+from simstring.feature_extractor.character_ngram import (
+    CharacterNgramFeatureExtractor
+)
 
 
 def annotate_data(request):
@@ -40,21 +25,25 @@ def suggest_cui(request):
     Returns all relevant UMLS matches that have a cosine similarity
     value over the specified threshold, in descending order
     """
+
     global searcher
+
     if searcher is None:
         return HttpResponse('')
 
     selected_term = request.GET['selectedTerm']
 
     # Weight relevant UMLS matches based on word ordering
-    weighted_outputs = {}
+    weighted = {}
     for umls_match in searcher.ranked_search(selected_term, COSINE_THRESHOLD):
         umls_term = umls_match[1]
         # Add divsor to each term
-        weighted_outputs[umls_term + ' :: UMLS ' + term_to_cui[umls_term] + '***'] = stringdist.levenshtein(umls_term, selected_term)
+        weighted[umls_term + ' :: UMLS ' + term_to_cui[umls_term] +
+                 '***'] = stringdist.levenshtein(umls_term, selected_term)
 
     # Sort order matches will be displayed based on weights
-    output = [i[0] for i in sorted(weighted_outputs.items(), key=lambda kv: kv[1])]
+    output = [i[0] for i in sorted(weighted.items(),
+                                   key=lambda kv: kv[1])]
 
     # Remove divisor from final term
     if output != []:
@@ -65,12 +54,13 @@ def suggest_cui(request):
 
 def setup_dictionary(request):
     """
-    Setup user-specified dictionary to be used for
-    phrase approximation
+    Setup user-specified ontolgoy to be used for
+    automated mapping suggestions
     """
+
+    global term_to_cui, searcher
+
     dictionary_selection = request.POST['dictionarySelection']
-    global term_to_cui
-    global searcher
     if dictionary_selection == 'umlsDictionary':
         # searcher = umls_searcher
         pass
@@ -96,21 +86,27 @@ def clean_dictionary_term(value):
     return value.lower()
 
 
-# Get all annotated texts from ann_files (positive samples)
 def get_annotated_texts(ann_files):
+    """
+    Get all annotated texts from ann_files (positive samples)
+    """
+
     annotated = set()
     for ann_file in ann_files:
         annotations = ann_file.split('\n')
         for annotation in annotations:
             if len(annotation.strip()) > 0 and annotation[0] == 'T':
                 raw_annotation_text = annotation.split('\t')[-1]
-                # MOST ANNOTATION SPACES PROBABLY HAVEN'T BEEN REPLACED WITH '_'
+                # To-do: Existing annotations have spaces instead of underscore
                 annotated.add(' '.join(raw_annotation_text.split('_')).lower().strip())
     return annotated
 
 
-# Get all unannotated texts from txt_files (negative samples)
 def get_unannotated_texts(txt_files, annotated):
+    """
+    Get all unannotated texts from txt_files (negative samples)
+    """
+
     unannotated = set()
     for txt_file in txt_files:
         ngrams = get_ngram_data(txt_file)
@@ -120,7 +116,6 @@ def get_unannotated_texts(txt_files, annotated):
     return unannotated
 
 
-# Get training data
 def get_training_data(txt_files, ann_files, custom_dict=None):
     # Get all annotated texts from ann_files (positive samples)
     annotated = get_annotated_texts(ann_files)
@@ -128,12 +123,12 @@ def get_training_data(txt_files, ann_files, custom_dict=None):
     # Get all unannotated terms (negative samples)
     unannotated = get_unannotated_texts(txt_files, annotated)
 
-    # Currently split to make equal length -- CHANGE OR LIMIT TO CERTAIN NUMBER OF SAMPLES --
+    # To-do: Currently split to make equal length
     annotated_count = len(set(annotated))
     X = list(set(annotated)) + list(set(unannotated))[:annotated_count]
     y = [1 for _ in range(annotated_count)] + [0 for _ in range(annotated_count)]
 
-    # Shuffle all data - MAY NOT BE NESECESSARY IF ONLY USED FOR TRAINING
+    # Shuffle all data
     Xy = list(zip(X, y))
     random.shuffle(Xy)
     X, y = zip(*Xy)
@@ -141,57 +136,92 @@ def get_training_data(txt_files, ann_files, custom_dict=None):
     return X, y
 
 
-# Encode training data
 def encode_training_data(X, y):
     global vectorizer
     X = vectorizer.fit_transform(X).toarray()
     return np.array(X), np.array(y)
 
 
-# Initialise learner
 def initialise_active_learner(request):
-    data = json.loads(request.body)
-
-    txt_files = data['txtFiles']
-    ann_files = data['annFiles']
-
-    X_train, y_train = get_training_data(txt_files, ann_files)
-    X_train, y_train = encode_training_data(X_train, y_train)
-
-    # Initialise the learner - update params, classifier, query strat, etc.
     global learner
-    learner = ActiveLearner(
-        estimator=KNeighborsClassifier(n_neighbors=3, algorithm='brute', weights='distance'),
-        query_strategy=uncertainty_sampling,
-        X_training=X_train, y_training=y_train
-    )
+    learner = pickle.load(open('prescription_model.pickle', 'rb'))
     return HttpResponse(None)
 
 
 def get_annotation_suggestions(request):
+    # global vectorizer
+
     txt_file = request.POST.get('txtFile')
     current_annotations = get_annotated_texts([request.POST.get('currentAnnotations')])
 
-    ngrams = get_ngram_data(txt_file)
+    # To-do: Improve sentence extraction
+    newlines = txt_file.split('\n')
+    sentences = []
+    for newline in newlines:
+        for sentence in newline.split('.'):
+            sentence = sentence.strip()
+            if sentence != '':
+                sentences.append(sentence.strip())
 
-    global vectorizer
-    X = vectorizer.transform(ngrams)
+    X = vectorizer.transform(sentences)
 
     predicted_labels = predict_labels(X)
 
     predicted_terms = []
-    ngrams = list(ngrams)
     for i in range(len(predicted_labels)):
-        # Figure out why predicted labels are converted to strings after model has been actively trained
         if int(predicted_labels[i]) == 1:
-            if ngrams[i] not in current_annotations:
-                predicted_terms.append(ngrams[i])
+            drug_name, drug_dose, drug_unit, drug_frequency = verify_prescription(sentences[i])
+            if sentences[i] not in current_annotations and drug_name is not None:
+                predicted_terms.append([sentences[i], drug_name, drug_dose, drug_unit, drug_frequency])
 
     return HttpResponse(json.dumps(predicted_terms))
 
 
-# Get all possible ngrams from letter currently being annotated
+def verify_prescription(sentence):
+    has_drug = False
+    has_dose = False
+    has_unit = False
+    has_frequency = False
+
+    drug_name = ''
+    drug_dose = ''
+    drug_unit = ''
+    drug_frequency = ''
+
+    for token in sentence.split(' '):
+        if has_number(token):
+            has_dose = True
+            drug_dose = re.findall(r'\d+', token)[0]
+
+        if 'mg' in token:
+            has_unit = True
+            drug_unit = 'mg'
+
+        if token == 'bd' or token == 'morning' or token == 'afternoon' or token == 'evening':
+            has_frequency = True
+            drug_frequency = token
+
+    for drug in drugs:
+        if drug in sentence.lower():
+            has_drug = True
+            drug_name = drug
+            break
+
+    if has_drug and has_dose and has_unit:
+        return drug_name, drug_dose, drug_unit, drug_frequency
+    else:
+        return None, None, None, None
+
+
+def has_number(token):
+    return any(char.isdigit() for char in token)
+
+
 def get_ngram_data(txt_file):
+    """
+    Get all possible ngrams from letter currently being annotated
+    """
+
     potential_annotations = set()
 
     sentences = txt_file.split('\n')
@@ -255,19 +285,28 @@ def get_ngram_data(txt_file):
     return potential_annotations
 
 
-query_X = None
-query_idx = None
-# Query n-gram data (have a category for unsure to help improve & category of confident labels)
 def query_active_learner(request):
+    """
+    Query n-gram data (have a category for unsure to help
+    improve & category of confident labels)
+    """
+
     global vectorizer, learner, query_X, query_idx
 
     txt_file = request.POST.get('txtFile')
-    ngrams = get_ngram_data(txt_file)
 
-    query_X = vectorizer.transform(ngrams).toarray()
+    newlines = txt_file.split('\n')
+    sentences = []
+    for newline in newlines:
+        for sentence in newline.split('.'):
+            sentence = sentence.strip()
+            if sentence != '':
+                sentences.append(sentence)
+
+    query_X = vectorizer.transform(sentences).toarray()
     query_idx, query_instance = learner.query(np.array(query_X))
 
-    return HttpResponse(str(query_idx[0]) + '***' + list(ngrams)[query_idx[0]])
+    return HttpResponse(str(query_idx[0]) + '***' + list(sentences)[query_idx[0]])
 
 
 def teach_active_learner(request):
@@ -293,15 +332,16 @@ def teach_active_learner_with_text(instance, label):
 
 # Predict labels for n-gram data
 def predict_labels(X):
-    # ORDER BY CONFIDENCE
     return learner.predict(X)
 
+
 stopwords = set(open('stopwords.txt').read().split('\n'))
-vectorizer = CountVectorizer(stop_words=stopwords, analyzer='char', ngram_range=(2,2))
+vectorizer = pickle.load(open('prescription_vect.pickle', 'rb'))
 learner = None
 COSINE_THRESHOLD = 0.7
-
-TEST = False
+query_X = None
+query_idx = None
+TEST = True
 
 if TEST:
     term_to_cui = None
@@ -311,8 +351,6 @@ else:
     term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
     db = pickle.load(open('db.pickle', 'rb'))
     searcher = Searcher(db, CosineMeasure())
-
-
 
 '''
 def load_user_dictionary(request, data_file_path):
@@ -354,3 +392,4 @@ def load_user_dictionary(request, data_file_path):
     return HttpResponse(None)
 
 '''
+drugs = ['lamotrigine', 'ferrous sulphate', 'carbamazepine', 'topiramate', 'sodium valproate', 'levetiracetam', 'bendroflumethiazide']
