@@ -451,8 +451,8 @@ function updateAnnotationFileURL() {
 
 
 var highlightText;
-var highlightLength;
-var preCaretRangeLength;
+var highlightTextLength;
+var preCaretStringLength;
 
 // Change colour of highlighted text
 function changeHighlightedTextColor() {
@@ -478,12 +478,14 @@ function changeHighlightedTextColor() {
         highlightText = window.getSelection().toString();
         
         var highlightRange = window.getSelection().getRangeAt(0);
-        highlightLength = highlightRange.toString().replace(/\n/g, '').length;
-    
+
         var preCaretRange = highlightRange.cloneRange();
         preCaretRange.selectNodeContents(documentElement);
         preCaretRange.setEnd(highlightRange.startContainer, highlightRange.startOffset);
-        preCaretRangeLength = preCaretRange.toString().replace(/\n/g, '').length;
+
+        highlightTextLength = highlightRange.toString().replace(/\n/g, '').length;
+        preCaretStringLength = preCaretRange.toString().replace(/\n/g, '').length;
+
 
         // Color-highlight selected text
         document.getElementById('file-data').contentEditable = 'true';
@@ -509,15 +511,15 @@ function trueToHighlightIndicies(trueStartIndex, trueEndIndex) {
     var beforeSpanNewlineCount = 0;
     var withinSpanNewlineCount = 0;
     for (var i = 0; i < documentText.length; i++) {
-        if (i > trueEndIndex) {
+        if (i == trueEndIndex - 1) {
             break;
         } else if (i < trueStartIndex && documentText[i] == '\n') {
             beforeSpanNewlineCount++
-        } else if (i > trueStartIndex && documentText[i] == '\n') {
+        } else if (i >= trueStartIndex && documentText[i] == '\n') {
             withinSpanNewlineCount++;
         }
     }
-    
+
     var highlightStartIndex = trueStartIndex - (beforeSpanNewlineCount * lineBreakValue);
     var highlightEndIndex = trueEndIndex - ((beforeSpanNewlineCount + withinSpanNewlineCount) * lineBreakValue);
 
@@ -525,28 +527,46 @@ function trueToHighlightIndicies(trueStartIndex, trueEndIndex) {
 }
 
 
-function highlightToTrueIndicies(highlightStartIndex, highlightEndIndex) {
-    var documentText = document.getElementById('file-data').innerText;
-
+function highlightToTrueIndicies(preCaretStringLength, highlightTextLength) {
     var lineBreakValue = 1;
     if (localStorage.getItem('lineBreakType' + currentDocumentId) == 'windows') {
         lineBreakValue = 2;
     }
 
-    var beforeSpanNewlineCount = 0;
-    var withinSpanNewlineCount = 0;
+    var documentText = document.getElementById('file-data').innerText;
+
+    var trueStartIndex = 0;
     for (var i = 0; i < documentText.length; i++) {
-        if (i > highlightEndIndex) {
-            break;
-        } else if (i <= highlightStartIndex && documentText[i] == '\n') {
-            beforeSpanNewlineCount++;
-        } else if (i > highlightStartIndex && documentText[i] == '\n') {
-            withinSpanNewlineCount++;
+        if (preCaretStringLength == 0) {
+            if (documentText[i] == '\n') {
+                trueStartIndex += lineBreakValue;
+            } else {
+                break;
+            }
+        } else if (documentText[i] == '\n') {
+            trueStartIndex += lineBreakValue;
+        } else {
+            preCaretStringLength--;
+            trueStartIndex++;
         }
     }
 
-    var trueStartIndex = highlightStartIndex + (beforeSpanNewlineCount * lineBreakValue);
-    var trueEndIndex = highlightEndIndex + (beforeSpanNewlineCount * lineBreakValue) + (withinSpanNewlineCount * lineBreakValue);
+    var trueEndIndex = trueStartIndex;
+
+    if (trueStartIndex < documentText.length) {
+        for (var i = trueStartIndex; i < documentText.length; i++) {
+            if (highlightTextLength == 0) {
+                break;
+            } else if (documentText[i] != '\n') {
+                trueEndIndex++;
+                highlightTextLength--;
+            } else {
+                trueEndIndex += lineBreakValue;
+            }
+        }
+    } else {
+        trueEndIndex += highlightTextLength;
+    }
 
     return [trueStartIndex, trueEndIndex];
 }
@@ -558,16 +578,14 @@ function addAnnotation(event) {
     var attributeDropdowns = event.data.attributeDropdowns;
     var allDropdowns = event.data.allDropdowns;
 
-    var startIndex = preCaretRangeLength;
-    var endIndex = highlightLength+preCaretRangeLength;
-    
+    var startIndex = preCaretStringLength;
+    var endIndex = highlightTextLength + preCaretStringLength;
+
     console.log('startIndex', startIndex, 'endIndex', endIndex);
 
-    var trueIndicies = highlightToTrueIndicies(preCaretRangeLength, highlightLength+preCaretRangeLength);
+    var trueIndicies = highlightToTrueIndicies(preCaretStringLength, highlightTextLength);
     var trueStartIndex = trueIndicies[0];
     var trueEndIndex = trueIndicies[1];
-
-    console.log('trueStartIndex', trueStartIndex, 'trueEndIndex', trueEndIndex);
 
     //setSelectionRange(document.getElementById('file-data'), startIndex, endIndex);
     
@@ -1042,7 +1060,6 @@ function bindCollapsibleEvents() {
 var currentDocumentId = 0;
 $(document).ready(function () {
     onPageLoad();
-    bindCollapsibleEvents();
 });
 
 
@@ -1218,6 +1235,8 @@ function onPageLoad(initalLoad=true) {
     // Load annotations from current annotationList
     updateAnnotationFileURL();
     loadExistingAnnotations();
+
+    bindCollapsibleEvents();
 }
 
 

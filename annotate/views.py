@@ -20,6 +20,85 @@ def annotate_data(request):
     return render(request, 'annotate/annotate.html', {})
 
 
+def setup_ontology(request):
+    """
+    Setup user-specified ontolgoy to be used for
+    automated mapping suggestions
+    """
+
+    print('*\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n*****\n\n\n\n\n\n\n\n\n\n\n\n\n\n')
+
+    global term_to_cui, searcher
+
+    dictionary_selection = request.POST['dictionarySelection']
+    if dictionary_selection == 'umlsDictionary':
+        # searcher = umls_searcher
+        pass
+    elif dictionary_selection == 'noDictionary':
+        # searcher = None
+        pass
+    elif dictionary_selection == 'userDictionary':
+        json_data = json.loads(request.POST['dictionaryData'])
+        db = DictDatabase(CharacterNgramFeatureExtractor(2))
+        term_to_cui = {}
+        for row in json_data:
+            values = row.split('\t')
+            if len(values) == 2:
+                term_to_cui[values[1]] = values[0]
+        for value in term_to_cui.keys():
+            value = clean_dictionary_term(value)
+            db.add(value)
+        searcher = Searcher(db, CosineMeasure())
+    return HttpResponse(None)
+
+
+'''
+def load_user_dictionary(request, data_file_path):
+    try:
+        chosen_file = gui.PopupGetFile('Choose a file', no_window=True)
+    except:
+        return HttpResponse(None)
+
+    # Read in tab-delimited UMLS file in form of (CUI/tTERM)
+    user_dict = open(chosen_file).read().split('\n')
+
+    # Split tab-delimited UMLS file into seperate lists of cuis and terms
+    cui_list = []
+    term_list = []
+
+    for row in user_dict:
+        data = row.split('\t')
+        if len(data) > 1:
+            cui_list.append(data[0])
+            term_list.append(data[1])
+
+    global term_to_cui
+    global db
+    global searcher
+
+    # Map cleaned UMLS term to its original
+    term_to_cui = dict()
+
+    for i in range(len(term_list)):
+        term_to_cui[term_list[i]] = cui_list[i]
+
+    # Create simstring model
+    db = DictDatabase(CharacterNgramFeatureExtractor(2))
+
+    for term in term_list:
+        db.add(term)
+
+    searcher = Searcher(db, CosineMeasure())
+    return HttpResponse(None)
+
+'''
+
+
+
+
+
+
+
 def suggest_cui(request):
     """
     Returns all relevant UMLS matches that have a cosine similarity
@@ -50,36 +129,6 @@ def suggest_cui(request):
         output[-1] = output[-1][:-3]
 
     return HttpResponse(output)
-
-
-def setup_dictionary(request):
-    """
-    Setup user-specified ontolgoy to be used for
-    automated mapping suggestions
-    """
-
-    global term_to_cui, searcher
-
-    dictionary_selection = request.POST['dictionarySelection']
-    if dictionary_selection == 'umlsDictionary':
-        # searcher = umls_searcher
-        pass
-    elif dictionary_selection == 'noDictionary':
-        # searcher = None
-        pass
-    elif dictionary_selection == 'userDictionary':
-        json_data = json.loads(request.POST['dictionaryData'])
-        db = DictDatabase(CharacterNgramFeatureExtractor(2))
-        term_to_cui = {}
-        for row in json_data:
-            values = row.split('\t')
-            if len(values) == 2:
-                term_to_cui[values[1]] = values[0]
-        for value in term_to_cui.keys():
-            value = clean_dictionary_term(value)
-            db.add(value)
-        searcher = Searcher(db, CosineMeasure())
-    return HttpResponse(None)
 
 
 def clean_dictionary_term(value):
@@ -336,7 +385,6 @@ def predict_labels(X):
 
 
 stopwords = set(open('stopwords.txt').read().split('\n'))
-vectorizer = pickle.load(open('prescription_vect.pickle', 'rb'))
 learner = None
 COSINE_THRESHOLD = 0.7
 query_X = None
@@ -344,6 +392,7 @@ query_idx = None
 TEST = True
 
 if TEST:
+    vectorizer = None
     term_to_cui = None
     db = None
     searcher = None
@@ -351,45 +400,6 @@ else:
     term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
     db = pickle.load(open('db.pickle', 'rb'))
     searcher = Searcher(db, CosineMeasure())
+    vectorizer = pickle.load(open('prescription_vect.pickle', 'rb'))
 
-'''
-def load_user_dictionary(request, data_file_path):
-    try:
-        chosen_file = gui.PopupGetFile('Choose a file', no_window=True)
-    except:
-        return HttpResponse(None)
-
-    # Read in tab-delimited UMLS file in form of (CUI/tTERM)
-    user_dict = open(chosen_file).read().split('\n')
-
-    # Split tab-delimited UMLS file into seperate lists of cuis and terms
-    cui_list = []
-    term_list = []
-
-    for row in user_dict:
-        data = row.split('\t')
-        if len(data) > 1:
-            cui_list.append(data[0])
-            term_list.append(data[1])
-
-    global term_to_cui
-    global db
-    global searcher
-
-    # Map cleaned UMLS term to its original
-    term_to_cui = dict()
-
-    for i in range(len(term_list)):
-        term_to_cui[term_list[i]] = cui_list[i]
-
-    # Create simstring model
-    db = DictDatabase(CharacterNgramFeatureExtractor(2))
-
-    for term in term_list:
-        db.add(term)
-
-    searcher = Searcher(db, CosineMeasure())
-    return HttpResponse(None)
-
-'''
 drugs = ['lamotrigine', 'ferrous sulphate', 'carbamazepine', 'topiramate', 'sodium valproate', 'levetiracetam', 'bendroflumethiazide']

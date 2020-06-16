@@ -125,11 +125,7 @@ $(document).ready(function () {
     $("#ontology-file-dropdown").change(function () {
         var selectedValue = this.value;
         if (selectedValue != 'Choose Pre-loaded') {
-            // Store
-
-            // Prevent selection of both types
-
-            // Deal with selection of an option followed by a deselection
+            setupOntology(selectedValue);
 
             // Change colour of component
             updateComponentColour('ontology-file-opener-container');
@@ -204,11 +200,7 @@ $(document).ready(function () {
     $("#ontology-folder-dropdown").change(function () {
         var selectedValue = this.value;
         if (selectedValue != 'Choose Pre-loaded') {
-            // Store
-
-            // Prevent selection of both types
-
-            // Deal with selection of an option followed by a deselection
+            setupOntology(selectedValue);
 
             // Change colour of component
             updateComponentColour('ontology-folder-opener-container');
@@ -229,7 +221,86 @@ $(document).ready(function () {
             location.href = '/annotate';
         }
     });
+
+    /*
+    $('.dictionaryOption').click(function (e) {
+        var dictionarySelection = e.target.id;
+
+        if (dictionarySelection != 'userDictionary') {
+            $("#questionFive").fadeOut();
+            $("#dictionaryOptions").fadeOut();
+
+            sleep(500).then(() => {
+                $("#finishedQuestions").fadeIn();
+                $.ajax({
+                    type: 'POST',
+                    url: '/setup-dictionary',
+                    data: {
+                        'dictionarySelection': dictionarySelection,
+                        csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value
+                    },
+                    success: startAnnotating()
+                });
+            });
+        }
+    });
+
+
+    document.getElementById('dictionaryFileOpener').onchange = function () {
+        startAnnotating();
+        var dictionaryFile = document.getElementById('dictionaryFileOpener').files[0];
+        var dataSlice = 10*1024*1024;
+        var dictionaryData = [];
+        var completedLoadCount = 0;
+        var requiredLoadCount = Math.ceil(dictionaryFile.size / dataSlice);
+
+        document.getElementById("loader").style.display = "";
+        document.getElementById("questionFive").style.display = "none";
+        document.getElementById("dictionaryOptions").style.display = "none";
+
+        for (var i=0; i<dictionaryFile.size; i+=dataSlice) {
+            var reader = new FileReader();
+            reader.onload = function () {
+                var sentences = reader.result.split('\n');
+                for (var j=0; j<sentences.length; j++) {
+                    dictionaryData.push(sentences[j]);
+                    if (j == sentences.length-1) {
+                        completedLoadCount++;
+                    }
+                }
+                if (completedLoadCount == requiredLoadCount) {
+                    console.log(dictionaryData.length);
+                    $.ajax({
+                        type: 'POST',
+                        url: '/setup-dictionary',
+                        data: {
+                            'dictionarySelection': 'userDictionary',
+                            'dictionaryData': JSON.stringify(dictionaryData), 
+                            csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value
+                        },
+                        success: function(response) {
+                            startAnnotating();
+                        }
+                    });
+                }
+            }
+            reader.readAsBinaryString(dictionaryFile.slice(i, i+dataSlice));
+        }
+    }
+    */
 });
+
+
+function setupOntology(selectedOntology) {
+    $.ajax({
+        type: 'POST',
+        url: '~/setup-ontology',
+        data: {
+            'selectedOntology': selectedOntology,
+            //csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value
+        }
+    });
+}
 
 
 function updateComponentColour(id) {
@@ -317,6 +388,6 @@ function storeFileDataLocally(file, fileStorageName, lineBreakStorageName=null) 
                 localStorage.setItem(lineBreakStorageName, detectLineBreakType(reader.result));
             }
         };
-        reader.readAsBinaryString(file);
+        reader.readAsText(file);
     }
 }
