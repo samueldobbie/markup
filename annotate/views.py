@@ -121,48 +121,6 @@ def clean_selected_term(selected_term):
     return selected_term.lower()
 
 
-'''
-def load_user_dictionary(request, data_file_path):
-    try:
-        chosen_file = gui.PopupGetFile('Choose a file', no_window=True)
-    except:
-        return HttpResponse(None)
-
-    # Read in tab-delimited UMLS file in form of (CUI/tTERM)
-    user_dict = open(chosen_file).read().split('\n')
-
-    # Split tab-delimited UMLS file into seperate lists of cuis and terms
-    cui_list = []
-    term_list = []
-
-    for row in user_dict:
-        data = row.split('\t')
-        if len(data) > 1:
-            cui_list.append(data[0])
-            term_list.append(data[1])
-
-    global term_to_cui
-    global db
-    global searcher
-
-    # Map cleaned UMLS term to its original
-    term_to_cui = dict()
-
-    for i in range(len(term_list)):
-        term_to_cui[term_list[i]] = cui_list[i]
-
-    # Create simstring model
-    db = DictDatabase(CharacterNgramFeatureExtractor(2))
-
-    for term in term_list:
-        db.add(term)
-
-    searcher = Searcher(db, CosineMeasure())
-    return HttpResponse(None)
-
-'''
-
-
 def get_annotated_texts(ann_files):
     '''
     Get all annotated texts from ann_files (positive samples)
@@ -252,6 +210,13 @@ def get_annotation_suggestions(request):
                 predicted_terms.append([sentences[i], drug_name, drug_dose, drug_unit, drug_frequency])
 
     return HttpResponse(json.dumps(predicted_terms))
+
+
+
+
+drugs = ['lamotrigine', 'ferrous sulphate', 'carbamazepine', 'topiramate', 'sodium valproate', 'levetiracetam', 'bendroflumethiazide']
+
+
 
 
 def verify_prescription(sentence):
@@ -418,16 +383,7 @@ term_to_cui = None
 
 SIMILARITY_THRESHOLD = 0.7
 
-
 learner = None
 query_X = None
 query_idx = None
-TEST = True
-
-if TEST:
-    vectorizer = None
-    term_to_cui = None
-else:
-    vectorizer = pickle.load(open('prescription_vect.pickle', 'rb'))
-
-drugs = ['lamotrigine', 'ferrous sulphate', 'carbamazepine', 'topiramate', 'sodium valproate', 'levetiracetam', 'bendroflumethiazide']
+vectorizer = pickle.load(open('prescription_vect.pickle', 'rb'))
