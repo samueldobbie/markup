@@ -325,6 +325,16 @@ function displayAnnotation(entityValue, attributeValues, startIndex, endIndex) {
         }
     }
 
+    /*
+    // TO-DO: Change annotation color if there's an overlap between two annotations
+    for (var i = 0; i < offsetList.length; i++) {
+        if ((startIndex >= offsetList[i][0] && startIndex <= offsetList[i][1]) || (endIndex >= offsetList[i][0] && endIndex <= offsetList[i][1])) {
+            highlightColor = 'rgb(35, 200, 130)';
+            break;
+        }
+    }
+    */
+
     // Color-highlight selected text
     document.getElementById('file-data').contentEditable = 'true';
     document.execCommand('insertHTML', false, '<span class="inlineAnnotation" id="' + startIndex + '-' + endIndex + '-aid" style="background-color:' + highlightColor + '; color:black;">' + highlighted + '</span>');
@@ -579,17 +589,6 @@ function addAnnotation(event) {
         return;
     }
 
-    /*
-    // TO-DO: Change annotation color if there's an overlap between two annotations
-    for (var i = 0; i < offsetList.length; i++) {
-        if ((startIndex >= offsetList[i][0] && startIndex <= offsetList[i][1]) || (endIndex >= offsetList[i][0] && endIndex <= offsetList[i][1])) {
-            highlightColor = 'rgb(35, 200, 130)';
-            break;
-        }
-    }
-    */
-
-    // Output annotation in stand-off format
     var annotation = [];
 
     // Add entity data to annotation list and hover info
@@ -925,9 +924,11 @@ function suggestCui(event) {
     }
 
     $.ajax({
-        type: 'GET',
+        type: 'POST',
         url: '~/suggest-cui',
-        data: { selectedTerm: selectedTerm }
+        data: {
+            selectedTerm: selectedTerm
+        }
     }).done(function (data) {
         // Empty dropdown list
         document.getElementById(type).options.length = 0;

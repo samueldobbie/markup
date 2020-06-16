@@ -72,7 +72,7 @@ def suggest_cui(request):
     if simstring_searcher is None:
         return HttpResponse('')
 
-    selected_term = clean_selected_term(request.GET['selectedTerm'])
+    selected_term = clean_selected_term(request.POST['selectedTerm'])
 
     # Get ranked matches from ontology
     ontology_matches = simstring_searcher.ranked_search(

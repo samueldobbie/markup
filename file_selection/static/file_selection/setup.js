@@ -90,8 +90,29 @@ $(document).ready(function () {
         // Display name of file next to upload button
         document.getElementById('annotation-file-name').innerText = document.getElementById('annotation-file-opener').files[0].name;
         
+        // Display remove button
+        document.getElementById('annotation-file-remover').style.display = '';
+        
         // Change colour of component
         updateComponentColour('annotation-file-opener-container');
+    });
+
+
+    $('#annotation-file-remover').click(function () {
+        // Remove uploaded file
+        document.getElementById('annotation-file-opener').value = '';
+
+        // Remove name of file from span
+        document.getElementById('annotation-file-name').innerText = '';
+
+        // Remove uploaded file from localStorage
+        localStorage.removeItem('annotationText' + 0);
+
+        // Hide remove button
+        document.getElementById('annotation-file-remover').style.display = 'none';
+
+        // Change colour of component
+        document.getElementById('annotation-file-opener-container').style.border = '1px solid #333';
     });
 
 
@@ -231,54 +252,6 @@ $(document).ready(function () {
         }
     });
 });
-
-
-    /*
-    
-
-
-    document.getElementById('dictionaryFileOpener').onchange = function () {
-        startAnnotating();
-        var dictionaryFile = document.getElementById('dictionaryFileOpener').files[0];
-        var dataSlice = 10*1024*1024;
-        var dictionaryData = [];
-        var completedLoadCount = 0;
-        var requiredLoadCount = Math.ceil(dictionaryFile.size / dataSlice);
-
-        document.getElementById("loader").style.display = "";
-        document.getElementById("questionFive").style.display = "none";
-        document.getElementById("dictionaryOptions").style.display = "none";
-
-        for (var i=0; i<dictionaryFile.size; i+=dataSlice) {
-            var reader = new FileReader();
-            reader.onload = function () {
-                var sentences = reader.result.split('\n');
-                for (var j=0; j<sentences.length; j++) {
-                    dictionaryData.push(sentences[j]);
-                    if (j == sentences.length-1) {
-                        completedLoadCount++;
-                    }
-                }
-                if (completedLoadCount == requiredLoadCount) {
-                    console.log(dictionaryData.length);
-                    $.ajax({
-                        type: 'POST',
-                        url: '/setup-dictionary',
-                        data: {
-                            'dictionarySelection': 'userDictionary',
-                            'dictionaryData': JSON.stringify(dictionaryData), 
-                            csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value
-                        },
-                        success: function(response) {
-                            startAnnotating();
-                        }
-                    });
-                }
-            }
-            reader.readAsBinaryString(dictionaryFile.slice(i, i+dataSlice));
-        }
-    }
-    */
 
 
 function setupPreloadedOntology(selectedOntology) {
