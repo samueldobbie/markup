@@ -21,13 +21,13 @@ def annotate_data(request):
 
 
 def setup_preloaded_ontology(request):
-    """
+    '''
     Setup user-specified, pre-loaded ontology for
     automated mapping suggestions
-    """
+    '''
     global term_to_cui, simstring_searcher
 
-    selected_ontology = request.GET['selectedOntology']
+    selected_ontology = request.POST['selectedOntology']
 
     if selected_ontology == 'none' or selected_ontology == 'default':
         pass
@@ -40,21 +40,39 @@ def setup_preloaded_ontology(request):
 
 
 def setup_custom_ontology(request):
-    pass
+    global term_to_cui, simstring_searcher
+
+    ontology_data = request.POST['ontologyData'].split('\n')
+
+    database = DictDatabase(CharacterNgramFeatureExtractor(2))
+    term_to_cui = {}
+
+    for entry in ontology_data:
+        entry_values = entry.split('\t')
+        if len(entry_values) == 2:
+            term_to_cui[entry_values[1]] = entry_values[0]
+
+    for term in term_to_cui.keys():
+        term = clean_selected_term(term)
+        database.add(term)
+
+    simstring_searcher = Searcher(database, CosineMeasure())
+
+    return HttpResponse(None)
 
 
 def suggest_cui(request):
-    """
+    '''
     Returns all relevant ontology matches that have a similarity
     value over the specified threshold, ranked in descending order
-    """
+    '''
 
     global simstring_searcher
 
     if simstring_searcher is None:
         return HttpResponse('')
 
-    selected_term = request.GET['selectedTerm']
+    selected_term = clean_selected_term(request.GET['selectedTerm'])
 
     # Get ranked matches from ontology
     ontology_matches = simstring_searcher.ranked_search(
@@ -95,7 +113,12 @@ def suggest_cui(request):
     return HttpResponse(ranked_weighted_matches)
 
 
-
+def clean_selected_term(selected_term):
+    '''
+    Helper function to transform the selected term into the
+    same format as the terms within the simstring database
+    '''
+    return selected_term.lower()
 
 
 '''
@@ -140,17 +163,10 @@ def load_user_dictionary(request, data_file_path):
 '''
 
 
-
-
-
-def clean_dictionary_term(value):
-    return value.lower()
-
-
 def get_annotated_texts(ann_files):
-    """
+    '''
     Get all annotated texts from ann_files (positive samples)
-    """
+    '''
 
     annotated = set()
     for ann_file in ann_files:
@@ -164,9 +180,9 @@ def get_annotated_texts(ann_files):
 
 
 def get_unannotated_texts(txt_files, annotated):
-    """
+    '''
     Get all unannotated texts from txt_files (negative samples)
-    """
+    '''
 
     unannotated = set()
     for txt_file in txt_files:
@@ -279,9 +295,9 @@ def has_number(token):
 
 
 def get_ngram_data(txt_file):
-    """
+    '''
     Get all possible ngrams from letter currently being annotated
-    """
+    '''
 
     potential_annotations = set()
 
@@ -347,10 +363,10 @@ def get_ngram_data(txt_file):
 
 
 def query_active_learner(request):
-    """
+    '''
     Query n-gram data (have a category for unsure to help
     improve & category of confident labels)
-    """
+    '''
 
     global vectorizer, learner, query_X, query_idx
 

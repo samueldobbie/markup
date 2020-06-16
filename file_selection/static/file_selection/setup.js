@@ -57,7 +57,6 @@ $(document).ready(function () {
 
     /*** Single document section ***/
 
-
     $('#single-document-selection').click(function () {
         $(".file-selection-container").fadeOut();
 
@@ -70,7 +69,7 @@ $(document).ready(function () {
     });
 
 
-    document.getElementById('document-file-opener').onchange = function () {
+    $('#document-file-opener').change(function () {
         // Store file data locally
         storeFileDataLocally(document.getElementById('document-file-opener').files[0], 'documentText' + 0, 'lineBreakType' + 0);
         localStorage.setItem('fileName' + 0, document.getElementById('document-file-opener').files[0].name.split(".").slice(0, -1).join("."));
@@ -81,10 +80,10 @@ $(document).ready(function () {
         
         // Change colour of component
         updateComponentColour('document-file-opener-container');
-    }
+    });
 
 
-    document.getElementById('annotation-file-opener').onchange = function () {
+    $('#annotation-file-opener').change(function () {
         // Store file data locally
         storeFileDataLocally(document.getElementById('annotation-file-opener').files[0], 'annotationText' + 0);
 
@@ -93,10 +92,10 @@ $(document).ready(function () {
         
         // Change colour of component
         updateComponentColour('annotation-file-opener-container');
-    }
+    });
 
 
-    document.getElementById('configuration-file-opener').onchange = function () {
+    $('#configuration-file-opener').change(function () {
         // Store file data locally
         storeFileDataLocally(document.getElementById('configuration-file-opener').files[0], 'configText');
 
@@ -105,21 +104,7 @@ $(document).ready(function () {
         
         // Change colour of component
         updateComponentColour('configuration-file-opener-container');
-    }
-
-
-    document.getElementById('ontology-file-opener').onchange = function () {
-        // Store file data locally
-        // storeFileDataLocally(document.getElementById('ontology-file-opener').files[0], 'configText');
-
-        // Need to add selection from dropdown list
-
-        // Display name of file next to upload button
-        document.getElementById('ontology-file-name').innerText = document.getElementById('ontology-file-opener').files[0].name;
-        
-        // Change colour of component
-        updateComponentColour('ontology-file-opener-container');
-    }
+    });
 
 
     $("#ontology-file-dropdown").change(function () {
@@ -131,6 +116,18 @@ $(document).ready(function () {
             // Change colour of component
             updateComponentColour('ontology-file-opener-container');
         }
+    });
+
+
+    $('#ontology-file-opener').change(function () {
+        // Display name of file next to upload button
+        document.getElementById('ontology-file-name').innerText = document.getElementById('ontology-file-opener').files[0].name;
+
+        // Setup ontology
+        setupCustomOntology(document.getElementById('ontology-file-opener').files[0]);
+
+        // Change colour of component
+        updateComponentColour('ontology-file-opener-container');
     });
 
 
@@ -151,7 +148,6 @@ $(document).ready(function () {
 
     /*** Multiple document section ***/
 
-
     $('#multiple-document-selection').click(function () {
         $(".file-selection-container").fadeOut();
 
@@ -164,7 +160,7 @@ $(document).ready(function () {
     });
 
 
-    document.getElementById('folder-file-opener').onchange = function () {
+    $('#folder-file-opener').change(function () {
         var documentCount = 0;
         var documentIndex = {};
         var documentFileList = document.getElementById('folder-file-opener').files;
@@ -194,10 +190,9 @@ $(document).ready(function () {
         
         // Change colour of component
         updateComponentColour('folder-file-opener-container');
-    }
+    });
 
 
-    
     $("#ontology-folder-dropdown").change(function () {
         var selectedValue = this.value;
         if (selectedValue != 'Choose Pre-loaded') {
@@ -207,6 +202,18 @@ $(document).ready(function () {
             // Change colour of component
             updateComponentColour('ontology-folder-opener-container');
         }
+    });
+
+    
+    $('#ontology-folder-opener').change(function () {
+        // Display name of file next to upload button
+        document.getElementById('ontology-folder-name').innerText = document.getElementById('ontology-folder-opener').files[0].name;
+        
+        // Setup ontology
+        setupCustomOntology(document.getElementById('ontology-folder-opener').files[0]);
+
+        // Change colour of component
+        updateComponentColour('ontology-folder-opener-container');
     });
 
 
@@ -223,29 +230,11 @@ $(document).ready(function () {
             location.href = '/annotate';
         }
     });
+});
+
 
     /*
-    $('.dictionaryOption').click(function (e) {
-        var dictionarySelection = e.target.id;
-
-        if (dictionarySelection != 'userDictionary') {
-            $("#questionFive").fadeOut();
-            $("#dictionaryOptions").fadeOut();
-
-            sleep(500).then(() => {
-                $("#finishedQuestions").fadeIn();
-                $.ajax({
-                    type: 'POST',
-                    url: '/setup-dictionary',
-                    data: {
-                        'dictionarySelection': dictionarySelection,
-                        csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value
-                    },
-                    success: startAnnotating()
-                });
-            });
-        }
-    });
+    
 
 
     document.getElementById('dictionaryFileOpener').onchange = function () {
@@ -290,17 +279,33 @@ $(document).ready(function () {
         }
     }
     */
-});
 
 
 function setupPreloadedOntology(selectedOntology) {
     $.ajax({
-        type: 'GET',
+        type: 'POST',
         url: '~/setup-preloaded-ontology',
         data: {
             'selectedOntology': selectedOntology,
+            'csrfmiddlewaretoken': getCookie('csrftoken')
         }
     });
+}
+
+
+function setupCustomOntology(file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+        $.ajax({
+            type: 'POST',
+            url: '~/setup-custom-ontology',
+            data: {
+                'ontologyData': reader.result,
+                'csrfmiddlewaretoken': getCookie('csrftoken')
+            }
+        });
+    };
+    reader.readAsText(file);
 }
 
 
@@ -312,42 +317,6 @@ function updateComponentColour(id) {
 
 function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
-}
-
-
-// Function to get csrftoken from Cookie
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-
-function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
-
-
-// Function to set Request Header with `CSRFTOKEN`
-function setRequestHeader(csrftoken){
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        }
-    });
 }
 
 
@@ -391,4 +360,38 @@ function storeFileDataLocally(file, fileStorageName, lineBreakStorageName=null) 
         };
         reader.readAsText(file);
     }
+}
+
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+function csrfSafeMethod(method) {
+    // These HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
+
+// Function to set Request Header with 'CSRFTOKEN'
+function setRequestHeader(csrftoken){
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
 }

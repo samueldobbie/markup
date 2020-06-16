@@ -992,8 +992,6 @@ function suggestCui(event) {
         return;
     }
 
-    alert(1);
-
     $.ajax({
         type: 'GET',
         url: '~/suggest-cui',
