@@ -125,7 +125,8 @@ $(document).ready(function () {
     $("#ontology-file-dropdown").change(function () {
         var selectedValue = this.value;
         if (selectedValue != 'Choose Pre-loaded') {
-            setupOntology(selectedValue);
+            // Setup ontology
+            setupPreloadedOntology(selectedValue);
 
             // Change colour of component
             updateComponentColour('ontology-file-opener-container');
@@ -200,7 +201,8 @@ $(document).ready(function () {
     $("#ontology-folder-dropdown").change(function () {
         var selectedValue = this.value;
         if (selectedValue != 'Choose Pre-loaded') {
-            setupOntology(selectedValue);
+            // Setup ontology
+            setupPreloadedOntology(selectedValue);
 
             // Change colour of component
             updateComponentColour('ontology-folder-opener-container');
@@ -291,13 +293,12 @@ $(document).ready(function () {
 });
 
 
-function setupOntology(selectedOntology) {
+function setupPreloadedOntology(selectedOntology) {
     $.ajax({
-        type: 'POST',
-        url: '~/setup-ontology',
+        type: 'GET',
+        url: '~/setup-preloaded-ontology',
         data: {
             'selectedOntology': selectedOntology,
-            //csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value
         }
     });
 }

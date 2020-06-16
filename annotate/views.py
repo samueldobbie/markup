@@ -20,36 +20,82 @@ def annotate_data(request):
     return render(request, 'annotate/annotate.html', {})
 
 
-def setup_ontology(request):
+def setup_preloaded_ontology(request):
     """
-    Setup user-specified ontolgoy to be used for
+    Setup user-specified, pre-loaded ontology for
     automated mapping suggestions
     """
+    global term_to_cui, simstring_searcher
 
-    print('*\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n*****\n\n\n\n\n\n\n\n\n\n\n\n\n\n')
+    selected_ontology = request.GET['selectedOntology']
 
-    global term_to_cui, searcher
-
-    dictionary_selection = request.POST['dictionarySelection']
-    if dictionary_selection == 'umlsDictionary':
-        # searcher = umls_searcher
+    if selected_ontology == 'none' or selected_ontology == 'default':
         pass
-    elif dictionary_selection == 'noDictionary':
-        # searcher = None
-        pass
-    elif dictionary_selection == 'userDictionary':
-        json_data = json.loads(request.POST['dictionaryData'])
-        db = DictDatabase(CharacterNgramFeatureExtractor(2))
-        term_to_cui = {}
-        for row in json_data:
-            values = row.split('\t')
-            if len(values) == 2:
-                term_to_cui[values[1]] = values[0]
-        for value in term_to_cui.keys():
-            value = clean_dictionary_term(value)
-            db.add(value)
-        searcher = Searcher(db, CosineMeasure())
+    elif selected_ontology == 'umls':
+        term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
+        umls_database = pickle.load(open('db.pickle', 'rb'))
+        simstring_searcher = Searcher(umls_database, CosineMeasure())
+
     return HttpResponse(None)
+
+
+def setup_custom_ontology(request):
+    pass
+
+
+def suggest_cui(request):
+    """
+    Returns all relevant ontology matches that have a similarity
+    value over the specified threshold, ranked in descending order
+    """
+
+    global simstring_searcher
+
+    if simstring_searcher is None:
+        return HttpResponse('')
+
+    selected_term = request.GET['selectedTerm']
+
+    # Get ranked matches from ontology
+    ontology_matches = simstring_searcher.ranked_search(
+        selected_term,
+        SIMILARITY_THRESHOLD
+    )
+
+    # Weight relevant UMLS matches based on word ordering
+    weighted_matches = {}
+    for ontology_match in ontology_matches:
+        # Get term and cui from ontology
+        ontology_term = ontology_match[1]
+        ontology_cui = term_to_cui[ontology_term]
+
+        # Construct match key with divisor
+        key = ontology_term + ' :: UMLS ' + ontology_cui + '***'
+
+        # Calculate Levenshtein distance for ranking
+        levenshtein_distance = stringdist.levenshtein(
+            ontology_term,
+            selected_term
+        )
+
+        weighted_matches[key] = levenshtein_distance
+
+    # Construct list of ranked terms based on levenshtein distasnce value
+    ranked_weighted_matches = [
+        ranked_pair[0] for ranked_pair in sorted(
+            weighted_matches.items(),
+            key=lambda kv: kv[1]
+        )
+    ]
+
+    # Remove divisor from final match term
+    if ranked_weighted_matches != []:
+        ranked_weighted_matches[-1] = ranked_weighted_matches[-1][:-3]
+
+    return HttpResponse(ranked_weighted_matches)
+
+
+
 
 
 '''
@@ -95,40 +141,6 @@ def load_user_dictionary(request, data_file_path):
 
 
 
-
-
-
-
-def suggest_cui(request):
-    """
-    Returns all relevant UMLS matches that have a cosine similarity
-    value over the specified threshold, in descending order
-    """
-
-    global searcher
-
-    if searcher is None:
-        return HttpResponse('')
-
-    selected_term = request.GET['selectedTerm']
-
-    # Weight relevant UMLS matches based on word ordering
-    weighted = {}
-    for umls_match in searcher.ranked_search(selected_term, COSINE_THRESHOLD):
-        umls_term = umls_match[1]
-        # Add divsor to each term
-        weighted[umls_term + ' :: UMLS ' + term_to_cui[umls_term] +
-                 '***'] = stringdist.levenshtein(umls_term, selected_term)
-
-    # Sort order matches will be displayed based on weights
-    output = [i[0] for i in sorted(weighted.items(),
-                                   key=lambda kv: kv[1])]
-
-    # Remove divisor from final term
-    if output != []:
-        output[-1] = output[-1][:-3]
-
-    return HttpResponse(output)
 
 
 def clean_dictionary_term(value):
@@ -385,8 +397,13 @@ def predict_labels(X):
 
 
 stopwords = set(open('stopwords.txt').read().split('\n'))
+simstring_searcher = None
+term_to_cui = None
+
+SIMILARITY_THRESHOLD = 0.7
+
+
 learner = None
-COSINE_THRESHOLD = 0.7
 query_X = None
 query_idx = None
 TEST = True
@@ -394,12 +411,7 @@ TEST = True
 if TEST:
     vectorizer = None
     term_to_cui = None
-    db = None
-    searcher = None
 else:
-    term_to_cui = pickle.load(open('term_to_cui.pickle', 'rb'))
-    db = pickle.load(open('db.pickle', 'rb'))
-    searcher = Searcher(db, CosineMeasure())
     vectorizer = pickle.load(open('prescription_vect.pickle', 'rb'))
 
 drugs = ['lamotrigine', 'ferrous sulphate', 'carbamazepine', 'topiramate', 'sodium valproate', 'levetiracetam', 'bendroflumethiazide']

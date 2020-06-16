@@ -581,14 +581,10 @@ function addAnnotation(event) {
     var startIndex = preCaretStringLength;
     var endIndex = highlightTextLength + preCaretStringLength;
 
-    console.log('startIndex', startIndex, 'endIndex', endIndex);
-
     var trueIndicies = highlightToTrueIndicies(preCaretStringLength, highlightTextLength);
     var trueStartIndex = trueIndicies[0];
     var trueEndIndex = trueIndicies[1];
 
-    //setSelectionRange(document.getElementById('file-data'), startIndex, endIndex);
-    
     /*
     TO-DO
     while (isAlphanumeric(documentText[startIndex])) {
@@ -981,6 +977,7 @@ function suggestCui(event) {
     var type = event.data.type;
     var selectedTerm;
 
+    // Determine mapping type (selection or direct search)
     if (type == 'match-list') {
         if (window.getSelection().anchorNode == null) {
             return;
@@ -990,9 +987,12 @@ function suggestCui(event) {
         selectedTerm = document.getElementById('search-dict').value.toLowerCase();
     }
 
+    // Prevent attempted mapping of long sentences
     if (selectedTerm.split(' ').length > 8) {
         return;
     }
+
+    alert(1);
 
     $.ajax({
         type: 'GET',
