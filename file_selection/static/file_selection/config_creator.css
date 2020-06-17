@@ -1,29 +1,44 @@
-::placeholder {
-  color: red;
+.configuration-file-creator-container {
+  padding: 2.5% 25%;
 }
 
-.inputForm {
+.headline {
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.input-form {
   width: 300px;
   border-radius: 5px;
-  background-color: rgb(255, 255, 255);
   border: 1px solid rgb(211, 211, 211);
-  padding-left: 10px;
 }
 
-#saveConfigurationFile {
-  padding: 7.5px;
-  border-radius: 5px;
-  margin-bottom: 5%;
-  outline: none;
-  border: none;
+#save-configuration-file {
+  padding: 8px 15px;
+  font-weight: bold;
   background-color: #33FFB5;
-  color: black;
-  font-size: 18px;
-  text-transform: uppercase;
+}
+
+.option-button-small {
   font-weight: bold;
 }
 
-.addFormElement {
-  border-radius: 5px;
+.configuration-list {
+  margin-top: 1%;
+}
+
+.added-element {
+  margin: 1%;
+  padding: 0.75%;
+  color: black;
+  border-radius: 2px;
+  font-size: 15px;
   font-weight: bold;
+  background-color: lightgray;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.added-element:hover {
+  background-color: rgb(255, 162, 162);
 }

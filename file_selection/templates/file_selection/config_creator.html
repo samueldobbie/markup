@@ -1,27 +1,32 @@
 {% extends 'file_selection/config_creator_head.html' %}
 
 {% block content %}
-    <div style="margin-top:6.5%; text-align:center;">
-        <div>
-            <p style="font-size:25px; font-weight:bold;">Entities</p>
-            <input id="entityName" class="inputForm" type="text" placeholder="Entity name (e.g. Epilepsy)">
-            <br><button id="addEntity" class="addFormElement" style="padding:11px; outline:none; border:none; background-color: #33FFB5; font-size:15px; text-transform: uppercase; font-weight:bold;">+</button>
-            <div id="entityList" style="margin-top:1%;"></div>
+    <div class="configuration-file-creator-container">
+        <div class="entity-input-container">
+            <p class="headline">Entities</p>
+            <input id="entity-name" class="input-form" type="text" placeholder="Entity name (e.g. Seizure)">
             <br>
+            <button id="add-entity" class="option-button option-button-small">+ Entity</button>
+            <br>
+            <br>
+            <div id="entity-list" class="configuration-list"></div>
+        </div>
+
+        <div class="attribute-input-container">
+            <p class="headline">Attributes</p>
+            <input id="attribute-name" class="input-form" type="text" placeholder="Attribute name (e.g. SeizureFrequency)">
+            <br>
+            <input id="attribute-relation" class="input-form" type="text" placeholder="Related entity (e.g. Seizure)">
+            <br>
+            <input id="attribute-dropdown" class="input-form" type="text" placeholder="Dropdown values (e.g. Daily, Weekly, Monthly)">
+            <br>
+            <button id="add-attribute" class="option-button option-button-small">+ Attribute</button>
+            <br>
+            <br>
+            <div id="attribute-list" class="configuration-list"></div>
             <br>
         </div>
 
-        <div>
-            <p style="font-size:25px; font-weight:bold;">Attributes</p>
-            <input id="attributeName" class="inputForm" type="text" placeholder="Attribute name (e.g. SeizureFrequency)">
-            <br><input id="attributeRelation" class="inputForm" type="text" placeholder="Related entity (e.g. Epilepsy)">
-            <br><input id="attributeDropdown" class="inputForm" type="text" placeholder="All dropdown values (comma-seperated)">
-            <br><button id="addAttribute" class="addFormElement" style="padding:11px; outline:none; border:none; background-color: #33FFB5; font-size:15px; text-transform: uppercase; font-weight:bold;">+</button>
-            <div id="attributeList" style="margin-top:1%;"></div>
-            <br>
-            <br>
-        </div>
-
-        <a id="saveConfigurationFile">Save configuration file</a>
+        <a id="save-configuration-file" class="option-button option-button-small">Save</a>
     </div>
 {% endblock %}

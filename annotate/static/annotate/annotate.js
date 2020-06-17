@@ -856,33 +856,26 @@ function deleteAnnotation(event) {
 
 
 // Display information about chosen annotation on hover
-function hoverInfo(id, type) {
+function displayHoverInformation(id, type) {
     var indicies = id.split('-');
     var startIndex = indicies[0];
     var endIndex = indicies[1];
 
-    // Reset inline annotations to original brightness
-    var inlineAnnotations = document.getElementsByClassName('inlineAnnotation');
-    for (var i = 0; i < inlineAnnotations.length; i++) {
-        inlineAnnotations[i].style.filter = 'brightness(100%)';
-    }
-
-    // Reset displayed annotations to original brightness
-    var displayedAnnotations = document.getElementsByClassName('displayedAnnotation');
-    for (var i = 0; i < displayedAnnotations.length; i++) {
-        displayedAnnotations[i].style.filter = 'brightness(100%)';
-    }
-
-    // Reset section titles to original brightness
-    var sectionTitles = document.getElementsByClassName('sectionTitle');
-    for (var i = 0; i < sectionTitles.length; i++) {
-        sectionTitles[i].style.filter = 'brightness(100%)';
+    // Reset annotations to original brightness
+    var annotations = $.merge($('.inlineAnnotation'), $('.displayedAnnotation'));
+    for (var i = 0; i < annotations.length; i++) {
+        annotations[i].style.filter = 'brightness(100%)';
     }
 
     if (id != type && id != '' && parseInt(startIndex) >= 0 && parseInt(endIndex) >= 0) {
-        // Reset brightness of inline and displayed target annotation
+        // Increase brightness of inline and displayed target annotation
         document.getElementById(startIndex + '-' + endIndex).style.filter = 'brightness(115%)';
         document.getElementById(startIndex + '-' + endIndex + '-aid').style.filter = 'brightness(115%)';
+
+        // Avoid repeatedly setting the hover title
+        if (document.getElementById(id).title != '') {
+            return;
+        }
 
         // Add hover information to target annotation
         for (var i = 0; i < offsetList.length; i++) {
@@ -893,8 +886,8 @@ function hoverInfo(id, type) {
                     }
                 }
                 var titleString = 'Entity: ' + offsetList[i][2] + '\n';
-                for (var k = 0; k < offsetList[i][3][0].length; k++) {
-                    titleString += offsetList[i][3][0][k];
+                for (var k = 0; k < offsetList[i][3].length; k++) {
+                    titleString += offsetList[i][3][k];
                 }
                 document.getElementById(id).title = titleString;
                 return;
@@ -1073,12 +1066,12 @@ function onPageLoad(initalLoad=true) {
 
         // Display information about annotation on hover of annotation-data display
         $('#annotation-data').mouseover(function (eventObj) {
-            hoverInfo(eventObj.target.id, 'annotation-data');
+            displayHoverInformation(eventObj.target.id, 'annotation-data');
         });
 
         // Display information about annotation on hover of file-data display
         $('#file-data').mouseover(function (eventObj) {
-            hoverInfo(eventObj.target.id, 'file-data');
+            displayHoverInformation(eventObj.target.id, 'file-data');
         });
 
         // Allow users to add an annotation

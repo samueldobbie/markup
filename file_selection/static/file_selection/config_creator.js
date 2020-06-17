@@ -6,109 +6,133 @@ if (existingDisplayMode != null) {
 }
 
 $(document).ready(function () {
-    var darkMode;
 
-    // Checks if user has preset preference for color mode
-    if (localStorage.getItem('mode') == 'light') {
-        initialize('light');
-        darkMode = false;
-    } else {
-        initialize('dark');
-        darkMode = true;
-    }
+    var entityList = ["[entities]\n"];
+    var attributeList = ["[attributes]\n"];
 
-    // Sets inital color mode based on users stored preference (light or dark mode)
-    function initialize(type) {
-        if (type == 'dark') {
-            document.getElementById('darkMode').innerHTML = 'Light Mode';
-            document.getElementsByTagName('body')[0].style.backgroundColor = '#333';
-            document.getElementsByTagName('body')[0].style.color = '#fff';
-        } else {
-            document.getElementById('darkMode').innerHTML = 'Dark Mode';
-            document.getElementsByTagName('body')[0].style.backgroundImage = '#fff';
-            document.getElementsByTagName('body')[0].style.color = 'black';
-        }
-    }
-
-
-    // Allows users to switch between to light and dark mode
+    // Allows users to switch between light and dark mode
     $('#darkMode').click(function () {
-        if (!darkMode) {
+        if (localStorage.getItem('mode') == 'light') {
+            updateDisplayMode('dark');
+        } else {
+            updateDisplayMode('light');
+        }
+    });
+
+
+    function updateDisplayMode(mode) {
+        if (mode == 'dark') {
             localStorage.setItem('mode', 'dark');
             document.getElementById('darkMode').innerHTML = 'Light Mode';
             document.getElementsByTagName('body')[0].style.backgroundColor = '#333';
             document.getElementsByTagName('body')[0].style.color = '#fff';
-            darkMode = true;
+            for (var i = 0; i < $('.input-form').length; i++) {
+                $('.input-form')[i].style.color = 'white';
+            }
         } else {
             localStorage.setItem('mode', 'light');
             document.getElementById('darkMode').innerHTML = 'Dark Mode';
             document.getElementsByTagName('body')[0].style.backgroundColor = '#fff';
             document.getElementsByTagName('body')[0].style.color = 'black';
-            darkMode = false;
-        }
-    });
-
-    var entityList = ["[entities]\n"];
-    var attributeList = ["[attributes]\n"];
-
-    var entityCount = 0;
-    $('#addEntity').click(function () {
-        var inputEntity = document.getElementById('entityName').value;
-
-        entityList.push(inputEntity + "\n");
-
-        document.getElementById('entityName').value = '';
-
-        if (inputEntity.trim() != '') {
-            entityCount++;
-            document.getElementById('entityList').innerHTML += '<span style="padding:10px; color:black; border-radius:5px; margin:5px; font-size:15px; font-weight:bold; background-color:lightgray;">' + inputEntity + '</span>';
-            if (entityCount % 5 == 0) {
-                document.getElementById('entityList').innerHTML += '<br><br>';
+            for (var i = 0; i < $('.input-form').length; i++) {
+                $('.input-form')[i].style.color = 'black';
             }
         }
+    }
+
+
+    $('#add-entity').click(function () {
+        // Get entity value
+        var entity = document.getElementById('entity-name').value;
+
+        // Reset input form
+        document.getElementById('entity-name').value = '';
+
+        if (entity.trim() != '') {
+            // Add entity to output list
+            entityList.push(entity + "\n");
+
+            // Add entity to display list
+            document.getElementById('entity-list').innerHTML += '<span class="added-element">' + entity + '</span>';
+        }
         updateConfigurationFileURL();
+        bindEvents();
     });
 
-    var attributeCount = 0;
-    $('#addAttribute').click(function () {
-        var inputAttributeName = document.getElementById('attributeName').value;
-        var inputAttributeRelation = document.getElementById('attributeRelation').value;
-        var inputAttributeDropdown = document.getElementById('attributeDropdown').value.split(',');
 
-        var dropdownValues = "";
-        for (var i=0; i<inputAttributeDropdown.length; i++) {
-            if (i != inputAttributeDropdown.length-1) {
-                dropdownValues += inputAttributeDropdown[i] + "|";
+    $('#add-attribute').click(function () {
+        // Get attribute values
+        var attributeName = document.getElementById('attribute-name').value;
+        var attributeRelation = document.getElementById('attribute-relation').value;
+        var attributeDropdown = document.getElementById('attribute-dropdown').value.split(',');
+
+        // Format attribute dropdown values
+        var attributeDropdownValues = '';
+        for (var i = 0; i < attributeDropdown.length; i++) {
+            if (i != attributeDropdown.length-1) {
+                attributeDropdownValues += attributeDropdown[i].trim() + "|";
             } else {
-                dropdownValues += inputAttributeDropdown[i];
+                attributeDropdownValues += attributeDropdown[i].trim();
             }
         }
 
-        var inputAttribute = inputAttributeName + " " + "Arg:" + inputAttributeRelation + ", Value:" + dropdownValues;
-        attributeList.push(inputAttribute + "\n");
+        // Construct correctly formatted attribute string
+        var attribute = attributeName + ' ' + 'Arg:' + attributeRelation + ', Value:' + attributeDropdownValues;
 
-        document.getElementById('attributeName').value = '';
-        document.getElementById('attributeRelation').value = '';
-        document.getElementById('attributeDropdown').value = '';
+        // Reset input forms
+        document.getElementById('attribute-name').value = '';
+        document.getElementById('attribute-relation').value = '';
+        document.getElementById('attribute-dropdown').value = '';
 
-        if (inputAttribute.trim() != '') {
-            attributeCount++;
-            document.getElementById('attributeList').innerHTML += '<span style="padding:10px; color:black; border-radius:5px; margin:5px; font-size:15px; font-weight:bold; background-color:lightgray;">' + inputAttribute + '</span>';
-            if (attributeCount % 5 == 0) {
-                document.getElementById('attributeList').innerHTML += '<br><br>';
-            }
+        if (attribute.trim() != '') {
+            // Add constructed attribute to output list
+            attributeList.push(attribute + "\n");
+
+            // Add attribute to display list
+            document.getElementById('attribute-list').innerHTML += '<span class="added-element">' + attribute + '</span>';
         }
         updateConfigurationFileURL();
+        bindEvents();
     });
+
 
     function updateConfigurationFileURL() {
-        var a = document.getElementById('saveConfigurationFile');
+        var saveButton = document.getElementById('save-configuration-file');
         var fileName = 'annotation.conf';
         var contentType = 'text/plain';
-    
-        var blob = new Blob(entityList.concat(attributeList), { type: contentType });
-        window.URL.revokeObjectURL(a.href);
-        a.href = URL.createObjectURL(blob);
-        a.download = fileName;
+        var blob = new Blob(entityList.concat(attributeList), {type: contentType});
+
+        window.URL.revokeObjectURL(saveButton.href);
+        saveButton.href = URL.createObjectURL(blob);
+        saveButton.download = fileName;
+    }
+
+
+    function bindEvents() {
+        $('.added-element').click(function () {
+            // Get element text
+            var elementText = $(this).text() + '\n';
+
+            // Remove element from output list
+            var listId = $(this).parent().attr('id');
+            if (listId == 'entity-list') {
+                for (var i = 0; i < entityList.length; i++) {
+                    if (entityList[i] == elementText) {
+                        entityList.splice(i, 1);
+                        break;
+                    }
+                }
+            } else if (listId == 'attribute-list') {
+                for (var i = 0; i < attributeList.length; i++) {
+                    if (attributeList[i] == elementText) {
+                        attributeList.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+
+            // Delete element from display list
+            $(this).remove();
+        });
     }
 });

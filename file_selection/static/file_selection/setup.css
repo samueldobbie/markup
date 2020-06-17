@@ -46,17 +46,6 @@
     text-transform: uppercase;
 }
 
-.option-button {
-    cursor: pointer;
-}
-
-.option-button-small {
-    font-weight: 500;
-    color: #333;
-    background-color: lightgray;
-    padding: 2px 5px;
-}
-
 .option-dropdown {
     display: inline;
     background-color: lightgray;
@@ -69,86 +58,3 @@
     font-size: 18px;
     cursor: pointer;
 }
-
-
-/*
-
-#configFileCreator {
-    background-color: rgb(233, 233, 233);
-}
-
-#configFileCreator:hover {
-    background-color: darkgray;
-}
-
-#skipAnnotationFileOpening {
-    background-color: rgb(233, 233, 233);
-}
-
-#skipAnnotationFileOpening:hover {
-    background-color: darkgray;
-}
-
-#noDictionary {
-    background-color: rgb(233, 233, 233);
-}
-
-#noDictionary:hover {
-    background-color: darkgray;
-}
-
-.loader {
-    border: 16px solid rgb(65, 255, 185);
-    border-top: 16px solid rgb(39, 212, 149);
-    border-radius: 50%;
-    width: 120px;
-    height: 120px;
-    animation: spin 2s linear infinite;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-#multipleFileSpec {
-    color: red;
-    display: none;
-    font-size: 1.2em;
-    margin-top: -35px;
-}
-
-@media only screen and (max-width: 1000px) {
-    .option-button {
-        padding: 10px 20px;
-    }
-
-    .question-headline {
-        font-size: 40px;
-    }
-
-    #multipleFileSpec {
-        font-size: 18px;
-    }
-}
-
-
-@media only screen and (max-width: 700px) {
-    .option-button {
-        padding: 7.5px 7.5px;
-    }
-
-    .question-headline {
-        font-size: 30px;
-    }
-
-    #multipleFileSpec {
-        font-size: 15px;
-    }
-}
-*/

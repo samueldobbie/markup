@@ -15,6 +15,15 @@
     box-shadow: 1px 1px 1px rgba(51, 51, 51, 0.4);
     background-color: #33FFB5;
     color: black;
+    cursor: pointer;
+}
+
+.option-button-small {
+    font-weight: 500;
+    color: #333;
+    background-color: lightgray;
+    padding: 2px 5px;
+    min-width: 150px;
 }
 
 .option-button:hover {
