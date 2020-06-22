@@ -368,11 +368,13 @@ nav .nav-wrapper {
   height: 100%;
 }
 
-#switch-letter-dropdown {
+#switch-file-dropdown {
   padding: 5px 15px 5px 5px;
   border-radius: 5px;
   background-color: white;
   color: #333;
+  cursor: pointer;
+  outline: none;
 }
 
 /*

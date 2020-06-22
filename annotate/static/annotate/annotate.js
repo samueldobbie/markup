@@ -255,7 +255,7 @@ function toggleAttributeCheck(vals, data) {
 function resetDropdowns() {
     for (var i = 0; i < $('select').length; i++) {
         var currentSelectId = $('select')[i].id;
-        if (currentSelectId != 'switch-letter-dropdown') {
+        if (currentSelectId != 'switch-file-dropdown') {
             document.getElementById(currentSelectId).selectedIndex = 0;
         }
     }
@@ -1004,11 +1004,11 @@ function onPageLoad(initalLoad=true) {
     if (initalLoad) {
         if (documentOpenType == 'multiple') {
             // Display dropdown menu to navigate between files
-            document.getElementById('switch-letter-dropdown').style.display = "";
+            document.getElementById('switch-file-dropdown').style.display = "";
     
             // Populate navigation menu
             for (var i = 0; i < documentCount; i++) {
-                document.getElementById('switch-letter-dropdown').innerHTML += '<option value="' + localStorage.getItem('fileName' + currentDocumentId) + '" documentId="' + i + '">' + localStorage.getItem('fileName' + i) + '</option>';
+                document.getElementById('switch-file-dropdown').innerHTML += '<option value="' + localStorage.getItem('fileName' + currentDocumentId) + '" documentId="' + i + '">' + localStorage.getItem('fileName' + i) + '</option>';
             }
         }    
 
@@ -1082,7 +1082,7 @@ function onPageLoad(initalLoad=true) {
         });
 
         // Enable navigation between opened files via dropdown selection
-        $('#switch-letter-dropdown').change(function () {
+        $('#switch-file-dropdown').change(function () {
             currentDocumentId = $('option:selected', this).attr('documentId');
             onPageLoad(false);
         });
