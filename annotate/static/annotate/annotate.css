@@ -335,9 +335,6 @@ nav {
   border-bottom-right-radius: 5px;
 }
 
-
-
-
 nav.nav-extended {
   height: auto;
 }
@@ -369,6 +366,13 @@ nav i.material-icons {
 nav .nav-wrapper {
   position: relative;
   height: 100%;
+}
+
+#switch-letter-dropdown {
+  padding: 5px 15px 5px 5px;
+  border-radius: 5px;
+  background-color: white;
+  color: #333;
 }
 
 /*

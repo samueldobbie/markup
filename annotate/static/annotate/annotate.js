@@ -997,14 +997,18 @@ function onPageLoad(initalLoad=true) {
     var configText = localStorage.getItem('configText');
 
     setRequestHeader(getCookie('csrftoken'));
-    
-    // Show buttons to navigate between multiple files
-    if (documentOpenType == "multiple") {
-        document.getElementById('previousFile').style.display = "";
-        document.getElementById('nextFile').style.display = "";
-    }
 
     if (initalLoad) {
+        if (documentOpenType == 'multiple') {
+            // Display dropdown menu to navigate between files
+            document.getElementById('switch-letter-dropdown').style.display = "";
+    
+            // Populate navigation menu
+            for (var i = 0; i < documentCount; i++) {
+                document.getElementById('switch-letter-dropdown').innerHTML += '<option documentId="' + i + '">' + localStorage.getItem('fileName' + i) + '</option>';
+            }
+        }    
+
         annotationList = [];
         for (var i = 0; i <= documentCount; i++) {
             annotationList.push([]);
@@ -1018,10 +1022,10 @@ function onPageLoad(initalLoad=true) {
         }
     }
 
-    // Set title to annotation file name
+    // Set page title to open document file name
     document.getElementsByTagName('title')[0].innerText = localStorage.getItem('fileName' + currentDocumentId) + " - Markup";
 
-    // Check that documentText isn't empty, otherwise return to homepage
+    // Check that documentText is not empty, otherwise return to homepage
     validateDocumentSelection(documentText);
 
     // Display selected documentText
@@ -1065,13 +1069,19 @@ function onPageLoad(initalLoad=true) {
         $('#file-data').mouseup(changeHighlightedTextColor);
 
         // Display information about annotation on hover of annotation-data display
-        $('#annotation-data').mouseover(function (eventObj) {
-            displayHoverInformation(eventObj.target.id, 'annotation-data');
+        $('#annotation-data').mouseover(function (e) {
+            displayHoverInformation(e.target.id, 'annotation-data');
         });
 
         // Display information about annotation on hover of file-data display
-        $('#file-data').mouseover(function (eventObj) {
-            displayHoverInformation(eventObj.target.id, 'file-data');
+        $('#file-data').mouseover(function (e) {
+            displayHoverInformation(e.target.id, 'file-data');
+        });
+
+        // Enable navigation between opened files via dropdown selection
+        $('#switch-letter-dropdown').change(function () {
+            currentDocumentId = $('option:selected', this).attr('documentId');
+            onPageLoad(false);
         });
 
         // Allow users to add an annotation
@@ -1113,28 +1123,6 @@ function onPageLoad(initalLoad=true) {
                 return 'You have unsaved changes, are you sure you want to leave?';
             });
         });
-
-        // Move to next when multiple documents opened
-        $('#nextFile').click(function () {
-            if (currentDocumentId < documentCount-1) {
-                currentDocumentId++;
-                onPageLoad(false);
-            }
-        });
-
-        // Move to previous when multiple documents opened
-        $('#previousFile').click(function () {
-            if (currentDocumentId > 0) {
-                currentDocumentId--;
-                onPageLoad(false);
-            }
-        });
-
-        // Prevent highlighting of nextFile arrow button on double click
-        $('#nextFile').mousedown(function(e){ e.preventDefault(); });
-
-        // Prevent highlighting of previousFile arrow button on double click
-        $('#previousFile').mousedown(function(e){ e.preventDefault(); });
 
         $('#good-annotation').click(function() {
             teachModel(null, 1);
