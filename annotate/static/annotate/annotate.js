@@ -254,7 +254,10 @@ function toggleAttributeCheck(vals, data) {
 // Reset specified dropdown lists
 function resetDropdowns() {
     for (var i = 0; i < $('select').length; i++) {
-        document.getElementById($('select')[i].id).selectedIndex = 0;
+        var currentSelectId = $('select')[i].id;
+        if (currentSelectId != 'switch-letter-dropdown') {
+            document.getElementById(currentSelectId).selectedIndex = 0;
+        }
     }
 }
 
@@ -703,12 +706,10 @@ function addAnnotation(event) {
         }
     }
 
-    console.log('abc');
-    console.log(attributeValues);
-    console.log('abc');
-
     // Removes selection of newly-annotated text
     window.getSelection().removeAllRanges();
+
+    teachModel(highlightText, 1);
 
     // Reset all selections and displays
     toggleAttributeCheck(attributeCheckboxes, false);
@@ -717,10 +718,11 @@ function addAnnotation(event) {
     toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
     resetDropdowns();
 
-    updateAnnotationFileURL();
-    loadExistingAnnotations();
-    teachModel(highlightText, 1);
-    bindCollapsibleEvents();
+    onPageLoad(false);
+
+    //updateAnnotationFileURL();
+    //loadExistingAnnotations();
+    //bindCollapsibleEvents();
 }
 
 
@@ -847,11 +849,12 @@ function deleteAnnotation(event) {
             annotationList[currentDocumentId].splice(i, 1);
             offsetList.splice(i, 1);
 
-            updateAnnotationFileURL();
-            loadExistingAnnotations();
+            //updateAnnotationFileURL();
+            //loadExistingAnnotations();
         }
     }
-    bindCollapsibleEvents();
+    //bindCollapsibleEvents();
+    onPageLoad(false);
 }
 
 
@@ -1005,7 +1008,7 @@ function onPageLoad(initalLoad=true) {
     
             // Populate navigation menu
             for (var i = 0; i < documentCount; i++) {
-                document.getElementById('switch-letter-dropdown').innerHTML += '<option documentId="' + i + '">' + localStorage.getItem('fileName' + i) + '</option>';
+                document.getElementById('switch-letter-dropdown').innerHTML += '<option value="' + localStorage.getItem('fileName' + currentDocumentId) + '" documentId="' + i + '">' + localStorage.getItem('fileName' + i) + '</option>';
             }
         }    
 
@@ -1141,7 +1144,6 @@ function onPageLoad(initalLoad=true) {
     // Load annotations from current annotationList
     updateAnnotationFileURL();
     loadExistingAnnotations();
-
     bindCollapsibleEvents();
 }
 
