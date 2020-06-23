@@ -1,5 +1,7 @@
 # markup - text annotation
 
+![](https://i.imgur.com/JP7fc1f.png)
+
 ### Usage (Online)
 
 The online version of markup can be found <a href="http://www.getmarkup.com" target="_blank">here</a>.
