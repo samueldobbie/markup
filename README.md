@@ -2,16 +2,16 @@
 
 ### Usage (Online)
 
-The online version of markup can be used [here](http://www.getmarkup.com).
+The online version of markup can be found <a href="http://www.getmarkup.com" target="_blank">here</a>.
 
 ### Usage (Local Server)
 
-1. Download or clone the repository.
+1. Clone or download the repository.
 
-2. Run the setup.py script using Python 3 by running either `python setup.py` or `python3 setup.py`, depending on your Python configuration.
+2. Run the setup.py script with Python 3 (run `python setup.py` or `python3 setup.py` depending on your configuration).
 
-3. Visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/) and start annotating!
+3. Visit <a href="http://127.0.0.1:8000/" target="_blank">http://127.0.0.1:8000/</a> and start annotating!
 
 ### Documentation
 
-Documentation for using Markup can be found [here](http://www.getmarkup.com/learn-more).
+Documentation for using markup can be found <a href="http://www.getmarkup.com/docs" target="_blank">here</a>.
