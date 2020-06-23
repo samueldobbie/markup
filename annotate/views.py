@@ -387,4 +387,4 @@ SIMILARITY_THRESHOLD = 0.7
 learner = None
 query_X = None
 query_idx = None
-vectorizer = pickle.load(open('prescription_vect.pickle', 'rb'))
+# vectorizer = pickle.load(open('prescription_vect.pickle', 'rb'))

@@ -1096,6 +1096,7 @@ function onPageLoad(initalLoad=true) {
         $('#move-to-next-file').click(function () {
             if (currentDocumentId < documentCount-1) {
                 currentDocumentId++;
+                document.getElementById('switch-file-dropdown').selectedIndex = currentDocumentId;
                 onPageLoad(false);
             }
         });
@@ -1104,6 +1105,7 @@ function onPageLoad(initalLoad=true) {
         $('#move-to-previous-file').click(function () {
             if (currentDocumentId > 0) {
                 currentDocumentId--;
+                document.getElementById('switch-file-dropdown').selectedIndex = currentDocumentId;
                 onPageLoad(false);
             }
         });

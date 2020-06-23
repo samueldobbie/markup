@@ -4,31 +4,14 @@
 
 The online version of markup can be used [here](http://www.getmarkup.com).
 
-### Usage (Offline)
+### Usage (Local Server)
 
-Run the following:
-```
-pip3 install virtualenv
-virtualenv -p python3 markup-demo
-cd markup-demo
-source bin/activate
-git clone https://github.com/samueldobbie/markup.git
-cd markup
-pip3 install -r requirements.txt
-python3 manage.py runserver
-```
+1. Download or clone the repository.
+
+2. Run the setup.py script using Python 3 by running either `python setup.py` or `python3 setup.py`, depending on your Python configuration.
+
+3. Visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/) and start annotating!
 
 ### Documentation
 
-Documentation can be read [here](http://www.getmarkup.com/learn-more).
-
-### To-Do
-
-- Require user account (or at least license validation of used corpora)
-- Allow option to store encrypted dictionary associate with individual / groups of users
-- Add semantic similarity (not just lexical)
-- Improve security
-- Add annotation suggestion ML model associated with each user
-- (Potentially) Add annotation suggestion ML model associated with all users. May not be possible to do securely, as each user will have a unique encryption key
-- Make configuration file creator intuitive to use
-- Write documenation
+Documentation for using Markup can be found [here](http://www.getmarkup.com/learn-more).
