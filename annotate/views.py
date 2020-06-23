@@ -50,7 +50,8 @@ def setup_custom_ontology(request):
     for entry in ontology_data:
         entry_values = entry.split('\t')
         if len(entry_values) == 2:
-            term_to_cui[entry_values[1]] = entry_values[0]
+            term = clean_selected_term(entry_values[1])
+            term_to_cui[term] = entry_values[0].strip()
 
     for term in term_to_cui.keys():
         term = clean_selected_term(term)
@@ -118,7 +119,7 @@ def clean_selected_term(selected_term):
     Helper function to transform the selected term into the
     same format as the terms within the simstring database
     '''
-    return selected_term.lower()
+    return selected_term.strip().lower()
 
 
 def get_annotated_texts(ann_files):

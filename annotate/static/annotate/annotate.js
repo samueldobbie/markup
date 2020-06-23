@@ -909,9 +909,9 @@ function suggestCui(event) {
         if (window.getSelection().anchorNode == null) {
             return;
         }
-        selectedTerm = window.getSelection().anchorNode.textContent.toLowerCase();
+        selectedTerm = window.getSelection().anchorNode.textContent;
     } else if (type == 'search-list') {
-        selectedTerm = document.getElementById('search-dict').value.toLowerCase();
+        selectedTerm = document.getElementById('search-dict').value;
     }
 
     // Prevent attempted mapping of long sentences
@@ -1003,6 +1003,10 @@ function onPageLoad(initalLoad=true) {
 
     if (initalLoad) {
         if (documentOpenType == 'multiple') {
+            // Display arrows to move forward or backwards by file
+            document.getElementById('move-to-previous-file').style.display = "";
+            document.getElementById('move-to-next-file').style.display = "";
+
             // Display dropdown menu to navigate between files
             document.getElementById('switch-file-dropdown').style.display = "";
     
@@ -1086,6 +1090,29 @@ function onPageLoad(initalLoad=true) {
             currentDocumentId = $('option:selected', this).attr('documentId');
             onPageLoad(false);
         });
+
+        
+        // Move to next when multiple documents opened
+        $('#move-to-next-file').click(function () {
+            if (currentDocumentId < documentCount-1) {
+                currentDocumentId++;
+                onPageLoad(false);
+            }
+        });
+
+        // Move to previous when multiple documents opened
+        $('#move-to-previous-file').click(function () {
+            if (currentDocumentId > 0) {
+                currentDocumentId--;
+                onPageLoad(false);
+            }
+        });
+
+        // Prevent highlighting of move-to-next-file arrow button on double click
+        $('#move-to-next-file').mousedown(function(e){ e.preventDefault(); });
+
+        // Prevent highlighting of move-to-previous-file arrow button on double click
+        $('#move-to-previous-file').mousedown(function(e){ e.preventDefault(); });
 
         // Allow users to add an annotation
         $('#add-annotation').click({

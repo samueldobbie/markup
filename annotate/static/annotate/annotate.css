@@ -371,8 +371,7 @@ nav .nav-wrapper {
 #switch-file-dropdown {
   padding: 5px 15px 5px 5px;
   border-radius: 5px;
-  background-color: white;
-  color: #333;
+  color: black;
   cursor: pointer;
   outline: none;
 }
