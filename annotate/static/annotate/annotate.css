@@ -233,7 +233,15 @@ ul:not(.browser-default)>li {
   list-style-type: none;
 }
 
-.suggestion:hover {
+.annotation-suggestion {
+  display: inline-block;
+  background-color: #33FFB5;
+  margin: 15px;
+  border-radius: 15px;
+  padding: 5px;
+}
+
+.annotation-suggestion:hover {
   filter: brightness(110%);
   cursor: pointer;
 }

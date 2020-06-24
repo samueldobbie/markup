@@ -1165,28 +1165,12 @@ function onPageLoad(initalLoad=true) {
             teachModel(null, 0);
             queryActiveLearner(currentTxtFile);
         });
-
-        // Initialise active learner
-        initialiseActiveLearner(documentCount);
     }
 
     // Load annotations from current annotationList
     updateAnnotationFileURL();
     loadExistingAnnotations();
     bindCollapsibleEvents();
-}
-
-
-function teachModel(instance, label) {
-    $.ajax({
-        type: 'POST',
-        async: false,
-        data: {
-            'instance': instance,
-            'label': label,
-        },
-        url: '~/teach-active-learner'
-    });
 }
 
 
@@ -1217,6 +1201,19 @@ function stopTraining() {
 }
 
 
+function teachModel(instance, label) {
+    $.ajax({
+        type: 'POST',
+        async: false,
+        data: {
+            'instance': instance,
+            'label': label,
+        },
+        url: '~/teach-active-learner'
+    });
+}
+
+
 function viewSuggestions() {
     document.getElementById('file-data').style.display = 'none';
     document.getElementById('train-annotation-suggestions').style.display = 'none';
@@ -1225,16 +1222,10 @@ function viewSuggestions() {
     document.getElementById('annotation-data').style.display = 'none';
     document.getElementById('view-suggestions-list').style.display = '';
     document.getElementById('stop-viewing').style.display = '';
-    
-    // Loading -- TO-DO: get vectorized ngrams in the background to make it quicker
+
     sleep(500).then(() => {
         getAnnotationSuggestions();
     });
-}
-
-
-function sleep(time) {
-    return new Promise((resolve) => setTimeout(resolve, time));
 }
 
 
@@ -1251,92 +1242,44 @@ function stopViewing() {
     document.getElementById('stop-viewing').style.display = 'none';
 }
 
-var abc = 5;
-function queryActiveLearner(currentTxtFile) {
-    /*
-    var sentences = currentTxtFile.split('\n');
-    var finalSentences = [];
-    for (var i = 0; i < sentences.length; i++) {
-        if (sentences[i].trim() != '') {
-            finalSentences.push(sentences[i].trim());
-        }
-    }
-    document.getElementById('train-model-term').innerText = finalSentences[abc];
-    abc++;
-    */
-    
-    $.ajax({
-        type: 'POST',
-        async: false,
-        url: '~/query-active-learner',
-        data: {
-            'txtFile': currentTxtFile,
-        },
-        success: function (response) {
-            var result = response.split('***');
-            document.getElementById('train-model-term').queryId = result[0];
-            document.getElementById('train-model-term').innerText = result[1];
-        }
-    });
-}
-
-
-function initialiseActiveLearner(documentCount) {
-    var txtFiles = [];
-    var annFiles = [];
-    for (var i = 0; i <= documentCount; i++) {
-        var documentText = localStorage.getItem('documentText' + i);
-        var annotationText = localStorage.getItem('annotationText' + i);
-        if (documentText != null && annotationText != null) {  
-            txtFiles.push(documentText);
-            annFiles.push(annotationText);
-        }
-    }
-
-    $.ajax({
-        type: 'POST',
-        async: false,
-        url: '~/initialise-active-learner',
-        data: JSON.stringify({ 
-            'txtFiles': txtFiles,
-            'annFiles': annFiles,
-        })
-    });
-}
-
 
 function getAnnotationSuggestions() {
-    // Only show suggestions if they haven't already been annotated
+    // Get open document text and existing annotations
+    var text = localStorage.getItem('documentText' + currentDocumentId);
+    var annotations = [];
+    for (var i = 0; i < $('.displayedAnnotation').length; i++) {
+        annotations.push($('.displayedAnnotation')[i].innerText);
+    }
 
-    var txtFile = localStorage.getItem('documentText' + currentDocumentId);
-    var currentAnnotations = localStorage.getItem('annotationText' + currentDocumentId);
-
-    // Get annotation suggestions
     $.ajax({
         type: 'POST',
         async: false,
-        url: '~/get-annotation-suggestions',
+        url: '~/suggest-annotations',
         data: { 
-            'txtFile': txtFile,
-            'currentAnnotations': currentAnnotations,
+            'text': text,
+            'annotations': JSON.stringify(annotations)
         },
         success: function (response) {
-            document.getElementById("loading").style.display = "none";
+            // Remove loading message
+            document.getElementById('loading').style.display = 'none';
 
+            // Parse suggestions
             var suggestions = JSON.parse(response);
 
-            var suggestionCount = suggestions.length;
-            if (suggestionCount == 0) {
-                document.getElementById("no-suggestions").style.display = "";
+            // Hide no suggestion message if suggestion(s) exist
+            if (suggestions.length == 0) {
+                document.getElementById('no-suggestions').style.display = '';
             }
 
-            for (var i = 0; i < suggestionCount; i++) {
-                document.getElementById('suggestion-list').innerHTML += '<br><span drugName="' + suggestions[i][1] + '" drugDose="' + suggestions[i][2] + '" drugUnit="' + suggestions[i][3] + '" frequency="' + suggestions[i][4] + '" class="suggestion standard-text" style="display:inline-block; background-color: #33FFB5; margin:15px; border-radius:15px; padding:5px;">' + suggestions[i][0] + '</span>';
+            // Construct and display suggestions
+            for (var i = 0; i < suggestions.length; i++) {
+                document.getElementById('suggestion-list').innerHTML += '<br><span drugName="' + suggestions[i][1] + '" drugDose="' + suggestions[i][2] + '" drugUnit="' + suggestions[i][3] + '" frequency="' + suggestions[i][4] + '" class="annotation-suggestion standard-text">' + suggestions[i][0] + '</span>';
             }
         }
     });
     
-    $('.suggestion').click(function () {
+    // Add annotation to annotation list upon acceptance of suggestion
+    $('.annotation-suggestion').click(function () {
         var documentText = document.getElementById('file-data').innerText;
 
         var highlighted = this.innerText;
@@ -1435,4 +1378,38 @@ function getAnnotationSuggestions() {
 
     });
 
+}
+
+
+var abc = 5;
+function queryActiveLearner(currentTxtFile) {
+    /*
+    var sentences = currentTxtFile.split('\n');
+    var finalSentences = [];
+    for (var i = 0; i < sentences.length; i++) {
+        if (sentences[i].trim() != '') {
+            finalSentences.push(sentences[i].trim());
+        }
+    }
+    document.getElementById('train-model-term').innerText = finalSentences[abc];
+    abc++;
+    */
+    
+    $.ajax({
+        type: 'POST',
+        async: false,
+        url: '~/query-active-learner',
+        data: {
+            'txtFile': currentTxtFile,
+        },
+        success: function (response) {
+            var result = response.split('***');
+            document.getElementById('train-model-term').queryId = result[0];
+            document.getElementById('train-model-term').innerText = result[1];
+        }
+    });
+}
+
+function sleep(time) {
+    return new Promise((resolve) => setTimeout(resolve, time));
 }
