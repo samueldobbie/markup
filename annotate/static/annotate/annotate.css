@@ -236,8 +236,9 @@ ul:not(.browser-default)>li {
 .annotation-suggestion {
   display: inline-block;
   background-color: #33FFB5;
+  color: black;
   margin: 15px;
-  border-radius: 15px;
+  border-radius: 5px;
   padding: 5px;
 }
 
@@ -311,16 +312,6 @@ nav {
   cursor: pointer;
   margin-bottom: 5px;
 }
-
-/*
-.displayedAnnotation:after {
-  color: #333;
-  content: '\25BC';
-  float: right;
-  padding-right: 5px;
-  display: block;
-}
-*/
 
 .displayedAnnotation:hover {
   filter: brightness(90%);

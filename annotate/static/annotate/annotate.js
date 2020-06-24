@@ -465,13 +465,8 @@ function changeHighlightedTextColor() {
             $('#highlighted').replaceWith(function () { return this.innerHTML; });
         }
 
-        // Create deep copy of current selection
-        // currentSelection = jQuery.extend(true, {}, window.getSelection());
-
         var documentElement = document.getElementById('file-data');
-
         highlightText = window.getSelection().toString();
-        
         var highlightRange = window.getSelection().getRangeAt(0);
 
         var preCaretRange = highlightRange.cloneRange();
@@ -480,7 +475,6 @@ function changeHighlightedTextColor() {
 
         highlightTextLength = highlightRange.toString().replace(/\n/g, '').length;
         preCaretStringLength = preCaretRange.toString().replace(/\n/g, '').length;
-
 
         // Color-highlight selected text
         document.getElementById('file-data').contentEditable = 'true';
@@ -628,8 +622,14 @@ function addAnnotation(event) {
         }
     }
 
+    // To-do: better solution for checking its not switch file dropdown
     for (var i = 0; i < $('select').length; i++) {
         var currentSelect = $('select')[i];
+        
+        if (currentSelect.id == 'switch-file-dropdown') {
+            continue;
+        }
+
         var currentValue = underscoreString(currentSelect.options[currentSelect.selectedIndex].value);
 
         if (currentValue != currentSelect[0].value && currentSelect.id == currentSelect[0].value + entityValue) {
@@ -719,10 +719,6 @@ function addAnnotation(event) {
     resetDropdowns();
 
     onPageLoad(false);
-
-    //updateAnnotationFileURL();
-    //loadExistingAnnotations();
-    //bindCollapsibleEvents();
 }
 
 
@@ -1273,109 +1269,49 @@ function getAnnotationSuggestions() {
 
             // Construct and display suggestions
             for (var i = 0; i < suggestions.length; i++) {
-                document.getElementById('suggestion-list').innerHTML += '<br><span drugName="' + suggestions[i][1] + '" drugDose="' + suggestions[i][2] + '" drugUnit="' + suggestions[i][3] + '" frequency="' + suggestions[i][4] + '" class="annotation-suggestion standard-text">' + suggestions[i][0] + '</span>';
+                var annotation = suggestions[i][0];
+                var drug = suggestions[i][1];
+                var dose = suggestions[i][2];
+                var unit = suggestions[i][3];
+                var frequency = suggestions[i][4];
+
+                document.getElementById('suggestion-list').innerHTML += '<span drug="' + drug + '" dose="' + dose + '" unit="' + unit + '" frequency="' + frequency + '" class="annotation-suggestion standard-text">' + annotation + '</span>';
             }
         }
     });
     
+
     // Add annotation to annotation list upon acceptance of suggestion
     $('.annotation-suggestion').click(function () {
-        var documentText = document.getElementById('file-data').innerText;
+        // var documentText = document.getElementById('file-data').innerText;
+        // var startIndex = documentText.indexOf(annotationText);
+        // var endIndex = startIndex + annotationText.length;
 
-        var highlighted = this.innerText;
+        // Get accepted annotation text
+        var annotationText = this.innerText;
 
-        var highlightedIndex = 0;
-        var startIndex = 0;
+        // Return to main document panel
+        stopViewing();
 
-        for (var i = 0; i < documentText.length; i++) {
-            startIndex++;
-            if (highlightedIndex == highlighted.length) {
-                startIndex++;
-                break;
-            } else if (highlighted[highlightedIndex] == documentText[i]) {
-                highlightedIndex++;
-            } else {
-                highlightedIndex = 0;
-            }
-        }
-        var endIndex = startIndex + highlighted.length;
+        // Select annotation text
+        window.find(annotationText);
 
-        // Output annotation in stand-off format
-        var annotation = [];
-        var entityHoverInfo = [];
-        var attributeHoverInfo = [];
+        changeHighlightedTextColor();
 
-        // Add entity data to annotation list and hover info
-        var entityValue = 'Prescription';
-        entityHoverInfo.push(entityValue);
-        entityData = 'T' + entityId + '\t' + entityValue + ' ' + startIndex + ' ' + endIndex + '\t' + underscoreString(highlighted) + '\n';
-        entityId++;
+        // Set Prescription entity
+        document.getElementById('Prescription-radio').click();
 
-        annotation.push([entityData]);
-
-        // Prepare attribute data to annotation list and add hover info
-        var attributeValues = [];
-        var attributeData = [];
-
-        var chosenField = 'DrugName';
-        var currentValue = this.getAttribute('drugName');
-        attributeValues.push(chosenField + ': ', currentValue + '\n');
-        attributeData.push('A' + attributeId + '\t' + chosenField + ' T' + (entityId - 1) + ' ' + currentValue + '\n');
-        attributeId++;
-
-        chosenField = 'DrugDose';
-        currentValue = this.getAttribute('drugDose');
-        attributeValues.push(chosenField + ': ', currentValue + '\n');
-        attributeData.push('A' + attributeId + '\t' + chosenField + ' T' + (entityId - 1) + ' ' + currentValue + '\n');
-        attributeId++;
-
-        chosenField = 'DrugUnit';
-        currentValue = this.getAttribute('drugUnit');
-        attributeValues.push(chosenField + ': ', currentValue + '\n');
-        attributeData.push('A' + attributeId + '\t' + chosenField + ' T' + (entityId - 1) + ' ' + currentValue + '\n');
-        attributeId++;
-
-        chosenField = 'Frequency';
-        currentValue = this.getAttribute('frequency');
-
-        if (currentValue.trim() != '') {
-            attributeValues.push(chosenField + ': ', currentValue + '\n');
-            attributeData.push('A' + attributeId + '\t' + chosenField + ' T' + (entityId - 1) + ' ' + currentValue + '\n');
-            attributeId++;
-        }
-
-        attributeHoverInfo.push(attributeValues);
-    
-        // Add attributes to annotation list
-        for (var i = 0; i < attributeData.length; i++) {
-            annotation.push([attributeData[i]]);
-        }
-
-        // Add annotations to current-annotation list and offsets to offset list
-        if (annotationList[currentDocumentId].length == 0) {
-            annotationList[currentDocumentId].push(annotation);
-            offsetList.push([startIndex, endIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
-        } else {
-            for (var i=0; i < annotationList[currentDocumentId].length; i++) {
-                if (startIndex > parseInt(annotationList[currentDocumentId][i][0][0].split(' ')[1])) {
-                    annotationList[currentDocumentId].splice(i, 0, annotation);
-                    offsetList.splice(i, 0, [startIndex, endIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
-                    break;
-                } 
-                
-                if (i == (annotationList[currentDocumentId].length - 1)) {
-                    annotationList[currentDocumentId].push(annotation);
-                    offsetList.push([startIndex, endIndex, entityHoverInfo, attributeHoverInfo, highlighted]);
-                    break;
-                }
+        // Populate Prescription attributes
+        var attributeDropdowns = $('input[name=values]');
+        for (var i = 0; i < attributeDropdowns; i++) {
+            console.log(attributeDropdowns[i]);
+            if (attributeDropdowns[i].attr('list', 'DrugNamePrescription')) {
+                attributeDropdowns[i].val('abc');
             }
         }
 
-        updateAnnotationFileURL();
-        loadExistingAnnotations();
-        teachModel(highlighted, 1);
-        location.reload();
-
+        // Add annotation
+        document.getElementById('add-annotation').click();
     });
 
 }
