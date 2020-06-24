@@ -178,7 +178,7 @@ def parse_prescription_data(sentence):
             dose = re.search(r'\d+', token)[0]
 
         if is_unit(token):
-            unit = re.sub(r'\d+', '', token)[0]
+            unit = re.sub(r'\d+', '', token)
 
         if is_frequency(token):
             frequency = token

@@ -1283,10 +1283,6 @@ function getAnnotationSuggestions() {
 
     // Add annotation to annotation list upon acceptance of suggestion
     $('.annotation-suggestion').click(function () {
-        // var documentText = document.getElementById('file-data').innerText;
-        // var startIndex = documentText.indexOf(annotationText);
-        // var endIndex = startIndex + annotationText.length;
-
         // Get accepted annotation text
         var annotationText = this.innerText;
 
@@ -1303,10 +1299,16 @@ function getAnnotationSuggestions() {
 
         // Populate Prescription attributes
         var attributeDropdowns = $('input[name=values]');
-        for (var i = 0; i < attributeDropdowns; i++) {
+        for (var i = 0; i < attributeDropdowns.length; i++) {
             console.log(attributeDropdowns[i]);
-            if (attributeDropdowns[i].attr('list', 'DrugNamePrescription')) {
-                attributeDropdowns[i].val('abc');
+            if (attributeDropdowns[i].getAttribute('list') == 'DrugNamePrescription') {
+                attributeDropdowns[i].value = this.getAttribute('drug');
+            } else if (attributeDropdowns[i].getAttribute('list') == 'DrugDosePrescription') {
+                attributeDropdowns[i].value = this.getAttribute('dose');
+            } else if (attributeDropdowns[i].getAttribute('list') == 'DoseUnitPrescription') {
+                attributeDropdowns[i].value = this.getAttribute('unit');
+            } else if (attributeDropdowns[i].getAttribute('list') == 'FrequencyPrescription') {
+                attributeDropdowns[i].value = this.getAttribute('frequency');
             }
         }
 

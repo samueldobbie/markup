@@ -17,3 +17,5 @@ The online version of markup can be found <a href="http://www.getmarkup.com">her
 ### Documentation
 
 Documentation for markup can be found <a href="http://www.getmarkup.com/docs">here</a>.
+
+### Features
