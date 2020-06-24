@@ -1267,6 +1267,14 @@ function getAnnotationSuggestions() {
                 document.getElementById('no-suggestions').style.display = '';
             }
 
+            // Get Prescription highlight color
+            for (var i = 0; i < $('label').length; i++) {
+                if ($('label')[i].innerText == 'Prescription') {
+                    var highlightColor = colors[$('label')[i].getAttribute('colorIndex')];
+                    break;
+                }
+            }
+
             // Construct and display suggestions
             for (var i = 0; i < suggestions.length; i++) {
                 var annotation = suggestions[i][0];
@@ -1275,7 +1283,7 @@ function getAnnotationSuggestions() {
                 var unit = suggestions[i][3];
                 var frequency = suggestions[i][4];
 
-                document.getElementById('suggestion-list').innerHTML += '<span drug="' + drug + '" dose="' + dose + '" unit="' + unit + '" frequency="' + frequency + '" class="annotation-suggestion standard-text">' + annotation + '</span>';
+                document.getElementById('suggestion-list').innerHTML += '<span drug="' + drug + '" dose="' + dose + '" unit="' + unit + '" frequency="' + frequency + '" class="annotation-suggestion standard-text" style="background-color: ' + highlightColor + '" >' + annotation + '</span>';
             }
         }
     });
