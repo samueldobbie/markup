@@ -2,7 +2,6 @@ secretkey.txt
 __pycache__/
 .vscode/
 *.pyc
-*.pickle
 *.ann
 *.sqlite3
 *.conf

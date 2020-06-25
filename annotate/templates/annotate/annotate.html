@@ -41,17 +41,16 @@
         </nav>
 
         <div class="container">
-            <div id="config-data" class="item item-1 standard-text">
+            <div id="config-data" class="item item-1 standard-text" style="padding-bottom: 15px;">
                 <div id="annotation-suggestions">
-                    <button id="view-suggestions" class="green-button main-button">View Suggestions</button>
-                    <button id="train-annotation-suggestions" class="gray-button main-button">Train Model</button>
-                    <button id="stop-training" class="gray-button main-button" style="display:none;">Back to document(s)</button>
-                    <button id="stop-viewing" class="gray-button main-button" style="display:none;">Back to document(s)</button>
+                    <button id="view-suggestions" class="main-button green-button">View Suggestions</button>
+                    <button id="train-annotation-suggestions" class="main-button gray-button">Train</button>
+                    <button id="stop-training" class="main-button gray-button" style="display:none;">Back to document(s)</button>
+                    <button id="stop-viewing" class="main-button gray-button" style="display:none;">Back to document(s)</button>
                 </div>
 
                 <div id="config-data-options">
-                    <div id="entities">
-                    </div>
+                    <div id="entities"></div>
                     
                     <div id="attributes">
                         <div id="attribute-checkboxes"></div>
@@ -60,27 +59,27 @@
 
                     <div id="settings">
                         <br>
-                        <select id="match-list" style="min-width:105px; border-radius:5px;" class="dropdown">
+                        <select id="match-list" style="min-width:105px;" class="dropdown input-field">
                             <option>No match</option>
                         </select>
 
-                        <select id="search-list" style="min-width:105px; border-radius:5px;" class="dropdown">
+                        <select id="search-list" style="min-width:105px;" class="dropdown input-field">
                             <option>No match</option>
                         </select>
                         <br>
-                        <input id="search-dict" placeholder="Search UMLS" style="padding:2%; font-weight:bold; font-size:0.75em; font-family:'Nunito'; outline:0px solid transparent; color:#666; background-color:rgb(235, 235, 235); border:none; border-radius:5px;"/>
+                        <input id="search-dict" class="input-field" placeholder="Search ontology"/>
                         <br>
-                        <button id="add-annotation" class="btn" style="margin-top:8.5px; border-radius:5px;">Add Annotation</button>
                         <br>
-                        <a id="save-annotation-file" class="btn" style="border-radius:5px;">Save</a>
+                        <button id="add-annotation" class="main-button green-button">Add Annotation</button>
+                        <a id="save-annotation-file" class="main-button gray-button">Save</a>
                     </div>
                 </div>
             </div>
 
             <div id="train-model" class="item item-2 standard-text" style="display:none; overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px;">
                 <p id="train-model-term"></p>
-                <button id="train-positive-response" class="green-button main-button">Prescription</button>
-                <button id="train-negative-response" class="red-button main-button">Not Prescription</button>
+                <button id="train-positive-response" class="main-button green-button">Prescription</button>
+                <button id="train-negative-response" class="main-button red-button">Not Prescription</button>
             </div>
 
             <div id="view-suggestions-list" class="item item-2 standard-text" style="display:none; overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px; text-align:center;">
