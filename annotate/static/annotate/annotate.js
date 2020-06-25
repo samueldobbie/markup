@@ -1067,7 +1067,10 @@ function onPageLoad(initalLoad=true) {
         }, displayDynamicAttributes);
 
         // Change colour of highlighted text
-        $('#file-data').mouseup(changeHighlightedTextColor);
+        $('#file-data').mouseup(function () {
+            changeHighlightedTextColor();
+            bindCollapsibleEvents();
+        });
 
         // Display information about annotation on hover of annotation-data display
         $('#annotation-data').mouseover(function (e) {
