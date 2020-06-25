@@ -158,7 +158,7 @@ def text_to_sentences(document_text):
     paragraphs = document_text.split('\n')
     sentences = []
     for paragraph in paragraphs:
-        for sentence in paragraph.split('.'):
+        for sentence in paragraph.split('. '):
             if sentence.strip() != '':
                 sentences.append(sentence.strip())
     return sentences
@@ -203,7 +203,7 @@ def parse_prescription_data(sentence):
         if is_frequency(token) and frequency == '':
             frequency = token
 
-    # Stop parsing if sentence doesn't contain drug name
+    # Ignore sentence if it doesn't contain a drug, dose, and unit
     if drug == '' or dose == '' or unit == '':
         return None, None, None, None
 
