@@ -3,7 +3,7 @@ betterpath==0.2.2
 certifi==2019.3.9
 chardet==3.0.4
 Click==7.0
-Django==3.0.7
+Django==2.2.13
 future==0.17.1
 idna==2.8
 l==0.11.0
