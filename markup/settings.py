@@ -15,20 +15,18 @@ import random
 import string
 
 # Generate secret key or open existing
+secret_key_path = os.path.dirname(__file__) + '/secretkey.txt'
+available_symbols = string.ascii_letters + string.digits + string.punctuation
 try:
-    SECRET_KEY = open(os.path.dirname(__file__) +
-                      '/secretkey.txt').read().strip()
+    SECRET_KEY = open(secret_key_path).read().strip()
 except:
-    SECRET_KEY = ''.join([random.SystemRandom().choice(
-        string.ascii_letters + string.digits + string.punctuation)
-        for _ in range(50)])
-    secret_key_file = open(os.path.dirname(__file__) + '/secretkey.txt', 'w')
+    SECRET_KEY = ''.join([random.SystemRandom().choice(available_symbols) for _ in range(50)])
+    secret_key_file = open(secret_key_path, 'w')
     secret_key_file.write(SECRET_KEY)
     secret_key_file.close()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/

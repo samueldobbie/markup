@@ -192,10 +192,6 @@ def parse_prescription_data(sentence):
     # Parse drug name
     drug = get_drug(sentence.lower())
 
-    # Stop parsing if sentence doesn't contain drug name
-    if drug is None:
-        return None, None, None, None
-
     # Parse dose, unit and frequency (if they exist)
     for token in sentence.split(' '):
         if is_dose(token) and dose == '':
@@ -206,6 +202,10 @@ def parse_prescription_data(sentence):
 
         if is_frequency(token) and frequency == '':
             frequency = token
+
+    # Stop parsing if sentence doesn't contain drug name
+    if drug == '' or dose == '' or unit == '':
+        return None, None, None, None
 
     return drug, dose, unit, frequency
 
@@ -222,7 +222,7 @@ def get_drug(sentence):
             ngram = ' '.join(ngram_words)
             if ngram in drugs:
                 return ngram
-    return None
+    return ''
 
 
 def is_dose(token):
