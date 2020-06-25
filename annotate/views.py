@@ -32,8 +32,6 @@ def setup_preloaded_ontology(request):
     if selected_ontology == 'none' or selected_ontology == 'default':
         pass
     elif selected_ontology == 'umls':
-        term_to_cui = pickle.load(open('data/pickle/term_to_cui.pickle', 'rb'))
-        umls_database = pickle.load(open('data/pickle/umls_database.pickle', 'rb'))
         simstring_searcher = Searcher(umls_database, CosineMeasure())
 
     return HttpResponse(None)
@@ -272,6 +270,9 @@ query_sample = None
 
 learner = pickle.load(open('data/pickle/prescription_model.pickle', 'rb'))
 vectorizer = pickle.load(open('data/pickle/prescription_vectorizer.pickle', 'rb'))
+
+umls_database = pickle.load(open('data/pickle/umls_database.pickle', 'rb'))
+term_to_cui = pickle.load(open('data/pickle/term_to_cui.pickle', 'rb'))
 
 stopwords = set(open('data/txt/stopwords.txt', encoding='utf-8').read().split('\n'))
 drugs = set(open('data/txt/drugs.txt', encoding='utf-8').read().split('\n'))
