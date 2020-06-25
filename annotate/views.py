@@ -177,6 +177,10 @@ def clean_sentences(raw_sentences):
     return clean_sentences
 
 
+def predict_labels(X):
+    return learner.predict(X)
+
+
 def parse_prescription_data(sentence):
     '''
     Extract drug name, dose, unit and frequency from a sentence
@@ -228,15 +232,13 @@ def is_frequency(token):
     return token.lower() in ('bd', 'morning', 'afternoon', 'evening')
 
 
-def teach_active_learner(request):
-    return HttpResponse(None)
-
-
 def query_active_learner(request):
     '''
     Query document sentences to enable
     the labelling of uncertain sentences
     '''
+
+    global query_instance
 
     document_text = request.POST['documentText']
     document_sentences = text_to_sentences(document_text)
@@ -246,11 +248,28 @@ def query_active_learner(request):
     query_index, query_instance = learner.query(np.array(query_x))
     query_index = query_index[0]
 
-    return HttpResponse(str(query_index) + '***' + document_sentences[query_index])
+    return HttpResponse(document_sentences[query_index])
 
 
-def predict_labels(X):
-    return learner.predict(X)
+def teach_active_learner(request):
+    sentence = request.POST.get('sentence')
+    label = request.POST.get('label')
+
+    if sentence:
+        teach_active_learner_with_text(sentence, label)
+    else:
+        teach_active_learner_without_text(label)
+
+    return HttpResponse(None)
+
+
+def teach_active_learner_without_text(label):
+    learner.teach(query_instance, [label])
+
+
+def teach_active_learner_with_text(instance, label):
+    data = np.array(vectorizer.transform([instance]).toarray())
+    learner.teach(data, [label])
 
 
 SIMILARITY_THRESHOLD = 0.7

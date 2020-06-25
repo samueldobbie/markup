@@ -709,7 +709,7 @@ function addAnnotation(event) {
     // Removes selection of newly-annotated text
     window.getSelection().removeAllRanges();
 
-    teachModel(highlightText, 1);
+    //teachModel(highlightText, 1);
 
     // Reset all selections and displays
     toggleAttributeCheck(attributeCheckboxes, false);
@@ -1121,19 +1121,19 @@ function onPageLoad(initalLoad=true) {
 
         // Allow users to see suggested annotations
         $('#view-suggestions').click(function () {
-            viewSuggestions();
+            startViewingAnnotationSuggestions();
         });
 
         $('#train-annotation-suggestions').click(function () {
-            trainModel();
+            startTrainingActiveLearner();
         });
 
         $('#stop-training').click(function () {
-            stopTraining();
+            stopTrainingActiveLearner();
         });
 
         $('#stop-viewing').click(function () {
-            stopViewing();
+            stopViewingAnnotationSuggestions();
         });
 
         // Suggest most relevant UMLS matches based on highlighted term 
@@ -1152,14 +1152,14 @@ function onPageLoad(initalLoad=true) {
             });
         });
 
-        $('#good-annotation').click(function() {
+        $('#train-positive-response').click(function() {
             teachModel(null, 1);
-            queryActiveLearner(currentTxtFile);
+            queryActiveLearner();
         });
         
-        $('#bad-annotation').click(function() {
+        $('#train-negative-response').click(function() {
             teachModel(null, 0);
-            queryActiveLearner(currentTxtFile);
+            queryActiveLearner();
         });
     }
 
@@ -1170,47 +1170,7 @@ function onPageLoad(initalLoad=true) {
 }
 
 
-var currentTxtFile;
-function trainModel() {
-    document.getElementById('file-data').style.display = 'none';
-    document.getElementById('train-annotation-suggestions').style.display = 'none';
-    document.getElementById('view-suggestions').style.display = 'none';
-    document.getElementById('config-data-options').style.display = 'none';
-    document.getElementById('annotation-data').style.display = 'none';
-    document.getElementById('train-model').style.display = '';
-    document.getElementById('stop-training').style.display = '';
-
-    // Change this to whatever the pool is for X
-    currentTxtFile = localStorage.getItem('documentText' + currentDocumentId);
-    queryActiveLearner(currentTxtFile);
-}
-
-
-function stopTraining() {
-    document.getElementById('file-data').style.display = '';
-    document.getElementById('train-annotation-suggestions').style.display = '';
-    document.getElementById('view-suggestions').style.display = '';
-    document.getElementById('config-data-options').style.display = '';
-    document.getElementById('annotation-data').style.display = '';
-    document.getElementById('train-model').style.display = 'none';
-    document.getElementById('stop-training').style.display = 'none';
-}
-
-
-function teachModel(instance, label) {
-    $.ajax({
-        type: 'POST',
-        async: false,
-        data: {
-            'instance': instance,
-            'label': label,
-        },
-        url: '~/teach-active-learner'
-    });
-}
-
-
-function viewSuggestions() {
+function startViewingAnnotationSuggestions() {
     document.getElementById('file-data').style.display = 'none';
     document.getElementById('train-annotation-suggestions').style.display = 'none';
     document.getElementById('view-suggestions').style.display = 'none';
@@ -1225,7 +1185,7 @@ function viewSuggestions() {
 }
 
 
-function stopViewing() {
+function stopViewingAnnotationSuggestions() {
     document.getElementById('file-data').style.display = '';
     document.getElementById('train-annotation-suggestions').style.display = '';
     document.getElementById('view-suggestions').style.display = '';
@@ -1297,7 +1257,7 @@ function getAnnotationSuggestions() {
         var annotationText = this.innerText;
 
         // Return to main document panel
-        stopViewing();
+        stopViewingAnnotationSuggestions();
 
         // Select annotation text
         window.find(annotationText);
@@ -1328,7 +1288,32 @@ function getAnnotationSuggestions() {
 
 }
 
-function queryActiveLearner(currentTxtFile) {
+
+function startTrainingActiveLearner() {
+    document.getElementById('file-data').style.display = 'none';
+    document.getElementById('train-annotation-suggestions').style.display = 'none';
+    document.getElementById('view-suggestions').style.display = 'none';
+    document.getElementById('config-data-options').style.display = 'none';
+    document.getElementById('annotation-data').style.display = 'none';
+    document.getElementById('train-model').style.display = '';
+    document.getElementById('stop-training').style.display = '';
+
+    queryActiveLearner();
+}
+
+
+function stopTrainingActiveLearner() {
+    document.getElementById('file-data').style.display = '';
+    document.getElementById('train-annotation-suggestions').style.display = '';
+    document.getElementById('view-suggestions').style.display = '';
+    document.getElementById('config-data-options').style.display = '';
+    document.getElementById('annotation-data').style.display = '';
+    document.getElementById('train-model').style.display = 'none';
+    document.getElementById('stop-training').style.display = 'none';
+}
+
+
+function queryActiveLearner() {
     var documentText = localStorage.getItem('documentText' + currentDocumentId);
     
     $.ajax({
@@ -1339,10 +1324,21 @@ function queryActiveLearner(currentTxtFile) {
             'documentText': documentText,
         },
         success: function (response) {
-            var result = response.split('***');
-            document.getElementById('train-model-term').queryId = result[0];
-            document.getElementById('train-model-term').innerText = result[1];
+            document.getElementById('train-model-term').innerText = response;
         }
+    });
+}
+
+
+function teachModel(sentence, label) {
+    $.ajax({
+        type: 'POST',
+        async: false,
+        data: {
+            'sentence': sentence,
+            'label': label,
+        },
+        url: '~/teach-active-learner'
     });
 }
 
