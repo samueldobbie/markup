@@ -317,9 +317,12 @@ nav {
   filter: brightness(90%);
 }
 
+.collapsible {
+  margin-bottom: 0px;
+}
+
 .active, .collapsible:hover {
   background-color: #555;
-  margin-bottom: 0px;
 }
 
 .content {

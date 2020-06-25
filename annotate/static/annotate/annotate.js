@@ -1267,9 +1267,11 @@ function getAnnotationSuggestions() {
                 document.getElementById('no-suggestions').style.display = '';
             }
 
+            var entityType = 'Prescription';
+
             // Get Prescription highlight color
             for (var i = 0; i < $('label').length; i++) {
-                if ($('label')[i].innerText == 'Prescription') {
+                if ($('label')[i].innerText == entityType) {
                     var highlightColor = colors[$('label')[i].getAttribute('colorIndex')];
                     break;
                 }
@@ -1326,27 +1328,15 @@ function getAnnotationSuggestions() {
 
 }
 
-
-var abc = 5;
 function queryActiveLearner(currentTxtFile) {
-    /*
-    var sentences = currentTxtFile.split('\n');
-    var finalSentences = [];
-    for (var i = 0; i < sentences.length; i++) {
-        if (sentences[i].trim() != '') {
-            finalSentences.push(sentences[i].trim());
-        }
-    }
-    document.getElementById('train-model-term').innerText = finalSentences[abc];
-    abc++;
-    */
+    var documentText = localStorage.getItem('documentText' + currentDocumentId);
     
     $.ajax({
         type: 'POST',
         async: false,
         url: '~/query-active-learner',
         data: {
-            'txtFile': currentTxtFile,
+            'documentText': documentText,
         },
         success: function (response) {
             var result = response.split('***');
@@ -1355,6 +1345,7 @@ function queryActiveLearner(currentTxtFile) {
         }
     });
 }
+
 
 function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));

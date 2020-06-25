@@ -129,16 +129,13 @@ def suggest_annotations(request):
     '''
 
     document_text = request.POST['text']
-    document_paragraphs = document_text.split('\n')
-    document_sentences = []
-    for paragraph in document_paragraphs:
-        for sentence in paragraph.split('.'):
-            document_sentences.append(sentence.strip())
+    document_sentences = text_to_sentences(document_text)
+    clean_document_sentences = clean_sentences(document_sentences)
 
     existing_annotations = set(json.loads(request.POST['annotations']))
 
     # Vectorize sentences
-    X = vectorizer.transform(document_sentences)
+    X = vectorizer.transform(clean_document_sentences)
 
     # Predict whether each sentence contains a prescription or not
     predictions = predict_labels(X)
@@ -155,6 +152,29 @@ def suggest_annotations(request):
                 suggestions.append([document_sentences[i], drug, dose, unit, frequency])
 
     return HttpResponse(json.dumps(suggestions))
+
+
+def text_to_sentences(document_text):
+    paragraphs = document_text.split('\n')
+    sentences = []
+    for paragraph in paragraphs:
+        for sentence in paragraph.split('.'):
+            if sentence.strip() != '':
+                sentences.append(sentence.strip())
+    return sentences
+
+
+def clean_sentences(raw_sentences):
+    clean_sentences = []
+
+    for raw_sentence in raw_sentences:
+        clean_sentence = []
+        for token in raw_sentence.split(' '):
+            if token not in stopwords:
+                clean_sentence.append(token.lower())
+        clean_sentences.append(' '.join(clean_sentence))
+
+    return clean_sentences
 
 
 def parse_prescription_data(sentence):
@@ -174,13 +194,13 @@ def parse_prescription_data(sentence):
 
     # Parse dose, unit and frequency (if they exist)
     for token in sentence.split(' '):
-        if is_dose(token):
+        if is_dose(token) and dose == '':
             dose = re.search(r'\d+', token)[0]
 
-        if is_unit(token):
+        if is_unit(token) and unit == '':
             unit = re.sub(r'\d+', '', token)
 
-        if is_frequency(token):
+        if is_frequency(token) and frequency == '':
             frequency = token
 
     return drug, dose, unit, frequency
@@ -188,7 +208,7 @@ def parse_prescription_data(sentence):
 
 def get_drug(sentence):
     for drug in drugs:
-        if drug in sentence:
+        if drug in sentence.lower():
             return drug
     return None
 
@@ -199,13 +219,13 @@ def is_dose(token):
 
 def is_unit(token):
     for unit in units:
-        if unit in token:
+        if unit in token.lower():
             return True
     return False
 
 
 def is_frequency(token):
-    return token in ('bd', 'morning', 'afternoon', 'evening')
+    return token.lower() in ('bd', 'morning', 'afternoon', 'evening')
 
 
 def teach_active_learner(request):
@@ -213,7 +233,20 @@ def teach_active_learner(request):
 
 
 def query_active_learner(request):
-    return HttpResponse(None)
+    '''
+    Query document sentences to enable
+    the labelling of uncertain sentences
+    '''
+
+    document_text = request.POST['documentText']
+    document_sentences = text_to_sentences(document_text)
+    clean_document_sentences = clean_sentences(document_sentences)
+
+    query_x = vectorizer.transform(clean_document_sentences).toarray()
+    query_index, query_instance = learner.query(np.array(query_x))
+    query_index = query_index[0]
+
+    return HttpResponse(str(query_index) + '***' + document_sentences[query_index])
 
 
 def predict_labels(X):
