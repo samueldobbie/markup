@@ -709,8 +709,6 @@ function addAnnotation(event) {
     // Removes selection of newly-annotated text
     window.getSelection().removeAllRanges();
 
-    //teachModel(highlightText, 1);
-
     // Reset all selections and displays
     toggleAttributeCheck(attributeCheckboxes, false);
     toggleAttributeCheck(attributeRadiobuttons, false);
@@ -1153,12 +1151,12 @@ function onPageLoad(initalLoad=true) {
         });
 
         $('#train-positive-response').click(function() {
-            teachModel(null, 1);
+            teachModel(1);
             queryActiveLearner();
         });
         
         $('#train-negative-response').click(function() {
-            teachModel(null, 0);
+            teachModel(0);
             queryActiveLearner();
         });
     }
@@ -1329,15 +1327,14 @@ function queryActiveLearner() {
 }
 
 
-function teachModel(sentence, label) {
+function teachModel(label) {
     $.ajax({
         type: 'POST',
         async: false,
+        url: '~/teach-active-learner',
         data: {
-            'sentence': sentence,
-            'label': label,
-        },
-        url: '~/teach-active-learner'
+            'label': label
+        }
     });
 }
 

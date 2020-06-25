@@ -246,44 +246,29 @@ def query_active_learner(request):
     the labelling of uncertain sentences
     '''
 
-    global query_instance
+    global query_sample
 
     document_text = request.POST['text']
     document_sentences = text_to_sentences(document_text)
     clean_document_sentences = clean_sentences(document_sentences)
 
-    query_x = vectorizer.transform(clean_document_sentences).toarray()
-    query_index, query_instance = learner.query(np.array(query_x))
-    query_index = query_index[0]
+    X = np.array(vectorizer.transform(clean_document_sentences).toarray())
+    query_idx, query_sample = learner.query(X)
 
-    return HttpResponse(document_sentences[query_index])
+    return HttpResponse(document_sentences[query_idx[0]])
 
 
 def teach_active_learner(request):
-    sentence = request.POST.get('sentence')
     label = request.POST.get('label')
-
-    if sentence:
-        teach_active_learner_with_text(sentence, label)
-    else:
-        teach_active_learner_without_text(label)
-
+    learner.teach(query_sample, [label])
     return HttpResponse(None)
-
-
-def teach_active_learner_without_text(label):
-    learner.teach(query_instance, [label])
-
-
-def teach_active_learner_with_text(instance, label):
-    data = np.array(vectorizer.transform([instance]).toarray())
-    learner.teach(data, [label])
 
 
 SIMILARITY_THRESHOLD = 0.7
 
 simstring_searcher = None
 term_to_cui = None
+query_sample = None
 
 learner = pickle.load(open('data/pickle/prescription_model.pickle', 'rb'))
 vectorizer = pickle.load(open('data/pickle/prescription_vectorizer.pickle', 'rb'))
