@@ -8,13 +8,13 @@ future==0.17.1
 idna==2.8
 l==0.11.0
 macholib==1.11
+pandas==1.0.3
 pefile==2018.8.8
 pytz==2018.9
 requests==2.21.0
 simstring-pure==1.0.0
 urllib3==1.24.2
 vcversioner==2.16.0.0
-virtualenv==16.4.3
 zope.interface==4.6.0
 nltk==3.4.5
 StringDist==1.0.9

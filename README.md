@@ -14,6 +14,8 @@ The online version of markup can be found <a href="http://www.getmarkup.com">her
 
 3. Visit <a href="http://127.0.0.1:8000/">http://127.0.0.1:8000/</a> and start annotating!
 
+For further use, simply run `python manage.py runserver` or `python3 manage.py runserver` to setup the local server.
+
 ### Documentation
 
 Documentation for markup can be found <a href="http://www.getmarkup.com/docs">here</a>.
