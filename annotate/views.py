@@ -273,7 +273,7 @@ query_sample = None
 learner = pickle.load(open('data/pickle/prescription_model.pickle', 'rb'))
 vectorizer = pickle.load(open('data/pickle/prescription_vectorizer.pickle', 'rb'))
 
-stopwords = set(open('data/txt/stopwords.txt').read().split('\n'))
-drugs = set(open('data/txt/drugs.txt').read().split('\n'))
+stopwords = set(open('data/txt/stopwords.txt', encoding='utf-8').read().split('\n'))
+drugs = set(open('data/txt/drugs.txt', encoding='utf-8').read().split('\n'))
 
 units = ['mg', 'mgs', 'milligram', 'milligrams', 'g', 'gs', 'gram', 'grams']

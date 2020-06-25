@@ -340,7 +340,7 @@ imuran
 prf preparation
 electrolade orange
 hytussin expectorant
-g�vatran
+gã©vatran
 anethol
 aminomine
 medrone
@@ -516,7 +516,7 @@ alpha methylnoradrenaline
 acetylbenzoyl aconine
 orvaten
 fluorox
-oc�coxil
+ocã©coxil
 potassium hyperchloride
 diocalm ultra
 quarzan
@@ -727,7 +727,7 @@ enoximone
 endure 450
 isostearyl palmitate
 ensulizole
-estrace�
+estraceâ®
 phosphate binding agent
 ricola
 moisturel therapeutic
@@ -1406,7 +1406,7 @@ simponi
 antagonist substance
 carisoma
 product containing saxagliptin
-f�mara
+fã©mara
 citrovorum factor
 corticorelin human triflutate
 mercapturic acid
@@ -2671,7 +2671,7 @@ combretastatin a4
 nolvasan otic
 vanex grape
 folitab
-xalatan�
+xalatanâ®
 skin tx hydroquinone
 copper edta
 estring
@@ -3078,7 +3078,7 @@ marrubium vulgare extract
 cobaltous chloride
 propanol 02
 bromatapp
-noradr�naline tartrate renaudin
+noradrã©naline tartrate renaudin
 temik sulfoxide
 thymoxyalcylamine
 poldine
@@ -3905,7 +3905,7 @@ reno m dip
 alpha adren agon
 collu hextril
 product containing homatropine
-larylin husten l�ser
+larylin husten lã¶ser
 potassium polymetaphosphate
 chicken feather extract
 psychotropic agent
@@ -4537,7 +4537,7 @@ topical bromine complexes
 dolasetron mesylate
 eloxatin
 norgestimate preparation
-pect hustenl�ser
+pect hustenlã¶ser
 theraplex z
 ethyl ferulate
 masse
@@ -5169,7 +5169,7 @@ tybamate
 diagnostic radioisotope
 simbadol
 beta galactosidases
-fluorouracil�
+fluorouracilâ®
 hydroxyphenamate
 ophthalin plus
 robitussin ac
@@ -6181,7 +6181,7 @@ rotateq
 zovirax chickenpox
 naphthene
 eminase
-d�fanyl
+dã©fanyl
 calcitrin
 ergonovine maleate
 sirturo
@@ -6912,7 +6912,7 @@ pulmotil
 dppd
 rheumatac retard
 p1 purinoceptor antagonists
-cervag�me
+cervagã¨me
 pyrazolone
 drugs for threadworms
 parenteral form atenolol
@@ -7114,7 +7114,7 @@ fenofibrate
 medroxyprogesterone 17 acetate
 dna topoisomerase inhibitors
 lauromacrogols and urea
-lior�sal
+liorã©sal
 ferrosoferric oxide
 helleborus viridis preparation
 arthritis formula
@@ -7413,7 +7413,7 @@ ghes cpd
 ascotop
 progest
 elastiderm eye treatment
-adriamycin�
+adriamycinâ®
 levomepromazine
 disodium fluorescein
 amphetamine aspartate monohydrate
@@ -7533,7 +7533,7 @@ glaucon
 hydrocodone tannate
 constilac
 mevalonolactone
-mif�gyne
+mifã©gyne
 carazolol
 thioglycerol
 diuril sodium
@@ -7878,7 +7878,7 @@ myristoyl isethionate
 cardioplegia solution
 product containing nalbuphine
 trifluridine hydrochloride
-temg�sic
+temgã©sic
 disodium sulfosalicylate
 naptumomab
 isopto alkaline
@@ -8622,7 +8622,7 @@ maduramycin
 urelief plus
 nitren lich
 thiopental
-pr�famone
+prã©famone
 pantoprazole sodium
 nucofed pediatric expectorant
 dried thyroid
@@ -8666,7 +8666,7 @@ catechin
 albay bee venom
 mucinol
 bc headache
-herceptin�
+herceptinâ®
 nmma l
 mitogens
 therabreath
@@ -9230,7 +9230,7 @@ oleander preparation
 tissue plasminogen activator
 waters
 ciloprost
-timoptic�
+timopticâ®
 amantadine sulfate
 effexor xr
 palgic
@@ -9680,7 +9680,7 @@ picloxidine
 ferric subsulfate solution
 depmpe
 readybath
-tr�d�mine
+trã©dã©mine
 fomac
 dextromethorphan hydrochloride
 cacit
@@ -10006,7 +10006,7 @@ intravenous anesthetics
 tri levlen
 fentanyl product
 citric acid acetate
-aromasin�
+aromasinâ®
 genteal gel drops
 lysosyme
 parenteral tacrolimus
@@ -10451,7 +10451,7 @@ junel fe
 rapitil
 imotil
 plasma substitutes
-ac�tylcyst�ine gnr
+acã©tylcystã©ine gnr
 acetiamine
 calmurid hc
 singlet
@@ -11147,7 +11147,7 @@ atgard c
 combitens
 asenapine
 senecioic acid
-d�sernil sandoz
+dã©sernil sandoz
 chlorproethazine
 molipaxin cr
 ligustrum pollen allergen
@@ -13852,7 +13852,7 @@ telmestein
 neutral insulin
 fumarate
 methylisothiazolidinone
-loc�ryl
+locã©ryl
 nogitecan hydrochloride
 salacia reticulata
 product containing sertaconazole
@@ -13884,7 +13884,7 @@ visvex hc
 mitogenic substance
 thyroid therapy drugs
 donnamar
-s�pou
+sã©pou
 parenteral form oxytocin
 urinorm
 scrophularia nodosa extract
@@ -13894,7 +13894,7 @@ refacto
 zebularine
 daptacel
 guaifed
-ogen�
+ogenâ®
 copperhead venom
 tylenol regular strength
 gentex hc
@@ -14670,7 +14670,7 @@ uaa
 indium111 capromab pendetide
 amoxil sf
 calazem
-estratest�
+estratestâ®
 cyanocobalamin
 anthraquinone
 tetraethyleneglycol lauryl ether
@@ -16000,7 +16000,7 @@ hyate c
 carbendazine
 bovine cartilage extract
 butex forte
-pax�ladine
+paxã©ladine
 trimethylolpropane triisostearate
 pitressin tannate
 antiallergic agents
@@ -16254,7 +16254,7 @@ prilosec
 lisdexamfetamine
 proxigel
 aluminium hydroxide
-th�ral�ne
+thã©ralã¨ne
 sitaxsentan sodium
 antihelmintics
 germanium sesquioxide
@@ -17310,7 +17310,7 @@ methamizole
 mylanta child
 nasacort aq
 miacalcin
-optipect hustengetr�nk
+optipect hustengetrã¤nk
 turoctocog alfa
 fludroxycortide
 colate total mouthwash
@@ -18260,7 +18260,7 @@ mefenamic acid product
 pertussin es
 frumil
 livocab
-cytoxan�
+cytoxanâ®
 tirilazad mesylate hydrate
 comboguard
 cbdca
@@ -19128,7 +19128,7 @@ oilatum emollient 500ml
 enablex
 naprosyn sr
 donnatal extentabs
-p�diamuc
+pã¤diamuc
 besilesomab
 pituitary gonadotropins
 standardized enzyme lactase
@@ -19485,7 +19485,7 @@ sterculia gum
 green pepper extract
 pinworm treatment agent
 warticon fem
-nicotins�ureamid jenapharm
+nicotinsã¤ureamid jenapharm
 americium
 pacis
 adrenal hormone
@@ -19497,7 +19497,7 @@ parenteral form medroxyprogesterone
 picric acid
 polyaminopropylbiguanide
 baltussin
-atropin augen�l
+atropin augenã¶l
 progestagen
 becotide
 bucet
@@ -20380,7 +20380,7 @@ nicorette ds
 dipyramidole
 equioxx
 voltarol retard
-hexom�dine
+hexomã©dine
 lodosyn
 potassium bisulfite
 beta adrenergic blockers
@@ -21308,7 +21308,7 @@ demulcent agent
 amino alcohols
 dichlorodiammineplatinum cis 02
 cardizem la
-larylin hustenl�ser
+larylin hustenlã¶ser
 protionamide
 parenteral aciclovir
 humulin m1
@@ -21492,7 +21492,7 @@ dtpa
 pyrethrin plus shampoo
 butyloctyl oleate
 product containing papaverine
-t�mesta
+tã©mesta
 maduramicin
 ergoline derivative
 fluorescite
@@ -22671,7 +22671,7 @@ slentrol
 revitol
 clorotekal
 saluretic product
-l�vothyrox
+lã©vothyrox
 jin bu huan
 remifentanyl
 scopolamine
@@ -23158,7 +23158,7 @@ anesthetic antiarrhythmic agent
 andriol
 lusupultide
 antrocol
-cinazi�re
+cinaziã¨re
 sylatron
 monoaminoguanidine
 uniphyl
@@ -25611,7 +25611,7 @@ sli381
 aknederm salbe neu
 baypresol
 inositol hexaphosphate
-stas gurgell�sung n
+stas gurgellã¶sung n
 lente insulin
 gonadotrophin release hormone
 fluogen
@@ -25885,7 +25885,7 @@ isopropylphenazone
 product containing dyphylline
 dopar
 bilopaque sodium
-praxil�ne
+praxilã¨ne
 quinacrine
 rosiglitazone maleate
 stilline
@@ -26141,7 +26141,7 @@ cholera vaccines
 blephamide
 jute fiber extract
 polysaccharide rbs
-h�movannad
+hã¤movannad
 keeburs in
 primaxin im
 barium sulfate suspension
@@ -26265,7 +26265,7 @@ j1 compound
 hubermizol
 morphine hydrochloride
 oxazolidinedione
-l�vophta
+lã©vophta
 carrageenan sodium
 adenoscan
 barbiturate antiepileptic
@@ -27182,7 +27182,7 @@ histamine agonists
 clostebol acetate
 isophenphos
 belladonna
-percutaf�ine
+percutafã©ine
 ornidazole
 galfer fa
 oncovin
@@ -27218,7 +27218,7 @@ bio bron mm
 ciclosporin product
 hypothalamic releasing hormones
 cauloside d
-pilocar�
+pilocarâ®
 metatone tonic
 clenia emollient
 ocutricin hc
@@ -27491,7 +27491,7 @@ ethyl dihydroxypropyl paba
 bensylate
 auroguard
 alverin plus
-alphagan�
+alphaganâ®
 spirulina maxima preparation
 teferrol
 desloughing agent
@@ -27589,7 +27589,7 @@ mucodyne forte
 hypaque meglumine
 bromanyl
 phenobamate
-leucovorin�
+leucovorinâ®
 pancrelipase amylase
 trinitrophenol
 pseudoisocytidine
@@ -29466,7 +29466,7 @@ linolenic acid
 acldl
 eprizero
 syntex menophase
-cibac�ne
+cibacã¨ne
 vortex
 maize starch
 inactivated poliomyelitis vac
@@ -29590,7 +29590,7 @@ hydrostat
 topicort lp
 ventavis
 ecotrin
-stashustenl�ser
+stashustenlã¶ser
 pyrocatechol
 quassia amara preparation
 phenoperidine hydrochloride
@@ -30157,7 +30157,7 @@ calamine compound application
 trimethylpsoralen
 product containing fructose
 metadate
-m�topirone
+mã©topirone
 clean force antibacterial
 pregnyl
 cardiovascular drugs
@@ -30229,7 +30229,7 @@ vendone
 prostavasin
 antiphlogistic agent
 endal hd plus
-d�filtran
+dã©filtran
 oral form chlorpheniramine
 diaminedichloroplatinum
 theocap
@@ -30304,7 +30304,7 @@ ethinylestrenol
 n acetylcysteine
 chlorinated phenol disinfectant
 icodextrin
-stas hustenl�ser
+stas hustenlã¶ser
 levomeprazine
 kraftpleg
 calcium acetylhomotaurinate
@@ -31918,7 +31918,7 @@ hemosol lg2 solution
 methenamine sulfosalicylate
 dopamine receptor antagonists
 ethexderm bpw 10
-m�ladinine
+mã©ladinine
 etamsylate product
 provigil
 propet
@@ -32229,7 +32229,7 @@ epothilon b
 oka varicella vaccine
 azubronchin
 product containing terfenadine
-ambrol�s
+ambrolã¶s
 thiamazole
 dichloroisocyanuric acid
 progesterone preparation
@@ -32343,7 +32343,7 @@ pliaglis
 corticosterone
 hallucinogenic drugs
 capd solution
-nuvaring�
+nuvaringâ®
 calcium edetate
 sunup
 penciclovir
@@ -32409,7 +32409,7 @@ isonal
 perillyl alcohol
 broncolin cough
 sinequan
-m�thergin
+mã©thergin
 veronal
 doak tar
 naloxone hydrochloride
@@ -32421,7 +32421,7 @@ sodium acetate
 mepazine
 gammahexachlorocyclohexane
 ovine hyaluronidase
-therapin hustenl�ser
+therapin hustenlã¶ser
 culex pipiens preparation
 odorless pain
 nmda receptor antagonist
@@ -32993,7 +32993,7 @@ dhp ether
 otic form triamcinolone
 somatotropin preparation
 biotin ratiopharm
-st�r�ocyt
+stã©rã©ocyt
 endometriosis drugs
 her style
 fiber
@@ -33930,7 +33930,7 @@ nicotinell original
 banamine
 dimethyldodecylbenzylammonium
 trichophyton mentagrophytes extract
-femara�
+femaraâ®
 cuadriderma
 product containing dibromomannitol
 gonadotropin
@@ -34942,7 +34942,7 @@ c14 olefin sulfonate
 bromotuss with codeine
 polyestradiol phosphate preparation
 rabbit allergenic extract
-f�nofibrate debat
+fã©nofibrate debat
 propylajmaline n
 big pine
 isopto plain
@@ -35033,7 +35033,7 @@ msir
 isoandrosterone
 celery extract
 thebaine
-cosopt�
+cosoptâ®
 ym905
 dolasetron mesilate
 bromaphen
@@ -35071,7 +35071,7 @@ r lansoprazole
 talclonex
 prodrox
 trometamolgluconate aluminum
-xeloda�
+xelodaâ®
 acipen solutab
 edrophonium cation
 sulfatrim
@@ -35468,7 +35468,7 @@ crest 3d white
 human mixtard 10
 metrodin hp
 tuss s
-d�som�dine
+dã©somã©dine
 cymbalta
 ictasol
 theofibrate
@@ -35976,7 +35976,7 @@ product containing alfentanil
 optima plus
 beaucoup
 benzothiadiazine diuretics
-abuf�ne
+abufã¨ne
 potassium guaiacolsulphonate
 daily hist
 disulphiram
@@ -36209,7 +36209,7 @@ chaste tree preparation
 histex pe
 valtrum soothing
 anti allergics
-baclof�ne irex
+baclofã¨ne irex
 mucodine
 sudafed om
 benzenesulfonic acid
@@ -36296,7 +36296,7 @@ soybean lecithin
 tetrahydrozoline hydrochloride
 dopamine recept agon
 epiquin micro
-d�calogiflox
+dã©calogiflox
 alcalak
 eurax
 eribulin mesilate
@@ -36918,7 +36918,7 @@ pullularia extract
 disilver oxide
 piroxicam cinnamate
 octadecenedioic acid
-baclof�neirex
+baclofã¨neirex
 anthracenediones
 zilpaterol
 convulex
@@ -38027,7 +38027,7 @@ vincamine
 antithrombin iiialpha
 dimethyl polysiloxane
 ferrous cacodylate
-avastin�
+avastinâ®
 kaplon
 amturnide
 product containing apazone
@@ -39132,7 +39132,7 @@ pramocaine hydrochloride
 detrol
 4 aminosalicylic acid
 vanceril ds
-myl�ran
+mylã©ran
 topical form doxepin
 hydroxyethylmethylcellulose
 deoxyursocholic acid
