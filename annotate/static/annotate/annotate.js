@@ -1201,7 +1201,7 @@ function stopViewingAnnotationSuggestions() {
 
 function getAnnotationSuggestions() {
     // Get open document text and existing annotations
-    var text = localStorage.getItem('documentText' + currentDocumentId);
+    var documentText = localStorage.getItem('documentText' + currentDocumentId);
     var annotations = [];
     for (var i = 0; i < $('.displayedAnnotation').length; i++) {
         annotations.push($('.displayedAnnotation')[i].innerText);
@@ -1212,7 +1212,7 @@ function getAnnotationSuggestions() {
         async: false,
         url: '~/suggest-annotations',
         data: { 
-            'text': text,
+            'text': documentText,
             'annotations': JSON.stringify(annotations)
         },
         success: function (response) {
@@ -1270,7 +1270,6 @@ function getAnnotationSuggestions() {
         // Populate Prescription attributes
         var attributeDropdowns = $('input[name=values]');
         for (var i = 0; i < attributeDropdowns.length; i++) {
-            console.log(attributeDropdowns[i]);
             if (attributeDropdowns[i].getAttribute('list') == 'DrugNamePrescription') {
                 attributeDropdowns[i].value = this.getAttribute('drug');
             } else if (attributeDropdowns[i].getAttribute('list') == 'DrugDosePrescription') {
@@ -1321,7 +1320,7 @@ function queryActiveLearner() {
         async: false,
         url: '~/query-active-learner',
         data: {
-            'documentText': documentText,
+            'text': documentText,
         },
         success: function (response) {
             document.getElementById('train-model-term').innerText = response;

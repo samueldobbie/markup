@@ -211,9 +211,17 @@ def parse_prescription_data(sentence):
 
 
 def get_drug(sentence):
-    for drug in drugs:
-        if drug in sentence.lower():
-            return drug
+    '''
+    Generate ngrams for current sentence for lengths [1, 3]
+    and check if ngram is a valid drug name
+    '''
+
+    for n in range(3, 0, -1):
+        sentence_ngrams = ngrams(sentence.lower().split(' '), n)
+        for ngram_words in sentence_ngrams:
+            ngram = ' '.join(ngram_words)
+            if ngram in drugs:
+                return ngram
     return None
 
 
@@ -240,7 +248,7 @@ def query_active_learner(request):
 
     global query_instance
 
-    document_text = request.POST['documentText']
+    document_text = request.POST['text']
     document_sentences = text_to_sentences(document_text)
     clean_document_sentences = clean_sentences(document_sentences)
 
@@ -279,7 +287,8 @@ term_to_cui = None
 
 learner = pickle.load(open('data/pickle/prescription_model.pickle', 'rb'))
 vectorizer = pickle.load(open('data/pickle/prescription_vectorizer.pickle', 'rb'))
+
 stopwords = set(open('data/txt/stopwords.txt').read().split('\n'))
+drugs = set(open('data/txt/drugs.txt').read().split('\n'))
 
 units = ['mg', 'mgs', 'milligram', 'milligrams', 'g', 'gs', 'gram', 'grams']
-drugs = ['lamotrigine', 'ferrous sulphate', 'carbamazepine', 'topiramate', 'sodium valproate', 'levetiracetam', 'bendroflumethiazide'] 
