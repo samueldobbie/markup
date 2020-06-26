@@ -351,6 +351,23 @@ nav .nav-wrapper {
   outline: none;
 }
 
+.suggestion-button {
+  margin: 2px;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.accept-suggestion-button {
+  color: green;
+  background-color: lightgreen;
+}
+
+.reject-suggestion-button {
+  color: red;
+  background-color: #ffbaba;
+}
+
 /*
   @media only screen and (min-width: 993px) {
     nav a.sidenav-trigger {

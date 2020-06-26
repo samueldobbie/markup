@@ -1240,52 +1240,95 @@ function getAnnotationSuggestions() {
 
             // Construct and display suggestions
             for (var i = 0; i < suggestions.length; i++) {
+                // Parse suggestion data
                 var annotation = suggestions[i][0];
                 var drug = suggestions[i][1];
                 var dose = suggestions[i][2];
                 var unit = suggestions[i][3];
                 var frequency = suggestions[i][4];
 
-                document.getElementById('suggestion-list').innerHTML += '<span drug="' + drug + '" dose="' + dose + '" unit="' + unit + '" frequency="' + frequency + '" class="annotation-suggestion standard-text" style="background-color: ' + highlightColor + '" >' + annotation + '</span>';
+                // Construct suggestion container
+                var suggestionId = 'suggestion-' + i;
+                var suggestionClass = 'class="displayedAnnotation collapsible"';
+                var suggestionStyle = 'style="background-color:' + highlightColor + ';'
+                if (darkMode) {
+                    suggestionStyle += 'color:black;"';
+                } else {
+                    suggestionStyle += '"'
+                }
+
+                // Populate collapsible with suggestion attributes
+                var contentDiv = '<div for="' + suggestionId + '" class="content"><p>';
+                if (drug) { contentDiv += '<p>DrugName: ' + drug + '</p>'; }
+                if (dose) { contentDiv += '<p>DrugDose: ' + dose + '</p>'; }
+                if (unit) { contentDiv += '<p>DoseUnit: ' + unit + '</p>'; }
+                if (frequency) { contentDiv += '<p>Frequency: ' + frequency + '</p>'; }
+                
+                // Add accept and reject buttons to collapsible
+                contentDiv += '<a suggestion-id=' + suggestionId + ' class="suggestion-button accept-suggestion-button" onClick="acceptSuggestion(this);">Accept</a><a suggestion-id=' + suggestionId + ' class="suggestion-button reject-suggestion-button" onClick="rejectSuggestion(this);">Reject</a></p></div>';
+                
+                // Add suggestion to display
+                document.getElementById('suggestion-list').innerHTML += '<p id=' + suggestionId + ' ' + suggestionClass + ' ' + suggestionStyle + ' drug="' + drug + '" dose="' + dose + '" unit="' + unit + '" frequency="' + frequency + '" >' + annotation + '</p>' + contentDiv;
             }
+            bindCollapsibleEvents();
         }
     });
+}
+
+
+// Add annotation to annotation list upon acceptance of suggestion
+function acceptSuggestion(event) {
+    // Get accepted annotation
+    var annotation = document.getElementById(event.getAttribute('suggestion-id'));
+
+    // Return to main document panel
+    stopViewingAnnotationSuggestions();
+
+    // Select annotation text
+    window.find(annotation.innerText);
+
+    changeHighlightedTextColor();
+
+    // Set Prescription entity
+    document.getElementById('Prescription-radio').click();
+
+    // Populate Prescription attributes
+    var attributeDropdowns = $('input[name=values]');
+    for (var i = 0; i < attributeDropdowns.length; i++) {
+        if (attributeDropdowns[i].getAttribute('list') == 'DrugNamePrescription') {
+            attributeDropdowns[i].value = annotation.getAttribute('drug');
+        } else if (attributeDropdowns[i].getAttribute('list') == 'DrugDosePrescription') {
+            attributeDropdowns[i].value = annotation.getAttribute('dose');
+        } else if (attributeDropdowns[i].getAttribute('list') == 'DoseUnitPrescription') {
+            attributeDropdowns[i].value = annotation.getAttribute('unit');
+        } else if (attributeDropdowns[i].getAttribute('list') == 'FrequencyPrescription') {
+            attributeDropdowns[i].value = annotation.getAttribute('frequency');
+        }
+    }
+
+    // Add annotation
+    document.getElementById('add-annotation').click();
+}
+
+
+function rejectSuggestion(event) {
+    var suggestionId = event.getAttribute('suggestion-id');
+
+    // Get rejected annotation
+    var annotation = document.getElementById(suggestionId);
     
-
-    // Add annotation to annotation list upon acceptance of suggestion
-    $('.annotation-suggestion').click(function () {
-        // Get accepted annotation text
-        var annotationText = this.innerText;
-
-        // Return to main document panel
-        stopViewingAnnotationSuggestions();
-
-        // Select annotation text
-        window.find(annotationText);
-
-        changeHighlightedTextColor();
-
-        // Set Prescription entity
-        document.getElementById('Prescription-radio').click();
-
-        // Populate Prescription attributes
-        var attributeDropdowns = $('input[name=values]');
-        for (var i = 0; i < attributeDropdowns.length; i++) {
-            if (attributeDropdowns[i].getAttribute('list') == 'DrugNamePrescription') {
-                attributeDropdowns[i].value = this.getAttribute('drug');
-            } else if (attributeDropdowns[i].getAttribute('list') == 'DrugDosePrescription') {
-                attributeDropdowns[i].value = this.getAttribute('dose');
-            } else if (attributeDropdowns[i].getAttribute('list') == 'DoseUnitPrescription') {
-                attributeDropdowns[i].value = this.getAttribute('unit');
-            } else if (attributeDropdowns[i].getAttribute('list') == 'FrequencyPrescription') {
-                attributeDropdowns[i].value = this.getAttribute('frequency');
-            }
+    // Remove collapsible assocaited with rejected annotation
+    for (var i = 0; i < annotation.parentNode.childNodes.length; i++) {
+        if (annotation.parentNode.childNodes[i].getAttribute('for') == suggestionId) {
+            annotation.parentNode.removeChild(annotation.parentNode.childNodes[i]);
         }
+    }
 
-        // Add annotation
-        document.getElementById('add-annotation').click();
-    });
+    // Remove rejected annotation
+    annotation.parentNode.removeChild(annotation);
 
+    // Update active learner
+    //teachModel(annotationText, 0);
 }
 
 
