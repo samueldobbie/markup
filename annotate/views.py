@@ -25,7 +25,7 @@ def setup_preloaded_ontology(request):
     Setup user-specified, pre-loaded ontology for
     automated mapping suggestions
     '''
-    global term_to_cui, simstring_searcher
+    global simstring_searcher
 
     selected_ontology = request.POST['selectedOntology']
 
@@ -66,16 +66,30 @@ def suggest_cui(request):
     value over the specified threshold, ranked in descending order
     '''
 
-    global simstring_searcher
-
     if simstring_searcher is None:
         return HttpResponse('')
 
     selected_term = clean_selected_term(request.POST['selectedTerm'])
 
-    # Get ranked matches from ontology
+    ranked_matches = get_ranked_ontology_matches(selected_term)
+
+    return HttpResponse(ranked_matches)
+
+
+def clean_selected_term(selected_term):
+    '''
+    Helper function to transform the selected term into the
+    same format as the terms within the simstring database
+    '''
+    return selected_term.strip().lower()
+
+
+def get_ranked_ontology_matches(cleaned_term):
+    '''
+    Get ranked matches from ontology
+    '''
     ontology_matches = simstring_searcher.ranked_search(
-        selected_term,
+        cleaned_term,
         SIMILARITY_THRESHOLD
     )
 
@@ -92,32 +106,24 @@ def suggest_cui(request):
         # Calculate Levenshtein distance for ranking
         levenshtein_distance = stringdist.levenshtein(
             ontology_term,
-            selected_term
+            cleaned_term
         )
 
         weighted_matches[key] = levenshtein_distance
 
     # Construct list of ranked terms based on levenshtein distasnce value
-    ranked_weighted_matches = [
+    ranked_matches = [
         ranked_pair[0] for ranked_pair in sorted(
             weighted_matches.items(),
             key=lambda kv: kv[1]
         )
     ]
 
-    # Remove divisor from final match term
-    if ranked_weighted_matches != []:
-        ranked_weighted_matches[-1] = ranked_weighted_matches[-1][:-3]
+    # Remove divisor from final matching term
+    if ranked_matches != []:
+        ranked_matches[-1] = ranked_matches[-1][:-3]
 
-    return HttpResponse(ranked_weighted_matches)
-
-
-def clean_selected_term(selected_term):
-    '''
-    Helper function to transform the selected term into the
-    same format as the terms within the simstring database
-    '''
-    return selected_term.strip().lower()
+    return ranked_matches
 
 
 def suggest_annotations(request):
@@ -143,11 +149,11 @@ def suggest_annotations(request):
     for i in range(len(document_sentences)):
         if document_sentences[i] not in existing_annotations and int(predictions[i]) == 1:
             # Parse information from prescription sentence
-            drug, dose, unit, frequency = parse_prescription_data(document_sentences[i])
+            drug, dose, unit, frequency, ontology_term, ontology_cui = parse_prescription_data(document_sentences[i])
 
             # Add as annotation suggestion if valid
             if drug is not None:
-                suggestions.append([document_sentences[i], drug, dose, unit, frequency])
+                suggestions.append([document_sentences[i], drug, dose, unit, frequency, ontology_term, ontology_cui])
 
     return HttpResponse(json.dumps(suggestions))
 
@@ -185,10 +191,19 @@ def parse_prescription_data(sentence):
     that has been classified as containing a prescription
     '''
 
-    drug, dose, unit, frequency = '', '', '', ''
+    drug, dose, unit, frequency, ontology_term, ontology_cui = '', '', '', '', '', ''
 
     # Parse drug name
     drug = get_drug(sentence.lower())
+
+    # Get ontology term and cui
+    if simstring_searcher is not None:
+        ranked_matches = get_ranked_ontology_matches(clean_selected_term(drug))
+
+        if len(ranked_matches) != 0:
+            best_match = ranked_matches[0].replace('***', '').split(' :: UMLS ')
+            ontology_term = best_match[0]
+            ontology_cui = best_match[1]
 
     # Parse dose, unit and frequency (if they exist)
     for token in sentence.split(' '):
@@ -203,9 +218,9 @@ def parse_prescription_data(sentence):
 
     # Ignore sentence if it doesn't contain a drug, dose, and unit
     if drug == '' or dose == '' or unit == '':
-        return None, None, None, None
+        return None, None, None, None, None, None
 
-    return drug, dose, unit, frequency
+    return drug, dose, unit, frequency, ontology_term, ontology_cui
 
 
 def get_drug(sentence):

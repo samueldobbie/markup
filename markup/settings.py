@@ -14,16 +14,17 @@ import os
 import random
 import string
 
-# Generate secret key or open existing
 secret_key_path = os.path.dirname(__file__) + '/secretkey.txt'
-available_symbols = string.ascii_letters + string.digits + string.punctuation
-try:
+
+if os.path.exists(secret_key_path):
+    # Read existing secret key
     SECRET_KEY = open(secret_key_path).read().strip()
-except:
-    SECRET_KEY = ''.join([random.SystemRandom().choice(available_symbols) for _ in range(50)])
-    secret_key_file = open(secret_key_path, 'w')
-    secret_key_file.write(SECRET_KEY)
-    secret_key_file.close()
+else:
+    # Generate and store secret key
+    symbols = string.ascii_letters + string.digits + string.punctuation
+    SECRET_KEY = ''.join([random.SystemRandom().choice(symbols) for _ in range(50)])
+    with open(secret_key_path, 'w') as f:
+        f.write(SECRET_KEY)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -143,4 +144,4 @@ STATIC_URL = '/static/'
 
 # STATIC_ROOT = '/home/samueldobbie/markup_two/markup/static/'
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = 100000000000
+DATA_UPLOAD_MAX_MEMORY_SIZE = 100000000

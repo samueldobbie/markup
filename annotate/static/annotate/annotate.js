@@ -916,6 +916,7 @@ function suggestCui(event) {
     $.ajax({
         type: 'POST',
         url: '~/suggest-cui',
+        async: false,
         data: {
             selectedTerm: selectedTerm
         }
@@ -1141,7 +1142,7 @@ function onPageLoad(initalLoad=true) {
         $('#file-data').mouseup({'type': 'match-list'}, suggestCui);
 
         // Suggest most relevant UMLS matches based on searched term
-        $('#search-dict').keyup({'type': 'search-list'}, suggestCui);
+        $('#search-dict').on('input', {'type': 'search-list'}, suggestCui);
 
         // Reset color of entities (which changes upon errors)
         $('input[name=entities]').click(resetEntityColor);
@@ -1246,6 +1247,8 @@ function getAnnotationSuggestions() {
                 var dose = suggestions[i][2];
                 var unit = suggestions[i][3];
                 var frequency = suggestions[i][4];
+                var ontologyTerm = suggestions[i][5];
+                var ontologyCui = suggestions[i][6];
 
                 // Construct suggestion container
                 var suggestionId = 'suggestion-' + i;
@@ -1263,12 +1266,14 @@ function getAnnotationSuggestions() {
                 if (dose) { contentDiv += '<p>DrugDose: ' + dose + '</p>'; }
                 if (unit) { contentDiv += '<p>DoseUnit: ' + unit + '</p>'; }
                 if (frequency) { contentDiv += '<p>Frequency: ' + frequency + '</p>'; }
+                if (ontologyTerm) { contentDiv += '<p>CUIPhrase: ' + ontologyTerm + '</p>'; }
+                if (ontologyCui) { contentDiv += '<p>CUI: ' + ontologyCui + '</p>'; }
                 
                 // Add accept and reject buttons to collapsible
                 contentDiv += '<a suggestion-id=' + suggestionId + ' class="suggestion-button accept-suggestion-button" onClick="acceptSuggestion(this);">Accept</a><a suggestion-id=' + suggestionId + ' class="suggestion-button reject-suggestion-button" onClick="rejectSuggestion(this);">Reject</a></p></div>';
                 
                 // Add suggestion to display
-                document.getElementById('suggestion-list').innerHTML += '<p id=' + suggestionId + ' ' + suggestionClass + ' ' + suggestionStyle + ' drug="' + drug + '" dose="' + dose + '" unit="' + unit + '" frequency="' + frequency + '" >' + annotation + '</p>' + contentDiv;
+                document.getElementById('suggestion-list').innerHTML += '<p id=' + suggestionId + ' ' + suggestionClass + ' ' + suggestionStyle + ' drug="' + drug + '" dose="' + dose + '" unit="' + unit + '" frequency="' + frequency + '" ontologyTerm="' + ontologyTerm + '" ontologyCui="' + ontologyCui + '">' + annotation + '</p>' + contentDiv;
             }
             bindCollapsibleEvents();
         }
@@ -1304,6 +1309,14 @@ function acceptSuggestion(event) {
         } else if (attributeDropdowns[i].getAttribute('list') == 'FrequencyPrescription') {
             attributeDropdowns[i].value = annotation.getAttribute('frequency');
         }
+    }
+
+    // Populate ontology dropdown with best matches
+    $('#search-dict').val(annotation.getAttribute('ontologyTerm')).trigger('input');
+
+    // Select best match from ontology dropdown
+    if (document.getElementById('search-list').length > 1) {
+        document.getElementById('search-list').selectedIndex = 1;
     }
 
     // Add annotation
