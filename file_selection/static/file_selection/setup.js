@@ -64,10 +64,12 @@ $(document).ready(function () {
         localStorage.setItem('fileName' + 0, 'FirstTestDoc.txt');
         localStorage.setItem('fileName' + 1, 'SecondTestDoc.txt');
 
-        localStorage.setItem('documentText' + 0, testDocOneText);
-        localStorage.setItem('documentText' + 1, testDocTwoText);
+        localStorage.setItem('documentText' + 0, testDocumentOne);
+        localStorage.setItem('documentText' + 1, testDocumentTwo);
 
         localStorage.setItem('configText', testConfigText);
+
+        setupPreloadedOntology('umls');
 
         location.href = '/annotate';
     });
@@ -387,20 +389,30 @@ function setRequestHeader(csrftoken){
     });
 }
 
-var testDocOneText = `
-Contented get distrusts certainty nay are frankness concealed ham. On unaffected resolution on considered of. No thought me husband or colonel forming effects. End sitting shewing who saw besides son musical adapted. Contrasted interested eat alteration pianoforte sympathize was. He families believed if no elegance interest surprise an. It abode wrong miles an so delay plate. She relation own put outlived may disposed. 
+var testDocumentOne = `
+Dear Dr NA,
 
-Compliment interested discretion estimating on stimulated apartments oh. Dear so sing when in find read of call. As distrusts behaviour abilities defective is. Never at water me might. On formed merits hunted unable merely by mr whence or. Possession the unpleasing simplicity her uncommonly. 
+NHS Number: 12345678910
 
-Kindness to he horrible reserved ye. Effect twenty indeed beyond for not had county. The use him without greatly can private. Increasing it unpleasant no of contrasted no continuing. Nothing colonel my no removed in weather. It dissimilar in up devonshire inhabiting. 
+Address: 123 Random Road, Random Place, AB12 2CD
+
+Diagnosis: Focal seizure
+
+Prescriptions: Clonazepam 123 mg daily
+Topiramate 123 mg twice a day
+Lamotrigine 123 mg once a day
+
+I reviewed this 100 year old woman today, who will be having another appointment in six months time.
 `;
 
-var testDocTwoText = `
-Manor we shall merit by chief wound no or would. Oh towards between subject passage sending mention or it. Sight happy do burst fruit to woody begin at. Assurance perpetual he in oh determine as. The year paid met him does eyes same. Own marianne improved sociable not out. Thing do sight blush mr an. Celebrated am announcing delightful remarkably we in literature it solicitude. Design use say piqued any gay supply. Front sex match vexed her those great. 
+var testDocumentTwo = `
+Dear Dr NA,
 
-Scarcely on striking packages by so property in delicate. Up or well must less rent read walk so be. Easy sold at do hour sing spot. Any meant has cease too the decay. Since party burst am it match. By or blushes between besides offices noisier as. Sending do brought winding compass in. Paid day till shed only fact age its end. 
+Diagnosis: Focal epilepsy
+Current medications: Carbamazepine 123 mg BD
+Latanoprost Ophthalmic 123 mg twice a day
 
-Those an equal point no years do. Depend warmth fat but her but played. Shy and subjects wondered trifling pleasant. Prudent cordial comfort do no on colonel as assured chicken. Smart mrs day which begin. Snug do sold mr it if such. Terminated uncommonly at at estimating. Man behaviour met moonlight extremity acuteness direction. 
+I reviewed this 100 year old man today, who will be having another appointment in six months time.
 `;
 
 var testConfigText = `
@@ -420,8 +432,6 @@ Investigations
 Prescription
 History
 
-
-[events]
 [attributes]
 Date Arg:ClinicDate, Value:<ENTITY>
 Date Arg:Date_of_Birth, Value:<ENTITY>
@@ -429,9 +439,7 @@ NHS_Number Arg:NHS_number, Value:<ENTITY>
 PostCode Arg:Pt_PostCode, Value:<ENTITY>
 Hosp_Number Arg:Hosp_number, Value:<ENTITY>
 
-
 EpilepsyCause Arg:EpilepsyCause, Value:Epilepsy_due_to_and_following_traumatic_brain_injury|Epilepsy_due_to_cerebrovascular_accident|Epilepsy_due_to_intracranial_tumour|Epilepsy_due_to_perinatal_anoxic-ischaemic_brain_injury|Epilepsy_due_to_perinatal_stroke|Epilepsy_congenital|Epilepsy_due_to_infectious_disease_of_central_nervous_system
-
 
 SinceOrDuration Arg:SeizureOnset, Value:Date|Age|Duration
 TimeUnit Arg:SeizureOnset, Value:Week|Month|Year
@@ -440,8 +448,6 @@ Age Arg:SeizureOnset, Value:TypeNumberOnly
 AgeLower Arg:SeizureOnset, Value:TypeNumberOnly
 AgeUpper Arg:SeizureOnset, Value:TypeNumberOnly
 SeizureClassification Arg:SeizureOnset, Value:Epileptic|Uncertain
-
-
 
 NumberOfTimePeriods Arg:SeizureFrequency, Value:TypeNumberOnly
 TimePeriod Arg:SeizureFrequency, Value:Day|Week|Month|Year
@@ -452,34 +458,26 @@ SinceOrDuration Arg:SeizureFrequency, Value:Date|Age|Duration
 TimeUnit Arg:SeizureFrequency, Value:Week|Month|Year
 SinceAge Arg:SeizureFrequency, Value:TypeNumberOnly
 
-
 MRI_Performed Arg:Investigations, Value:Yes|No|Notknown
 MRI_Results Arg:Investigations, Value:Normal|Abnormal|Unknown
-
 
 EEG_Performed Arg:Investigations, Value:Yes|No|Notknown
 EEG_Results Arg:Investigations, Value:Normal|Abnormal|Unknown
 EEG_Ictal Arg:Investigations, Value:Yes|No
 EEG_Type Arg:Investigations, Value:SleepDeprived|VideoTelemetry|Standard|Ambulatory|Prolonged
 
-
 CT_Performed Arg:Investigations, Value:Yes|No|Notknown
 CT_Results Arg:Investigations, Value:Normal|Abnormal|Unknown
-
 
 DrugName Arg:Prescription, Value:Acetazolamide|Carbamazepine|Clobazam|Clonazepam|EslicarbazepineAcetate|Ethosuximide|Gabapentin|Lacosamide|Lamotrigine|Levetiracetam|Nitrazepam|Oxcarbazepine|Perampanel|Piracetam|Phenobarbital|Phenytoin|Pregabalin|Primidone|Retigabine|Rufinamide|SodiumValproate|Stiripentol|Tiagabine|Topiramate|Vigabatrin|Zonisamide
 DrugDose Arg:Prescription, Value:TypeNumberOnly
 DoseUnit Arg:Prescription, Value:mgs|gs
 Frequency Arg:Prescription, Value:1|2|3|4|As_Required
 
-
 PersonalHistory Arg:History, Value:Febrile_Seizure|NonPrescriptionDrugs
 Comorbidities Arg:History, Value:LearningDifficulties|Parkinsions|Alzheimers|Dementia|MS
 FamilyHistory Arg:History, Value:Epilepsy
 Surgery Arg:History, Value:EpilepsySurgery|OtherBrainSurgery
-
-
-
 
 Numbers Arg:<ENTITY>, Value:TypeNumberOnly
 DayDate Arg:<ENTITY>, Value:0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31
