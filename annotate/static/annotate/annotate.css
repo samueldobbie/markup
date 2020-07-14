@@ -173,10 +173,8 @@ input[type=radio] {
 }
 
 ::placeholder {
-  /* Chrome, Firefox, Opera, Safari 10.1+ */
   color: #666;
   opacity: 0.7;
-  /* Firefox */
 }
 
 .standard-text {

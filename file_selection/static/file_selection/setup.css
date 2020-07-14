@@ -79,3 +79,23 @@
     background-color: #f1f1f1;
     color: #333;
 }
+
+@media only screen and (max-width: 750px) {
+    .option-container {
+        margin: 0.75% 5%;
+    }
+
+    .option-button {
+        padding: 3px;
+    }
+
+    .option-sub-headline {
+        font-size: 1em;
+    }
+
+    .option-dropdown {
+        padding: 2px;
+        font-size: 1em;
+        height: 30px;
+    }
+}
