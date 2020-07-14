@@ -1,7 +1,7 @@
 var colors = [
-    "#7B68EE", "#FFD700", "#FFA500", "#DC143C", "#FFC0CB", "#00BFFF", "#FFA07A",
-    "#C71585", "#32CD32", "#48D1CC", "#FF6347", "#2E8B57", "#FF69B4", "#008B8B",
-    "#FFF0F5", "#FFFACD", "#E6E6FA", "#B22222", "#4169E1", "#C0C0C0"
+    '#7B68EE', '#FFD700', '#FFA500', '#DC143C', '#FFC0CB', '#00BFFF', '#FFA07A',
+    '#C71585', '#32CD32', '#48D1CC', '#FF6347', '#2E8B57', '#FF69B4', '#008B8B',
+    '#FFF0F5', '#FFFACD', '#E6E6FA', '#B22222', '#4169E1', '#C0C0C0'
 ];
 
 var annotationList;
@@ -37,7 +37,7 @@ function setRequestHeader(csrftoken){
     $.ajaxSetup({
         beforeSend: function(xhr, settings) {
             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                xhr.setRequestHeader('X-CSRFToken', csrftoken);
             }
         }
     });
@@ -457,6 +457,7 @@ function changeHighlightedTextColor() {
             $('#highlighted').replaceWith(function () { return this.innerHTML; });
             document.getElementById('file-data').innerText = localStorage.getItem('documentText' + currentDocumentId);
             loadExistingAnnotations();
+            bindCollapsibleEvents();
         } else {
             $('#highlighted').replaceWith(function () { return this.innerHTML; });
         }
@@ -485,7 +486,7 @@ function changeHighlightedTextColor() {
 
 
 function isAlphanumeric(char) {
-    return "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-".indexOf(char) > -1;
+    return '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-'.indexOf(char) > -1;
 }
 
 
@@ -776,7 +777,7 @@ function loadExistingAnnotations() {
 
     // Add section titles to annotation display
     for (var i = 0; i < entityList.length; i++) {
-        document.getElementById("annotation-data").innerHTML += "<div id='" + entityList[i] + "-section' style='display:none;'><p class='sectionTitle'>" + entityList[i] + "</p></div>";
+        document.getElementById('annotation-data').innerHTML += "<div id='" + entityList[i] + "-section' style='display:none;'><p class='sectionTitle'>" + entityList[i] + "</p></div>";
     }
 
     // TO-DO: validate ann file annotations before trying to populate
@@ -842,9 +843,6 @@ function deleteAnnotation(event) {
             // Remove annotation and offset
             annotationList[currentDocumentId].splice(i, 1);
             offsetList.splice(i, 1);
-
-            //updateAnnotationFileURL();
-            //loadExistingAnnotations();
         }
     }
     //bindCollapsibleEvents();
@@ -962,19 +960,17 @@ function resetEntityColor() {
 
 
 function bindCollapsibleEvents() {
-    var coll = document.getElementsByClassName("collapsible");
-    var i;
-    
-    for (i = 0; i < coll.length; i++) {
-      coll[i].addEventListener("click", function() {
-        this.classList.toggle("active");
-        var content = this.nextElementSibling;
-        if (content.style.maxHeight){
-          content.style.maxHeight = null;
-        } else {
-          content.style.maxHeight = content.scrollHeight + "px";
-        }
-      });
+    var collapsibles = document.getElementsByClassName('collapsible');
+    for (var i = 0; i < collapsibles.length; i++) {
+        collapsibles[i].addEventListener('click', function() {
+            this.classList.toggle('active');
+            var content = this.nextElementSibling;
+            if (content.style.maxHeight){
+            content.style.maxHeight = null;
+            } else {
+            content.style.maxHeight = content.scrollHeight + 'px';
+            }
+        });
     }
 }
 
@@ -999,11 +995,11 @@ function onPageLoad(initalLoad=true) {
     if (initalLoad) {
         if (documentOpenType == 'multiple') {
             // Display arrows to move forward or backwards by file
-            document.getElementById('move-to-previous-file').style.display = "";
-            document.getElementById('move-to-next-file').style.display = "";
+            document.getElementById('move-to-previous-file').style.display = '';
+            document.getElementById('move-to-next-file').style.display = '';
 
             // Display dropdown menu to navigate between files
-            document.getElementById('switch-file-dropdown').style.display = "";
+            document.getElementById('switch-file-dropdown').style.display = '';
     
             // Populate navigation menu
             for (var i = 0; i < documentCount; i++) {
@@ -1025,7 +1021,7 @@ function onPageLoad(initalLoad=true) {
     }
 
     // Set page title to open document file name
-    document.getElementsByTagName('title')[0].innerText = localStorage.getItem('fileName' + currentDocumentId) + " - Markup";
+    document.getElementsByTagName('title')[0].innerText = localStorage.getItem('fileName' + currentDocumentId) + ' - Markup';
 
     // Check that documentText is not empty, otherwise return to homepage
     validateDocumentSelection(documentText);
@@ -1070,7 +1066,6 @@ function onPageLoad(initalLoad=true) {
         // Change colour of highlighted text
         $('#file-data').mouseup(function () {
             changeHighlightedTextColor();
-            bindCollapsibleEvents();
         });
 
         // Display information about annotation on hover of annotation-data display
