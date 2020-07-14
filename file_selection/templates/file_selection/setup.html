@@ -21,14 +21,6 @@
             <span id="document-file-name"></span>
         </div>
 
-        <div class="option-container option-file-container" complete="true" id="annotation-file-opener-container">
-            <p class="option-sub-headline">Existing annotation file (optional)</p>
-            <label for="annotation-file-opener" class="option-button option-button-small">Select</label>
-            <input id="annotation-file-opener" type="file" accept=".ann" style="display:none;">
-            <label id="annotation-file-remover" class="option-button option-button-small" style="background-color: rgb(255, 162, 162); display: none;">Remove</label>
-            <span id="annotation-file-name"></span>
-        </div>
-
         <div class="option-container option-file-container" complete="false" id="configuration-file-opener-container">
             <p class="option-sub-headline">Configuration file</p>
             <label for="configuration-file-opener" class="option-button option-button-small">Select</label>
@@ -38,8 +30,16 @@
             <span id="configuration-file-name"></span>
         </div>
 
-        <div class="option-container option-file-container" complete="false" id="ontology-file-opener-container">
-            <p class="option-sub-headline">Ontology</p>
+        <div class="option-container option-file-container" complete="true" id="annotation-file-opener-container">
+            <p class="option-sub-headline">Existing annotation file (optional)</p>
+            <label for="annotation-file-opener" class="option-button option-button-small">Select</label>
+            <input id="annotation-file-opener" type="file" accept=".ann" style="display:none;">
+            <label id="annotation-file-remover" class="option-button option-button-small" style="background-color: rgb(255, 162, 162); display: none;">Remove</label>
+            <span id="annotation-file-name"></span>
+        </div>
+
+        <div class="option-container option-file-container" complete="true" id="ontology-file-opener-container">
+            <p class="option-sub-headline">Ontology (optional)</p>
             <select id="ontology-file-dropdown" class="option-dropdown">
                 <option value="default">Choose Pre-loaded</option>
                 <option value="umls">UMLS</option>
@@ -63,12 +63,11 @@
             <span id="folder-file-name"></span>
         </div>
 
-        <div class="option-container option-folder-container" complete="false" id="ontology-folder-opener-container">
-            <p class="option-sub-headline">Ontology</p>
+        <div class="option-container option-folder-container" complete="true" id="ontology-folder-opener-container">
+            <p class="option-sub-headline">Ontology (optional)</p>
             <select id="ontology-folder-dropdown" class="option-dropdown">
                 <option value="default">Choose Pre-loaded</option>
                 <option value="umls">UMLS</option>
-                <option value="none">None</option>
             </select>
             <span>or</span>
             <label for="ontology-folder-opener" class="option-button option-button-small">Custom</label>
@@ -84,7 +83,7 @@
     <div id="umls-verification-form-container" style="display: none;">
         <p id="umls-verification-form-invalid-credentials" style="color: red; display: none;">The entered username and/or password was incorrect.</p>
 
-        <p>Enter your <b>UMLS</b> credentials to verify you have the necessary permissions to access this ontology.</p>
+        <p>Enter your <b>UMLS</b> credentials to verify you have the necessary permissions to access this ontology. Apply for an account <a href="https://www.nlm.nih.gov/research/umls/index.html" target="_blank">here</a>.</p>
 
         <form method="post" id="umls-verification-form">
             {% csrf_token %}

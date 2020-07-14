@@ -6,9 +6,10 @@ if (existingDisplayMode != null) {
 }
 
 $(document).ready(function () {
-
     var entityList = ["[entities]\n"];
     var attributeList = ["[attributes]\n"];
+
+    updateDisplayMode(localStorage.getItem('mode'));
 
     // Allows users to switch between light and dark mode
     $('#darkMode').click(function () {

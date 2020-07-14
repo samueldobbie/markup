@@ -1,4 +1,5 @@
 secretkey.txt
+umls-license.txt
 __pycache__/
 .vscode/
 *.pyc
