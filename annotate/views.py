@@ -205,16 +205,15 @@ def parse_prescription_data(sentence):
             ontology_term = best_match[0]
             ontology_cui = best_match[1]
 
-    # Parse dose, unit and frequency (if they exist)
+    # Parse frequency (if exists)
+    frequency = get_frequency(sentence.lower())
+
+    # Parse dose and unit (if exists)
     for token in sentence.split(' '):
         if is_dose(token) and dose == '':
             dose = re.search(r'\d+', token)[0]
-
-        if is_unit(token) and unit == '':
+        elif is_unit(token) and unit == '':
             unit = re.sub(r'\d+', '', token)
-
-        if is_frequency(token) and frequency == '':
-            frequency = token
 
     # Ignore sentence if it doesn't contain a drug, dose, and unit
     if drug == '' or dose == '' or unit == '':
@@ -230,11 +229,26 @@ def get_drug(sentence):
     '''
 
     for n in range(3, 0, -1):
-        sentence_ngrams = ngrams(sentence.lower().split(' '), n)
+        sentence_ngrams = ngrams(sentence.split(' '), n)
         for ngram_words in sentence_ngrams:
             ngram = ' '.join(ngram_words)
             if ngram in drugs:
                 return ngram
+    return ''
+
+
+def get_frequency(sentence):
+    '''
+    Generate ngrams for current sentence for lengths [1, 3]
+    and check if ngram is a valid frequency
+    '''
+
+    for n in range(3, 0, -1):
+        sentence_ngrams = ngrams(sentence.split(' '), n)
+        for ngram_words in sentence_ngrams:
+            ngram = ' '.join(ngram_words)
+            if ngram in frequencies.keys():
+                return frequencies[ngram]
     return ''
 
 
@@ -247,10 +261,6 @@ def is_unit(token):
         if unit in token.lower():
             return True
     return False
-
-
-def is_frequency(token):
-    return token.lower() in ('bd', 'morning', 'afternoon', 'evening')
 
 
 def query_active_learner(request):
@@ -291,5 +301,30 @@ term_to_cui = pickle.load(open('data/pickle/term_to_cui.pickle', 'rb'))
 
 stopwords = set(open('data/txt/stopwords.txt', encoding='utf-8').read().split('\n'))
 drugs = set(open('data/txt/drugs.txt', encoding='utf-8').read().split('\n'))
-
-units = ['mg', 'mgs', 'milligram', 'milligrams', 'g', 'gs', 'gram', 'grams']
+units = open('data/txt/units.txt', encoding='utf-8').read().split('\n')
+frequencies = {
+    'od': 1,
+    'o.d': 1,
+    'q1d': 1,
+    'q.1.d': 1,
+    'qd': 1,
+    'q.d': 1,
+    'once a day': 1,
+    'once daily': 1,
+    'morning': 1,
+    'afternoon': 1,
+    'daily': 1,
+    'bd': 2,
+    'bds': 2,
+    'b.d.s': 2,
+    'bid': 2,
+    'b.i.d': 2,
+    '2 times a day': 2,
+    'twice a day': 2,
+    'twice daily': 2,
+    'tds': 3,
+    't.d.s': 3,
+    'three times a day': 3,
+    'qds': 4,
+    'q.d.s': 4,
+}
