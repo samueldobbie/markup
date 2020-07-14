@@ -68,3 +68,14 @@
 #try-demo:hover {
     text-decoration: underline;
 }
+
+#umls-verification-form-container {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    padding: 15%;
+    background-color: #f1f1f1;
+    color: #333;
+}

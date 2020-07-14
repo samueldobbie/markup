@@ -1,10 +1,11 @@
 import re
+import requests
 import json
 import pickle
-import random
 import stringdist
 import numpy as np
 
+from bs4 import BeautifulSoup
 from django.http import HttpResponse
 from django.shortcuts import render
 from nltk import ngrams
@@ -20,21 +21,39 @@ def annotate_data(request):
     return render(request, 'annotate/annotate.html', {})
 
 
-def setup_preloaded_ontology(request):
+def setup_preloaded_ontology(selected_ontology):
     '''
     Setup user-specified, pre-loaded ontology for
     automated mapping suggestions
     '''
     global simstring_searcher
 
-    selected_ontology = request.POST['selectedOntology']
-
-    if selected_ontology == 'none' or selected_ontology == 'default':
-        pass
-    elif selected_ontology == 'umls':
+    if selected_ontology == 'umls':
         simstring_searcher = Searcher(umls_database, CosineMeasure())
 
     return HttpResponse(None)
+
+
+def is_valid_umls_user(request):
+    '''
+    Check whether user has the appropiate permissions to use
+    the UMLS ontology
+    '''
+
+    url = 'https://uts-ws.nlm.nih.gov/restful/isValidUMLSUser'
+    data = {
+        'licenseCode': 'X',
+        'user': request.POST['umls-username'],
+        'password': request.POST['umls-password']
+    }
+    response_text = requests.post(url, data).text
+    soup = BeautifulSoup(response_text, features='html.parser')
+    result = soup.find('result').string == 'true'
+
+    if result:
+        setup_preloaded_ontology('umls')
+
+    return HttpResponse(result)
 
 
 def setup_custom_ontology(request):

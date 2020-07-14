@@ -80,4 +80,21 @@
             <button id="start-annotating-folder" class="option-button">Start annotating!</button>
         </div>
     </div>
+
+    <div id="umls-verification-form-container" style="display: none;">
+        <p id="umls-verification-form-invalid-credentials" style="color: red; display: none;">The entered username and/or password was incorrect.</p>
+
+        <p>Enter your <b>UMLS</b> credentials to verify you have the necessary permissions to access this ontology.</p>
+
+        <form method="post" id="umls-verification-form">
+            {% csrf_token %}
+            <label for="umls-username"><b>Username</b></label>
+            <input type="text" placeholder="Enter username" name="umls-username" required>
+        
+            <label for="umls-password"><b>Password</b></label>
+            <input type="password" placeholder="Enter password" name="umls-password" required>
+        
+            <button type="submit">Verify</button> or <button id="umls-verification-exit">Exit</button>
+        </form>
+    </div>
 {% endblock %}

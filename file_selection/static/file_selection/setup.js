@@ -69,8 +69,6 @@ $(document).ready(function () {
 
         localStorage.setItem('configText', testConfigText);
 
-        setupPreloadedOntology('umls');
-
         location.href = '/annotate';
     });
 
@@ -151,11 +149,8 @@ $(document).ready(function () {
     $("#ontology-file-dropdown").change(function () {
         var selectedValue = this.value;
         if (selectedValue != 'Choose Pre-loaded') {
-            // Setup ontology
-            setupPreloadedOntology(selectedValue);
-
-            // Change colour of component
-            updateComponentColour('ontology-file-opener-container');
+            // Verify user access to ontology and setup
+            $('#' + selectedValue + '-verification-form-container').fadeIn();
         }
     });
 
@@ -237,11 +232,8 @@ $(document).ready(function () {
     $("#ontology-folder-dropdown").change(function () {
         var selectedValue = this.value;
         if (selectedValue != 'Choose Pre-loaded') {
-            // Setup ontology
-            setupPreloadedOntology(selectedValue);
-
-            // Change colour of component
-            updateComponentColour('ontology-folder-opener-container');
+            // Verify ontology access and setup
+            $('#' + selectedValue + '-verification-form-container').fadeIn();
         }
     });
 
@@ -271,19 +263,43 @@ $(document).ready(function () {
             location.href = '/annotate';
         }
     });
-});
 
 
-function setupPreloadedOntology(selectedOntology) {
-    $.ajax({
-        type: 'POST',
-        url: '~/setup-preloaded-ontology',
-        data: {
-            'selectedOntology': selectedOntology,
-            'csrfmiddlewaretoken': getCookie('csrftoken')
-        }
+    $('#umls-verification-form').submit(function (e) {
+        e.preventDefault();
+
+        var formData = $('#umls-verification-form').serializeArray().reduce(function(obj, item) {
+            obj[item.name] = item.value;
+            return obj;
+        }, {});
+
+        $.ajax({
+            type: 'POST',
+            url: '~/is-valid-umls-user',
+            data: formData,
+            success: function(response) {
+                if (response == 'True') {
+                    $('#umls-verification-form-container').fadeOut();
+
+                    // Change colour of component
+                    updateComponentColour('ontology-file-opener-container');
+
+                    // Change colour of component
+                    updateComponentColour('ontology-folder-opener-container');
+                } else {
+                    $('#umls-verification-form-invalid-credentials').fadeIn();
+                }
+            }
+        });
     });
-}
+
+
+    $('#umls-verification-exit').click(function () {
+        $('#umls-verification-form-container').fadeOut();
+        $('#ontology-file-dropdown').prop('selectedIndex', 0);
+        $('#ontology-folder-dropdown').prop('selectedIndex', 0);
+    });
+});
 
 
 function setupCustomOntology(file) {
