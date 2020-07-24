@@ -181,7 +181,6 @@ function displayAttributeConfigurations(entityList, configValues) {
     /*
     Display attribute configuration list in side panel
     */
-
     var configArgs = [];
     var configVals = [];
     for (var i = 0; i < configValues.length; i++) {
@@ -252,34 +251,28 @@ function displayAttributeConfigurations(entityList, configValues) {
 }
 
 
-// Checks if user has preset preference for display mode
-function checkUserDisplayPreference() {
+function updateDisplayMode() {
+    /*
+    Updates display mode based
+    on users' preference
+    */
+
     if (localStorage.getItem('mode') == 'light') {
         document.getElementById('darkMode').innerHTML = 'Dark Mode';
-        backgroundColor = '#f7f7f7';
         textColor = 'black';
-        darkMode = false;
-
-        $('.sectionTitle').css({
-            'color': textColor
-        });
+        backgroundColor = '#f7f7f7';
     } else {
         document.getElementById('darkMode').innerHTML = 'Light Mode';
-        for (var i = 0; i < document.getElementsByTagName('select').length; i++) {
-            document.getElementById(document.getElementsByTagName('select')[i].id).style.backgroundColor = 'white';
-        }
-        backgroundColor = '#333';
         textColor = 'rgb(210, 210, 210)';
-
-        $('.sectionTitle').css({
-            'color': textColor
-        });
-
-        darkMode = true;
+        backgroundColor = '#333';
     }
 
     $('body').css({
         'background-color': backgroundColor,
+        'color': textColor
+    });
+
+    $('.sectionTitle').css({
         'color': textColor
     });
 
@@ -293,20 +286,25 @@ function checkUserDisplayPreference() {
 }
 
 
-// Allows users to switch between to light and dark mode
 function switchDisplayMode() {
-    if (!darkMode) {
+    /*
+    Enable users to switch between
+    light and dark display modes
+    */
+    if (localStorage.getItem('mode') == 'light') {
         localStorage.setItem('mode', 'dark');
-        checkUserDisplayPreference();
+        updateDisplayMode();
     } else {
         localStorage.setItem('mode', 'light');
-        checkUserDisplayPreference();
+        updateDisplayMode();
     }
 }
 
 
-// Toggle display of specified attributes
 function toggleAttributeDisplay(vals, type, data) {
+    /*
+    Toggle display of specified attributes
+    */
     for (var i = 0; i < vals.length; i++) {
         if (type == 'checkbox') {
             vals[i].style.display = data;
@@ -319,16 +317,21 @@ function toggleAttributeDisplay(vals, type, data) {
 }
 
 
-// Toggle check-status of specified attributes
 function toggleAttributeCheck(vals, data) {
+    /*
+    Toggle check-status of specified attributes
+    */
     for (var i = 0; i < vals.length; i++) {
         $('#' + vals[i].id).prop('checked', data);
     }
 }
 
 
-// Reset specified dropdown lists
 function resetDropdowns() {
+    /*
+    Reset all dropdown lists
+    to their default values
+    */
     for (var i = 0; i < $('select').length; i++) {
         var currentSelectId = $('select')[i].id;
         if (currentSelectId != 'switch-file-dropdown') {
@@ -339,16 +342,24 @@ function resetDropdowns() {
 
 
 function populateAnnotationDisplay(entityValue, attributeValues, startIndex, endIndex, trueStartIndex, trueEndIndex) {
+    /*
+    Select the span of text highlighted by
+    the user and display the selected annotation
+    */
     setSelectionRange(document.getElementById('file-data'), startIndex, endIndex);
     displayAnnotation(entityValue, attributeValues, trueStartIndex, trueEndIndex);
 }
 
 
-function setSelectionRange(el, start, end) {
+function setSelectionRange(element, start, end) {
+    /*
+    Set the selection range to match the
+    span of text highlighted by the user
+    */
     if (document.createRange && window.getSelection) {
         var range = document.createRange();
-        range.selectNodeContents(el);
-        var textNodes = getTextNodesIn(el);
+        range.selectNodeContents(element);
+        var textNodes = getTextNodesIn(element);
         var foundStart = false;
         var charCount = 0, endCharCount;
 
@@ -364,13 +375,12 @@ function setSelectionRange(el, start, end) {
             }
             charCount = endCharCount;
         }
-
-        var sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
+        var selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
     } else if (document.selection && document.body.createTextRange) {
         var textRange = document.body.createTextRange();
-        textRange.moveToElementText(el);
+        textRange.moveToElementText(element);
         textRange.collapse(true);
         textRange.moveEnd('character', end);
         textRange.moveStart('character', start);
@@ -380,6 +390,10 @@ function setSelectionRange(el, start, end) {
 
 
 function getTextNodesIn(node) {
+    /*
+    Helper function for updating
+    the selection range
+    */
     var textNodes = [];
     if (node.nodeType == 3) {
         textNodes.push(node);
@@ -394,6 +408,10 @@ function getTextNodesIn(node) {
 
 
 function displayAnnotation(entityValue, attributeValues, startIndex, endIndex) {
+    /*
+    Set the current selection range to
+    display a chosen annotation class
+    */
     var highlighted = window.getSelection().toString();
 
     // Get highlight color based on selected entity
@@ -404,18 +422,7 @@ function displayAnnotation(entityValue, attributeValues, startIndex, endIndex) {
         }
     }
 
-    /*
-    // TO-DO: Change annotation color if there's an overlap between two annotations
-    for (var i = 0; i < offsetList.length; i++) {
-        if ((startIndex >= offsetList[i][0] && startIndex <= offsetList[i][1]) || 
-            (endIndex >= offsetList[i][0] && endIndex <= offsetList[i][1])) {
-            highlightColor = 'rgb(35, 200, 130)';
-            break;
-        }
-    }
-    */
-
-    // Color-highlight selected text
+    // Add annotation inline within the open document
     document.getElementById('file-data').contentEditable = 'true';
     document.execCommand('insertHTML', false, '<span class="inlineAnnotation" id="' + startIndex + '-' + endIndex + '-aid" style="background-color:' + highlightColor + '; color:black;">' + highlighted + '</span>');
     document.getElementById('file-data').contentEditable = 'false';
@@ -423,37 +430,42 @@ function displayAnnotation(entityValue, attributeValues, startIndex, endIndex) {
     // Keep track of offets for each annotation
     offsetList.push([startIndex, endIndex, entityValue, attributeValues, highlighted]);
 
-    // Add annotation to annotaion-data display
+    // Construct annotation to be added to the annotation display panel
     var annotationClass = 'class="displayedAnnotation collapsible"';
     var annotationId = 'id="' + startIndex + '-' + endIndex + '"';
     var annotationStyle = 'style="background-color:' + highlightColor + ';'
-    if (darkMode) {
-        annotationStyle += 'color:black;"';
+    if (localStorage.getItem('mode') == 'dark') {
+        annotationStyle += 'color: black;"';
     } else {
         annotationStyle += '"'
     }
 
+    // Add a dropdown that shows the attribute values of an annotation upon click
     var contentDiv = '<div class="content"><p>';   
-
     for (var i = 0; i < attributeValues.length; i++) {
         contentDiv += '<p>' + attributeValues[i] + '</p>';
     }
-    
     contentDiv += '<a annotation-id="' + startIndex + '-' + endIndex + '" style="color: red; cursor: pointer;" onClick="deleteAnnotation(this);">Delete annotation</a></p></div>';
 
+    // Display the section title based on the annotation entity category
     document.getElementById(entityValue + '-section').style.display = '';
+
+    // Inject constructed annotation into display panel 
     document.getElementById(entityValue + '-section').innerHTML += '<p ' + annotationClass + ' ' + annotationId + ' ' + annotationStyle + '>' + highlighted + '</p>' + contentDiv;
-};
+}
 
 
-// Dynamic attribute displaying based on chosen entity
 function displayDynamicAttributes(event) {
+    /*
+    Dynamically display attributes
+    based on the chosen entity
+    */
     var configArgs = event.data.configArgs;
     var configVals = event.data.configVals;
     var attributeCheckboxes = event.data.attributeCheckboxes;
     var attributeDropdowns = event.data.attributeDropdowns;
 
-    // Get selected radiobutton id
+    // Get selected radio button id
     var selected = $(this).context.id.substring(0, $(this).context.id.length - 6);
 
     // Deselect and remove hiding of all attributes
@@ -461,7 +473,7 @@ function displayDynamicAttributes(event) {
     toggleAttributeDisplay(attributeCheckboxes, 'checkbox', '');
     toggleAttributeDisplay(attributeDropdowns, 'dropdown', '');
 
-    // Determine which attributes should be displayed
+    // Determine which checkboxes should be displayed
     var visibleCheckboxes = [];
     for (var i = 0; i < configArgs.length; i++) {
         if (configArgs[i][1] == selected) {
@@ -469,6 +481,7 @@ function displayDynamicAttributes(event) {
         }
     }
 
+    // Determine which dropdowns should be displayed
     var visibleDropdowns = [];
     for (var i = 0; i < configVals.length; i++) {
         if (configVals[i][0] == selected) {
@@ -476,7 +489,7 @@ function displayDynamicAttributes(event) {
         }
     }
 
-    // Hide all unwanted attributes
+    // Hide all unwanted checkboxes
     for (var i = 0; i < attributeCheckboxes.length; i++) {
         if (!visibleCheckboxes.includes(attributeCheckboxes[i].id)) {
             attributeCheckboxes[i].style.display = 'none';
@@ -484,53 +497,75 @@ function displayDynamicAttributes(event) {
         }
     }
 
-    // Hide all unwanted attributes
+    // Hide all unwanted dropdowns
     for (var i = 0; i < attributeDropdowns.length; i++) {
         if (!visibleDropdowns.includes(attributeDropdowns[i].list.id)) {
             attributeDropdowns[i].style.display = 'none';
         }
     }
-};
+}
 
 
 function updateAnnotationFileURL() {
-    var a = document.getElementById('save-annotation-file');
+    /*
+    Construct a blob with the most up-to-date
+    annotation list and map it to the save button
+    */
+    var saveButton = document.getElementById('save-annotation-file');
     var fileName = localStorage.getItem('fileName' + currentDocumentId) + '.ann';
-    var contentType = 'text/plain';
 
-    var finalList = [];
-    annotationText = '';
+    // Construct list to be output
+    var outputList = [];
+    var annotationText = '';
     for (var i = 0; i < annotationList[currentDocumentId].length; i++) {
         if (annotationList[currentDocumentId][i].length > 1) {
             for (var j = 0; j < annotationList[currentDocumentId][i].length; j++) {
-                finalList.push(annotationList[currentDocumentId][i][j]);
+                outputList.push(annotationList[currentDocumentId][i][j]);
                 annotationText += annotationList[currentDocumentId][i][j];
             }
         } else {
-            finalList.push(annotationList[currentDocumentId][i]);
+            outputList.push(annotationList[currentDocumentId][i]);
             annotationText += annotationList[currentDocumentId][i];
         }
     }
+    // Construct blob file
+    var blob = new Blob(outputList, {type: 'text/plain'});
 
-    var blob = new Blob(finalList, { type: contentType });
-    window.URL.revokeObjectURL(a.href);
-    a.href = URL.createObjectURL(blob);
-    a.download = fileName;
+    // Release existing blob URL
+    window.URL.revokeObjectURL(saveButton.href);
 
+    // Map save button to most recent blob URL
+    saveButton.href = URL.createObjectURL(blob);
+    saveButton.download = fileName;
+
+    // Store annotations locally to avoid loss upon refreshing
     localStorage.setItem('annotationText' + currentDocumentId, annotationText);
 }
 
 
-// Change colour of highlighted text
 function changeHighlightedTextColor() {
+    /*
+    Change colour of text highlighted by the user
+
+    Context: This is done automatically, but to enable the user
+    to be able to provide input into attribute text fields without
+    losing their selection, this has to be performed manually
+    */
+
     if (window.getSelection() == '') {
-        // Prevent annotations from disappearing from visual display upon highlighting over them
+        // Prevent annotations from disappearing from display upon highlighting over them
         if (document.getElementById('highlighted') != null) {
+            // Ignore selection
             $('#highlighted').replaceWith(function () { return this.innerHTML; });
+
+            // Reset document text to default
             document.getElementById('file-data').innerText = localStorage.getItem('documentText' + currentDocumentId);
+
+            // Repopulate all annotations and re-bind all events
             loadExistingAnnotations();
             bindCollapsibleEvents();
         } else {
+            // Ignore selection
             $('#highlighted').replaceWith(function () { return this.innerHTML; });
         }
     } else {
@@ -538,6 +573,7 @@ function changeHighlightedTextColor() {
             $('#highlighted').replaceWith(function () { return this.innerHTML; });
         }
 
+        // Get selected text and index range
         var documentElement = document.getElementById('file-data');
         highlightText = window.getSelection().toString();
         var highlightRange = window.getSelection().getRangeAt(0);
@@ -546,6 +582,7 @@ function changeHighlightedTextColor() {
         preCaretRange.selectNodeContents(documentElement);
         preCaretRange.setEnd(highlightRange.startContainer, highlightRange.startOffset);
 
+        // Get length of selected text and precaret (excluding newline characters)
         highlightTextLength = highlightRange.toString().replace(/\n/g, '').length;
         preCaretStringLength = preCaretRange.toString().replace(/\n/g, '').length;
 
@@ -557,12 +594,13 @@ function changeHighlightedTextColor() {
 }
 
 
-function isAlphanumeric(char) {
-    return '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-'.indexOf(char) > -1;
-}
-
-
 function trueToHighlightIndicies(trueStartIndex, trueEndIndex) {
+    /*
+    Convert the true indicies (those that include newline characters)
+    to highlight indicies (those that exclude newline characters). Calculation
+    can be performed for either LF and CRLF (Linux & Windows) newline types,
+    depending on the document type
+    */
     var documentText = document.getElementById('file-data').innerText;
 
     var lineBreakValue = 1;
@@ -590,6 +628,12 @@ function trueToHighlightIndicies(trueStartIndex, trueEndIndex) {
 
 
 function highlightToTrueIndicies(preCaretStringLength, highlightTextLength) {
+    /*
+    Convert the highlight indicies (those that exclude newline characters)
+    to true indicies (those that include newline characters). Calculation
+    can be performed for either LF and CRLF (Linux & Windows) newline types,
+    depending on the document type
+    */
     var lineBreakValue = 1;
     if (localStorage.getItem('lineBreakType' + currentDocumentId) == 'windows') {
         lineBreakValue = 2;
@@ -642,16 +686,6 @@ function addAnnotation(event) {
     var trueIndicies = highlightToTrueIndicies(preCaretStringLength, highlightTextLength);
     var trueStartIndex = trueIndicies[0];
     var trueEndIndex = trueIndicies[1];
-
-    /*
-    TO-DO: Ignore spaces before and after a selection
-    while (isAlphanumeric(documentText[startIndex])) {
-        startIndex--;
-    }
-    while (isAlphanumeric(documentText[endIndex])) {
-        endIndex++;
-    }
-    */
 
     // Check whether selection is valid
     if (!validateAnnotationSelection(highlightText, attributeRadiobuttons)) {
@@ -1021,13 +1055,17 @@ function suggestCui(event) {
 
 
 function resetEntityColor() {
-    var col;
-    if (darkMode == true) {
-        col = 'white';
+    /*
+    Reset entity section title to default
+    (changes to red upon user error)
+    */
+    var defaultColor;
+    if (localStorage.getItem('mode') == 'dark') {
+        defaultColor = 'white';
     } else {
-        col = 'black';
+        defaultColor = 'black';
     }
-    document.getElementById('entities').style.color = col;
+    document.getElementById('entities').style.color = defaultColor;
 }
 
 
@@ -1109,11 +1147,11 @@ function onPageLoad(initalLoad=true) {
 
         // Display attributes configuration list
         var detailedConfigValues = displayAttributeConfigurations(entityList, attributeSentences);
-        configArgs = detailedConfigValues[0];
-        configVals = detailedConfigValues[1];
+        var configArgs = detailedConfigValues[0];
+        var configVals = detailedConfigValues[1];
 
-        // Check and set users' display mode preference
-        checkUserDisplayPreference();
+        // Update display based on users' preference
+        updateDisplayMode();
 
         // Allow users to change the display mode
         $('#darkMode').click(switchDisplayMode);
@@ -1320,8 +1358,8 @@ function getAnnotationSuggestions() {
                 var suggestionId = 'suggestion-' + i;
                 var suggestionClass = 'class="displayedAnnotation collapsible"';
                 var suggestionStyle = 'style="background-color:' + highlightColor + ';'
-                if (darkMode) {
-                    suggestionStyle += 'color:black;"';
+                if (localStorage.getItem('mode') == 'dark') {
+                    suggestionStyle += 'color: black;"';
                 } else {
                     suggestionStyle += '"'
                 }
@@ -1475,9 +1513,7 @@ var colors = [
     '#FFF0F5', '#FFFACD', '#E6E6FA', '#B22222', '#4169E1', '#C0C0C0'
 ];
 
-var darkMode;
-
-var annotationList;
+var annotationList, entityList;
 var offsetList = [];
 
 var currentDocumentId = 0;
@@ -1485,4 +1521,3 @@ var entityId = 1;
 var attributeId = 1;
 
 var highlightText, highlightTextLength, preCaretStringLength;
-var configValues, entityList, configArgs, configVals;
