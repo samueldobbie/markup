@@ -21,19 +21,6 @@ def annotate_data(request):
     return render(request, 'annotate/annotate.html', {})
 
 
-def setup_preloaded_ontology(selected_ontology):
-    '''
-    Setup user-specified, pre-loaded ontology for
-    automated mapping suggestions
-    '''
-    global simstring_searcher
-
-    if selected_ontology == 'umls':
-        simstring_searcher = Searcher(umls_database, CosineMeasure())
-
-    return HttpResponse(None)
-
-
 def is_valid_umls_user(request):
     '''
     Check whether user has the appropiate permissions to use
@@ -56,14 +43,58 @@ def is_valid_umls_user(request):
     return HttpResponse(result)
 
 
+def setup_demo_ontology(request):
+    '''
+    Setup demo ontology for
+    automated mapping suggestions
+    '''
+    global simstring_searcher, term_to_cui
+
+    ontology_data = open('data/txt/demo-ontology.txt', encoding='utf-8').read().split('\n')
+    database, term_to_cui = construct_ontology(ontology_data)
+    simstring_searcher = Searcher(database, CosineMeasure())
+
+    return HttpResponse(None)
+
+
+def setup_preloaded_ontology(selected_ontology):
+    '''
+    Setup user-specified, pre-loaded ontology
+    for automated mapping suggestions
+    '''
+    global simstring_searcher
+
+    if selected_ontology == 'umls':
+        simstring_searcher = Searcher(umls_database, CosineMeasure())
+
+    return HttpResponse(None)
+
+
 def setup_custom_ontology(request):
+    '''
+    Setup custom ontology for
+    automated mapping suggestions
+    '''
+
     global term_to_cui, simstring_searcher
 
     ontology_data = request.POST['ontologyData'].split('\n')
+    database, term_to_cui = construct_ontology(ontology_data)
+    simstring_searcher = Searcher(database, CosineMeasure())
+
+    return HttpResponse(None)
+
+
+def construct_ontology(ontology_data):
+    '''
+    Create an n-char simstring database and
+    term-to-code mapping to enable rapid ontology
+    querying
+    '''
 
     database = DictDatabase(CharacterNgramFeatureExtractor(2))
-    term_to_cui = {}
 
+    term_to_cui = {}
     for entry in ontology_data:
         entry_values = entry.split('\t')
         if len(entry_values) == 2:
@@ -74,9 +105,11 @@ def setup_custom_ontology(request):
         term = clean_selected_term(term)
         database.add(term)
 
-    simstring_searcher = Searcher(database, CosineMeasure())
+    print(database)
 
-    return HttpResponse(None)
+    print(term_to_cui)
+
+    return database, term_to_cui
 
 
 def suggest_cui(request):
@@ -89,7 +122,6 @@ def suggest_cui(request):
         return HttpResponse('')
 
     selected_term = clean_selected_term(request.POST['selectedTerm'])
-
     ranked_matches = get_ranked_ontology_matches(selected_term)
 
     return HttpResponse(ranked_matches)

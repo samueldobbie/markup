@@ -56,18 +56,17 @@ $(document).ready(function () {
 
     
     /*** Demo documents selection ***/
+
     $('#try-demo').click(function () {        
         localStorage.setItem('documentOpenType', 'multiple');
-
         localStorage.setItem('documentCount', 2);
-
         localStorage.setItem('fileName' + 0, 'FirstTestDoc.txt');
         localStorage.setItem('fileName' + 1, 'SecondTestDoc.txt');
-
         localStorage.setItem('documentText' + 0, testDocumentOne);
         localStorage.setItem('documentText' + 1, testDocumentTwo);
-
         localStorage.setItem('configText', testConfigText);
+
+        setupDemoOntology();
 
         location.href = '/annotate';
     });
@@ -315,6 +314,17 @@ function setupCustomOntology(file) {
         });
     };
     reader.readAsText(file);
+}
+
+
+function setupDemoOntology() {
+    $.ajax({
+        type: 'POST',
+        url: '~/setup-demo-ontology',
+        data: {
+            'csrfmiddlewaretoken': getCookie('csrftoken')
+        }
+    });
 }
 
 

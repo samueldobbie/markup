@@ -4,6 +4,8 @@ from . import views
 urlpatterns = [
     url(r'^setup/~/is-valid-umls-user$',
         views.is_valid_umls_user, name='is_valid_umls_user'),
+    url(r'^setup/~/setup-demo-ontology$',
+        views.setup_demo_ontology, name='setup_demo_ontology'),
     url(r'^setup/~/setup-preloaded-ontology$',
         views.setup_preloaded_ontology, name='setup_preloaded_ontology'),
     url(r'^setup/~/setup-custom-ontology$',
