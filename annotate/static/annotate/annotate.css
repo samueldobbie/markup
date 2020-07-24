@@ -120,10 +120,6 @@ input[type=radio] {
   display: none;
 }
 
-.l:hover {
-  filter: brightness(130%);
-}
-
 .container {
   display: flex;
 }
@@ -247,10 +243,6 @@ ul:not(.browser-default)>li {
 .annotation-suggestion:hover {
   filter: brightness(110%);
   cursor: pointer;
-}
-
-.l {
-  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 .hide {
@@ -536,4 +528,21 @@ nav .input-field label.active i {
 
 a {
   text-decoration: none;
+}
+
+.config-value-row {
+  margin: 0;
+  margin-top: 3px;
+  padding: 0;
+}
+
+.config-label {
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+  border-radius: 5px;
+  padding: 0 5px;
+  color: black;
+}
+
+.config-label:hover {
+  filter: brightness(130%);
 }

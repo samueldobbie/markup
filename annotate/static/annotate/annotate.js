@@ -1,17 +1,8 @@
-var colors = [
-    '#7B68EE', '#FFD700', '#FFA500', '#DC143C', '#FFC0CB', '#00BFFF', '#FFA07A',
-    '#C71585', '#32CD32', '#48D1CC', '#FF6347', '#2E8B57', '#FF69B4', '#008B8B',
-    '#FFF0F5', '#FFFACD', '#E6E6FA', '#B22222', '#4169E1', '#C0C0C0'
-];
-
-var annotationList;
-var offsetList = [];
-var entityId = 1;
-var attributeId = 1;
-var darkMode;
-
-// Function to get csrftoken from cookie
 function getCookie(name) {
+    /*
+    Get csrftoken from cookie for
+    use within AJAX requests
+    */
     var cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         var cookies = document.cookie.split(';');
@@ -27,13 +18,11 @@ function getCookie(name) {
 }
 
 
-function csrfSafeMethod(method) {
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
-
-
-// Function to set Request Header with `CSRFTOKEN`
-function setRequestHeader(csrftoken){
+function setRequestHeader(csrftoken) {
+    /*
+    Specify csrftoken within AJAXs
+    request header
+    */
     $.ajaxSetup({
         beforeSend: function(xhr, settings) {
             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
@@ -44,8 +33,15 @@ function setRequestHeader(csrftoken){
 }
 
 
-// Return to homepage if an invalid document is selected // TO-DO: Do this during the setup stage
+function csrfSafeMethod(method) {
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
+
 function validateDocumentSelection(documentText) {
+    /*
+    Return to homepage if an invalid document is selected
+    */
     if (documentText == null || documentText.trim() == '') {
         alert('This document is empty. Redirecting to the homepage!')
         location.href = '/';
@@ -53,59 +49,139 @@ function validateDocumentSelection(documentText) {
 }
 
 
-// Parse configuration values from file and display entity list
-function parseConfigurationValues(configText) {
-    var addEntities = false;
-    var entityList = [];
-    var configKey = '';
-    var configValues = [];
+function parseConfigurationData(configText) {
+    /*
+    Parse configuration data from specified config file
+    */
+
     var configSentences = configText.split('\n');
+    var configValues = [];
+    var configKey = '';
+
+    var entityList = [];
+    var isEntitySentence = false;
+
     for (var i = 0; i < configSentences.length; i++) {
-        var sent = configSentences[i];
+        var configSentence = configSentences[i];
 
-        if (sent == '') {
+        if (configSentence == '') {
             continue;
         }
 
-        if (addEntities) {
-            entityList.push(sent);
+        if (isEntitySentence && configSentence[0] != '[') {
+            entityList.push(configSentence);
+        } else if (configSentence[0] != '[') {
+            configValues.push(configSentence);
         }
 
-        if (sent.length >= 3 && sent[0] == '[' && sent[sent.length - 1] == ']') {
-            if (configKey != '') {
-                if (document.getElementById(configKey) != null) {
-                    for (var j = 0; j < configValues.length; j++) {
-                        // TO-DO: Replace styling with classes
-                        document.getElementById(configKey).innerHTML += '<p style="margin:0; margin-top:3px; padding:0;"><input type="radio" id="' + configValues[j] + '-radio" name="' + configKey + '" value="' + configValues[j] + '-radio"> <label colorIndex="' + j + '"style="border-radius:5px; padding:0 5px; background-color:' + colors[j] + '; color:black;" class="l" for="' + configValues[j] + '-radio">' + configValues[j] + '</label> </p>';
-                    }
-                    document.getElementById(configKey).innerHTML += '<br>';
-                }
-                configValues = [];
-            }
-            configKey = sent.slice(1, sent.length - 1);
+        // Check for list title (e.g. [entities], [attributes]) within sentence
+        if (configSentence.length >= 3 && configSentence[0] == '[' && configSentence[configSentence.length - 1] == ']') {
+            configKey = configSentence.slice(1, configSentence.length - 1);
 
-            if (addEntities) {
-                addEntities = false;
-            }
-
+            // Check whether following lines contain entity data
             if (configKey.toLowerCase() == 'entities') {
-                addEntities = true;
+                isEntitySentence = true;
+            } else if (isEntitySentence) {
+                isEntitySentence = false;
             }
             continue;
         }
-        configValues.push(sent);
     }
 
-    if (entityList.length - 1 >= 0) {
-        entityList.splice(entityList.length - 1, 1);
-    }
-
-    return [configValues, entityList];
+    return [entityList, configValues];
 }
 
 
-// Display configuration values
-function displayConfigurationValues(configValues, entityList) {
+function parseAttributeData(attributeSentences) {
+    /*
+    Parse attribute arguments and values
+    from attribute sentences
+    */
+
+    /*
+    var attributeValues = [];
+    for (var i = 0; i < attributeSentences.length; i++) {
+        var attributeSentence = attributeSentences[i];
+        if (attributeSentence.trim() == '') {
+            continue;
+        }
+
+        var argumentComponents = attributeSentence.split('Arg:');
+        var attributeName = argumentComponents[0].trim();
+        var valueComponents = [];
+        if (argumentComponents.length > 1) {
+            valueComponents = argumentComponents[1].split('Value:');
+        }
+
+        // Populate argument list
+        if (valueComponents.length > 0) {
+            var arguments = valueComponents[0].split(',');
+            for (var j = 0; j < arguments.length; j++) {
+                var argumentList = [];
+                argumentList.push(argsSplit[0].trim());
+
+                if (valsSplit[0].split(',')[j].trim() != '') {
+                    argumentList.push(valsSplit[0].split(',')[j].trim());
+                }
+
+                if (argumentList.length > 1) {
+                    configArgs.push(argumentList);
+                    document.getElementById('attribute-checkboxes').innerHTML += '<p style="margin:0; padding:0;"> <input type="checkbox" id="{{ val }}" name="{{ key }}" value="{{ val }}"> <label for="{{ val }}">{{ val }}</label> </p>';
+                }
+
+
+                var attributeValue = [];
+                // Enable use of global entities
+                if (arguments[j].toLowerCase().trim() == '<entity>') {
+                    attributeValue = [attributeName];
+                    for (var k = 0; k < entityList.length; k++) {
+                        attributeValue.push(entityList[k]);
+                    }
+                    break;
+                }
+                attributeValue.push(arguments[j].trim());
+            }
+            document.getElementById('attribute-checkboxes').innerHTML += '<p style="margin:0; padding:0;"> <input type="checkbox" id="{{ val }}" name="{{ key }}" value="{{ val }}"> <label for="{{ val }}">{{ val }}</label> </p>';
+            }
+        }
+        
+        // Populate the value list
+        if (valueComponents.length > 1) {
+            var values = valueComponents[1].split('|');
+            for (var j = 0; j < values.length; j++) {
+                attributeValue.push(values[i]);
+            }
+        }
+
+        // Add attibute values to output list
+        if (attributeValue != []) {
+            attributeValues.push(attributeValue);
+        }
+    }
+
+    console.log('attributeValues', attributeValues);
+
+    return attributeValues;
+    */
+}
+
+
+function displayEntityConfigurations(entityList) {
+    /*
+    Display entity configuration list in side panel
+    */
+    for (var i = 0; i < entityList.length; i++) {
+        document.getElementById('entities').innerHTML += '<p class="config-value-row"><input type="radio" id="' + entityList[i] + '-radio" name="entities" value="' + entityList[i] + '-radio"><label colorIndex="' + i + '"style="background-color:' + colors[i] + ';" class="config-label" for="' + entityList[i] + '-radio">' + entityList[i] + '</label></p>';
+    }
+    document.getElementById('entities').innerHTML += '<br>';
+}
+
+
+function displayAttributeConfigurations(entityList, configValues) {
+    /*
+    Display attribute configuration list in side panel
+    */
+
     var configArgs = [];
     var configVals = [];
     for (var i = 0; i < configValues.length; i++) {
@@ -331,7 +407,8 @@ function displayAnnotation(entityValue, attributeValues, startIndex, endIndex) {
     /*
     // TO-DO: Change annotation color if there's an overlap between two annotations
     for (var i = 0; i < offsetList.length; i++) {
-        if ((startIndex >= offsetList[i][0] && startIndex <= offsetList[i][1]) || (endIndex >= offsetList[i][0] && endIndex <= offsetList[i][1])) {
+        if ((startIndex >= offsetList[i][0] && startIndex <= offsetList[i][1]) || 
+            (endIndex >= offsetList[i][0] && endIndex <= offsetList[i][1])) {
             highlightColor = 'rgb(35, 200, 130)';
             break;
         }
@@ -443,11 +520,6 @@ function updateAnnotationFileURL() {
     localStorage.setItem('annotationText' + currentDocumentId, annotationText);
 }
 
-
-
-var highlightText;
-var highlightTextLength;
-var preCaretStringLength;
 
 // Change colour of highlighted text
 function changeHighlightedTextColor() {
@@ -974,14 +1046,11 @@ function bindCollapsibleEvents() {
     }
 }
 
-
-var currentDocumentId = 0;
 $(document).ready(function () {
     onPageLoad();
 });
 
 
-var parsedConfigValues, configValues, entityList, detailedConfigValues, configArgs, configVals;
 function onPageLoad(initalLoad=true) {
     // Read local data of files user selected
     var documentOpenType = localStorage.getItem('documentOpenType');
@@ -1030,13 +1099,16 @@ function onPageLoad(initalLoad=true) {
     document.getElementById('file-data').innerText = documentText;
 
     if (initalLoad) {
-        // Display 'entities' configuration list
-        parsedConfigValues = parseConfigurationValues(configText);
-        configValues = parsedConfigValues[0];
-        entityList = parsedConfigValues[1];
+        // Parse data from configuration file
+        var parsedConfigData = parseConfigurationData(configText);
+        entityList = parsedConfigData[0];
+        var attributeSentences = parsedConfigData[1];
 
-        // Display 'attributes' configuration list
-        detailedConfigValues = displayConfigurationValues(configValues, entityList);
+        // Display entity configuration list
+        displayEntityConfigurations(entityList);
+
+        // Display attributes configuration list
+        var detailedConfigValues = displayAttributeConfigurations(entityList, attributeSentences);
         configArgs = detailedConfigValues[0];
         configVals = detailedConfigValues[1];
 
@@ -1083,7 +1155,6 @@ function onPageLoad(initalLoad=true) {
             currentDocumentId = $('option:selected', this).attr('documentId');
             onPageLoad(false);
         });
-
         
         // Move to next when multiple documents opened
         $('#move-to-next-file').click(function () {
@@ -1396,3 +1467,22 @@ function teachModel(label) {
 function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
 }
+
+
+var colors = [
+    '#7B68EE', '#FFD700', '#FFA500', '#DC143C', '#FFC0CB', '#00BFFF', '#FFA07A',
+    '#C71585', '#32CD32', '#48D1CC', '#FF6347', '#2E8B57', '#FF69B4', '#008B8B',
+    '#FFF0F5', '#FFFACD', '#E6E6FA', '#B22222', '#4169E1', '#C0C0C0'
+];
+
+var darkMode;
+
+var annotationList;
+var offsetList = [];
+
+var currentDocumentId = 0;
+var entityId = 1;
+var attributeId = 1;
+
+var highlightText, highlightTextLength, preCaretStringLength;
+var configValues, entityList, configArgs, configVals;
