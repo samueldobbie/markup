@@ -253,8 +253,7 @@ function displayAttributeConfigurations(entityList, configValues) {
 
 function updateDisplayMode() {
     /*
-    Updates display mode based
-    on users' preference
+    Updates display mode based on users' preference
     */
 
     if (localStorage.getItem('mode') == 'light') {
@@ -341,13 +340,13 @@ function resetDropdowns() {
 }
 
 
-function populateAnnotationDisplay(entityValue, attributeValues, startIndex, endIndex, trueStartIndex, trueEndIndex) {
+function populateAnnotationDisplay(entityValue, attributeValues, highlightStartIndex, highlightEndIndex, annotationIdentifier) {
     /*
     Select the span of text highlighted by
     the user and display the selected annotation
     */
-    setSelectionRange(document.getElementById('file-data'), startIndex, endIndex);
-    displayAnnotation(entityValue, attributeValues, trueStartIndex, trueEndIndex);
+    setSelectionRange(document.getElementById('file-data'), highlightStartIndex, highlightEndIndex);
+    displayAnnotation(entityValue, attributeValues, annotationIdentifier);
 }
 
 
@@ -407,7 +406,7 @@ function getTextNodesIn(node) {
 }
 
 
-function displayAnnotation(entityValue, attributeValues, startIndex, endIndex) {
+function displayAnnotation(entityValue, attributeValues, annotationIdentifier) {
     /*
     Set the current selection range to
     display a chosen annotation class
@@ -424,15 +423,15 @@ function displayAnnotation(entityValue, attributeValues, startIndex, endIndex) {
 
     // Add annotation inline within the open document
     document.getElementById('file-data').contentEditable = 'true';
-    document.execCommand('insertHTML', false, '<span class="inlineAnnotation" id="' + startIndex + '-' + endIndex + '-aid" style="background-color:' + highlightColor + '; color:black;">' + highlighted + '</span>');
+    document.execCommand('insertHTML', false, '<span class="inlineAnnotation" id="' + annotationIdentifier + '-aid" style="background-color:' + highlightColor + '; color:black;">' + highlighted + '</span>');
     document.getElementById('file-data').contentEditable = 'false';
 
     // Keep track of offets for each annotation
-    offsetList.push([startIndex, endIndex, entityValue, attributeValues, highlighted]);
+    offsetList.push([annotationIdentifier, entityValue, attributeValues, highlighted]);
 
     // Construct annotation to be added to the annotation display panel
     var annotationClass = 'class="displayedAnnotation collapsible"';
-    var annotationId = 'id="' + startIndex + '-' + endIndex + '"';
+    var annotationId = 'id="' + annotationIdentifier + '"';
     var annotationStyle = 'style="background-color:' + highlightColor + ';'
     if (localStorage.getItem('mode') == 'dark') {
         annotationStyle += 'color: black;"';
@@ -445,7 +444,7 @@ function displayAnnotation(entityValue, attributeValues, startIndex, endIndex) {
     for (var i = 0; i < attributeValues.length; i++) {
         contentDiv += '<p>' + attributeValues[i] + '</p>';
     }
-    contentDiv += '<a annotation-id="' + startIndex + '-' + endIndex + '" style="color: red; cursor: pointer;" onClick="deleteAnnotation(this);">Delete annotation</a></p></div>';
+    contentDiv += '<a annotation-id="' + annotationIdentifier + '" style="color: red; cursor: pointer;" onClick="deleteAnnotation(this);">Delete annotation</a></p></div>';
 
     // Display the section title based on the annotation entity category
     document.getElementById(entityValue + '-section').style.display = '';
@@ -689,7 +688,7 @@ function addAnnotation(event) {
 
     // Check whether selection is valid
     if (!validateAnnotationSelection(highlightText, attributeRadiobuttons)) {
-        document.getElementById('entities').style.border = '2px solid red';
+        alert('Invalid annotation - have you highlighted a span of text and chosen an entity?');
         return;
     }
 
@@ -759,7 +758,7 @@ function addAnnotation(event) {
         annotation.push([attributeData[i]]);
     }
 
-    // Add annotation to annotation list
+    // Add annotation to annotation list in order as it appears in the document
     if (annotationList[currentDocumentId].length == 0) {
         annotationList[currentDocumentId].push(annotation);
     } else {
@@ -851,7 +850,11 @@ function loadExistingAnnotations() {
 
     // TO-DO: validate ann file annotations before trying to populate
 
+    // Reset offset list
+    offsetList = [];
+
     // Parse annotation data and populate annotation display
+    var annotationIdentifier = 0;
     for (var i = 0; i < annotationList[currentDocumentId].length; i++) {
         var attributeValues = [];
         var entityValue = '';
@@ -887,7 +890,8 @@ function loadExistingAnnotations() {
                 attributeValues.push(data[0] + ': ' + data[2]);
             }
         }
-        populateAnnotationDisplay(entityValue, attributeValues, highlightStartIndex, highlightEndIndex, trueStartIndex, trueEndIndex);
+        populateAnnotationDisplay(entityValue, attributeValues, highlightStartIndex, highlightEndIndex, annotationIdentifier);
+        annotationIdentifier++;
     }
     entityId++;
     attributeId++;
@@ -897,32 +901,27 @@ function loadExistingAnnotations() {
 
 
 function deleteAnnotation(event) {
-    var id = event.getAttribute('annotation-id');
-    var indicies = id.split('-');
+    var targetAnnotationIdentifier = parseInt(event.getAttribute('annotation-id'));
 
-    var targetStartIndex = parseInt(indicies[0]);
-    var targetEndIndex = parseInt(indicies[1]);
-
-    // Finds correct annotation index based on offset list and removes
-    for (var i = 0; i < annotationList[currentDocumentId].length; i++) {
-        var currentStartIndex = parseInt(annotationList[currentDocumentId][i][0][0].split(' ')[1]);
-        var currentEndIndex = parseInt(annotationList[currentDocumentId][i][0][0].split(' ')[2].split('\t')[0]);
-
-        if (currentStartIndex == targetStartIndex && currentEndIndex == targetEndIndex) {
-            // Remove annotation and offset
+    // Finds correct annotation index based on offset list and remove annotation
+    for (var i = 0; i < offsetList.length; i++) {
+        if (offsetList[i][0] == targetAnnotationIdentifier) {
             annotationList[currentDocumentId].splice(i, 1);
             offsetList.splice(i, 1);
+            break;
         }
     }
+
     onPageLoad(false);
 }
 
 
-// Display information about chosen annotation on hover
-function displayHoverInformation(id, type) {
-    var indicies = id.split('-');
-    var startIndex = indicies[0];
-    var endIndex = indicies[1];
+function adjustAnnotationUponHover(id, type) {
+    /*
+    Display information about annotation and
+    adjust brightness upon hover of both annotation-data
+    and file-data panels
+    */
 
     // Reset annotations to original brightness
     var annotations = $.merge($('.inlineAnnotation'), $('.displayedAnnotation'));
@@ -930,32 +929,32 @@ function displayHoverInformation(id, type) {
         annotations[i].style.filter = 'brightness(100%)';
     }
 
-    if (id != type && id != '' && parseInt(startIndex) >= 0 && parseInt(endIndex) >= 0) {
-        // Increase brightness of inline and displayed target annotation
-        document.getElementById(startIndex + '-' + endIndex).style.filter = 'brightness(115%)';
-        document.getElementById(startIndex + '-' + endIndex + '-aid').style.filter = 'brightness(115%)';
+    // Ignore hover over non-annotation elements
+    if (id == '' || id == type || id == 'highlighted' ||
+        document.getElementById(id).title != '' ||
+        (id.split('-').length > 1 && id.split('-')[1] != 'aid')) {
+        return;
+    }
 
-        // Avoid repeatedly setting the hover title
-        if (document.getElementById(id).title != '') {
+    var targetAnnotationIdentifier = id.split('-')[0];
+
+    // Increase brightness of inline and displayed target annotation
+    if (document.getElementById(targetAnnotationIdentifier) != null &&
+        document.getElementById(targetAnnotationIdentifier + '-aid') != null) {
+        document.getElementById(targetAnnotationIdentifier).style.filter = 'brightness(150%)';
+        document.getElementById(targetAnnotationIdentifier + '-aid').style.filter = 'brightness(150%)';
+    }
+
+    // Add hover information to target annotation
+    for (var i = 0; i < offsetList.length; i++) {
+        if (offsetList[i][0] == targetAnnotationIdentifier) {
+            var title = 'Entity: ' + offsetList[i][1] + '\n';
+            for (var j = 0; j < offsetList[i][2].length; j++) {
+                title += offsetList[i][2][j];
+            }
+            document.getElementById(id).title = title;
             return;
         }
-
-        // Add hover information to target annotation
-        for (var i = 0; i < offsetList.length; i++) {
-            if (offsetList[i][0] == startIndex && offsetList[i][1] == endIndex) {
-                for (var j = 2; j < 5; j++) {
-                    if (offsetList[i][j].length == 0) {
-                        offsetList[i][j] = 'None';
-                    }
-                }
-                var titleString = 'Entity: ' + offsetList[i][2] + '\n';
-                for (var k = 0; k < offsetList[i][3].length; k++) {
-                    titleString += offsetList[i][3][k];
-                }
-                document.getElementById(id).title = titleString;
-                return;
-            }
-        };
     }
 }
 
@@ -1013,21 +1012,6 @@ function suggestCui(event) {
             searchList.add(option);
         }
     });
-}
-
-
-function resetEntityColor() {
-    /*
-    Reset entity section title to default
-    (changes to red upon user error)
-    */
-    var defaultColor;
-    if (localStorage.getItem('mode') == 'dark') {
-        defaultColor = 'white';
-    } else {
-        defaultColor = 'black';
-    }
-    document.getElementById('entities').style.color = defaultColor;
 }
 
 
@@ -1140,14 +1124,14 @@ function onPageLoad(initalLoad=true) {
             changeHighlightedTextColor();
         });
 
-        // Display information about annotation on hover of annotation-data display
+        // Display information about annotation and adjust brightness on hover (annotation-data panel)
         $('#annotation-data').mouseover(function (e) {
-            displayHoverInformation(e.target.id, 'annotation-data');
+            adjustAnnotationUponHover(e.target.id, 'annotation-data');
         });
 
-        // Display information about annotation on hover of file-data display
+        // Display information about annotation and adjust brightness on hover (file-data panel)
         $('#file-data').mouseover(function (e) {
-            displayHoverInformation(e.target.id, 'file-data');
+            adjustAnnotationUponHover(e.target.id, 'file-data');
         });
 
         // Enable navigation between opened files via dropdown selection
@@ -1209,9 +1193,6 @@ function onPageLoad(initalLoad=true) {
 
         // Suggest most relevant UMLS matches based on searched term
         $('#search-dict').on('input', {'type': 'search-list'}, suggestCui);
-
-        // Reset color of entities (which changes upon errors)
-        $('input[name=entities]').click(resetEntityColor);
 
         // Prompt user to save annotations before leaving page
         $('a[name=nav-element]').click(function() {
