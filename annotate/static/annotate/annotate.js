@@ -901,9 +901,14 @@ function loadExistingAnnotations() {
 
 
 function deleteAnnotation(event) {
+    /*
+    Delete clicked annotation from
+    annotation and offset lists
+    */
+
     var targetAnnotationIdentifier = parseInt(event.getAttribute('annotation-id'));
 
-    // Finds correct annotation index based on offset list and remove annotation
+    // Finds correct annotation index based on offset list and removes annotation
     for (var i = 0; i < offsetList.length; i++) {
         if (offsetList[i][0] == targetAnnotationIdentifier) {
             annotationList[currentDocumentId].splice(i, 1);
@@ -911,7 +916,6 @@ function deleteAnnotation(event) {
             break;
         }
     }
-
     onPageLoad(false);
 }
 
@@ -960,16 +964,23 @@ function adjustAnnotationUponHover(id, type) {
 
 
 function suggestCui(event) {
-    var type = event.data.type;
-    var selectedTerm;
+    /*
+    Find list of relevant matches based on specified text
+    within defined ontology, and populate appropiate
+    dropdown with matches
+    */
+
+    var dropdownId = event.data.type;
+    var dropdown = document.getElementById(dropdownId);
 
     // Determine mapping type (selection or direct search)
-    if (type == 'match-list') {
+    var selectedTerm;
+    if (dropdownId == 'match-list') {
         if (window.getSelection().anchorNode == null) {
             return;
         }
         selectedTerm = window.getSelection().anchorNode.textContent;
-    } else if (type == 'search-list') {
+    } else if (dropdownId == 'search-list') {
         selectedTerm = document.getElementById('search-dict').value;
     }
 
@@ -985,31 +996,28 @@ function suggestCui(event) {
         data: {
             selectedTerm: selectedTerm
         }
-    }).done(function (data) {
+    }).done(function (result) {
         // Empty dropdown list
-        document.getElementById(type).options.length = 0;
-        if (data != '') {
-            var arr = data.split('***');
-            var searchList = document.getElementById(type);
-            var count = 0;
-            var newOption = document.createElement('option');
-            newOption.text = '';
-            searchList.add(newOption);
-            for (var i = 0; i < arr.length; i++) {
-                newOption = document.createElement('option');
-                newOption.text = arr[i];
-                searchList.add(newOption);
-                count = i;
-            }
-            count++;
-            searchList.childNodes[0].nextElementSibling.text = count + ' matches found';
-        }
+        dropdown.options.length = 0;
 
-        if (document.getElementById(type).options.length == 0) {
-            var searchList = document.getElementById(type);
+        var matches = result.split('***');
+        if (matches.length > 0 && matches[0] != '') {
+            // Display number of matches within dropdown
+            var option = document.createElement('option');
+            option.text = matches.length + ' matches found';
+            dropdown.add(option);
+
+            // Add matches to dropdown
+            for (var i = 0; i < matches.length; i++) {
+                option = document.createElement('option');
+                option.text = matches[i];
+                dropdown.add(option);
+            }
+        } else {
+            // Display 'no matches found' in dropdown
             var option = document.createElement('option');
             option.text = 'No match';
-            searchList.add(option);
+            dropdown.add(option);
         }
     });
 }
