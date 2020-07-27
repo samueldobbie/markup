@@ -15,14 +15,14 @@
     {% csrf_token %}
     <div class="single-document-selection-container selection-container" style="display: none;">
         <div class="option-container option-file-container" complete="false" id="document-file-opener-container">
-            <p class="option-sub-headline">Document to annotate</p>
+            <p class="option-sub-headline">Document to annotate<span style="color: red;"> *</span></p>
             <label for="document-file-opener" class="option-button option-button-small">Select</label>
             <input id="document-file-opener" type="file" accept=".txt,.pdf" style="display:none;">
             <span id="document-file-name"></span>
         </div>
 
         <div class="option-container option-file-container" complete="false" id="configuration-file-opener-container">
-            <p class="option-sub-headline">Configuration file</p>
+            <p class="option-sub-headline">Configuration file<span style="color: red;"> *</span></p>
             <label for="configuration-file-opener" class="option-button option-button-small">Select</label>
             <input id="configuration-file-opener" type="file" accept=".conf" style="display:none;">
             <span>or</span>
@@ -31,7 +31,7 @@
         </div>
 
         <div class="option-container option-file-container" complete="true" id="annotation-file-opener-container">
-            <p class="option-sub-headline">Existing annotation file (optional)</p>
+            <p class="option-sub-headline">Existing annotation file</p>
             <label for="annotation-file-opener" class="option-button option-button-small">Select</label>
             <input id="annotation-file-opener" type="file" accept=".ann" style="display:none;">
             <label id="annotation-file-remover" class="option-button option-button-small" style="background-color: rgb(255, 162, 162); display: none;">Remove</label>
@@ -39,7 +39,7 @@
         </div>
 
         <div class="option-container option-file-container" complete="true" id="ontology-file-opener-container">
-            <p class="option-sub-headline">Ontology (optional)</p>
+            <p class="option-sub-headline">Ontology</p>
             <select id="ontology-file-dropdown" class="option-dropdown">
                 <option value="default">Choose Pre-loaded</option>
                 <option value="umls">UMLS</option>
@@ -57,14 +57,14 @@
 
     <div class="multiple-document-selection-container selection-container" style="display: none;">
         <div class="option-container option-folder-container" complete="false" id="folder-file-opener-container">
-            <p class="option-sub-headline">Folder to annotate</p>
+            <p class="option-sub-headline">Folder to annotate<span style="color: red;"> *</span></p>
             <label for="folder-file-opener" class="option-button option-button-small">Select</label>
             <input id="folder-file-opener" style="display:none;" type="file" webkitdirectory mozdirectory multiple>
             <span id="folder-file-name"></span>
         </div>
 
         <div class="option-container option-folder-container" complete="true" id="ontology-folder-opener-container">
-            <p class="option-sub-headline">Ontology (optional)</p>
+            <p class="option-sub-headline">Ontology</p>
             <select id="ontology-folder-dropdown" class="option-dropdown">
                 <option value="default">Choose Pre-loaded</option>
                 <option value="umls">UMLS</option>

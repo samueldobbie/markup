@@ -546,3 +546,21 @@ a {
 .config-label:hover {
   filter: brightness(130%);
 }
+
+.annotation-icon {
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px
+}
+
+.annotation-icon:hover {
+  filter: brightness(75%);
+}
+
+.edit-icon {
+  color: grey;
+}
+
+.delete-icon {
+  color: red;
+}

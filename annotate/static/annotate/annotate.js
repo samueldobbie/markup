@@ -444,7 +444,9 @@ function displayAnnotation(entityValue, attributeValues, annotationIdentifier) {
     for (var i = 0; i < attributeValues.length; i++) {
         contentDiv += '<p>' + attributeValues[i] + '</p>';
     }
-    contentDiv += '<a annotation-id="' + annotationIdentifier + '" style="color: red; cursor: pointer;" onClick="deleteAnnotation(this);">Delete annotation</a></p></div>';
+    // Add edit and delete buttons
+    contentDiv += '<a annotation-id="' + annotationIdentifier + '" class="annotation-icon edit-icon" onClick="alert(\'Ability to edit coming soon!\');"><i class="fas fa-pencil-alt"></i></a>';
+    contentDiv += '<a annotation-id="' + annotationIdentifier + '" class="annotation-icon delete-icon" onClick="deleteAnnotation(this);"><i class="fas fa-trash-alt"></i></a></p></div>';
 
     // Display the section title based on the annotation entity category
     document.getElementById(entityValue + '-section').style.display = '';
@@ -935,7 +937,6 @@ function adjustAnnotationUponHover(id, type) {
 
     // Ignore hover over non-annotation elements
     if (id == '' || id == type || id == 'highlighted' ||
-        document.getElementById(id).title != '' ||
         (id.split('-').length > 1 && id.split('-')[1] != 'aid')) {
         return;
     }
@@ -945,8 +946,8 @@ function adjustAnnotationUponHover(id, type) {
     // Increase brightness of inline and displayed target annotation
     if (document.getElementById(targetAnnotationIdentifier) != null &&
         document.getElementById(targetAnnotationIdentifier + '-aid') != null) {
-        document.getElementById(targetAnnotationIdentifier).style.filter = 'brightness(150%)';
-        document.getElementById(targetAnnotationIdentifier + '-aid').style.filter = 'brightness(150%)';
+        document.getElementById(targetAnnotationIdentifier).style.filter = 'brightness(115%)';
+        document.getElementById(targetAnnotationIdentifier + '-aid').style.filter = 'brightness(115%)';
     }
 
     // Add hover information to target annotation
@@ -1024,15 +1025,20 @@ function suggestCui(event) {
 
 
 function bindCollapsibleEvents() {
+    /*
+    Enable a dropdown to appear upon clicking
+    an annotation, in the annotation display panel,
+    which details the annotations' attributes
+    */
     var collapsibles = document.getElementsByClassName('collapsible');
     for (var i = 0; i < collapsibles.length; i++) {
         collapsibles[i].addEventListener('click', function() {
             this.classList.toggle('active');
             var content = this.nextElementSibling;
             if (content.style.maxHeight){
-            content.style.maxHeight = null;
+                content.style.maxHeight = null;
             } else {
-            content.style.maxHeight = content.scrollHeight + 'px';
+                content.style.maxHeight = content.scrollHeight + 'px';
             }
         });
     }

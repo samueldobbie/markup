@@ -21,3 +21,12 @@ For future use, the local server can be started directly, using Python 3, by run
 Documentation for markup can be found <a href="http://www.getmarkup.com/docs">here</a>.
 
 ### Features
+
+- Ability to open, move between and annotate multiple documents in a single session.
+- Integrated access to pre-loaded and user-defined, enabling automated ontology mappings and direct ontology querying.
+- Built-in configuration file creator.
+- Predictive prescription suggestions (including drug name, dosage, unit and frequency attributes).
+- Dynamic attribute display.
+- Any number of overlaying annotations, enabling the capture of complex data.
+- Light and dark modes
+- Full-feature tool available via local installation and website.

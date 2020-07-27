@@ -105,10 +105,6 @@ def construct_ontology(ontology_data):
         term = clean_selected_term(term)
         database.add(term)
 
-    print(database)
-
-    print(term_to_cui)
-
     return database, term_to_cui
 
 
