@@ -689,22 +689,22 @@ function addAnnotation(event) {
 
     // Check whether selection is valid
     if (!validateAnnotationSelection(highlightText, attributeRadiobuttons)) {
-        document.getElementById('entities').style.color = 'red';
+        document.getElementById('entities').style.border = '2px solid red';
         return;
     }
 
     var annotation = [];
+    var attributeValues = [];
+    var attributeData = [];
 
-    // Add entity data to annotation list and hover info
+    // Construct formatted entity data
     var entityValue = $('input[type=radio]:checked')[0].id.substring(0, $('input[type=radio]:checked')[0].id.length - 6);
     entityData = 'T' + entityId + '\t' + entityValue + ' ' + trueStartIndex + ' ' + trueEndIndex + '\t' + underscoreString(highlightText) + '\n';
     entityId++;
 
     annotation.push([entityData]);
 
-    // Prepare attribute data to annotation list and add hover info
-    var attributeValues = [];
-    var attributeData = [];
+    // Construct formatted attribute data from checkboxes
     for (var i = 0; i < $('input[type=checkbox]:checked').length; i++) {
         var checkedAttribute = underscoreString($('input[type=checkbox]:checked')[i].id);
         attributeValues.push(checkedAttribute);
@@ -712,102 +712,65 @@ function addAnnotation(event) {
         attributeId++;
     }
 
-    for (var i=0; i< attributeDropdowns.length; i++) {
+    // Construct formatted attribute data from attribute dropdowns
+    for (var i = 0; i < attributeDropdowns.length; i++) {
         if (attributeDropdowns[i].value != '') {
             var attributeKeyValue = attributeDropdowns[i].value.split(': ');
-
             if (attributeKeyValue.length == 1) {
                 attributeKeyValue = [attributeDropdowns[i].getAttribute('placeholder'), attributeKeyValue[0]];
             }
-
             var attributeKey = attributeKeyValue[0];
             var attributeValue = underscoreString(attributeKeyValue[1]);
-
             attributeValues.push(attributeKey + ': ', attributeValue + '\n');
             attributeData.push('A' + attributeId + '\t' + attributeKey + ' T' + (entityId - 1) + ' ' + attributeValue + '\n');
             attributeId++;
         }
     }
 
-    // To-do: better solution for checking its not switch file dropdown
-    for (var i = 0; i < $('select').length; i++) {
-        var currentSelect = $('select')[i];
-        
-        if (currentSelect.id == 'switch-file-dropdown') {
-            continue;
-        }
+    // Get chosen option(s) from ontology (if not default)
+    var matchList = document.getElementById('match-list');
+    var searchList = document.getElementById('search-list');
+    var options = [
+        matchList.options[matchList.selectedIndex].text,
+        searchList.options[searchList.selectedIndex].text
+    ];
 
-        var currentValue = underscoreString(currentSelect.options[currentSelect.selectedIndex].value);
+    for (var i = 0; i < options.length; i++) {
+        var optionWords = options[0].split(' ');
+        if (!((optionWords[optionWords.length - 2] == 'matches' && optionWords[optionWords.length - 1] == 'found') || options[i] == 'No match')) {
+            var optionData = options[i].split(' :: ');
+            var optionText = optionData[0];
+            var optionCode = optionData[1].split(' ')[1];
 
-        if (currentValue != currentSelect[0].value && currentSelect.id == currentSelect[0].value + entityValue) {
-            attributeValues.push(currentValue);
-            attributeData.push('A' + attributeId + '\t' + currentSelect.options[0].value + ' T' + (entityId - 1) + ' ' + currentValue + '\n');
+            var term = 'A' + attributeId + '\tCUIPhrase' + ' T' + (entityId - 1) + ' ' + underscoreString(optionText) + '\n';
+            attributeData.push(term);
+            attributeValues.push('CUIPhrase: ', optionText, '\n');
+            attributeId++;
+
+            var cui = 'A' + attributeId + '\tCUI' + ' T' + (entityId - 1) + ' ' + optionCode + '\n';
+            attributeData.push(cui);
+            attributeValues.push('CUI: ', optionCode, '\n');
             attributeId++;
         }
     }
 
-    // Get chosen option cui from dropdown and ignore if default selected or no matches found
-    var suggestionList = document.getElementById('match-list');
-    var option = suggestionList.options[suggestionList.selectedIndex].text;
-    var optionWords = option.split(' ');
-
-    if (!((optionWords[optionWords.length - 2] == 'matches' && optionWords[optionWords.length - 1] == 'found') || option == 'No match')) {
-        var optionData = option.split(' :: ');
-        var optionText = optionData[0];
-        var optionCode = optionData[1].split(' ')[1];
-
-        var term = 'A' + attributeId + '\tCUIPhrase' + ' T' + (entityId - 1) + ' ' + underscoreString(optionText) + '\n';
-        attributeData.push(term);
-        attributeValues.push('CUIPhrase: ', optionText, '\n');
-        attributeId++;
-
-        var cui = 'A' + attributeId + '\tCUI' + ' T' + (entityId - 1) + ' ' + optionCode + '\n';
-        attributeData.push(cui);
-        attributeValues.push('CUI: ', optionCode, '\n');
-        attributeId++;
-    }
-
-    // TEMP: Get chosen option cui from dropdown and ignore if default selected or no matches found
-    suggestionList = document.getElementById('search-list');
-    option = suggestionList.options[suggestionList.selectedIndex].text;
-    optionWords = option.split(' ');
-
-    if (!((optionWords[optionWords.length - 2] == 'matches' && optionWords[optionWords.length - 1] == 'found') || option == 'No match')) {
-        var optionData = option.split(' :: ');
-        var optionText = optionData[0];
-        var optionCode = optionData[1].split(' ')[1];
-        
-        var term = 'A' + attributeId + '\tCUIPhrase' + ' T' + (entityId - 1) + ' ' + underscoreString(optionText) + '\n';
-        attributeData.push(term);
-        attributeValues.push('CUIPhrase: ', optionText, '\n');
-        attributeId++;
-
-        var cui = 'A' + attributeId + '\tCUI' + ' T' + (entityId - 1) + ' ' + optionCode + '\n';
-        attributeData.push(cui);
-        attributeValues.push('CUI: ', optionCode, '\n');
-        attributeId++;
-    }
-
-    // Add attributes to annotation list
+    // Add attributes to annotation
     for (var i = 0; i < attributeData.length; i++) {
         annotation.push([attributeData[i]]);
     }
 
-    // Add annotations to current-annotation list and offsets to offset list
+    // Add annotation to annotation list
     if (annotationList[currentDocumentId].length == 0) {
         annotationList[currentDocumentId].push(annotation);
-        offsetList.push([trueStartIndex, trueEndIndex, entityValue, attributeValues, highlightText]);
     } else {
-        for (var i=0; i < annotationList[currentDocumentId].length; i++) {
-            if (trueStartIndex > parseInt(annotationList[currentDocumentId][i][0][0].split(' ')[1])) {
+        for (var i = 0; i < annotationList[currentDocumentId].length; i++) {
+            if (trueStartIndex < parseInt(annotationList[currentDocumentId][i][0][0].split(' ')[1])) {
                 annotationList[currentDocumentId].splice(i, 0, annotation);
-                offsetList.splice(i, 0, [trueStartIndex, trueEndIndex, entityValue, attributeValues, highlightText]);
                 break;
             } 
             
             if (i == (annotationList[currentDocumentId].length - 1)) {
                 annotationList[currentDocumentId].push(annotation);
-                offsetList.push([trueStartIndex, trueEndIndex, entityValue, attributeValues, highlightText]);
                 break;
             }
         }
@@ -951,7 +914,6 @@ function deleteAnnotation(event) {
             offsetList.splice(i, 1);
         }
     }
-    //bindCollapsibleEvents();
     onPageLoad(false);
 }
 
