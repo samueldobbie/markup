@@ -346,7 +346,11 @@ vectorizer = pickle.load(open('data/pickle/prescription_vectorizer.pickle', 'rb'
 umls_database = pickle.load(open('data/pickle/umls_database.pickle', 'rb'))
 term_to_cui = pickle.load(open('data/pickle/term_to_cui.pickle', 'rb'))
 
-umls_license_code = open('data/txt/umls-license.txt').read()
+try:
+    umls_license_code = open('data/txt/umls-license.txt').read()
+except:
+    umls_license_code = None
+
 stopwords = set(open('data/txt/stopwords.txt', encoding='utf-8').read().split('\n'))
 drugs = set(open('data/txt/drugs.txt', encoding='utf-8').read().split('\n'))
 units = open('data/txt/units.txt', encoding='utf-8').read().split('\n')

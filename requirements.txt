@@ -1,5 +1,6 @@
 altgraph==0.16.1
 betterpath==0.2.2
+beautifulsoup4==4.9.1
 certifi==2019.3.9
 chardet==3.0.4
 Click==7.0
