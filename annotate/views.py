@@ -1,3 +1,4 @@
+import os
 import re
 import requests
 import json
@@ -43,6 +44,22 @@ def is_valid_umls_user(request):
     return HttpResponse(result)
 
 
+def setup_demo_documents(request):
+    documents = []
+    for f_name in os.listdir(DEMO_PATH):
+        if 'demo-document' in f_name and f_name.endswith('.txt'):
+            with open(DEMO_PATH + f_name, encoding='utf-8') as f:
+                documents.append(f.read())
+    return HttpResponse(json.dumps(documents))
+
+
+def setup_demo_config(request):
+    config = ''
+    with open(DEMO_PATH + 'demo-config.conf', encoding='utf-8') as f:
+        config = f.read()
+    return HttpResponse(config)
+
+
 def setup_demo_ontology(request):
     '''
     Setup demo ontology for
@@ -50,7 +67,10 @@ def setup_demo_ontology(request):
     '''
     global simstring_searcher, term_to_cui
 
-    ontology_data = open('data/txt/demo-ontology.txt', encoding='utf-8').read().split('\n')
+    ontology_data = ''
+    with open(DEMO_PATH + 'demo-ontology.txt', encoding='utf-8') as f:
+        ontology_data = f.read().split('\n')
+
     database, term_to_cui = construct_ontology(ontology_data)
     simstring_searcher = Searcher(database, CosineMeasure())
 
@@ -335,6 +355,7 @@ def teach_active_learner(request):
 
 
 SIMILARITY_THRESHOLD = 0.7
+DEMO_PATH = 'data/txt/demo/'
 
 simstring_searcher = None
 term_to_cui = None
