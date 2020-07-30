@@ -242,7 +242,7 @@ function displayAttributeConfigurations(entityList, configValues) {
                     for (var v = 2; v < newVals.length; v++) {
                         dropdownOptionHtml += '<option value="' + newVals[1] + ': ' + newVals[v] + '">' + newVals[v] + '</option>';
                     }
-                    document.getElementById('attribute-dropdowns').innerHTML += '<p style="margin:0; padding:0;"><input style="outline:none; padding:5px; border:radius:5px;" type="text" list="' + newVals[1] + newVals[0] + '" placeholder="' + newVals[1] + '" name="values" class="dropdown input-field" style="padding:2px;"/><datalist id="' + newVals[1] + newVals[0] + '">' + dropdownOptionHtml + '</datalist></p>';
+                    document.getElementById('attribute-dropdowns').innerHTML += '<p style="margin:0; padding:0;"><input style="outline:none; padding:5px; border-radius:5px;" type="text" list="' + newVals[1] + newVals[0] + '" placeholder="' + newVals[1] + '" name="values" class="dropdown input-field" style="padding:2px;"/><datalist id="' + newVals[1] + newVals[0] + '">' + dropdownOptionHtml + '</datalist></p>';
                 }
             }
         }
@@ -445,9 +445,9 @@ function displayAnnotation(entityValue, attributeValues, annotationIdentifier) {
         contentDiv += '<p>' + attributeValues[i] + '</p>';
     }
     // Add edit and delete buttons
-    contentDiv += '<a annotation-id="' + annotationIdentifier + '" class="annotation-icon edit-icon" onClick="alert(\'Ability to edit coming soon!\');"><i class="fas fa-pencil-alt"></i></a>';
-    contentDiv += '<a annotation-id="' + annotationIdentifier + '" class="annotation-icon delete-icon" onClick="deleteAnnotation(this);"><i class="fas fa-trash-alt"></i></a></p></div>';
-
+    contentDiv += '<a annotation-id="' + annotationIdentifier + '" class="annotation-icon delete-icon" onClick="deleteAnnotation(this);"><i class="fas fa-trash-alt"></i></a>';
+    contentDiv += '<a annotation-id="' + annotationIdentifier + '" class="annotation-icon edit-icon" onClick="alert(\'Ability to edit coming soon!\');"><i class="fas fa-pencil-alt"></i></a></p></div>';
+    
     // Display the section title based on the annotation entity category
     document.getElementById(entityValue + '-section').style.display = '';
 

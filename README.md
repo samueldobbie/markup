@@ -2,6 +2,10 @@
 
 ![](https://i.imgur.com/JP7fc1f.png)
 
+### What is Markup?
+
+Markup is an annotation tool used to transform unstructured free-text documents into structured formats that can be used for NLP tasks such as named-entity recognition and text classification.
+
 ### Usage (Online)
 
 The online version of markup can be found <a href="http://www.getmarkup.com">here</a>.
