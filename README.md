@@ -1,16 +1,24 @@
-# markup - text annotation
+# markup - online annotation, powered by active learning
 
 ![](https://i.imgur.com/JP7fc1f.png)
 
 ### What is Markup?
 
-Markup is an annotation tool used to transform unstructured free-text documents into structured formats that can be used for NLP tasks such as named-entity recognition and text classification.
+Markup is an online annotation tool that can be used to transform unstructured documents into structured formats for NLP tasks, such as named-entity recognition (NER) and text classification. Markup learns as you annotate in order to predict and suggest complex annotations. Markup also provides novel, integrated access to existing and custom ontologies, which enable Markup to predict and suggest ontology mappings based on the text you're annotating.
 
-### Usage (Online)
+### How does Markup compare to existing annotation tools?
+
+to-do: table of iaa score + time + similar metric comparisons
+
+### Usage
+
+A full-feature version of Markup is available both via website and local installation.
+
+## Usage (Online)
 
 The online version of markup can be found <a href="http://www.getmarkup.com">here</a>.
 
-### Usage (Local Server)
+## Usage (Local Server)
 
 1. Clone or download the repository.
 
@@ -32,5 +40,11 @@ Documentation for markup can be found <a href="http://www.getmarkup.com/docs">he
 - Predictive prescription suggestions (including drug name, dosage, unit and frequency attributes).
 - Dynamic attribute display.
 - Any number of overlaying annotations, enabling the capture of complex data.
-- Light and dark modes
+- Dark mode.
 - Full-feature tool available via local installation and website.
+
+### Future Plans
+
+- Add user accounts.
+- Add ability for user accounts to join a team / group to enable easy sharing of ontologies, documents, guidelines, annotations, etc.
+- Allow users to provide their own data, or examples to produce synthetic data, for training of a custom model.
