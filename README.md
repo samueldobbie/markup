@@ -4,7 +4,7 @@
 
 ### What is Markup?
 
-Markup is an online annotation tool that can be used to transform unstructured documents into structured formats for NLP tasks, such as named-entity recognition (NER) and text classification. Markup learns as you annotate in order to predict and suggest complex annotations. Markup also provides novel, integrated access to existing and custom ontologies, which enable Markup to predict and suggest ontology mappings based on the text you're annotating.
+Markup is an online annotation tool that can be used to transform unstructured documents into structured formats for NLP tasks, such as named-entity recognition (NER) and text classification. Markup learns as you annotate in order to predict and suggest complex annotations. Markup also provides integrated access to existing and custom ontologies, enabling Markup to predict and suggest ontology mappings based on the text you're annotating.
 
 ### How does Markup compare to existing annotation tools?
 
@@ -14,11 +14,11 @@ to-do: table of iaa score + time + similar metric comparisons
 
 A full-feature version of Markup is available both via website and local installation.
 
-## Usage (Online)
+#### Usage (Online)
 
 The online version of markup can be found <a href="http://www.getmarkup.com">here</a>.
 
-## Usage (Local Server)
+#### Usage (Local Server)
 
 1. Clone or download the repository.
 
