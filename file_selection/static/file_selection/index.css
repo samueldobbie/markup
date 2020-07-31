@@ -1,16 +1,3 @@
-body {
-    background-color: #1A1E24;
-}
-
-nav {
-    background-color: #1A1E24;
-    box-shadow: none;
-}
-
-.nav-logo {
-    display: none;
-}
-
 .landing-container {
     text-align: center;
     margin-top: 10%;
@@ -38,6 +25,15 @@ nav {
 
 .documentation-button {
     background-color: rgb(216, 216, 216);
+}
+
+#try-demo {
+    color: white;
+    cursor: pointer;
+}
+
+#try-demo:hover {
+    text-decoration: underline;
 }
 
 @media only screen and (max-width: 600px) {

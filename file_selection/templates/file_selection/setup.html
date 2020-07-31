@@ -1,99 +1,112 @@
 {% extends 'file_selection/setup_head.html' %}
 
 {% block content %}
-    <!-- Choose method to open files (single or multiple) -->
-    <div class="file-selection-container">
-        <p id="file-selection-headline" class="option-headline">I want to annotate...</p>
-        <div class="file-selection-option-container">
-            <button id="single-document-selection" class="option-button">A single document</button>
-            <button id="multiple-document-selection" class="option-button">Multiple documents</button>
-            <br>
-            <a id="try-demo">...or try out a demo</a>
-        </div>
-    </div>
-
     {% csrf_token %}
-    <div class="single-document-selection-container selection-container" style="display: none;">
-        <div class="option-container option-file-container" complete="false" id="document-file-opener-container">
-            <p class="option-sub-headline">Document to annotate<span style="color: red;"> *</span></p>
-            <label for="document-file-opener" class="option-button option-button-small">Select</label>
-            <input id="document-file-opener" type="file" accept=".txt,.pdf" style="display:none;">
-            <span id="document-file-name"></span>
-        </div>
+    <div class="container">
+        <div class="setup-panel">
+            <div class="option-container option-file-container" complete="true" id="setup-type-container">
+                <p class="option-headline option-item">Quantity<span style="color: red;"> *</span></p>
+                <select id="setup-type-dropdown" class="option-dropdown option-item">
+                    <option value="single" selected>Single file</option>
+                    <option value="multiple">Mutliple files</option>
+                </select>
+            </div>
 
-        <div class="option-container option-file-container" complete="false" id="configuration-file-opener-container">
-            <p class="option-sub-headline">Configuration file<span style="color: red;"> *</span></p>
-            <label for="configuration-file-opener" class="option-button option-button-small">Select</label>
-            <input id="configuration-file-opener" type="file" accept=".conf" style="display:none;">
-            <span>or</span>
-            <a href="/create-configuration-file/"><label class="option-button option-button-small">Create</label></a>
-            <span id="configuration-file-name"></span>
-        </div>
+            <div id="single-document-selection-container">
+                <div class="option-container option-file-container" complete="false" id="document-file-opener-container">
+                    <p class="option-headline option-item">Document to annotate<span style="color: red;"> *</span></p>
+                    <div class="option-item">
+                        <label for="document-file-opener" class="option-button option-button-small">Select</label>
+                        <input id="document-file-opener" type="file" accept=".txt,.pdf" style="display:none;">
+                        <span id="document-file-name"></span>
+                    </div>
+                </div>
 
-        <div class="option-container option-file-container" complete="true" id="annotation-file-opener-container">
-            <p class="option-sub-headline">Existing annotation file</p>
-            <label for="annotation-file-opener" class="option-button option-button-small">Select</label>
-            <input id="annotation-file-opener" type="file" accept=".ann" style="display:none;">
-            <label id="annotation-file-remover" class="option-button option-button-small" style="background-color: rgb(255, 162, 162); display: none;">Remove</label>
-            <span id="annotation-file-name"></span>
-        </div>
+                <div class="option-container option-file-container" complete="false" id="configuration-file-opener-container">
+                    <p class="option-headline option-item">Configuration file<span style="color: red;"> *</span></p>
+                    <div class="option-item">
+                        <label for="configuration-file-opener" class="option-button option-button-small">Select</label>
+                        <input id="configuration-file-opener" type="file" accept=".conf" style="display:none;">
+                        <span>or</span>
+                        <a href="/create-configuration-file/"><label class="option-button option-button-small">Create</label></a>
+                        <span id="configuration-file-name"></span>
+                    </div>
+                </div>
 
-        <div class="option-container option-file-container" complete="true" id="ontology-file-opener-container">
-            <p class="option-sub-headline">Ontology</p>
-            <select id="ontology-file-dropdown" class="option-dropdown">
-                <option value="default">Choose Pre-loaded</option>
-                <option value="umls">UMLS</option>
-            </select>
-            <span>or</span>
-            <label for="ontology-file-opener" class="option-button option-button-small">Custom</label>
-            <input id="ontology-file-opener" type="file" accept=".txt" style="display:none;">
-            <span id="ontology-file-name"></span>
-        </div>
-
-        <div class="completed-option-container">
-            <button id="start-annotating-file" class="option-button">Start annotating!</button>
-        </div>
-    </div>
-
-    <div class="multiple-document-selection-container selection-container" style="display: none;">
-        <div class="option-container option-folder-container" complete="false" id="folder-file-opener-container">
-            <p class="option-sub-headline">Folder to annotate<span style="color: red;"> *</span></p>
-            <label for="folder-file-opener" class="option-button option-button-small">Select</label>
-            <input id="folder-file-opener" style="display:none;" type="file" webkitdirectory mozdirectory multiple>
-            <span id="folder-file-name"></span>
-        </div>
-
-        <div class="option-container option-folder-container" complete="true" id="ontology-folder-opener-container">
-            <p class="option-sub-headline">Ontology</p>
-            <select id="ontology-folder-dropdown" class="option-dropdown">
-                <option value="default">Choose Pre-loaded</option>
-                <option value="umls">UMLS</option>
-            </select>
-            <span>or</span>
-            <label for="ontology-folder-opener" class="option-button option-button-small">Custom</label>
-            <input id="ontology-folder-opener" type="file" accept=".txt" style="display:none;">
-            <span id="ontology-folder-name"></span>
-        </div>        
-
-        <div class="completed-option-container">
-            <button id="start-annotating-folder" class="option-button">Start annotating!</button>
-        </div>
-    </div>
-
-    <div id="umls-verification-form-container" style="display: none;">
-        <p id="umls-verification-form-invalid-credentials" style="color: red; display: none;">The entered username and/or password was incorrect.</p>
-
-        <p>Enter your <b>UMLS</b> credentials to verify you have the necessary permissions to access this ontology. Apply for an account <a href="https://www.nlm.nih.gov/research/umls/index.html" target="_blank">here</a>.</p>
-
-        <form method="post" id="umls-verification-form">
-            {% csrf_token %}
-            <label for="umls-username"><b>Username</b></label>
-            <input type="text" placeholder="Enter username" name="umls-username" required>
+                <div class="option-container option-file-container" complete="true" id="annotation-file-opener-container">
+                    <p class="option-headline option-item">Existing annotation file</p>
+                    <div class="option-item">
+                        <label for="annotation-file-opener" class="option-button option-button-small">Select</label>
+                        <input id="annotation-file-opener" type="file" accept=".ann" style="display:none;">
+                        <label id="annotation-file-remover" class="option-button option-button-small" style="background-color: rgb(255, 162, 162); display: none;">Remove</label>
+                        <span id="annotation-file-name"></span>
+                    </div>
+                </div>
         
-            <label for="umls-password"><b>Password</b></label>
-            <input type="password" placeholder="Enter password" name="umls-password" required>
+                <div class="option-container option-file-container" complete="true" id="ontology-file-opener-container">
+                    <p class="option-headline option-item">Ontology</p>
+                    <div class="option-item">
+                        <select id="ontology-file-dropdown" class="option-dropdown">
+                            <option value="default">Choose pre-loaded</option>
+                            <option value="umls">UMLS</option>
+                        </select>
+                        <span>or</span>
+                        <label for="ontology-file-opener" class="option-button option-button-small">Custom</label>
+                        <input id="ontology-file-opener" type="file" accept=".txt" style="display:none;">
+                        <span id="ontology-file-name"></span>
+                    </div>
+                </div>
         
-            <button type="submit">Verify</button> or <button id="umls-verification-exit">Exit</button>
-        </form>
+                <div class="completed-option-container">
+                    <button id="start-annotating-file" class="option-button">Start annotating!</button>
+                </div>
+            </div>
+
+            <div id="multiple-document-selection-container" style="display: none;">
+                <div class="option-container option-folder-container" complete="false" id="folder-file-opener-container">
+                    <p class="option-headline option-item">Folder to annotate<span style="color: red;"> *</span></p>
+                    <div class="option-item">
+                        <label for="folder-file-opener" class="option-button option-button-small">Select</label>
+                        <input id="folder-file-opener" style="display:none;" type="file" webkitdirectory mozdirectory multiple>
+                        <span id="folder-file-name"></span>
+                    </div>
+                </div>
+        
+                <div class="option-container option-folder-container" complete="true" id="ontology-folder-opener-container">
+                    <p class="option-headline option-item">Ontology</p>
+                    <div class="option-item">
+                        <select id="ontology-folder-dropdown" class="option-dropdown">
+                            <option value="default">Choose pre-loaded</option>
+                            <option value="umls">UMLS</option>
+                        </select>
+                        <span>or</span>
+                        <label for="ontology-folder-opener" class="option-button option-button-small">Custom</label>
+                        <input id="ontology-folder-opener" type="file" accept=".txt" style="display:none;">
+                        <span id="ontology-folder-name"></span>
+                    </div>
+                </div>        
+        
+                <div class="completed-option-container">
+                    <button id="start-annotating-folder" class="option-button">Start annotating!</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="umls-verification-form-container" style="display: none;">
+            <p id="umls-verification-form-invalid-credentials" style="color: red; display: none;">The entered username and/or password was incorrect.</p>
+    
+            <p>Enter your <b>UMLS</b> credentials to verify you have the necessary permissions to access this ontology. Apply for an account <a href="https://www.nlm.nih.gov/research/umls/index.html" target="_blank">here</a>.</p>
+    
+            <form method="post" id="umls-verification-form">
+                {% csrf_token %}
+                <label for="umls-username"><b>Username</b></label>
+                <input type="text" placeholder="Enter username" name="umls-username" required>
+            
+                <label for="umls-password"><b>Password</b></label>
+                <input type="password" placeholder="Enter password" name="umls-password" required>
+            
+                <button type="submit">Verify</button> or <button id="umls-verification-exit">Exit</button>
+            </form>
+        </div>
     </div>
 {% endblock %}

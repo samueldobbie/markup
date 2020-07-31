@@ -4,9 +4,12 @@
     font-family: 'Rubik', sans-serif;
 }
 
+body {
+    background-color: #1A1E24;
+}
+
 nav {
-    background-color: #333;
-    box-shadow: 0px 0px 8px 0px #111;
+    background-color: #1A1E24;
     padding: 0 5%;
     height: 10vh;
     user-select: none;

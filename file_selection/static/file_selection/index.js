@@ -1,14 +1,7 @@
-// Clear local storage to outdated information from being displayed upon revisiting
-var tempMode = localStorage.getItem('mode');
-localStorage.clear();
-if (tempMode) {
-    localStorage.setItem('mode', tempMode);
-}
-
 $(document).ready(function () {
     function updateDisplayMode() {
         /*
-        Set the inital color base on users' preference
+        Updates the display mode based on the users' preference
         */
         var backgroundColor, color;
 
@@ -30,11 +23,19 @@ $(document).ready(function () {
             'background-color': backgroundColor
         });
 
+        $('.nav-logo').css({
+            'color': color
+        });
+
         $('.nav-item').css({
             'color': color
         });
 
         $('.tagline-component').css({
+            'color': color
+        });
+
+        $('#try-demo').css({
             'color': color
         });
     }
@@ -53,4 +54,63 @@ $(document).ready(function () {
 
     // Initialize display mode based on users' preference
     updateDisplayMode();
+
+    $('#try-demo').click(function () {
+        alert(1);
+        /*
+        Enable users to try out a demo of markup annotation
+        */
+        setupDemoDocuments();
+        setupDemoConfig();
+        setupDemoOntology();
+        location.href = '/annotate';
+    });
 });
+
+
+function setupDemoDocuments() {
+    $.ajax({
+        type: 'POST',
+        url: '~/setup-demo-documents',
+        data: {'csrfmiddlewaretoken': getCookie('csrftoken')},
+        success: function (response) {
+            var data = JSON.parse(response);
+            var documentCount = data.length;
+            
+            if (documentCount > 1) {
+                localStorage.setItem('documentOpenType', 'multiple');
+            } else {
+                localStorage.setItem('documentOpenType', 'single');
+            }
+            localStorage.setItem('documentCount', documentCount);
+
+            for (var i = 0; i < documentCount; i++) {
+                localStorage.setItem('fileName' + i, 'TestDoc' + i + '.txt');
+                localStorage.setItem('documentText' + i, data[i]);
+            }
+        }
+    });
+}
+
+
+function setupDemoConfig() {
+    $.ajax({
+        type: 'POST',
+        url: '~/setup-demo-config',
+        data: {'csrfmiddlewaretoken': getCookie('csrftoken')},
+        success: function (response) {
+            localStorage.setItem('configText', response);
+        }
+    });
+}
+
+
+function setupDemoOntology() {
+    $.ajax({
+        type: 'POST',
+        url: '~/setup-demo-ontology',
+        data: {
+            'csrfmiddlewaretoken': getCookie('csrftoken')
+        }
+    });
+}

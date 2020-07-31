@@ -1,86 +1,40 @@
-// Remove data from local storage to avoid being able to revisit page and see outdated information
-var existingDisplayMode = localStorage.getItem('mode');
-localStorage.clear();
-if (existingDisplayMode != null) {
-    localStorage.setItem('mode', existingDisplayMode);
-}
-
 $(document).ready(function () {
-    var darkMode;
-
-    // Sets inital color mode based on users stored preference (light or dark mode)
-    toggleDisplayMode();
-
-    // Allows users to switch between to light and dark mode
-    function toggleDisplayMode() {
-        // Checks if user has pre-set display preference
-        if (localStorage.getItem('mode') == 'light') {
-            type = 'light';
-            darkMode = false;
-        } else {
-            type = 'dark';
-            darkMode = true;
-        }
-
-        // Updates document elements based on display mode
-        if (type == 'dark') {
-            document.getElementById('darkMode').innerHTML = 'Light Mode';
-            document.getElementsByTagName('body')[0].style.backgroundColor = '#333';
-            document.getElementsByTagName('body')[0].style.color = '#fff';
-            for (var i = 0; i < document.getElementsByClassName('option-container').length; i++) {
-                document.getElementsByClassName('option-container')[i].style.color = 'white';
-                document.getElementsByClassName('option-container')[i].style.backgroundColor = 'rgb(31, 31, 31);';
-            }
-        } else {
-            document.getElementById('darkMode').innerHTML = 'Dark Mode';
-            document.getElementsByTagName('body')[0].style.backgroundColor = '#fff';
-            document.getElementsByTagName('body')[0].style.color = 'black';
-            for (var i = 0; i < document.getElementsByClassName('option-container').length; i++) {
-                document.getElementsByClassName('option-container')[i].style.color = '#333';
-                document.getElementsByClassName('option-container')[i].style.backgroundColor = 'rgba(240, 240, 240, 0.164)';
-            }
-        }
-    }
-
-
-    // Update display mode upon selection
     $('#darkMode').click(function () {
-        if (!darkMode) {
-            localStorage.setItem('mode', 'dark');
-            toggleDisplayMode();
-        } else {
+        /*
+        Enable switching between display modes
+        */
+        if (localStorage.getItem('mode') == 'dark') {
             localStorage.setItem('mode', 'light');
-            toggleDisplayMode();
+        } else {
+            localStorage.setItem('mode', 'dark');
         }
+        updateDisplayMode();
     });
 
-    
-    /*** Demo documents selection ***/
 
-    $('#try-demo').click(function () {
-        setupDemoDocuments();
-        setupDemoConfig();
-        setupDemoOntology();
-        location.href = '/annotate';
-    });
-
-    /*** Single document section ***/
-
-    $('#single-document-selection').click(function () {
-        $(".file-selection-container").fadeOut();
-
-        sleep(500).then(() => {
-            $(".single-document-selection-container").fadeIn();
-        });
+    $('#setup-type-dropdown').change(function () {
+        /*
+        Show single or multiple selection options
+        based on file quantity
+        */
+        var selectedValue = this.value;
+        if (selectedValue == 'single') {
+            $('#single-document-selection-container').show();
+            $('#multiple-document-selection-container').hide();
+        } else {
+            $('#single-document-selection-container').hide();
+            $('#multiple-document-selection-container').show();
+        }
 
         // Store file selection type locally
-        localStorage.setItem('documentOpenType', 'single');
+        localStorage.setItem('documentOpenType', selectedValue);
     });
 
 
     $('#document-file-opener').change(function () {
-        // Store file data locally
+        // Store selected file locally
         storeFileDataLocally(document.getElementById('document-file-opener').files[0], 'documentText' + 0, 'lineBreakType' + 0);
+        
         localStorage.setItem('fileName' + 0, document.getElementById('document-file-opener').files[0].name.split(".").slice(0, -1).join("."));
         localStorage.setItem('documentCount', 0);
 
@@ -121,7 +75,7 @@ $(document).ready(function () {
         document.getElementById('annotation-file-remover').style.display = 'none';
 
         // Change colour of component
-        document.getElementById('annotation-file-opener-container').style.border = '1px solid #333';
+        document.getElementById('annotation-file-opener-container').style.border = 'none';
     });
 
 
@@ -139,7 +93,7 @@ $(document).ready(function () {
 
     $("#ontology-file-dropdown").change(function () {
         var selectedValue = this.value;
-        if (selectedValue != 'Choose Pre-loaded') {
+        if (selectedValue != 'Choose pre-loaded') {
             // Verify user access to ontology and setup
             $('#' + selectedValue + '-verification-form-container').fadeIn();
         }
@@ -222,7 +176,7 @@ $(document).ready(function () {
 
     $("#ontology-folder-dropdown").change(function () {
         var selectedValue = this.value;
-        if (selectedValue != 'Choose Pre-loaded') {
+        if (selectedValue != 'Choose pre-loaded') {
             // Verify ontology access and setup
             $('#' + selectedValue + '-verification-form-container').fadeIn();
         }
@@ -256,6 +210,13 @@ $(document).ready(function () {
     });
 
 
+    $('#umls-verification-exit').click(function () {
+        $('#umls-verification-form-container').fadeOut();
+        $('#ontology-file-dropdown').prop('selectedIndex', 0);
+        $('#ontology-folder-dropdown').prop('selectedIndex', 0);
+    });
+
+
     $('#umls-verification-form').submit(function (e) {
         e.preventDefault();
 
@@ -284,13 +245,53 @@ $(document).ready(function () {
         });
     });
 
+    
+    // Initialize display mode based on users' preference
+    updateDisplayMode();
 
-    $('#umls-verification-exit').click(function () {
-        $('#umls-verification-form-container').fadeOut();
-        $('#ontology-file-dropdown').prop('selectedIndex', 0);
-        $('#ontology-folder-dropdown').prop('selectedIndex', 0);
-    });
+    updateComponentColour('setup-type-container');
 });
+
+
+function updateDisplayMode() {
+    /*
+    Updates the display mode based on the users' preference
+    */
+    var targetBackgroundColor, oppositeBackgroundColor, color;
+
+    if (localStorage.getItem('mode') == 'dark') {
+        document.getElementById('darkMode').innerHTML = 'Light Mode';
+        targetBackgroundColor = '#1A1E24';
+        oppositeBackgroundColor = '#f1f1f1';
+        color = 'white';
+    } else {
+        document.getElementById('darkMode').innerHTML = 'Dark Mode';
+        targetBackgroundColor = '#f1f1f1';
+        oppositeBackgroundColor = '#1A1E24';
+        color = '#1A1E24';
+    }
+
+    $('body').css({
+        'background-color': targetBackgroundColor
+    });
+
+    $('nav').css({
+        'background-color': targetBackgroundColor
+    });
+
+    $('.nav-logo').css({
+        'color': color
+    });
+
+    $('.nav-item').css({
+        'color': color
+    });
+
+    $('.option-container').css({
+        'color': color,
+        'background-color': targetBackgroundColor,
+    });
+}
 
 
 function setupCustomOntology(file) {
@@ -309,62 +310,9 @@ function setupCustomOntology(file) {
 }
 
 
-function setupDemoDocuments() {
-    $.ajax({
-        type: 'POST',
-        url: '~/setup-demo-documents',
-        data: {'csrfmiddlewaretoken': getCookie('csrftoken')},
-        success: function (response) {
-            var data = JSON.parse(response);
-            var documentCount = data.length;
-            
-            if (documentCount > 1) {
-                localStorage.setItem('documentOpenType', 'multiple');
-            } else {
-                localStorage.setItem('documentOpenType', 'single');
-            }
-            localStorage.setItem('documentCount', documentCount);
-
-            for (var i = 0; i < documentCount; i++) {
-                localStorage.setItem('fileName' + i, 'TestDoc' + i + '.txt');
-                localStorage.setItem('documentText' + i, data[i]);
-            }
-        }
-    });
-}
-
-
-function setupDemoConfig() {
-    $.ajax({
-        type: 'POST',
-        url: '~/setup-demo-config',
-        data: {'csrfmiddlewaretoken': getCookie('csrftoken')},
-        success: function (response) {
-            localStorage.setItem('configText', response);
-        }
-    });
-}
-
-
-function setupDemoOntology() {
-    $.ajax({
-        type: 'POST',
-        url: '~/setup-demo-ontology',
-        data: {
-            'csrfmiddlewaretoken': getCookie('csrftoken')
-        }
-    });
-}
-
-
 function updateComponentColour(id) {
     document.getElementById(id).style.border = '1px solid #33FFB5';
     document.getElementById(id).setAttribute('complete', 'true');
-}
-
-
-function sleep(time) {
-    return new Promise((resolve) => setTimeout(resolve, time));
 }
 
 
@@ -408,38 +356,4 @@ function storeFileDataLocally(file, fileStorageName, lineBreakStorageName=null) 
         };
         reader.readAsText(file);
     }
-}
-
-
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-
-function csrfSafeMethod(method) {
-    // These HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
-
-
-// Function to set Request Header with 'CSRFTOKEN'
-function setRequestHeader(csrftoken){
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        }
-    });
 }
