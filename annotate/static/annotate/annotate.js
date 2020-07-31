@@ -606,11 +606,11 @@ function displayAnnotation(entityValue, attributeValues, annotationIdentifier) {
     // Add a dropdown that shows the attribute values of an annotation upon click
     var contentDiv = '<div class="content"><p>';   
     for (var i = 0; i < attributeValues.length; i++) {
-        contentDiv += '<p>' + attributeValues[i] + '</p>';
+        contentDiv += '<p class="annotation-attribute">' + attributeValues[i] + '</p>';
     }
     // Add edit and delete buttons
-    contentDiv += '<a annotation-id="' + annotationIdentifier + '" class="annotation-icon delete-icon" onClick="deleteAnnotation(this);"><i class="fas fa-trash-alt"></i></a>';
-    contentDiv += '<a annotation-id="' + annotationIdentifier + '" class="annotation-icon edit-icon" onClick="alert(\'Ability to edit coming soon!\');"><i class="fas fa-pencil-alt"></i></a></p></div>';
+    contentDiv += '<a annotation-id="' + annotationIdentifier + '" class="annotation-icon delete-icon" onClick="deleteAnnotation(this);"><i class="fas fa-trash"></i></a>';
+    contentDiv += '<a annotation-id="' + annotationIdentifier + '" class="annotation-icon edit-icon" onClick="alert(\'Ability to edit coming soon!\');"><i class="fas fa-edit"></i></a></p></div>';
     
     // Display the section title based on the annotation entity category
     document.getElementById(entityValue + '-section').style.display = '';
@@ -753,7 +753,7 @@ function changeHighlightedTextColor() {
 
         // Color-highlight selected text
         document.getElementById('file-data').contentEditable = 'true';
-        document.execCommand('insertHTML', false, '<span id="highlighted" style="background-color: rgb(79, 120, 255); opacity: 0.9">' + highlightText + '</span>');
+        document.execCommand('insertHTML', false, '<span id="highlighted" style="background-color: rgb(79, 120, 255); color: white;">' + highlightText + '</span>');
         document.getElementById('file-data').contentEditable = 'false';
     }
 }
@@ -1299,16 +1299,17 @@ function getAnnotationSuggestions() {
 
                 // Populate collapsible with suggestion attributes
                 var contentDiv = '<div for="' + suggestionId + '" class="content"><p>';
-                if (drug) { contentDiv += '<p>DrugName: ' + drug + '</p>'; }
-                if (dose) { contentDiv += '<p>DrugDose: ' + dose + '</p>'; }
-                if (unit) { contentDiv += '<p>DoseUnit: ' + unit + '</p>'; }
-                if (frequency) { contentDiv += '<p>Frequency: ' + frequency + '</p>'; }
-                if (ontologyTerm) { contentDiv += '<p>CUIPhrase: ' + ontologyTerm + '</p>'; }
-                if (ontologyCui) { contentDiv += '<p>CUI: ' + ontologyCui + '</p>'; }
+                if (drug) { contentDiv += '<p class="annotation-attribute">DrugName: ' + drug + '</p>'; }
+                if (dose) { contentDiv += '<p class="annotation-attribute">DrugDose: ' + dose + '</p>'; }
+                if (unit) { contentDiv += '<p class="annotation-attribute">DoseUnit: ' + unit + '</p>'; }
+                if (frequency) { contentDiv += '<p class="annotation-attribute">Frequency: ' + frequency + '</p>'; }
+                if (ontologyTerm) { contentDiv += '<p class="annotation-attribute">CUIPhrase: ' + ontologyTerm + '</p>'; }
+                if (ontologyCui) { contentDiv += '<p class="annotation-attribute">CUI: ' + ontologyCui + '</p>'; }
                 
                 // Add accept and reject buttons to collapsible
-                contentDiv += '<a suggestion-id=' + suggestionId + ' class="suggestion-button accept-suggestion-button" onClick="acceptSuggestion(this);">Accept</a><a suggestion-id=' + suggestionId + ' class="suggestion-button reject-suggestion-button" onClick="rejectSuggestion(this);">Reject</a></p></div>';
-                
+                contentDiv += '<a suggestion-id=' + suggestionId + ' onClick="acceptSuggestion(this);"><button class="main-button green-button" style="margin: 2% 0.5%;">Accept</button></a>'
+                contentDiv += '<a suggestion-id=' + suggestionId + ' onClick="rejectSuggestion(this);"><button class="main-button red-button" style="margin: 2% 0.5%;">Reject</button></a></p></div>';
+
                 // Add suggestion to display
                 document.getElementById('suggestion-list').innerHTML += '<p id=' + suggestionId + ' ' + suggestionClass + ' ' + suggestionStyle + ' drug="' + drug + '" dose="' + dose + '" unit="' + unit + '" frequency="' + frequency + '" ontologyTerm="' + ontologyTerm + '" ontologyCui="' + ontologyCui + '">' + annotation + '</p>' + contentDiv;
             }

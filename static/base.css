@@ -53,6 +53,7 @@ nav {
 .nav-item-arrow {
     font-size: 20px;
     color: #33FFB5;
+    text-shadow: 0px 1px 1px #1A1E24;
 }
 
 .option-button {
