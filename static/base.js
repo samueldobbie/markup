@@ -1,8 +1,13 @@
-// Clear local storage to outdated information from being displayed upon revisiting
-var tempMode = localStorage.getItem('mode');
-localStorage.clear();
-if (tempMode) {
-    localStorage.setItem('mode', tempMode);
+function clearLocalStorage() {
+    /*
+    Clear local storage (excl. display preference) to prevent
+    outdated information from being displayed upon revisiting
+    */
+    var tempMode = localStorage.getItem('mode');
+    localStorage.clear();
+    if (tempMode) {
+        localStorage.setItem('mode', tempMode);
+    }
 }
 
 
@@ -42,3 +47,5 @@ function setRequestHeader(csrftoken){
 function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
 }
+
+clearLocalStorage();

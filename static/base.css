@@ -24,11 +24,6 @@ nav {
     line-height: 10vh;
 }
 
-.nav-logo:hover {
-    color: #33FFB5;
-    text-shadow: 0 0 2px #33FFB5;
-}
-
 .nav-item-list {
     list-style-type: none;
     margin-right: 2%;
@@ -44,10 +39,6 @@ nav {
     font-size: 13px;
     line-height: 10vh;
     margin-left: 2%;
-}
-
-.nav-item:hover {
-    color: #33FFB5 !important;
 }
 
 .option-button {

@@ -1,45 +1,4 @@
 $(document).ready(function () {
-    function updateDisplayMode() {
-        /*
-        Updates the display mode based on the users' preference
-        */
-        var backgroundColor, color;
-
-        if (localStorage.getItem('mode') == 'dark') {
-            document.getElementById('darkMode').innerHTML = 'Light Mode';
-            backgroundColor = '#1A1E24';
-            color = 'white';
-        } else {
-            document.getElementById('darkMode').innerHTML = 'Dark Mode';
-            backgroundColor = '#f1f1f1';
-            color = '#1A1E24';
-        }
-
-        $('body').css({
-            'background-color': backgroundColor
-        });
-
-        $('nav').css({
-            'background-color': backgroundColor
-        });
-
-        $('.nav-logo').css({
-            'color': color
-        });
-
-        $('.nav-item').css({
-            'color': color
-        });
-
-        $('.tagline-component').css({
-            'color': color
-        });
-
-        $('#try-demo').css({
-            'color': color
-        });
-    }
-
     $('#darkMode').click(function () {
         /*
         Enable switching between display modes
@@ -52,11 +11,7 @@ $(document).ready(function () {
         updateDisplayMode();
     });
 
-    // Initialize display mode based on users' preference
-    updateDisplayMode();
-
     $('#try-demo').click(function () {
-        alert(1);
         /*
         Enable users to try out a demo of markup annotation
         */
@@ -65,7 +20,52 @@ $(document).ready(function () {
         setupDemoOntology();
         location.href = '/annotate';
     });
+
+    // Initialize display mode based on users' preference
+    updateDisplayMode();
 });
+
+
+function updateDisplayMode() {
+    /*
+    Updates the display mode based on the users' preference
+    */
+    var backgroundColor, color;
+
+    if (localStorage.getItem('mode') == 'dark') {
+        document.getElementById('darkMode').innerHTML = 'Light Mode';
+        backgroundColor = '#1A1E24';
+        color = 'white';
+    } else {
+        document.getElementById('darkMode').innerHTML = 'Dark Mode';
+        backgroundColor = '#f1f1f1';
+        color = '#1A1E24';
+    }
+
+    $('body').css({
+        'background-color': backgroundColor
+    });
+
+    $('nav').css({
+        'background-color': backgroundColor
+    });
+
+    $('.nav-logo').css({
+        'color': color
+    });
+
+    $('.nav-item').css({
+        'color': color
+    });
+
+    $('.tagline-component').css({
+        'color': color
+    });
+
+    $('#try-demo').css({
+        'color': color
+    });
+}
 
 
 function setupDemoDocuments() {

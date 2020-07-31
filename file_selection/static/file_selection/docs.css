@@ -1,0 +1,10 @@
+.doc-container {
+    text-align: center;
+    margin-top: 12%;
+}
+
+.doc-message {
+    font-size: 25px;
+    text-transform: uppercase;
+    color: white;
+}
