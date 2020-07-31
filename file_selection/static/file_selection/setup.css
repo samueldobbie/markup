@@ -32,7 +32,6 @@
     margin: 10px 0;
 }
 
-
 .option-dropdown {
     display: inline;
     background-color: white;
@@ -51,18 +50,24 @@
     white-space: nowrap;
 }
 
-#umls-verification-form-container {
-    position: absolute;
-    width: 100vw;
-    height: 100vh;
-    top: 0;
-    left: 0;
-    padding: 15%;
-    background-color: #f1f1f1;
-    color: #333;
+.verification-form-field {
+    padding: 5px;
+    margin: 5px;
+    border-radius: 5px;
+    font-size: 14px;
+    outline: none;
+    border: 1px solid black;
+}
+
+.option-button-small {
+    min-width: 0;
 }
 
 @media only screen and (max-width: 750px) {
+    .setup-panel {
+        width: 80vw;
+    }
+
     .option-container {
         margin: 0.75% 5%;
     }

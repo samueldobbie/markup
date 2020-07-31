@@ -92,10 +92,14 @@ $(document).ready(function () {
 
 
     $("#ontology-file-dropdown").change(function () {
+        /*
+        Display ontology login authentication panel
+        */
         var selectedValue = this.value;
         if (selectedValue != 'Choose pre-loaded') {
-            // Verify user access to ontology and setup
-            $('#' + selectedValue + '-verification-form-container').fadeIn();
+            $('#setup-type-container').hide();
+            $('#single-document-selection-container').hide();
+            $('#' + selectedValue + '-verification-form-container').show();
         }
     });
 
@@ -177,8 +181,9 @@ $(document).ready(function () {
     $("#ontology-folder-dropdown").change(function () {
         var selectedValue = this.value;
         if (selectedValue != 'Choose pre-loaded') {
-            // Verify ontology access and setup
-            $('#' + selectedValue + '-verification-form-container').fadeIn();
+            $('#setup-type-container').hide();
+            $('#multiple-document-selection-container').hide();
+            $('#' + selectedValue + '-verification-form-container').show();
         }
     });
 
@@ -211,9 +216,15 @@ $(document).ready(function () {
 
 
     $('#umls-verification-exit').click(function () {
-        $('#umls-verification-form-container').fadeOut();
-        $('#ontology-file-dropdown').prop('selectedIndex', 0);
-        $('#ontology-folder-dropdown').prop('selectedIndex', 0);
+        $('#umls-verification-form-container').hide();
+        $('#setup-type-container').show();
+        if ($('#setup-type-dropdown').val() == 'single') {
+            $('#single-document-selection-container').show();
+            $('#ontology-file-dropdown').prop('selectedIndex', 0);
+        } else {
+            $('#multiple-document-selection-container').show();
+            $('#ontology-folder-dropdown').prop('selectedIndex', 0);
+        }
     });
 
 
@@ -231,24 +242,28 @@ $(document).ready(function () {
             data: formData,
             success: function(response) {
                 if (response == 'True') {
-                    $('#umls-verification-form-container').fadeOut();
-
-                    // Change colour of component
-                    updateComponentColour('ontology-file-opener-container');
-
-                    // Change colour of component
-                    updateComponentColour('ontology-folder-opener-container');
+                    // Return back to setup with updated ontology component
+                    $('#umls-verification-form-container').hide();
+                    $('#setup-type-container').show();
+                    if ($('#setup-type-dropdown').val() == 'single') {
+                        $('#single-document-selection-container').show();
+                        updateComponentColour('ontology-file-opener-container');
+                    } else {
+                        $('#multiple-document-selection-container').show();
+                        updateComponentColour('ontology-folder-opener-container');
+                    }                    
                 } else {
-                    $('#umls-verification-form-invalid-credentials').fadeIn();
+                    $('#umls-verification-form-container').css({'border': '1px solid red'});
+                    $('#umls-verification-form-invalid-credentials').show();
                 }
             }
         });
     });
-
     
     // Initialize display mode based on users' preference
     updateDisplayMode();
 
+    // Set setup type to complete by default
     updateComponentColour('setup-type-container');
 });
 

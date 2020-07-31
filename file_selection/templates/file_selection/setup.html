@@ -17,7 +17,7 @@
                     <p class="option-headline option-item">Document to annotate<span style="color: red;"> *</span></p>
                     <div class="option-item">
                         <label for="document-file-opener" class="option-button option-button-small">Select</label>
-                        <input id="document-file-opener" type="file" accept=".txt,.pdf" style="display:none;">
+                        <input id="document-file-opener" type="file" accept=".txt" style="display:none;">
                         <span id="document-file-name"></span>
                     </div>
                 </div>
@@ -90,23 +90,21 @@
                     <button id="start-annotating-folder" class="option-button">Start annotating!</button>
                 </div>
             </div>
-        </div>
 
-        <div id="umls-verification-form-container" style="display: none;">
-            <p id="umls-verification-form-invalid-credentials" style="color: red; display: none;">The entered username and/or password was incorrect.</p>
-    
-            <p>Enter your <b>UMLS</b> credentials to verify you have the necessary permissions to access this ontology. Apply for an account <a href="https://www.nlm.nih.gov/research/umls/index.html" target="_blank">here</a>.</p>
-    
-            <form method="post" id="umls-verification-form">
-                {% csrf_token %}
-                <label for="umls-username"><b>Username</b></label>
-                <input type="text" placeholder="Enter username" name="umls-username" required>
-            
-                <label for="umls-password"><b>Password</b></label>
-                <input type="password" placeholder="Enter password" name="umls-password" required>
-            
-                <button type="submit">Verify</button> or <button id="umls-verification-exit">Exit</button>
-            </form>
+            <div class="option-container" id="umls-verification-form-container" style="display: none;">
+                <p class="option-headline option-item">Authenticate</p>
+                <p id="umls-verification-form-invalid-credentials" style="color: red; display: none;">The entered username and/or password was incorrect.</p>
+                <p class="option-item">Enter your <b>UMLS</b> credentials to access this ontology. Apply for an account <a href="https://www.nlm.nih.gov/research/umls/index.html" target="_blank">here</a>.</p>
+
+                <form method="post" class="option-item" id="umls-verification-form">
+                    {% csrf_token %}
+                    <input class="verification-form-field" type="text" placeholder="Enter username" name="umls-username" required>
+                    <br>
+                    <input class="verification-form-field" type="password" placeholder="Enter password" name="umls-password" required>
+                    <br><br>
+                    <button class="option-button option-button-small" style="background-color: #33FFB5;" type="submit">Authenticate</button> or <button class="option-button option-button-small" style="background-color: rgb(255, 162, 162);" id="umls-verification-exit">Exit</button>
+                </form>
+            </div>
         </div>
     </div>
 {% endblock %}

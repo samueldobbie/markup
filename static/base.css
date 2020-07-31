@@ -67,8 +67,7 @@ nav {
 }
 
 .option-button-small {
-    font-weight: 500;
-    color: #333;
+    color: #1A1E24;
     background-color: lightgray;
     padding: 2px 5px;
     min-width: 150px;
