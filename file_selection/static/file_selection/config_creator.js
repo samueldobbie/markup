@@ -1,44 +1,44 @@
-// Remove data from local storage to avoid being able to revisit page and see outdated information
-var existingDisplayMode = localStorage.getItem('mode');
-localStorage.clear();
-if (existingDisplayMode != null) {
-    localStorage.setItem('mode', existingDisplayMode);
-}
-
 $(document).ready(function () {
     var entityList = ["[entities]\n"];
     var attributeList = ["[attributes]\n"];
 
-    updateDisplayMode(localStorage.getItem('mode'));
-
     // Allows users to switch between light and dark mode
     $('#darkMode').click(function () {
-        if (localStorage.getItem('mode') == 'light') {
-            updateDisplayMode('dark');
+        if (localStorage.getItem('mode') == 'dark') {
+            localStorage.setItem('mode', 'light');
         } else {
-            updateDisplayMode('light');
+            localStorage.setItem('mode', 'dark');
         }
+        updateDisplayMode();
     });
 
 
-    function updateDisplayMode(mode) {
-        if (mode == 'dark') {
-            localStorage.setItem('mode', 'dark');
+    function updateDisplayMode() {
+        var backgroundColor, color;
+        if (localStorage.getItem('mode') == 'dark') {
             document.getElementById('darkMode').innerHTML = 'Light Mode';
-            document.getElementsByTagName('body')[0].style.backgroundColor = '#333';
-            document.getElementsByTagName('body')[0].style.color = '#fff';
-            for (var i = 0; i < $('.input-form').length; i++) {
-                $('.input-form')[i].style.color = 'white';
-            }
+            backgroundColor = '#1A1E24';
+            color = 'white';
         } else {
-            localStorage.setItem('mode', 'light');
             document.getElementById('darkMode').innerHTML = 'Dark Mode';
-            document.getElementsByTagName('body')[0].style.backgroundColor = '#fff';
-            document.getElementsByTagName('body')[0].style.color = 'black';
-            for (var i = 0; i < $('.input-form').length; i++) {
-                $('.input-form')[i].style.color = 'black';
-            }
+            backgroundColor = '#f1f1f1';
+            color = '#1A1E24';
         }
+        $('body').css({
+            'background-color': backgroundColor
+        });
+    
+        $('nav').css({
+            'background-color': backgroundColor
+        });
+    
+        $('.nav-logo').css({
+            'color': color
+        });
+    
+        $('.nav-item').css({
+            'color': color
+        });
     }
 
 
@@ -136,4 +136,6 @@ $(document).ready(function () {
             $(this).remove();
         });
     }
+
+    updateDisplayMode();
 });
