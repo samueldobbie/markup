@@ -1,18 +1,23 @@
-.nav-wrapper {
+body {
+    background-color: #1A1E24;
+}
+
+nav {
     background-color: #1A1E24;
     box-shadow: none;
 }
 
-.brand-logo {
-    display: none !important;
+.nav-logo {
+    display: none;
 }
 
-.container {
+.landing-container {
     text-align: center;
     margin-top: 10%;
+    
 }
 
-#tagline {
+.tagline {
     margin-bottom: 5%;
 }
 

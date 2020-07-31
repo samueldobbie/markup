@@ -1,54 +1,56 @@
-// Remove data from local storage to avoid being able to revisit page and see outdated information
-var existingDisplayMode = localStorage.getItem('mode');
+// Clear local storage to outdated information from being displayed upon revisiting
+var tempMode = localStorage.getItem('mode');
 localStorage.clear();
-if (existingDisplayMode != null) {
-    localStorage.setItem('mode', existingDisplayMode);
+if (tempMode) {
+    localStorage.setItem('mode', tempMode);
 }
 
 $(document).ready(function () {
-    // Checks if user has preset preference for color mode
-    var darkMode;
-
-    if (localStorage.getItem('mode') == 'light') {
-        initialize('light');
-        darkMode = false;
-    } else {
-        initialize('dark');
-        darkMode = true;
-    }
-
-
-    function initialize(type) {
+    function updateDisplayMode() {
         /*
         Set the inital color base on users' preference
         */
-        if (type == 'dark') {
+        var backgroundColor, color;
+
+        if (localStorage.getItem('mode') == 'dark') {
             document.getElementById('darkMode').innerHTML = 'Light Mode';
-            document.getElementsByTagName('body')[0].style.backgroundColor = '#1A1E24';
-            //document.getElementsByTagName('body')[0].style.backgroundImage = 'url("https://i.imgur.com/uEPMJ0H.jpg"), linear-gradient(rgba(0, 0, 0, 0.7),rgba(0, 0, 0, 0.7))';
-            document.getElementsByTagName('body')[0].style.color = 'rgb(210, 210, 210)';
+            backgroundColor = '#1A1E24';
+            color = 'white';
         } else {
             document.getElementById('darkMode').innerHTML = 'Dark Mode';
-            document.getElementsByTagName('body')[0].style.backgroundImage = 'url("https://i.imgur.com/uEPMJ0H.jpg"), linear-gradient(rgba(255, 255, 255, 0.1),rgba(255, 255, 255, 0.1))';
-            document.getElementsByTagName('body')[0].style.color = 'black';
+            backgroundColor = '#f1f1f1';
+            color = '#1A1E24';
         }
+
+        $('body').css({
+            'background-color': backgroundColor
+        });
+
+        $('nav').css({
+            'background-color': backgroundColor
+        });
+
+        $('.nav-item').css({
+            'color': color
+        });
+
+        $('.tagline-component').css({
+            'color': color
+        });
     }
 
-
-    // Allows users to switch between to light and dark mode
     $('#darkMode').click(function () {
-        if (!darkMode) {
-            localStorage.setItem('mode', 'dark');
-            document.getElementById('darkMode').innerHTML = 'Light Mode';
-            document.getElementsByTagName('body')[0].style.backgroundImage = "url('https://i.imgur.com/uEPMJ0H.jpg'), linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7))";
-            document.getElementById('tagline').style.color = 'rgb(210, 210, 210)';
-            darkMode = true;
-        } else {
+        /*
+        Enable switching between display modes
+        */
+        if (localStorage.getItem('mode') == 'dark') {
             localStorage.setItem('mode', 'light');
-            document.getElementById('darkMode').innerHTML = 'Dark Mode';
-            document.getElementsByTagName('body')[0].style.backgroundImage = "url('https://i.imgur.com/uEPMJ0H.jpg'), linear-gradient(rgba(255,255,255,0.1),rgba(255,255,255,0.1))";
-            document.getElementById('tagline').style.color = 'black';
-            darkMode = false;
+        } else {
+            localStorage.setItem('mode', 'dark');
         }
+        updateDisplayMode();
     });
+
+    // Initialize display mode based on users' preference
+    updateDisplayMode();
 });

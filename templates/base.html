@@ -11,13 +11,14 @@
         <link href="{% static 'favicon.ico' %}" rel="shortcut icon" />
         <link href="{% static 'base.css' %}" rel="stylesheet" />
 
+        <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Nunito:400,700" rel="stylesheet" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+        <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"> -->
         <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6/css/select2.min.css" rel="stylesheet" />
 
         <script src="{% static 'base.js' %}"></script>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script> -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6/js/select2.min.js"></script>
         <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
 
@@ -34,17 +35,15 @@
         {% endblock %}
     </head>
 
-    <body style="background-blend-mode: overlay;">
+    <body>
         <nav>
-            <div class="nav-wrapper">
-                <a href="/" class="brand-logo">markup</a>
-                <ul id="nav-mobile" class="right hide-on-med-and-down nav-item-list">
-                    <li><a class="nav-item" href="/docs">Docs</a></li>
-                    <li><a class="nav-item" target="_blank" href="https://github.com/samueldobbie/markup">Github</a></li>
-                    <li><a class="nav-item" id="darkMode">Dark Mode</a></li>
-                    <li><a class="nav-item" href="/setup">Annotate</a></li>
-                </ul>
-            </div>
+            <a class="nav-logo" href="/">markup</a>
+            <ul class="nav-item-list">
+                <li><a class="nav-item" href="/setup">Annotate</a></li>
+                <li><a class="nav-item" id="darkMode">Light Mode</a></li>
+                <li><a class="nav-item" target="_blank" href="https://github.com/samueldobbie/markup">Github</a></li>
+                <li><a class="nav-item" href="/docs">Docs</a></li>
+            </ul>
         </nav>
 
         {% block content %}

@@ -1,36 +1,50 @@
-.nav-wrapper {
+* {
+    margin: 0;
+    padding: 0;
+    font-family: 'Rubik', sans-serif;
+}
+
+nav {
     background-color: #333;
     box-shadow: 0px 0px 8px 0px #111;
-    padding: 0 3%;
+    padding: 0 5%;
+    height: 10vh;
+    user-select: none;
+}
+
+.nav-logo {
+    float: left;
+    font-size: 35px;
+    font-weight: bold;
+    text-decoration: none;
+    color: white;
+    line-height: 10vh;
+}
+
+.nav-logo:hover {
+    color: #33FFB5;
+    text-shadow: 0 0 2px #33FFB5;
 }
 
 .nav-item-list {
-    margin-right:2%;
-    font-family: 'Nunito';
-    color: #33FFB5;
+    list-style-type: none;
+    margin-right: 2%;
     font-weight: bold;
     text-transform: uppercase;
 }
-
+  
 .nav-item {
+    float: right;
+    text-decoration: none;
+    display: block;
+    color: white;
     font-size: 13px;
-    user-select: none;
+    line-height: 10vh;
+    margin-left: 2%;
 }
 
 .nav-item:hover {
-    color: #33FFB5;
-}
-
-.brand-logo {
-    margin-left: 2%;
-    font-family: 'Nunito';
-    font-weight: bold;
-    user-select: none;
-}
-
-.brand-logo:hover {
-    color: #33FFB5;
-    text-shadow: 0 0 2px #33FFB5;
+    color: #33FFB5 !important;
 }
 
 .option-button {
