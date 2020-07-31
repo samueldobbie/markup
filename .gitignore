@@ -5,5 +5,4 @@ __pycache__/
 *.pyc
 *.ann
 *.sqlite3
-*.conf
 *.ipynb_checkpoints

@@ -1,41 +1,60 @@
+.nav-wrapper {
+    background-color: #1A1E24;
+    box-shadow: none;
+}
+
+.brand-logo {
+    display: none !important;
+}
+
+.container {
+    text-align: center;
+    margin-top: 10%;
+}
+
 #tagline {
     margin-bottom: 5%;
 }
 
-.documentation-button {
-    background-color: rgb(182, 204, 196);
+.tagline-component {
+    color: white;
+    display: block;
 }
 
-.tagline-component {
-    font-size: 50px;
+.tagline-component-main {
+    font-weight: bold;
+    font-size: 100px;
+}
+
+.tagline-component-sub {
+    font-size: 18px;
+    text-transform: uppercase;
+}
+
+.documentation-button {
+    background-color: rgb(216, 216, 216);
 }
 
 @media only screen and (max-width: 600px) {
-    .tagline-component {
-        font-size: 40px;
+    .tagline-component-main {
+        font-size: 75px;
+    }
+
+    .tagline-component-sub {
+        font-size: 15px;
     }
 }
 
 @media only screen and (max-width: 500px) {
-    .tagline-component {
-        font-size: 35px;
+    .tagline-component-main {
+        font-size: 55px;
     }
-}
 
-@media only screen and (max-width: 400px) {
-    .tagline-component {
-        font-size: 30px;
+    .tagline-component-sub {
+        font-size: 12px;
     }
-}
 
-@media only screen and (max-width: 350px) {
-    .tagline-component {
-        font-size: 25px;
-    }
-}
-
-@media only screen and (max-width: 300px) {
-    .tagline-component {
-        font-size: 20px;
+    .option-button {
+        margin: 2px;
     }
 }

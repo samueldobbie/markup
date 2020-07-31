@@ -355,7 +355,7 @@ def teach_active_learner(request):
 
 
 SIMILARITY_THRESHOLD = 0.7
-DEMO_PATH = 'data/txt/demo/'
+DEMO_PATH = 'data/demo/'
 
 simstring_searcher = None
 term_to_cui = None

@@ -1,11 +1,12 @@
 {% extends 'file_selection/index_head.html' %}
 
 {% block content %}
-    <div id="openFile" style="text-align: center; margin-top:12%">
+    <div class="container">
         <p id="tagline">
-            <span class="tagline-component" style="font-weight:bold;">markup</span><span class="tagline-component"> annotation tool</span>
+            <span class="tagline-component tagline-component-main">markup</span>
+            <span class="tagline-component tagline-component-sub">rapid annotation, powered by active learning.</span>
         </p>
-        <button onclick="location.href='/docs';" class="option-button documentation-button">Documentation</button>
+        <button onclick="location.href='/docs';" class="option-button documentation-button">Features</button>
         <button onclick="location.href='/setup';" class="option-button">Annotate</button>
     </div>
 {% endblock %}

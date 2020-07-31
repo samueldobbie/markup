@@ -18,15 +18,18 @@ $(document).ready(function () {
     }
 
 
-    // Sets inital color mode based on users stored preference (light or dark mode)
     function initialize(type) {
+        /*
+        Set the inital color base on users' preference
+        */
         if (type == 'dark') {
             document.getElementById('darkMode').innerHTML = 'Light Mode';
-            document.getElementsByTagName('body')[0].style.backgroundImage = 'url("https://i.imgur.com/uEPMJ0H.jpg"), linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7))';
+            document.getElementsByTagName('body')[0].style.backgroundColor = '#1A1E24';
+            //document.getElementsByTagName('body')[0].style.backgroundImage = 'url("https://i.imgur.com/uEPMJ0H.jpg"), linear-gradient(rgba(0, 0, 0, 0.7),rgba(0, 0, 0, 0.7))';
             document.getElementsByTagName('body')[0].style.color = 'rgb(210, 210, 210)';
         } else {
             document.getElementById('darkMode').innerHTML = 'Dark Mode';
-            document.getElementsByTagName('body')[0].style.backgroundImage = 'url("https://i.imgur.com/uEPMJ0H.jpg"), linear-gradient(rgba(255,255,255,0.1),rgba(255,255,255,0.1))';
+            document.getElementsByTagName('body')[0].style.backgroundImage = 'url("https://i.imgur.com/uEPMJ0H.jpg"), linear-gradient(rgba(255, 255, 255, 0.1),rgba(255, 255, 255, 0.1))';
             document.getElementsByTagName('body')[0].style.color = 'black';
         }
     }
