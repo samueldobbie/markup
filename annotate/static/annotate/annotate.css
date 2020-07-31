@@ -1,4 +1,155 @@
-#switch-file-dropdown {
-  padding: 5px;
+::selection {
+  background-color: rgb(79, 120, 255);
+}
+
+::-moz-selection {
+  background-color: rgb(79, 120, 255);
+}
+
+::-webkit-scrollbar {
+  background-color: rgba(255, 255, 255, 0);
+  width: 7.5px;
   border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0);
+  width: 7.5px;
+  border-radius: 5px;
+}
+
+#config-data:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(155, 155, 155, 0.75);
+}
+
+#file-data:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(155, 155, 155, 0.75);
+}
+
+#annotation-data:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(155, 155, 155, 0.75);
+}
+
+select {
+  padding: 5px;
+  border-radius: 2px;
+}
+
+.container {
+  display: flex;
+}
+
+.item {
+  margin-top: 3.5%;
+  padding: 2%;
+}
+
+.item-1 {
+  flex-grow: 1;
+  max-width: 20%;
+}
+
+.item-2 {
+  flex-grow: 2;
+  max-width: 49.5%;
+}
+
+#file-data {
+  line-height: 1.5em;
+  white-space: pre-wrap;
+}
+
+.annotation {
+  border-radius: 2px;
+  padding: 5px;
+}
+
+/*
+.annotation-category {
+  font-size: 9px;
+  font-weight: bold;
+  margin-left: 5px;
+  text-transform: uppercase;
+}
+*/
+
+.displayedAnnotation {
+  cursor: pointer;
+}
+
+.collapsible {
+  margin-bottom: 0px;
+}
+
+.active, .collapsible:hover {
+  background-color: #555;
+}
+
+.content {
+  padding: 0 12px;
+  font-size: 16px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+  background-color: #f1f1f1;
+  color: black;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+
+#search-dict {
+  border: 1px solid #1A1E24;
+  border-radius: 2px;
+  padding: 5px;
+  outline: none;
+  margin-top: 5px;
+}
+
+.config-value-row {
+  margin-top: 8px;
+}
+
+.config-label {
+  border-radius: 2px;
+  padding: 2px 5px;
+  color: #1A1E24;
+  cursor: pointer;
+}
+
+.config-label:hover {
+  filter: brightness(105%);
+}
+
+input[type=radio] {
+  display: none;
+}
+
+#annotation-suggestions {
+  margin-bottom: 25px;
+}
+
+.main-button {
+  border-radius: 2px;
+  color: #1A1E24;
+  padding: 5px;
+  margin-top: 5px;
+  outline: none;
+  border: none;
+  font-weight: bold;
+}
+
+.main-button:hover {
+  filter: brightness(105%);
+}
+
+.green-button {
+  background-color: #33FFB5;
+}
+
+.gray-button {
+  background-color: rgb(196, 196, 196);
+}
+
+.red-button {
+  background-color: rgb(255, 108, 108);
 }

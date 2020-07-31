@@ -585,15 +585,16 @@ function displayAnnotation(entityValue, attributeValues, annotationIdentifier) {
     }
 
     // Add annotation inline within the open document
+    // <span class="annotation-category">' + entityValue + '</span>
     document.getElementById('file-data').contentEditable = 'true';
-    document.execCommand('insertHTML', false, '<span class="inlineAnnotation" id="' + annotationIdentifier + '-aid" style="background-color:' + highlightColor + '; color:black;">' + highlighted + '</span>');
+    document.execCommand('insertHTML', false, '<span class="annotation inlineAnnotation" id="' + annotationIdentifier + '-aid" style="background-color:' + highlightColor + '; color:black;">' + highlighted + '</span>');
     document.getElementById('file-data').contentEditable = 'false';
 
     // Keep track of offets for each annotation
     offsetList.push([annotationIdentifier, entityValue, attributeValues, highlighted]);
 
     // Construct annotation to be added to the annotation display panel
-    var annotationClass = 'class="displayedAnnotation collapsible"';
+    var annotationClass = 'class="annotation displayedAnnotation collapsible"';
     var annotationId = 'id="' + annotationIdentifier + '"';
     var annotationStyle = 'style="background-color:' + highlightColor + ';'
     if (localStorage.getItem('mode') == 'dark') {
@@ -1288,7 +1289,7 @@ function getAnnotationSuggestions() {
 
                 // Construct suggestion container
                 var suggestionId = 'suggestion-' + i;
-                var suggestionClass = 'class="displayedAnnotation collapsible"';
+                var suggestionClass = 'class="annotation displayedAnnotation collapsible"';
                 var suggestionStyle = 'style="background-color:' + highlightColor + ';'
                 if (localStorage.getItem('mode') == 'dark') {
                     suggestionStyle += 'color: black;"';

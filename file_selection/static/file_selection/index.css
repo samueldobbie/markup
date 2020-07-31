@@ -1,7 +1,6 @@
 .landing-container {
     text-align: center;
     margin-top: 10%;
-    
 }
 
 .tagline {
@@ -28,12 +27,14 @@
 }
 
 #try-demo {
+    font-size: 18px;
     color: white;
     cursor: pointer;
+    text-decoration: underline;
 }
 
 #try-demo:hover {
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 @media only screen and (max-width: 600px) {
