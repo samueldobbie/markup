@@ -1,50 +1,197 @@
-function getCookie(name) {
-    /*
-    Get csrftoken from cookie for
-    use within AJAX requests
-    */
-    var cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+$(document).ready(function () {
+    onPageLoad();
+});
+
+
+function onPageLoad(initalLoad=true) {
+    // Read local data of files user selected
+    var documentOpenType = localStorage.getItem('documentOpenType');
+    var documentCount = localStorage.getItem('documentCount');
+
+    var documentText = localStorage.getItem('documentText' + currentDocumentId);
+    var configText = localStorage.getItem('configText');
+
+    setRequestHeader(getCookie('csrftoken'));
+
+    if (initalLoad) {
+        if (documentOpenType == 'multiple') {
+            // Display arrows to move forward or backwards by file
+            document.getElementById('move-to-previous-file').style.display = '';
+            document.getElementById('move-to-next-file').style.display = '';
+
+            // Display dropdown menu to jump between files
+            document.getElementById('switch-file').style.display = '';
+    
+            // Populate navigation menu
+            for (var i = 0; i < documentCount; i++) {
+                document.getElementById('switch-file-dropdown').innerHTML += '<option value="' + localStorage.getItem('fileName' + currentDocumentId) + '" documentId="' + i + '">' + localStorage.getItem('fileName' + i) + '</option>';
+            }
+        }    
+
+        annotationList = [];
+        for (var i = 0; i <= documentCount; i++) {
+            annotationList.push([]);
+        }
+
+        for (var j = 0; j <= documentCount; j++) {
+            var currentAnnotationText = localStorage.getItem('annotationText' + j);
+            if (currentAnnotationText != null) {
+                parseExistingAnnotations(currentAnnotationText, j);
             }
         }
     }
-    return cookieValue;
-}
 
+    // Set page title to open document file name
+    document.getElementsByTagName('title')[0].innerText = localStorage.getItem('fileName' + currentDocumentId) + ' - Markup';
 
-function setRequestHeader(csrftoken) {
-    /*
-    Specify csrftoken within AJAXs
-    request header
-    */
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader('X-CSRFToken', csrftoken);
+    // Check that documentText is not empty, otherwise return to homepage
+    validateDocumentSelection(documentText);
+
+    // Display selected documentText
+    document.getElementById('file-data').innerText = documentText;
+
+    if (initalLoad) {
+        // Parse data from configuration file
+        var parsedConfigData = parseConfigurationData(configText);
+        entityList = parsedConfigData[0];
+        var attributeSentences = parsedConfigData[1];
+
+        // Display entity configuration list
+        displayEntityConfigurations(entityList);
+
+        // Display attributes configuration list
+        var detailedConfigValues = displayAttributeConfigurations(entityList, attributeSentences);
+        var configArgs = detailedConfigValues[0];
+        var configVals = detailedConfigValues[1];
+
+        // Update display based on users' preference
+        updateDisplayMode();
+
+        // Allow users to change the display mode
+        $('#darkMode').click(switchDisplayMode);
+
+        // Get all configuration elements for manipulation
+        var attributeCheckboxes = $('input[type=checkbox]');
+        var attributeRadiobuttons = $('input[type=radio]');
+        var attributeDropdowns = $('input[name=values]');
+
+        // Initialise all configurations boxes
+        toggleAttributeDisplay(attributeCheckboxes, 'checkbox', 'none');
+        toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
+
+        // Display correct attributes upon clicking an entity
+        $('input[type=radio]').click({
+            'configArgs': configArgs,
+            'configVals': configVals,
+            'attributeCheckboxes': attributeCheckboxes,
+            'attributeDropdowns': attributeDropdowns
+        }, displayDynamicAttributes);
+
+        // Change colour of highlighted text
+        $('#file-data').mouseup(function () {
+            changeHighlightedTextColor();
+        });
+
+        // Display information about annotation and adjust brightness on hover (annotation-data panel)
+        $('#annotation-data').mouseover(function (e) {
+            adjustAnnotationUponHover(e.target.id, 'annotation-data');
+        });
+
+        // Display information about annotation and adjust brightness on hover (file-data panel)
+        $('#file-data').mouseover(function (e) {
+            adjustAnnotationUponHover(e.target.id, 'file-data');
+        });
+
+        // Enable navigation between opened files via dropdown selection
+        $('#switch-file-dropdown').change(function () {
+            currentDocumentId = $('option:selected', this).attr('documentId');
+            onPageLoad(false);
+        });
+        
+        // Move to next when multiple documents opened
+        $('#move-to-next-file').click(function () {
+            if (currentDocumentId < documentCount-1) {
+                currentDocumentId++;
+                document.getElementById('switch-file-dropdown').selectedIndex = currentDocumentId;
+                onPageLoad(false);
             }
-        }
-    });
+        });
+
+        // Move to previous when multiple documents opened
+        $('#move-to-previous-file').click(function () {
+            if (currentDocumentId > 0) {
+                currentDocumentId--;
+                document.getElementById('switch-file-dropdown').selectedIndex = currentDocumentId;
+                onPageLoad(false);
+            }
+        });
+
+        // Prevent highlighting of move-to-next-file arrow button on double click
+        $('#move-to-next-file').mousedown(function(e){ e.preventDefault(); });
+
+        // Prevent highlighting of move-to-previous-file arrow button on double click
+        $('#move-to-previous-file').mousedown(function(e){ e.preventDefault(); });
+
+        // Allow users to add an annotation
+        $('#add-annotation').click({
+            'attributeCheckboxes': attributeCheckboxes,
+            'attributeDropdowns': attributeDropdowns,
+            'attributeRadiobuttons': attributeRadiobuttons
+        }, addAnnotation);
+
+        // Allow users to see suggested annotations
+        $('#view-suggestions').click(function () {
+            startViewingAnnotationSuggestions();
+        });
+
+        $('#train-annotation-suggestions').click(function () {
+            startTrainingActiveLearner();
+        });
+
+        $('#stop-training').click(function () {
+            stopTrainingActiveLearner();
+        });
+
+        $('#stop-viewing').click(function () {
+            stopViewingAnnotationSuggestions();
+        });
+
+        // Suggest most relevant UMLS matches based on highlighted term 
+        $('#file-data').mouseup({'type': 'match-list'}, suggestCui);
+
+        // Suggest most relevant UMLS matches based on searched term
+        $('#search-dict').on('input', {'type': 'search-list'}, suggestCui);
+
+        // Prompt user to save annotations before leaving page
+        $('a[name=nav-element]').click(function() {
+            $(window).bind('beforeunload', function(){
+                return 'You have unsaved changes, are you sure you want to leave?';
+            });
+        });
+
+        $('#train-positive-response').click(function() {
+            teachModel(1);
+            queryActiveLearner();
+        });
+        
+        $('#train-negative-response').click(function() {
+            teachModel(0);
+            queryActiveLearner();
+        });
+    }
+
+    // Load annotations from current annotationList
+    updateAnnotationFileURL();
+    loadExistingAnnotations();
+    bindCollapsibleEvents();
 }
-
-
-function csrfSafeMethod(method) {
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
-
 
 function validateDocumentSelection(documentText) {
     /*
     Return to homepage if an invalid document is selected
     */
     if (documentText == null || documentText.trim() == '') {
-        alert('This document is empty. Redirecting to the homepage!')
-        location.href = '/';
+        alert('This document is empty. Please double-check the file you selected.');
     }
 }
 
@@ -255,24 +402,41 @@ function updateDisplayMode() {
     /*
     Updates display mode based on users' preference
     */
+    var backgroundColor, color;
 
-    if (localStorage.getItem('mode') == 'light') {
-        document.getElementById('darkMode').innerHTML = 'Dark Mode';
-        textColor = 'black';
-        backgroundColor = '#f7f7f7';
-    } else {
+    if (localStorage.getItem('mode') == 'dark') {
         document.getElementById('darkMode').innerHTML = 'Light Mode';
-        textColor = 'rgb(210, 210, 210)';
-        backgroundColor = '#333';
+        backgroundColor = '#1A1E24';
+        color = 'white';
+    } else {
+        document.getElementById('darkMode').innerHTML = 'Dark Mode';
+        backgroundColor = '#f1f1f1';
+        color = '#1A1E24';
     }
 
     $('body').css({
         'background-color': backgroundColor,
-        'color': textColor
+        'color': color
+    });
+
+    $('nav').css({
+        'background-color': backgroundColor
+    });
+
+    $('.nav-logo').css({
+        'color': color
+    });
+
+    $('.nav-item').css({
+        'color': color
+    });
+
+    $('.nav-item-arrow').css({
+        'color': '#33FFB5'
     });
 
     $('.sectionTitle').css({
-        'color': textColor
+        'color': color
     });
 
     $('.inlineAnnotation').each(function () {
@@ -290,13 +454,12 @@ function switchDisplayMode() {
     Enable users to switch between
     light and dark display modes
     */
-    if (localStorage.getItem('mode') == 'light') {
-        localStorage.setItem('mode', 'dark');
-        updateDisplayMode();
-    } else {
+    if (localStorage.getItem('mode') == 'dark') {
         localStorage.setItem('mode', 'light');
-        updateDisplayMode();
+    } else {
+        localStorage.setItem('mode', 'dark');
     }
+    updateDisplayMode();
 }
 
 
@@ -1042,194 +1205,6 @@ function bindCollapsibleEvents() {
             }
         });
     }
-}
-
-$(document).ready(function () {
-    onPageLoad();
-});
-
-
-function onPageLoad(initalLoad=true) {
-    // Read local data of files user selected
-    var documentOpenType = localStorage.getItem('documentOpenType');
-    var documentCount = localStorage.getItem('documentCount');
-
-    var documentText = localStorage.getItem('documentText' + currentDocumentId);
-    var configText = localStorage.getItem('configText');
-
-    setRequestHeader(getCookie('csrftoken'));
-
-    if (initalLoad) {
-        if (documentOpenType == 'multiple') {
-            // Display arrows to move forward or backwards by file
-            document.getElementById('move-to-previous-file').style.display = '';
-            document.getElementById('move-to-next-file').style.display = '';
-
-            // Display dropdown menu to navigate between files
-            document.getElementById('switch-file-dropdown').style.display = '';
-    
-            // Populate navigation menu
-            for (var i = 0; i < documentCount; i++) {
-                document.getElementById('switch-file-dropdown').innerHTML += '<option value="' + localStorage.getItem('fileName' + currentDocumentId) + '" documentId="' + i + '">' + localStorage.getItem('fileName' + i) + '</option>';
-            }
-        }    
-
-        annotationList = [];
-        for (var i = 0; i <= documentCount; i++) {
-            annotationList.push([]);
-        }
-
-        for (var j = 0; j <= documentCount; j++) {
-            var currentAnnotationText = localStorage.getItem('annotationText' + j);
-            if (currentAnnotationText != null) {
-                parseExistingAnnotations(currentAnnotationText, j);
-            }
-        }
-    }
-
-    // Set page title to open document file name
-    document.getElementsByTagName('title')[0].innerText = localStorage.getItem('fileName' + currentDocumentId) + ' - Markup';
-
-    // Check that documentText is not empty, otherwise return to homepage
-    validateDocumentSelection(documentText);
-
-    // Display selected documentText
-    document.getElementById('file-data').innerText = documentText;
-
-    if (initalLoad) {
-        // Parse data from configuration file
-        var parsedConfigData = parseConfigurationData(configText);
-        entityList = parsedConfigData[0];
-        var attributeSentences = parsedConfigData[1];
-
-        // Display entity configuration list
-        displayEntityConfigurations(entityList);
-
-        // Display attributes configuration list
-        var detailedConfigValues = displayAttributeConfigurations(entityList, attributeSentences);
-        var configArgs = detailedConfigValues[0];
-        var configVals = detailedConfigValues[1];
-
-        // Update display based on users' preference
-        updateDisplayMode();
-
-        // Allow users to change the display mode
-        $('#darkMode').click(switchDisplayMode);
-
-        // Get all configuration elements for manipulation
-        var attributeCheckboxes = $('input[type=checkbox]');
-        var attributeRadiobuttons = $('input[type=radio]');
-        var attributeDropdowns = $('input[name=values]');
-
-        // Initialise all configurations boxes
-        toggleAttributeDisplay(attributeCheckboxes, 'checkbox', 'none');
-        toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
-
-        // Display correct attributes upon clicking an entity
-        $('input[type=radio]').click({
-            'configArgs': configArgs,
-            'configVals': configVals,
-            'attributeCheckboxes': attributeCheckboxes,
-            'attributeDropdowns': attributeDropdowns
-        }, displayDynamicAttributes);
-
-        // Change colour of highlighted text
-        $('#file-data').mouseup(function () {
-            changeHighlightedTextColor();
-        });
-
-        // Display information about annotation and adjust brightness on hover (annotation-data panel)
-        $('#annotation-data').mouseover(function (e) {
-            adjustAnnotationUponHover(e.target.id, 'annotation-data');
-        });
-
-        // Display information about annotation and adjust brightness on hover (file-data panel)
-        $('#file-data').mouseover(function (e) {
-            adjustAnnotationUponHover(e.target.id, 'file-data');
-        });
-
-        // Enable navigation between opened files via dropdown selection
-        $('#switch-file-dropdown').change(function () {
-            currentDocumentId = $('option:selected', this).attr('documentId');
-            onPageLoad(false);
-        });
-        
-        // Move to next when multiple documents opened
-        $('#move-to-next-file').click(function () {
-            if (currentDocumentId < documentCount-1) {
-                currentDocumentId++;
-                document.getElementById('switch-file-dropdown').selectedIndex = currentDocumentId;
-                onPageLoad(false);
-            }
-        });
-
-        // Move to previous when multiple documents opened
-        $('#move-to-previous-file').click(function () {
-            if (currentDocumentId > 0) {
-                currentDocumentId--;
-                document.getElementById('switch-file-dropdown').selectedIndex = currentDocumentId;
-                onPageLoad(false);
-            }
-        });
-
-        // Prevent highlighting of move-to-next-file arrow button on double click
-        $('#move-to-next-file').mousedown(function(e){ e.preventDefault(); });
-
-        // Prevent highlighting of move-to-previous-file arrow button on double click
-        $('#move-to-previous-file').mousedown(function(e){ e.preventDefault(); });
-
-        // Allow users to add an annotation
-        $('#add-annotation').click({
-            'attributeCheckboxes': attributeCheckboxes,
-            'attributeDropdowns': attributeDropdowns,
-            'attributeRadiobuttons': attributeRadiobuttons
-        }, addAnnotation);
-
-        // Allow users to see suggested annotations
-        $('#view-suggestions').click(function () {
-            startViewingAnnotationSuggestions();
-        });
-
-        $('#train-annotation-suggestions').click(function () {
-            startTrainingActiveLearner();
-        });
-
-        $('#stop-training').click(function () {
-            stopTrainingActiveLearner();
-        });
-
-        $('#stop-viewing').click(function () {
-            stopViewingAnnotationSuggestions();
-        });
-
-        // Suggest most relevant UMLS matches based on highlighted term 
-        $('#file-data').mouseup({'type': 'match-list'}, suggestCui);
-
-        // Suggest most relevant UMLS matches based on searched term
-        $('#search-dict').on('input', {'type': 'search-list'}, suggestCui);
-
-        // Prompt user to save annotations before leaving page
-        $('a[name=nav-element]').click(function() {
-            $(window).bind('beforeunload', function(){
-                return 'You have unsaved changes, are you sure you want to leave?';
-            });
-        });
-
-        $('#train-positive-response').click(function() {
-            teachModel(1);
-            queryActiveLearner();
-        });
-        
-        $('#train-negative-response').click(function() {
-            teachModel(0);
-            queryActiveLearner();
-        });
-    }
-
-    // Load annotations from current annotationList
-    updateAnnotationFileURL();
-    loadExistingAnnotations();
-    bindCollapsibleEvents();
 }
 
 

@@ -3,10 +3,12 @@ function clearLocalStorage() {
     Clear local storage (excl. display preference) to prevent
     outdated information from being displayed upon revisiting
     */
-    var tempMode = localStorage.getItem('mode');
-    localStorage.clear();
-    if (tempMode) {
-        localStorage.setItem('mode', tempMode);
+    if (window.location.href.indexOf('annotate') == -1) {
+        var tempMode = localStorage.getItem('mode');
+        localStorage.clear();
+        if (tempMode) {
+            localStorage.setItem('mode', tempMode);
+        }
     }
 }
 

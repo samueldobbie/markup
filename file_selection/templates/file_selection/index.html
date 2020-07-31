@@ -1,6 +1,7 @@
 {% extends 'file_selection/index_head.html' %}
 
 {% block content %}
+    {% csrf_token %}
     <div class="landing-container">
         <p class="tagline">
             <span class="tagline-component tagline-component-main">markup</span>

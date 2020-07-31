@@ -34,11 +34,17 @@ nav {
 .nav-item {
     float: right;
     text-decoration: none;
+    cursor: pointer;
     display: block;
     color: white;
     font-size: 13px;
     line-height: 10vh;
     margin-left: 2%;
+}
+
+.nav-item-arrow {
+    font-size: 20px;
+    color: #33FFB5;
 }
 
 .option-button {

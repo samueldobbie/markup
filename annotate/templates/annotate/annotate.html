@@ -1,97 +1,56 @@
-<!DOCTYPE html>
-<html lang='en'>
-    <head>
-        <!-- Global site tag (gtag.js) - Google Analytics -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-148811237-1"></script>
-        <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
+{% extends 'annotate/annotate_head.html' %}
 
-        gtag('config', 'UA-148811237-1');
-        </script>
-        {% load static %}
-        <meta charset='UTF-8'>
-        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-        <meta http-equiv='X-UA-Compatible' content='ie=edge'>
-        <title>Annotate - Markup</title>
-        <link href="https://fonts.googleapis.com/css?family=Nunito:400,700" rel="stylesheet" />
-        <link href="{% static 'annotate/annotate.css' %}" rel="stylesheet" />
-        <link rel="shortcut icon" href="{% static 'annotate/favicon.ico' %}" />
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6/css/select2.min.css" rel="stylesheet" />
-        <script src="https://kit.fontawesome.com/140067eff9.js" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6/js/select2.min.js"></script>
-        <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
-        <script src="{% static 'annotate/annotate.js' %}"></script>
-    </head>
-
-    <body>
-        <nav class="navbar navbar-expand">
-            <div class="nav-wrapper" style="background-color:#333; box-shadow: 0px 0px 8px 0px #111;">
-                <a href="/" class="brand-logo nav-item" name="nav-element" style="margin-left:2%;  font-family: 'Nunito'; font-weight:bold;">markup</a>
-                <ul id="nav-mobile" class="right hide-on-med-and-down" style="margin-right:2%;  font-family: 'Nunito'; color:#33FFB5; font-weight:bold;">
-                    <li><a class="nav-item" name="nav-element" href="/docs">Docs</a></li>
-                    <li><a class="nav-item" target="_blank" href="https://github.com/samueldobbie/markup">Github</a></li>
-                    <li><a class="nav-item" id="darkMode">Dark Mode</a></li>
-                    <li ><a class="nav-item" name="nav-element" href="/setup">Annotate</a></li>
-                    <li><select id="switch-file-dropdown" style="display: none;"></select></li>
-                    <li id="move-to-previous-file" style="display:none;"><a style="font-size:20px; color:#33FFB5;"><</a></li>
-                    <li id="move-to-next-file" style="display:none;"><a style="font-size:20px; color:#33FFB5;">></a></li>
-                </ul>
+{% block content %}
+    <div class="container">
+        <div id="config-data" class="item item-1 standard-text unselectable" style="padding-bottom: 15px;">
+            <div id="annotation-suggestions">
+                <button id="view-suggestions" class="main-button green-button">View Suggestions</button>
+                <button id="train-annotation-suggestions" class="main-button gray-button">Train</button>
+                <button id="stop-training" class="main-button gray-button" style="display:none;">Back to document(s)</button>
+                <button id="stop-viewing" class="main-button gray-button" style="display:none;">Back to document(s)</button>
             </div>
-        </nav>
 
-        <div class="container">
-            <div id="config-data" class="item item-1 standard-text unselectable" style="padding-bottom: 15px;">
-                <div id="annotation-suggestions">
-                    <button id="view-suggestions" class="main-button green-button">View Suggestions</button>
-                    <button id="train-annotation-suggestions" class="main-button gray-button">Train</button>
-                    <button id="stop-training" class="main-button gray-button" style="display:none;">Back to document(s)</button>
-                    <button id="stop-viewing" class="main-button gray-button" style="display:none;">Back to document(s)</button>
+            <div id="config-data-options">
+                <div id="entities"></div>
+            
+                <div id="attributes">
+                    <div id="attribute-checkboxes"></div>
+                    <div id="attribute-dropdowns"></div>
                 </div>
 
-                <div id="config-data-options">
-                    <div id="entities"></div>
-                    
-                    <div id="attributes">
-                        <div id="attribute-checkboxes"></div>
-                        <div id="attribute-dropdowns"></div>
-                    </div>
+                <div id="settings">
+                    <br>
+                    <select id="match-list" style="min-width:105px;" class="dropdown input-field">
+                        <option>No match</option>
+                    </select>
 
-                    <div id="settings">
-                        <br>
-                        <select id="match-list" style="min-width:105px;" class="dropdown input-field">
-                            <option>No match</option>
-                        </select>
-
-                        <select id="search-list" style="min-width:105px;" class="dropdown input-field">
-                            <option>No match</option>
-                        </select>
-                        <br>
-                        <input id="search-dict" class="input-field" placeholder="Search ontology"/>
-                        <br>
-                        <br>
-                        <button id="add-annotation" class="main-button green-button">Add Annotation</button>
-                        <a id="save-annotation-file" class="main-button gray-button">Save</a>
-                    </div>
+                    <select id="search-list" style="min-width:105px;" class="dropdown input-field">
+                        <option>No match</option>
+                    </select>
+                    <br>
+                    <input id="search-dict" class="input-field" placeholder="Search ontology"/>
+                    <br>
+                    <br>
+                    <button id="add-annotation" class="main-button green-button">Add Annotation</button>
+                    <a id="save-annotation-file" class="main-button gray-button">Save</a>
                 </div>
             </div>
-
-            <div id="train-model" class="item item-2 standard-text" style="display:none; overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px;">
-                <p id="train-model-term"></p>
-                <button id="train-positive-response" class="main-button green-button">Prescription</button>
-                <button id="train-negative-response" class="main-button red-button">Not Prescription</button>
-            </div>
-
-            <div id="view-suggestions-list" class="item item-2 standard-text" style="display:none; overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px; text-align:center;">
-                <p id="loading" class="standard-text">Predicting annotations...</p>
-                <p id="no-suggestions" class="standard-text" style="display:none;">No suggestions currently available. Try adding more manual annotations, or training the model directly.</p>
-                <span id="suggestion-list"></span>
-            </div>
-
-            <div id="file-data" style="overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px;" class="item item-2 standard-text"></div>
-
-            <div id="annotation-data" style="overflow-y: scroll; max-height:80vh; padding-right:7.5px;" class="item item-1 standard-text unselectable"></div>
         </div>
-    </body>
-</html>
+
+        <div id="train-model" class="item item-2 standard-text" style="display:none; overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px;">
+            <p id="train-model-term"></p>
+            <button id="train-positive-response" class="main-button green-button">Prescription</button>
+            <button id="train-negative-response" class="main-button red-button">Not Prescription</button>
+        </div>
+
+        <div id="view-suggestions-list" class="item item-2 standard-text" style="display:none; overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px; text-align:center;">
+            <p id="loading" class="standard-text">Predicting annotations...</p>
+            <p id="no-suggestions" class="standard-text" style="display:none;">No suggestions currently available. Try adding more manual annotations, or training the model directly.</p>
+            <span id="suggestion-list"></span>
+        </div>
+
+        <div id="file-data" style="overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px;" class="item item-2 standard-text"></div>
+
+        <div id="annotation-data" style="overflow-y: scroll; max-height:80vh; padding-right:7.5px;" class="item item-1 standard-text unselectable"></div>
+    </div>
+{% endblock %}
