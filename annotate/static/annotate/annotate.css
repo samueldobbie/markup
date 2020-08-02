@@ -141,8 +141,12 @@ input[type=radio] {
   color: #1A1E24;
 }
 
-#search-dict {
-  margin-top: 5px;
+#match-list {
+  margin-bottom: 5px;
+}
+
+#search-list {
+  margin-bottom: 5px;
 }
 
 .main-button {

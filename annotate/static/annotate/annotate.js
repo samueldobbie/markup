@@ -1445,7 +1445,7 @@ function sleep(time) {
 
 var colors = [
     '#7B68EE', '#FFD700', '#FFA500', '#DC143C', '#FFC0CB', '#00BFFF', '#FFA07A',
-    '#C71585', '#32CD32', '#48D1CC', '#FF6347', '#2E8B57', '#FF69B4', '#008B8B',
+    '#C71585', '#32CD32', '#48D1CC', '#FF6347', '#8FE3B4', '#FF69B4', '#008B8B',
     '#FFF0F5', '#FFFACD', '#E6E6FA', '#B22222', '#4169E1', '#C0C0C0'
 ];
 
