@@ -351,7 +351,7 @@ function displayAttributeConfigurations(entityList, configValues) {
 
                 if (newArgs.length > 1) {
                     configArgs.push(newArgs);
-                    document.getElementById('attribute-checkboxes').innerHTML += '<p style="margin:0; padding:0;"> <input type="checkbox" id="{{ val }}" name="{{ key }}" value="{{ val }}"> <label for="{{ val }}">{{ val }}</label> </p>';
+                    document.getElementById('attribute-checkboxes').innerHTML += '<p><input type="checkbox" id="{{ val }}" name="{{ key }}" value="{{ val }}"> <label for="{{ val }}">{{ val }}</label> </p>';
                 }
             }
         }
@@ -389,7 +389,7 @@ function displayAttributeConfigurations(entityList, configValues) {
                     for (var v = 2; v < newVals.length; v++) {
                         dropdownOptionHtml += '<option value="' + newVals[1] + ': ' + newVals[v] + '">' + newVals[v] + '</option>';
                     }
-                    document.getElementById('attribute-dropdowns').innerHTML += '<p style="margin:0; padding:0;"><input style="outline:none; padding:5px; border-radius:5px;" type="text" list="' + newVals[1] + newVals[0] + '" placeholder="' + newVals[1] + '" name="values" class="dropdown input-field" style="padding:2px;"/><datalist id="' + newVals[1] + newVals[0] + '">' + dropdownOptionHtml + '</datalist></p>';
+                    document.getElementById('attribute-dropdowns').innerHTML += '<p><input type="text" list="' + newVals[1] + newVals[0] + '" placeholder="' + newVals[1] + '" name="values" class="dropdown input-field"><datalist id="' + newVals[1] + newVals[0] + '">' + dropdownOptionHtml + '</datalist></p>';
                 }
             }
         }

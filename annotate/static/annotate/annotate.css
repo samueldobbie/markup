@@ -32,9 +32,11 @@
   background-color: rgba(155, 155, 155, 0.75);
 }
 
-select {
+.dropdown {
   padding: 5px;
   border-radius: 2px;
+  border: 1px solid #1A1E24;
+  color: #1A1E24;
   outline: none;
 }
 
@@ -90,10 +92,6 @@ select {
   margin-bottom: 0px;
 }
 
-.active, .collapsible:hover {
-  background-color: #555;
-}
-
 .content {
   padding: 0 12px;
   font-size: 16px;
@@ -109,14 +107,6 @@ select {
 
 .annotation-attribute {
   margin-top: 10px;
-}
-
-#search-dict {
-  border: 1px solid #1A1E24;
-  border-radius: 2px;
-  padding: 5px;
-  outline: none;
-  margin-top: 5px;
 }
 
 .config-value-row {
@@ -140,6 +130,19 @@ input[type=radio] {
 
 #annotation-suggestions {
   margin-bottom: 25px;
+}
+
+.input-field {
+  padding: 5px;
+  margin-bottom: 5px;
+  border-radius: 2px;
+  outline: none;
+  border: 1px solid #1A1E24;
+  color: #1A1E24;
+}
+
+#search-dict {
+  margin-top: 5px;
 }
 
 .main-button {
@@ -166,16 +169,6 @@ input[type=radio] {
 
 .red-button {
   background-color: rgb(255, 108, 108);
-}
-
-.input-field {
-  margin-bottom: 5px;
-  padding: 5px;
-  border-radius: 2px;
-  padding-right: 17.5px;
-  outline: none;
-  border: 1px solid #1A1E24;
-  color: #1A1E24;
 }
 
 .annotation-icon {

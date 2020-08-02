@@ -10,11 +10,9 @@
 
         <link href="{% static 'favicon.ico' %}" rel="shortcut icon" />
         <link href="{% static 'third-party/rubik.css' %}" rel="stylesheet">
-        <link href="{% static 'third-party/simpletooltip.min.css' %}" rel="stylesheet" media="screen" />
         <link href="{% static 'base.css' %}" rel="stylesheet" />
 
         <script src="{% static 'third-party/jquery.min.js' %}""></script>
-        <script src="{% static 'third-party/simpletooltip.min.js' %}"></script>
         <script src="{% static 'base.js' %}"></script>
 
         <!-- Google Analytics -->
@@ -34,9 +32,9 @@
         <nav>
             <a class="nav-logo" href="/">/// markup</a>
             <ul class="nav-item-list">
-                <li id="move-to-next-file" style="display:none;"><a class="nav-item nav-item-arrow">></a></li>
-                <li id="move-to-previous-file" style="display:none;"><a class="nav-item nav-item-arrow"><</a></li>
-                <li id="switch-file" style="display: none;"><a class="nav-item"><select id="switch-file-dropdown"></select></a></li>
+                <li id="move-to-next-file" style="display: none;"><a class="nav-item nav-item-arrow">></a></li>
+                <li id="move-to-previous-file" style="display: none;"><a class="nav-item nav-item-arrow"><</a></li>
+                <li id="switch-file" style="display: none;"><a class="nav-item"><select id="switch-file-dropdown" class="dropdown"></select></a></li>
                 <li><a class="nav-item" href="/setup">Annotate</a></li>
                 <li><a class="nav-item" id="darkMode">Light Mode</a></li>
                 <li><a class="nav-item" target="_blank" href="https://github.com/samueldobbie/markup">Github</a></li>

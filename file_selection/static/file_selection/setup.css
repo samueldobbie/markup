@@ -63,6 +63,12 @@
     min-width: 0;
 }
 
+.setup-tooltip {
+    cursor: help;
+    color: #b1b1b1;
+    font-size: 14px;
+}
+
 @media only screen and (max-width: 750px) {
     .setup-panel {
         width: 80vw;

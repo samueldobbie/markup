@@ -268,6 +268,14 @@ $(document).ready(function () {
 
     // Set setup type to complete by default
     updateComponentColour('setup-type-container');
+
+    $('.setup-tooltip').simpletooltip({
+        position: 'right',
+        border_color: 'white',
+        color: '#1A1E24',
+        background_color: 'white',
+        border_width: 4
+    });
 });
 
 
@@ -309,9 +317,6 @@ function updateDisplayMode() {
         'color': color,
         'background-color': targetBackgroundColor,
     });
-
-
-    $('h1').simpletooltip();
 }
 
 
