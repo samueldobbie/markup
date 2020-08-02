@@ -1,4 +1,4 @@
-# markup - online annotation, powered by active learning
+# Markup - Online Annotation, Powered by Active Learning
 
 ### What is Markup?
 
@@ -8,7 +8,7 @@ Markup is an online annotation tool that can be used to transform unstructured d
 
 ### How does Markup compare to existing annotation tools?
 
-to-do: table of iaa score + time + similar metric comparisons
+To-do: table of iaa score + time + similar metric comparisons
 
 ### Usage
 
@@ -34,14 +34,14 @@ Documentation for markup can be found <a href="http://www.getmarkup.com/docs">he
 
 ### Features
 
-- Ability to open, move between and annotate multiple documents in a single session.
-- Integrated access to pre-loaded and user-defined, enabling automated ontology mappings and direct ontology querying.
+- Ability to switch between and annotate multiple documents in a single session.
+- Integrated access to pre-loaded and user-defined ontologies, enabling automated mappings and direct querying.
 - Built-in configuration file creator.
 - Predictive prescription suggestions (including drug name, dosage, unit and frequency attributes).
 - Dynamic attribute display.
 - Any number of overlaying annotations, enabling the capture of complex data.
-- Dark mode.
 - Full-feature tool available via local installation and website.
+- Dark mode.
 
 ### Future Plans
 
@@ -49,4 +49,4 @@ Documentation for markup can be found <a href="http://www.getmarkup.com/docs">he
 - Add ability for user accounts to join a team / group to enable easy sharing of ontologies, documents, guidelines, annotations, etc.
 - Allow users to provide their own data, or examples to produce synthetic data, for training of a custom model.
 - Accessible version for color-blind users.
-- Add annotation and classification of images.
+- Add ability to annotate and classify images.

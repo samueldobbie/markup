@@ -895,17 +895,18 @@ function addAnnotation(event) {
     // Get chosen option(s) from ontology (if not default)
     var matchList = document.getElementById('match-list');
     var searchList = document.getElementById('search-list');
+
     var options = [
-        matchList.options[matchList.selectedIndex].text,
-        searchList.options[searchList.selectedIndex].text
+        [matchList.options[matchList.selectedIndex].text, matchList.options[matchList.selectedIndex].title],
+        [searchList.options[searchList.selectedIndex].text, searchList.options[searchList.selectedIndex].title]
     ];
 
     for (var i = 0; i < options.length; i++) {
-        var optionWords = options[0].split(' ');
-        if (!((optionWords[optionWords.length - 2] == 'matches' && optionWords[optionWords.length - 1] == 'found') || options[i] == 'No match')) {
-            var optionData = options[i].split(' :: ');
-            var optionText = optionData[0];
-            var optionCode = optionData[1].split(' ')[1];
+        var optionWords = options[i][0].split(' ');
+        console.log(optionWords);
+        if (!((optionWords[optionWords.length - 2] == 'matches' && optionWords[optionWords.length - 1] == 'found') || options[i][0] == 'No match')) {
+            var optionText = options[i][0];
+            var optionCode = options[i][1].split(' ')[1];
 
             var term = 'A' + attributeId + '\tCUIPhrase' + ' T' + (entityId - 1) + ' ' + underscoreString(optionText) + '\n';
             attributeData.push(term);
@@ -1175,7 +1176,8 @@ function suggestCui(event) {
             // Add matches to dropdown
             for (var i = 0; i < matches.length; i++) {
                 option = document.createElement('option');
-                option.text = matches[i];
+                option.text = matches[i].split(' :: ')[0];
+                option.title = matches[i].split(' :: ')[1];
                 dropdown.add(option);
             }
         } else {
