@@ -18,6 +18,7 @@ $(document).ready(function () {
         setupDemoDocuments();
         setupDemoConfig();
         setupDemoOntology();
+
         location.href = '/annotate';
     });
 
@@ -71,11 +72,15 @@ function updateDisplayMode() {
 function setupDemoDocuments() {
     $.ajax({
         type: 'POST',
+        async: false,
         url: '~/setup-demo-documents',
         data: {'csrfmiddlewaretoken': getCookie('csrftoken')},
         success: function (response) {
             var data = JSON.parse(response);
             var documentCount = data.length;
+
+            console.log(data);
+            console.log(documentCount);
             
             if (documentCount > 1) {
                 localStorage.setItem('documentOpenType', 'multiple');
@@ -96,6 +101,7 @@ function setupDemoDocuments() {
 function setupDemoConfig() {
     $.ajax({
         type: 'POST',
+        async: false,
         url: '~/setup-demo-config',
         data: {'csrfmiddlewaretoken': getCookie('csrftoken')},
         success: function (response) {
@@ -108,6 +114,7 @@ function setupDemoConfig() {
 function setupDemoOntology() {
     $.ajax({
         type: 'POST',
+        async: false,
         url: '~/setup-demo-ontology',
         data: {
             'csrfmiddlewaretoken': getCookie('csrftoken')

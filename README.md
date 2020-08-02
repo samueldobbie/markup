@@ -2,7 +2,7 @@
 
 ### What is Markup?
 
-Markup is an online annotation tool that can be used to transform unstructured documents into structured formats for NLP and ML tasks, such as named-entity recognition and text classification. Markup learns as you annotate in order to predict and suggest complex annotations. Markup also provides integrated access to existing and custom ontologies, enabling Markup to predict and suggest ontology mappings based on the text you're annotating.
+Markup is an online annotation tool that can be used to transform unstructured documents into structured formats for NLP and ML tasks, such as named-entity recognition and text classification. Markup learns as you annotate in order to predict and suggest complex annotations. Markup also provides integrated access to existing and custom ontologies, enabling the prediction and suggestion of ontology mappings based on the text you're annotating.
 
 ### Usage
 
@@ -36,7 +36,7 @@ For future use, the local server can be started directly, using Python 3, by run
 ### Future Plans
 
 - Add user accounts.
-- Add ability for user accounts to join a team / group to enable easy sharing of ontologies, documents, guidelines, annotations, etc.
-- Allow users to provide their own data, or examples to produce synthetic data, for training of a custom model.
+- Add ability for users to join a team and share ontologies, documents, guidelines, annotations, etc.
+- Enable users to input data, or provide examples for synthetic data, to train custom models.
 - Accessible version for color-blind users.
 - Add ability to annotate and classify images.
