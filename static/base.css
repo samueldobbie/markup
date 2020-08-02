@@ -94,6 +94,14 @@ nav {
         padding: 12px 18px;
         font-size: 14px;
     }
+
+    .nav-logo {
+        display: none;
+    }
+
+    .nav-item {
+        font-size: 10px;
+    }
 }
 
 @media only screen and (max-width: 400px) {
@@ -101,18 +109,26 @@ nav {
         padding: 10px 16px;
         font-size: 12px;
     }
+
+    .nav-logo {
+        display: none;
+    }
+
+    .nav-item {
+        font-size: 10px;
+    }
 }
 
 @media only screen and (max-width: 350px) {
     .option-button {
         padding: 8px 14px;
     }
-}
 
-@media only screen and (max-width: 300px) {
-    .option-button {
-        padding: 8px 18px;
+    .nav-logo {
+        display: none;
+    }
+
+    .nav-item {
         font-size: 10px;
-        display: inline-block;
     }
 }

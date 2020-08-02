@@ -309,6 +309,9 @@ function updateDisplayMode() {
         'color': color,
         'background-color': targetBackgroundColor,
     });
+
+
+    $('h1').simpletooltip();
 }
 
 

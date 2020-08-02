@@ -48,3 +48,5 @@ Documentation for markup can be found <a href="http://www.getmarkup.com/docs">he
 - Add user accounts.
 - Add ability for user accounts to join a team / group to enable easy sharing of ontologies, documents, guidelines, annotations, etc.
 - Allow users to provide their own data, or examples to produce synthetic data, for training of a custom model.
+- Accessible version for color-blind users.
+- Add annotation and classification of images.
