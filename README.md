@@ -1,14 +1,8 @@
-# Markup - Online Annotation, Powered by Active Learning
+![](demo.gif)
 
 ### What is Markup?
 
 Markup is an online annotation tool that can be used to transform unstructured documents into structured formats for NLP and ML tasks, such as named-entity recognition and text classification. Markup learns as you annotate in order to predict and suggest complex annotations. Markup also provides integrated access to existing and custom ontologies, enabling Markup to predict and suggest ontology mappings based on the text you're annotating.
-
-![](demo.gif)
-
-### How does Markup compare to existing annotation tools?
-
-To-do: table of iaa score + time + similar metric comparisons
 
 ### Usage
 
@@ -27,10 +21,6 @@ The online version of markup can be found <a href="http://www.getmarkup.com">her
 3. Visit <a href="http://127.0.0.1:8000/">http://127.0.0.1:8000/</a> and start annotating!
 
 For future use, the local server can be started directly, using Python 3, by running `python manage.py runserver` or `python3 manage.py runserver` (depending on your configuration).
-
-### Documentation
-
-Documentation for markup can be found <a href="http://www.getmarkup.com/docs">here</a>.
 
 ### Features
 
