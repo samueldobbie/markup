@@ -44,37 +44,52 @@ def is_valid_umls_user(request):
     return HttpResponse(result)
 
 
-def setup_demo_documents(request):
-    documents = []
-    for f_name in os.listdir(DEMO_PATH):
-        if 'demo-document' in f_name and f_name.endswith('.txt'):
-            with open(DEMO_PATH + f_name, encoding='utf-8') as f:
-                documents.append(f.read())
-    return HttpResponse(json.dumps(documents))
-
-
-def setup_demo_config(request):
-    config = ''
-    with open(DEMO_PATH + 'demo-config.conf', encoding='utf-8') as f:
-        config = f.read()
-    return HttpResponse(config)
-
-
-def setup_demo_ontology(request):
+def setup_demo(request):
     '''
-    Setup demo ontology for
-    automated mapping suggestions
+    Setup the demo documents, configuration
+    and ontology
+    '''
+    response = {}
+    response['documents'] = get_demo_documents()
+    response['config'] = get_demo_config()
+
+    use_demo_ontology()
+
+    return HttpResponse(json.dumps(response))
+
+
+def get_demo_documents():
+    '''
+    Read and return the demo documents
+    '''
+    documents = []
+    for f_name in os.listdir('data/demo/'):
+        if 'demo-document' in f_name and f_name.endswith('.txt'):
+            with open('data/demo/' + f_name, encoding='utf-8') as f:
+                documents.append(f.read())
+    return documents
+
+
+def get_demo_config():
+    '''
+    Read and return the demo
+    configuration file
+    '''
+    config = ''
+    with open('data/demo/demo-config.conf', encoding='utf-8') as f:
+        config = f.read()
+    return config
+
+
+def use_demo_ontology():
+    '''
+    Specify the demo ontology to be used
+    for the automated mapping suggestions
     '''
     global simstring_searcher, term_to_cui
 
-    ontology_data = ''
-    with open(DEMO_PATH + 'demo-ontology.txt', encoding='utf-8') as f:
-        ontology_data = f.read().split('\n')
-
-    database, term_to_cui = construct_ontology(ontology_data)
-    simstring_searcher = Searcher(database, CosineMeasure())
-
-    return HttpResponse(None)
+    simstring_searcher = Searcher(demo_database, CosineMeasure())
+    term_to_cui = demo_mappings
 
 
 def setup_preloaded_ontology(selected_ontology):
@@ -82,10 +97,11 @@ def setup_preloaded_ontology(selected_ontology):
     Setup user-specified, pre-loaded ontology
     for automated mapping suggestions
     '''
-    global simstring_searcher
+    global simstring_searcher, term_to_cui
 
     if selected_ontology == 'umls':
         simstring_searcher = Searcher(umls_database, CosineMeasure())
+        term_to_cui = umls_mappings
 
     return HttpResponse(None)
 
@@ -95,8 +111,7 @@ def setup_custom_ontology(request):
     Setup custom ontology for
     automated mapping suggestions
     '''
-
-    global term_to_cui, simstring_searcher
+    global simstring_searcher, term_to_cui
 
     ontology_data = request.POST['ontologyData'].split('\n')
     database, term_to_cui = construct_ontology(ontology_data)
@@ -355,20 +370,26 @@ def teach_active_learner(request):
 
 
 SIMILARITY_THRESHOLD = 0.7
-DEMO_PATH = 'data/demo/'
 
 simstring_searcher = None
 term_to_cui = None
 query_sample = None
 
-learner = pickle.load(open('data/pickle/prescription_model.pickle', 'rb'))
-vectorizer = pickle.load(open('data/pickle/prescription_vectorizer.pickle', 'rb'))
+# Model for predicting annotations
+vectorizer = pickle.load(open('data/pickle/prescription-vectorizer.pickle', 'rb'))
+learner = pickle.load(open('data/pickle/prescription-model.pickle', 'rb'))
 
-umls_database = pickle.load(open('data/pickle/umls_database.pickle', 'rb'))
-term_to_cui = pickle.load(open('data/pickle/term_to_cui.pickle', 'rb'))
+# Pre-loaded demo ontology
+demo_database = pickle.load(open('data/demo/demo-database.pickle', 'rb'))
+demo_mappings = pickle.load(open('data/demo/demo-mappings.pickle', 'rb'))
 
+# Pre-loaded UMLS ontology
+umls_database = pickle.load(open('data/pickle/umls-database.pickle', 'rb'))
+umls_mappings = pickle.load(open('data/pickle/umls-mappings.pickle', 'rb'))
+
+# Authorised UMLS distributor license
 try:
-    umls_license_code = open('data/txt/umls-license.txt').read()
+    umls_license_code = open('data/txt/umls-license.txt').read().strip()
 except:
     umls_license_code = None
 

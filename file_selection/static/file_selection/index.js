@@ -15,11 +15,7 @@ $(document).ready(function () {
         /*
         Enable users to try out a demo of markup annotation
         */
-        setupDemoDocuments();
-        setupDemoConfig();
-        setupDemoOntology();
-
-        location.href = '/annotate';
+        setupDemo();
     });
 
     // Initialize display mode based on users' preference
@@ -69,19 +65,17 @@ function updateDisplayMode() {
 }
 
 
-function setupDemoDocuments() {
+function setupDemo() {
     $.ajax({
         type: 'POST',
-        async: false,
-        url: '~/setup-demo-documents',
+        url: '~/setup-demo',
         data: {'csrfmiddlewaretoken': getCookie('csrftoken')},
         success: function (response) {
             var data = JSON.parse(response);
-            var documentCount = data.length;
 
-            console.log(data);
-            console.log(documentCount);
-            
+            // Store demo documents locally
+            var documents = data['documents'];
+            var documentCount = documents.length;
             if (documentCount > 1) {
                 localStorage.setItem('documentOpenType', 'multiple');
             } else {
@@ -91,33 +85,15 @@ function setupDemoDocuments() {
 
             for (var i = 0; i < documentCount; i++) {
                 localStorage.setItem('fileName' + i, 'TestDoc' + i + '.txt');
-                localStorage.setItem('documentText' + i, data[i]);
+                localStorage.setItem('documentText' + i, documents[i]);
             }
-        }
-    });
-}
 
+            // Store demo config locally
+            var config = data['config']; 
+            localStorage.setItem('configText', config);
 
-function setupDemoConfig() {
-    $.ajax({
-        type: 'POST',
-        async: false,
-        url: '~/setup-demo-config',
-        data: {'csrfmiddlewaretoken': getCookie('csrftoken')},
-        success: function (response) {
-            localStorage.setItem('configText', response);
-        }
-    });
-}
-
-
-function setupDemoOntology() {
-    $.ajax({
-        type: 'POST',
-        async: false,
-        url: '~/setup-demo-ontology',
-        data: {
-            'csrfmiddlewaretoken': getCookie('csrftoken')
+            // Move to anontation page for demo docs
+            location.href = '/annotate';
         }
     });
 }
