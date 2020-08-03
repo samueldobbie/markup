@@ -112,10 +112,7 @@ $(document).ready(function () {
         document.getElementById('ontology-file-name').innerText = document.getElementById('ontology-file-opener').files[0].name;
 
         // Setup ontology
-        setupCustomOntology(document.getElementById('ontology-file-opener').files[0]);
-
-        // Change colour of component
-        updateComponentColour('ontology-file-opener-container');
+        setupCustomOntology(document.getElementById('ontology-file-opener').files[0], 'single');
     });
 
 
@@ -196,10 +193,7 @@ $(document).ready(function () {
         document.getElementById('ontology-folder-name').innerText = document.getElementById('ontology-folder-opener').files[0].name;
         
         // Setup ontology
-        setupCustomOntology(document.getElementById('ontology-folder-opener').files[0]);
-
-        // Change colour of component
-        updateComponentColour('ontology-folder-opener-container');
+        setupCustomOntology(document.getElementById('ontology-folder-opener').files[0], 'multiple');
     });
 
 
@@ -317,10 +311,35 @@ function updateDisplayMode() {
         'color': color,
         'background-color': targetBackgroundColor,
     });
+
+    $('.ontology-wait-message').css({
+        'color': oppositeBackgroundColor
+    });
+
+    var loaderDivs = document.getElementsByClassName('lds-ellipsis');
+    for (var i = 0; i < loaderDivs.length; i++) {
+        for (var j = 0; j < loaderDivs[i].childNodes.length; j++) {
+            loaderDivs[i].childNodes[j].style.background = oppositeBackgroundColor;
+        }
+    }
 }
 
 
-function setupCustomOntology(file) {
+function setupCustomOntology(file, type) {
+    // Display loader
+    document.getElementById(type + '-ontology-options').style.display = 'none';
+    document.getElementById(type + '-ontology-loader').style.display = '';
+
+    if (type == 'single') {
+        // Hide start annotating button + display wait message
+        document.getElementById('start-annotating-file').style.display = 'none';
+        document.getElementById('ontology-wait-message-file').style.display = '';
+    } else if (type == 'multiple') {
+        // Hide start annotating button + display wait message
+        document.getElementById('start-annotating-folder').style.display = 'none';
+        document.getElementById('ontology-wait-message-folder').style.display = '';
+    }
+
     var reader = new FileReader();
     reader.onload = function () {
         $.ajax({
@@ -329,6 +348,29 @@ function setupCustomOntology(file) {
             data: {
                 'ontologyData': reader.result,
                 'csrfmiddlewaretoken': getCookie('csrftoken')
+            },
+            success: function (result) {
+                if (type == 'single') {
+                    // Change colour of component
+                    updateComponentColour('ontology-file-opener-container');
+                } else if (type == 'multiple') {
+                    // Change colour of component
+                    updateComponentColour('ontology-folder-opener-container');
+                }
+
+                // Hide loader
+                document.getElementById(type + '-ontology-options').style.display = '';
+                document.getElementById(type + '-ontology-loader').style.display = 'none';
+
+                if (type == 'single') {
+                    // Show start annotating button + hide wait message
+                    document.getElementById('start-annotating-file').style.display = '';
+                    document.getElementById('ontology-wait-message-file').style.display = 'none';
+                } else if (type == 'multiple') {
+                    // Show start annotating button + hide wait message
+                    document.getElementById('start-annotating-folder').style.display = '';
+                    document.getElementById('ontology-wait-message-folder').style.display = 'none';
+                }
             }
         });
     };

@@ -74,19 +74,26 @@
                         </span>
                     </p>
                     <div class="option-item">
-                        <select id="ontology-file-dropdown" class="option-dropdown">
-                            <option value="default">Choose pre-loaded</option>
-                            <option value="umls">UMLS</option>
-                        </select>
-                        <span>or</span>
-                        <label for="ontology-file-opener" class="option-button option-button-small">Custom</label>
-                        <input id="ontology-file-opener" type="file" accept=".txt" style="display:none;">
-                        <span id="ontology-file-name"></span>
+                        <div id="single-ontology-loader" style="display: none;">
+                            <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+                        </div>
+
+                        <div id="single-ontology-options">
+                            <select id="ontology-file-dropdown" class="option-dropdown">
+                                <option value="default">Choose pre-loaded</option>
+                                <option value="umls">UMLS</option>
+                            </select>
+                            <span>or</span>
+                            <label for="ontology-file-opener" class="option-button option-button-small">Custom</label>
+                            <input id="ontology-file-opener" type="file" accept=".txt" style="display:none;">
+                            <span id="ontology-file-name"></span>
+                        </div>
                     </div>
                 </div>
         
                 <div class="completed-option-container">
                     <button id="start-annotating-file" class="option-button">Start annotating!</button>
+                    <span id="ontology-wait-message-file" class="ontology-wait-message" style="display: none;">Please wait - setting up large ontologies can take a few minutes.</span>
                 </div>
             </div>
 
@@ -114,19 +121,26 @@
                         </span>
                     </p>
                     <div class="option-item">
-                        <select id="ontology-folder-dropdown" class="option-dropdown">
-                            <option value="default">Choose pre-loaded</option>
-                            <option value="umls">UMLS</option>
-                        </select>
-                        <span>or</span>
-                        <label for="ontology-folder-opener" class="option-button option-button-small">Custom</label>
-                        <input id="ontology-folder-opener" type="file" accept=".txt" style="display:none;">
-                        <span id="ontology-folder-name"></span>
+                        <div id="multiple-ontology-loader" style="display: none;">
+                            <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+                        </div>
+
+                        <div id="multiple-ontology-options">
+                            <select id="ontology-folder-dropdown" class="option-dropdown">
+                                <option value="default">Choose pre-loaded</option>
+                                <option value="umls">UMLS</option>
+                            </select>
+                            <span>or</span>
+                            <label for="ontology-folder-opener" class="option-button option-button-small">Custom</label>
+                            <input id="ontology-folder-opener" type="file" accept=".txt" style="display:none;">
+                            <span id="ontology-folder-name"></span>
+                        </div>
                     </div>
                 </div>        
         
                 <div class="completed-option-container">
                     <button id="start-annotating-folder" class="option-button">Start annotating!</button>
+                    <span id="ontology-wait-message-folder" class="ontology-wait-message" style="display: none;">Please wait - setting up large ontologies can take a few minutes.</span>
                 </div>
             </div>
 
