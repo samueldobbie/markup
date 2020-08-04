@@ -15,9 +15,5 @@ urlpatterns = [
     url(r'^annotate/~/suggest-cui$',
         views.suggest_cui, name='suggest_cui'),
     url(r'^annotate/~/suggest-annotations$',
-        views.suggest_annotations, name='suggest_annotations'),
-    url(r'^annotate/~/teach-active-learner',
-        views.teach_active_learner, name='teach_active_learner'),
-    url(r'^annotate/~/query-active-learner',
-        views.query_active_learner, name='query_active_learner'),
+        views.suggest_annotations, name='suggest_annotations')
 ]

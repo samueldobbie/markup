@@ -1,5 +1,4 @@
 import os
-import re
 import requests
 import json
 import pickle
@@ -9,13 +8,14 @@ import numpy as np
 from bs4 import BeautifulSoup
 from django.http import HttpResponse
 from django.shortcuts import render
-from nltk import ngrams
 from simstring.database.dict import DictDatabase
 from simstring.measure.cosine import CosineMeasure
 from simstring.searcher import Searcher
 from simstring.feature_extractor.character_ngram import (
     CharacterNgramFeatureExtractor
 )
+from keras.models import Model, load_model
+from keras.layers import Input
 
 
 def annotate_data(request):
@@ -210,32 +210,23 @@ def get_ranked_ontology_matches(cleaned_term):
 
 def suggest_annotations(request):
     '''
-    Return annotation suggestions based on the classification
-    of sentences containing prescriptions
+    Return annotation suggestions (with
+    attributes) for the open document text
     '''
-
     document_text = request.POST['text']
     document_sentences = text_to_sentences(document_text)
     clean_document_sentences = clean_sentences(document_sentences)
 
-    existing_annotations = set(json.loads(request.POST['annotations']))
+    # existing_annotations = set(json.loads(request.POST['annotations']))
 
-    # Vectorize sentences
-    X = vectorizer.transform(clean_document_sentences)
-
-    # Predict whether each sentence contains a prescription or not
-    predictions = predict_labels(X)
-
-    # Construct valid suggestions to return
     suggestions = []
-    for i in range(len(document_sentences)):
-        if document_sentences[i] not in existing_annotations and int(predictions[i]) == 1:
-            # Parse information from prescription sentence
-            drug, dose, unit, frequency, ontology_term, ontology_cui = parse_prescription_data(document_sentences[i])
+    for sentence in clean_document_sentences:
+        prediction = annotation_predictor.predict(sentence)
+        if prediction is not None:
+            # ontology_term, ontology_cui
+            suggestions.append(prediction)
 
-            # Add as annotation suggestion if valid
-            if drug is not None:
-                suggestions.append([document_sentences[i], drug, dose, unit, frequency, ontology_term, ontology_cui])
+    print(suggestions)
 
     return HttpResponse(json.dumps(suggestions))
 
@@ -263,121 +254,169 @@ def clean_sentences(raw_sentences):
     return clean_sentences
 
 
-def predict_labels(X):
-    return learner.predict(X)
+class Seq2Seq:
+    def __init__(self):
+        # Declare model configurations (same as during training)
+        self.latent_dim = 256
+        self.num_samples = 1000000
+        self.data_path = 'data/text/synthetic-data.txt'
+        self.model_path = 'data/model/seq2seq.h5'
+
+        # Restore model ready for use
+        self.restore_model()
+
+    def restore_model(self):
+        # Read in training data
+        with open(self.data_path, 'r', encoding='utf-8') as f:
+            lines = f.read().split('\n')
+
+        # Vectorize training data
+        input_texts = []
+        target_texts = []
+        input_words = set()
+        target_words = set()
+        for line in lines[:min(self.num_samples, len(lines)-1)]:
+            line = line.lower()
+
+            # Parse input and target texts
+            input_text, target_text = line.split('\t')
+            target_text = '\t ' + target_text + ' \n'
+            input_texts.append(input_text)
+            target_texts.append(target_text)
+
+            # Define vocabulary of input words
+            for word in input_text.split(' '):
+                input_words.add(word)
+
+            # Define vocabulary of target words
+            for word in target_text.split(' '):
+                target_words.add(word)
+
+            # Add divisors to vocabularies
+            input_words.add(' ')
+            target_words.add(' ')
+
+        # Sort vocabularies
+        input_words = sorted(list(input_words))
+        target_words = sorted(list(target_words))
+
+        # Count texts, tokens and maximum sequence lengths
+        self.num_encoder_tokens = len(input_words)
+        self.num_decoder_tokens = len(target_words)
+        self.max_encoder_seq_length = max([len(input_text.split(' ')) for input_text in input_texts])
+        self.max_decoder_seq_length = max([len(target_text.split(' ')) for target_text in target_texts])
+
+        # Index each word in input vocabulary
+        self.input_token_index = dict([
+            (word, i) for i, word in enumerate(input_words)
+        ])
+
+        # Index each word in target vocabulary
+        self.target_token_index = dict([
+            (word, i) for i, word in enumerate(target_words)
+        ])
+
+        encoder_input_data = np.zeros((len(input_texts), self.max_encoder_seq_length, self.num_encoder_tokens), dtype='uint8')
+
+        for i, input_text in enumerate(input_texts):
+            for t, word in enumerate(input_text.split(' ')):
+                encoder_input_data[i, t, self.input_token_index[word]] = 1.
+            encoder_input_data[i, t + 1:, self.input_token_index[' ']] = 1.
+
+        # Restore the model
+        self.model = load_model(self.model_path)
+
+        # Construct the encoder
+        encoder_inputs = self.model.input[0]
+        encoder_outputs, state_h_enc, state_c_enc = self.model.layers[2].output
+        encoder_states = [state_h_enc, state_c_enc]
+        self.encoder_model = Model(encoder_inputs, encoder_states)
+
+        # Construct the decoder
+        decoder_inputs = self.model.input[1]
+        decoder_state_input_h = Input(shape=(self.latent_dim,), name='input_3')
+        decoder_state_input_c = Input(shape=(self.latent_dim,), name='input_4')
+        decoder_states_inputs = [decoder_state_input_h, decoder_state_input_c]
+        decoder_lstm = self.model.layers[3]
+        decoder_outputs, state_h_dec, state_c_dec = decoder_lstm(
+            decoder_inputs,
+            initial_state=decoder_states_inputs
+        )
+        decoder_states = [state_h_dec, state_c_dec]
+        decoder_dense = self.model.layers[4]
+        decoder_outputs = decoder_dense(decoder_outputs)
+        self.decoder_model = Model(
+            [decoder_inputs] + decoder_states_inputs,
+            [decoder_outputs] + decoder_states
+        )
+
+        # Reverse-lookup token index to decode sequences back to readable form
+        self.reverse_target_word_index = dict(
+            (i, word) for word, i in self.target_token_index.items()
+        )
+
+    def decode_sequence(self, input_seq):
+        # Encode the input as state vectors.
+        states_value = self.encoder_model.predict(input_seq)
+
+        # Generate empty target sequence of length 1.
+        target_seq = np.zeros((1, 1, self.num_decoder_tokens))
+
+        # Populate the first character of target sequence with the start token
+        target_seq[0, 0, self.target_token_index['\t']] = 1.
+
+        # Sampling loop for a batch of sequences
+        stop_condition = False
+        decoded_sentence = ''
+        while not stop_condition:
+            output_tokens, h, c = self.decoder_model.predict([target_seq] + states_value)
+
+            # Sample a token
+            sampled_token_index = np.argmax(output_tokens[0, -1, :])
+            sampled_word = self.reverse_target_word_index[sampled_token_index]
+
+            decoded_sentence += sampled_word + ' '
+
+            # Exit condition: either hit max length or find stop character.
+            if (sampled_word == '\n' or len(decoded_sentence.split(' ')) > self.max_decoder_seq_length):
+                stop_condition = True
+
+            # Update the target sequence (of length 1).
+            target_seq = np.zeros((1, 1, self.num_decoder_tokens))
+            target_seq[0, 0, sampled_token_index] = 1.
+
+            # Update states
+            states_value = [h, c]
+
+        return decoded_sentence
+
+    def predict(self, sentence):
+        if len(sentence.split(' ')) >= self.max_encoder_seq_length:
+            vector = np.zeros((1, len(sentence.split(' ')) + 1, self.num_encoder_tokens), dtype='uint8')
+        else:
+            vector = np.zeros((1, self.max_encoder_seq_length, self.num_encoder_tokens), dtype='uint8')
+
+        for i, word in enumerate(sentence.split(' ')):
+            if word in self.input_token_index:
+                vector[0, i, self.input_token_index[word]] = 1.
+        vector[0, i + 1, self.input_token_index[' ']] = 1
+
+        sequence = self.decode_sequence(vector).strip().split('; ')
+
+        # Only consider prediction valid if drug name and dose appears in sentence
+        if len(sequence) == 4 and sequence[0] in sentence and sequence[1] in sentence:
+            return sequence
+        else:
+            return None
 
 
-def parse_prescription_data(sentence):
-    '''
-    Extract drug name, dose, unit and frequency from a sentence
-    that has been classified as containing a prescription
-    '''
+# Define annotation prediction model
+annotation_predictor = Seq2Seq()
 
-    drug, dose, unit, frequency, ontology_term, ontology_cui = '', '', '', '', '', ''
-
-    # Parse drug name
-    drug = get_drug(sentence.lower())
-
-    # Get ontology term and cui
-    if simstring_searcher is not None:
-        ranked_matches = get_ranked_ontology_matches(clean_selected_term(drug))
-
-        if len(ranked_matches) != 0:
-            best_match = ranked_matches[0].replace('***', '').split(' :: UMLS ')
-            ontology_term = best_match[0]
-            ontology_cui = best_match[1]
-
-    # Parse frequency (if exists)
-    frequency = get_frequency(sentence.lower())
-
-    # Parse dose and unit (if exists)
-    for token in sentence.split(' '):
-        if is_dose(token) and dose == '':
-            dose = re.search(r'\d+', token)[0]
-        elif is_unit(token) and unit == '':
-            unit = re.sub(r'\d+', '', token)
-
-    # Ignore sentence if it doesn't contain a drug, dose, and unit
-    if drug == '' or dose == '' or unit == '':
-        return None, None, None, None, None, None
-
-    return drug, dose, unit, frequency, ontology_term, ontology_cui
-
-
-def get_drug(sentence):
-    '''
-    Generate ngrams for current sentence for lengths [1, 3]
-    and check if ngram is a valid drug name
-    '''
-
-    for n in range(3, 0, -1):
-        sentence_ngrams = ngrams(sentence.split(' '), n)
-        for ngram_words in sentence_ngrams:
-            ngram = ' '.join(ngram_words)
-            if ngram in drugs:
-                return ngram
-    return ''
-
-
-def get_frequency(sentence):
-    '''
-    Generate ngrams for current sentence for lengths [1, 3]
-    and check if ngram is a valid frequency
-    '''
-
-    for n in range(3, 0, -1):
-        sentence_ngrams = ngrams(sentence.split(' '), n)
-        for ngram_words in sentence_ngrams:
-            ngram = ' '.join(ngram_words)
-            if ngram in frequencies.keys():
-                return frequencies[ngram]
-    return ''
-
-
-def is_dose(token):
-    return any(char.isdigit() for char in token)
-
-
-def is_unit(token):
-    for unit in units:
-        if unit in token.lower():
-            return True
-    return False
-
-
-def query_active_learner(request):
-    '''
-    Query document sentences to enable
-    the labelling of uncertain sentences
-    '''
-
-    global query_sample
-
-    document_text = request.POST['text']
-    document_sentences = text_to_sentences(document_text)
-    clean_document_sentences = clean_sentences(document_sentences)
-
-    X = np.array(vectorizer.transform(clean_document_sentences).toarray())
-    query_idx, query_sample = learner.query(X)
-
-    return HttpResponse(document_sentences[query_idx[0]])
-
-
-def teach_active_learner(request):
-    label = request.POST.get('label')
-    learner.teach(query_sample, [label])
-    return HttpResponse(None)
-
-
+# Simstring parameters
 SIMILARITY_THRESHOLD = 0.7
-
 simstring_searcher = None
 term_to_cui = None
-query_sample = None
-
-# Model for predicting annotations
-vectorizer = pickle.load(open('data/pickle/prescription-vectorizer.pickle', 'rb'))
-learner = pickle.load(open('data/pickle/prescription-model.pickle', 'rb'))
 
 # Pre-loaded demo ontology
 demo_database = pickle.load(open('data/demo/demo-database.pickle', 'rb'))
@@ -388,37 +427,7 @@ umls_database = pickle.load(open('data/pickle/umls-database.pickle', 'rb'))
 umls_mappings = pickle.load(open('data/pickle/umls-mappings.pickle', 'rb'))
 
 # Authorised UMLS distributor license
-try:
-    umls_license_code = open('data/txt/umls-license.txt').read().strip()
-except:
-    umls_license_code = None
+umls_license_code = open('data/text/umls-license.txt').read().strip()
 
-stopwords = set(open('data/txt/stopwords.txt', encoding='utf-8').read().split('\n'))
-drugs = set(open('data/txt/drugs.txt', encoding='utf-8').read().split('\n'))
-units = open('data/txt/units.txt', encoding='utf-8').read().split('\n')
-frequencies = {
-    'od': 1,
-    'o.d': 1,
-    'q1d': 1,
-    'q.1.d': 1,
-    'qd': 1,
-    'q.d': 1,
-    'once a day': 1,
-    'once daily': 1,
-    'morning': 1,
-    'afternoon': 1,
-    'daily': 1,
-    'bd': 2,
-    'bds': 2,
-    'b.d.s': 2,
-    'bid': 2,
-    'b.i.d': 2,
-    '2 times a day': 2,
-    'twice a day': 2,
-    'twice daily': 2,
-    'tds': 3,
-    't.d.s': 3,
-    'three times a day': 3,
-    'qds': 4,
-    'q.d.s': 4,
-}
+# Stopwords for cleaning sentences
+stopwords = set(open('data/text/stopwords.txt', encoding='utf-8').read().split('\n'))
