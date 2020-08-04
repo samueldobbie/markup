@@ -296,8 +296,6 @@ function parseAttributeData(attributeSentences) {
         }
     }
 
-    console.log('attributeValues', attributeValues);
-
     return attributeValues;
     */
 }
@@ -893,7 +891,6 @@ function addAnnotation(event) {
 
     for (var i = 0; i < options.length; i++) {
         var optionWords = options[i][0].split(' ');
-        console.log(optionWords);
         if (!((optionWords[optionWords.length - 2] == 'matches' && optionWords[optionWords.length - 1] == 'found') || options[i][0] == 'No match')) {
             var optionText = options[i][0];
             var optionCode = options[i][1].split(' ')[1];
@@ -1121,15 +1118,14 @@ function adjustAnnotationUponHover(id, type) {
 
 function suggestCui(event) {
     /*
-    Find list of relevant matches based on specified text
-    within defined ontology, and populate appropiate
-    dropdown with matches
+    Populate dropdown wthin relevant matches
+    from ontology based on specified text
     */
 
     var dropdownId = event.data.type;
     var dropdown = document.getElementById(dropdownId);
 
-    // Determine mapping type (selection or direct search)
+    // Get input text from appropiate source
     var selectedTerm;
     if (dropdownId == 'match-list') {
         if (window.getSelection().anchorNode == null) {
@@ -1140,7 +1136,7 @@ function suggestCui(event) {
         selectedTerm = document.getElementById('search-dict').value;
     }
 
-    // Prevent attempted mapping of long sentences
+    // Prevent mapping of long sentences
     if (selectedTerm.split(' ').length > 8) {
         return;
     }
@@ -1151,30 +1147,33 @@ function suggestCui(event) {
         async: false,
         data: {
             selectedTerm: selectedTerm
-        }
-    }).done(function (result) {
-        // Empty dropdown list
-        dropdown.options.length = 0;
+        },
+        success: function (response) {
+            // Empty dropdown list
+            dropdown.options.length = 0;
+            
+            if (response != '') {
+                var matches = JSON.parse(response);
+                if (matches.length > 0 && matches[0] != '') {
+                    // Display number of matches in dropdown
+                    var option = document.createElement('option');
+                    option.text = matches.length + ' matches found';
+                    dropdown.add(option);
 
-        var matches = result.split('***');
-        if (matches.length > 0 && matches[0] != '') {
-            // Display number of matches within dropdown
-            var option = document.createElement('option');
-            option.text = matches.length + ' matches found';
-            dropdown.add(option);
-
-            // Add matches to dropdown
-            for (var i = 0; i < matches.length; i++) {
-                option = document.createElement('option');
-                option.text = matches[i].split(' :: ')[0];
-                option.title = matches[i].split(' :: ')[1];
+                    // Add matches to dropdown
+                    for (var i = 0; i < matches.length; i++) {
+                        option = document.createElement('option');
+                        option.text = matches[i].split(' :: ')[0];
+                        option.title = matches[i].split(' :: ')[1];
+                        dropdown.add(option);
+                    }
+                }
+            } else {
+                // Display no matches message in dropdown
+                var option = document.createElement('option');
+                option.text = 'No match';
                 dropdown.add(option);
             }
-        } else {
-            // Display 'no matches found' in dropdown
-            var option = document.createElement('option');
-            option.text = 'No match';
-            dropdown.add(option);
         }
     });
 }
@@ -1295,6 +1294,8 @@ function getAnnotationSuggestions() {
                 // Add suggestion to display
                 document.getElementById('suggestion-list').innerHTML += '<p id=' + suggestionId + ' ' + suggestionClass + ' ' + suggestionStyle + ' ' + suggestionAttributes + '>' + suggestions[i]['sentence'] + '</p>' + contentDiv;
             }
+
+            // Add events to all suggestion dropdowns
             bindCollapsibleEvents();
         }
     });

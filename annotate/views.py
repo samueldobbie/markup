@@ -155,7 +155,7 @@ def suggest_cui(request):
     selected_term = clean_selected_term(request.POST['selectedTerm'])
     ranked_matches = get_ranked_ontology_matches(selected_term)
 
-    return HttpResponse(ranked_matches)
+    return HttpResponse(json.dumps(ranked_matches))
 
 
 def clean_selected_term(selected_term):
@@ -182,15 +182,14 @@ def get_ranked_ontology_matches(cleaned_term):
         ontology_term = ontology_match[1]
         ontology_cui = term_to_cui[ontology_term]
 
-        # Construct match key with divisor
-        key = ontology_term + ' :: UMLS ' + ontology_cui + '***'
-
         # Calculate Levenshtein distance for ranking
         levenshtein_distance = stringdist.levenshtein(
             ontology_term,
             cleaned_term
         )
 
+        # Construct match key with divisor
+        key = ontology_term + ' :: UMLS ' + ontology_cui
         weighted_matches[key] = levenshtein_distance
 
     # Construct list of ranked terms based on levenshtein distasnce value
@@ -200,10 +199,6 @@ def get_ranked_ontology_matches(cleaned_term):
             key=lambda kv: kv[1]
         )
     ]
-
-    # Remove divisor from final matching term
-    if ranked_matches != []:
-        ranked_matches[-1] = ranked_matches[-1][:-3]
 
     return ranked_matches
 
@@ -215,8 +210,8 @@ def suggest_annotations(request):
     '''
     document_text = request.POST['documentText']
     document_sentences = text_to_sentences(document_text)
-    clean_document_sentences = clean_sentences(document_sentences)
 
+    # clean_document_sentences = clean_sentences(document_sentences)
     # document_annotations = set(clean_sentences(json.loads(request.POST['documentAnnotations'])))
 
     suggestions = []
@@ -393,26 +388,38 @@ class Seq2Seq:
         else:
             vector = np.zeros((1, self.max_encoder_seq_length, self.num_encoder_tokens), dtype='uint8')
 
-        a = sentence.lower()
-        for i, word in enumerate(a.split(' ')):
+        cleaned_sentence = sentence.lower()
+        for i, word in enumerate(cleaned_sentence.split(' ')):
             if word in self.input_token_index:
                 vector[0, i, self.input_token_index[word]] = 1.
-        vector[0, i + 1, self.input_token_index[' ']] = 1
+        vector[0, i + 1, self.input_token_index[' ']] = 1.
 
         sequence = self.decode_sequence(vector).strip().split('; ')
 
-        # ontology_term, ontology_cui
-
         # Only consider prediction valid if drug name and dose appears in sentence
-        if len(sequence) == 4 and sequence[0] in sentence and sequence[1] in a:
+        if len(sequence) == 4 and sequence[0] in sentence and sequence[1] in cleaned_sentence:
             prediction = {}
+
+            # Get ontology term and cui
+            ontology_term, ontology_cui = '', ''
+            if simstring_searcher is not None:
+                ranked_matches = get_ranked_ontology_matches(
+                    clean_selected_term(sequence[0])
+                )
+
+                if len(ranked_matches) != 0:
+                    best_match = ranked_matches[0].split(' :: UMLS ')
+                    ontology_term = best_match[0]
+                    ontology_cui = best_match[1]
+
             prediction['sentence'] = sentence
             prediction['DrugName'] = sequence[0]
             prediction['DrugDose'] = sequence[1]
             prediction['DoseUnit'] = sequence[2]
             prediction['Frequency'] = sequence[3]
-            prediction['CUIPhrase'] = ''
-            prediction['CUI'] = ''
+            prediction['CUIPhrase'] = ontology_term
+            prediction['CUI'] = ontology_cui
+
             return prediction
         else:
             return None
