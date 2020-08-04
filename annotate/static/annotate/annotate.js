@@ -168,16 +168,6 @@ function onPageLoad(initalLoad=true) {
                 return 'You have unsaved changes, are you sure you want to leave?';
             });
         });
-
-        $('#train-positive-response').click(function() {
-            teachModel(1);
-            queryActiveLearner();
-        });
-        
-        $('#train-negative-response').click(function() {
-            teachModel(0);
-            queryActiveLearner();
-        });
     }
 
     // Load annotations from current annotationList
@@ -598,7 +588,7 @@ function displayAnnotation(entityValue, attributeValues, annotationIdentifier) {
     var annotationId = 'id="' + annotationIdentifier + '"';
     var annotationStyle = 'style="background-color:' + highlightColor + ';'
     if (localStorage.getItem('mode') == 'dark') {
-        annotationStyle += 'color: black;"';
+        annotationStyle += 'color: #1A1E24;"';
     } else {
         annotationStyle += '"'
     }
@@ -1243,21 +1233,20 @@ function stopViewingAnnotationSuggestions() {
 function getAnnotationSuggestions() {
     // Get open document text and existing annotations
     var documentText = localStorage.getItem('documentText' + currentDocumentId);
-    var annotations = [];
+    var documentAnnotations = [];
     for (var i = 0; i < $('.displayedAnnotation').length; i++) {
-        annotations.push($('.displayedAnnotation')[i].innerText);
+        documentAnnotations.push($('.displayedAnnotation')[i].innerText);
     }
 
     $.ajax({
         type: 'POST',
-        async: false,
         url: '~/suggest-annotations',
         data: { 
-            'text': documentText,
-            'annotations': JSON.stringify(annotations)
+            'documentText': documentText,
+            'documentAnnotations': JSON.stringify(documentAnnotations)
         },
         success: function (response) {
-            // Remove loading message
+            // Remove loader
             document.getElementById('loading').style.display = 'none';
 
             // Parse suggestions
@@ -1268,9 +1257,8 @@ function getAnnotationSuggestions() {
                 document.getElementById('no-suggestions').style.display = '';
             }
 
-            var entityType = 'Prescription';
-
             // Get Prescription highlight color
+            var entityType = 'Prescription';
             for (var i = 0; i < $('label').length; i++) {
                 if ($('label')[i].innerText == entityType) {
                     var highlightColor = colors[$('label')[i].getAttribute('colorIndex')];
@@ -1280,40 +1268,32 @@ function getAnnotationSuggestions() {
 
             // Construct and display suggestions
             for (var i = 0; i < suggestions.length; i++) {
-                // Parse suggestion data
-                var annotation = suggestions[i][0];
-                var drug = suggestions[i][1];
-                var dose = suggestions[i][2];
-                var unit = suggestions[i][3];
-                var frequency = suggestions[i][4];
-                var ontologyTerm = suggestions[i][5];
-                var ontologyCui = suggestions[i][6];
-
                 // Construct suggestion container
                 var suggestionId = 'suggestion-' + i;
                 var suggestionClass = 'class="annotation displayedAnnotation collapsible"';
                 var suggestionStyle = 'style="background-color:' + highlightColor + ';'
                 if (localStorage.getItem('mode') == 'dark') {
-                    suggestionStyle += 'color: black;"';
+                    suggestionStyle += 'color: #1A1E24;"';
                 } else {
                     suggestionStyle += '"'
                 }
 
                 // Populate collapsible with suggestion attributes
+                var suggestionAttributes = '';
                 var contentDiv = '<div for="' + suggestionId + '" class="content"><p>';
-                if (drug) { contentDiv += '<p class="annotation-attribute">DrugName: ' + drug + '</p>'; }
-                if (dose) { contentDiv += '<p class="annotation-attribute">DrugDose: ' + dose + '</p>'; }
-                if (unit) { contentDiv += '<p class="annotation-attribute">DoseUnit: ' + unit + '</p>'; }
-                if (frequency) { contentDiv += '<p class="annotation-attribute">Frequency: ' + frequency + '</p>'; }
-                if (ontologyTerm) { contentDiv += '<p class="annotation-attribute">CUIPhrase: ' + ontologyTerm + '</p>'; }
-                if (ontologyCui) { contentDiv += '<p class="annotation-attribute">CUI: ' + ontologyCui + '</p>'; }
+                for (var key in suggestions[i]) {
+                    if (key != 'sentence' && suggestions[i][key]) {
+                        contentDiv += '<p class="annotation-attribute">' + key + ': ' + suggestions[i][key] + '</p>';
+                        suggestionAttributes += ' ' + key + '="' + suggestions[i][key] + '"';
+                    }
+                }
                 
                 // Add accept and reject buttons to collapsible
-                contentDiv += '<a suggestion-id=' + suggestionId + ' onClick="acceptSuggestion(this);"><button class="main-button green-button" style="margin: 2% 0.5%;">Accept</button></a>'
-                contentDiv += '<a suggestion-id=' + suggestionId + ' onClick="rejectSuggestion(this);"><button class="main-button red-button" style="margin: 2% 0.5%;">Reject</button></a></p></div>';
+                contentDiv += '<a suggestion-id=' + suggestionId + ' onClick="rejectSuggestion(this);"><button class="main-button red-button" style="font-size: 22px; width: 3vw; cursor: pointer; margin: 2% 0.5%;"><i class="fas fa-times"></i></button></a>';
+                contentDiv += '<a suggestion-id=' + suggestionId + ' onClick="acceptSuggestion(this);"><button class="main-button green-button" style="font-size: 22px; width: 3vw; cursor: pointer; margin: 2% 0.5%;"><i class="fas fa-check"></i></button></a></p></div>'
 
                 // Add suggestion to display
-                document.getElementById('suggestion-list').innerHTML += '<p id=' + suggestionId + ' ' + suggestionClass + ' ' + suggestionStyle + ' drug="' + drug + '" dose="' + dose + '" unit="' + unit + '" frequency="' + frequency + '" ontologyTerm="' + ontologyTerm + '" ontologyCui="' + ontologyCui + '">' + annotation + '</p>' + contentDiv;
+                document.getElementById('suggestion-list').innerHTML += '<p id=' + suggestionId + ' ' + suggestionClass + ' ' + suggestionStyle + ' ' + suggestionAttributes + '>' + suggestions[i]['sentence'] + '</p>' + contentDiv;
             }
             bindCollapsibleEvents();
         }
@@ -1331,7 +1311,6 @@ function acceptSuggestion(event) {
 
     // Select annotation text
     window.find(annotation.innerText);
-
     changeHighlightedTextColor();
 
     // Set Prescription entity
@@ -1341,18 +1320,18 @@ function acceptSuggestion(event) {
     var attributeDropdowns = $('input[name=values]');
     for (var i = 0; i < attributeDropdowns.length; i++) {
         if (attributeDropdowns[i].getAttribute('list') == 'DrugNamePrescription') {
-            attributeDropdowns[i].value = annotation.getAttribute('drug');
+            attributeDropdowns[i].value = annotation.getAttribute('DrugName');
         } else if (attributeDropdowns[i].getAttribute('list') == 'DrugDosePrescription') {
-            attributeDropdowns[i].value = annotation.getAttribute('dose');
+            attributeDropdowns[i].value = annotation.getAttribute('DrugDose');
         } else if (attributeDropdowns[i].getAttribute('list') == 'DoseUnitPrescription') {
-            attributeDropdowns[i].value = annotation.getAttribute('unit');
+            attributeDropdowns[i].value = annotation.getAttribute('DoseUnit');
         } else if (attributeDropdowns[i].getAttribute('list') == 'FrequencyPrescription') {
-            attributeDropdowns[i].value = annotation.getAttribute('frequency');
+            attributeDropdowns[i].value = annotation.getAttribute('Frequency');
         }
     }
 
     // Populate ontology dropdown with best matches
-    $('#search-dict').val(annotation.getAttribute('ontologyTerm')).trigger('input');
+    $('#search-dict').val(annotation.getAttribute('CUIPhrase')).trigger('input');
 
     // Select best match from ontology dropdown
     if (document.getElementById('search-list').length > 1) {
@@ -1379,62 +1358,28 @@ function rejectSuggestion(event) {
 
     // Remove rejected annotation
     annotation.parentNode.removeChild(annotation);
-
-    // Update active learner
-    //teachModel(annotationText, 0);
 }
 
 
 function startTrainingActiveLearner() {
-    document.getElementById('file-data').style.display = 'none';
-    document.getElementById('train-annotation-suggestions').style.display = 'none';
-    document.getElementById('view-suggestions').style.display = 'none';
-    document.getElementById('config-data-options').style.display = 'none';
-    document.getElementById('annotation-data').style.display = 'none';
-    document.getElementById('train-model').style.display = '';
-    document.getElementById('stop-training').style.display = '';
-
-    queryActiveLearner();
+    $('#file-data').hide();
+    $('#train-annotation-suggestions').hide();
+    $('#view-suggestions').hide();
+    $('#config-data-options').hide();
+    $('#annotation-data').hide();
+    $('#train-model').show();
+    $('#stop-training').show();
 }
 
 
 function stopTrainingActiveLearner() {
-    document.getElementById('file-data').style.display = '';
-    document.getElementById('train-annotation-suggestions').style.display = '';
-    document.getElementById('view-suggestions').style.display = '';
-    document.getElementById('config-data-options').style.display = '';
-    document.getElementById('annotation-data').style.display = '';
-    document.getElementById('train-model').style.display = 'none';
-    document.getElementById('stop-training').style.display = 'none';
-}
-
-
-function queryActiveLearner() {
-    var documentText = localStorage.getItem('documentText' + currentDocumentId);
-    
-    $.ajax({
-        type: 'POST',
-        async: false,
-        url: '~/query-active-learner',
-        data: {
-            'text': documentText,
-        },
-        success: function (response) {
-            document.getElementById('train-model-term').innerText = response;
-        }
-    });
-}
-
-
-function teachModel(label) {
-    $.ajax({
-        type: 'POST',
-        async: false,
-        url: '~/teach-active-learner',
-        data: {
-            'label': label
-        }
-    });
+    $('#file-data').show();
+    $('#train-annotation-suggestions').show();
+    $('#view-suggestions').show();
+    $('#config-data-options').show();
+    $('#annotation-data').show();
+    $('#train-model').hide();
+    $('#stop-training').hide();
 }
 
 
