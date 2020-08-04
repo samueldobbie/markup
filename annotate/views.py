@@ -150,7 +150,7 @@ def suggest_cui(request):
     '''
 
     if simstring_searcher is None:
-        return HttpResponse('')
+        return HttpResponse(json.dumps([]))
 
     selected_term = clean_selected_term(request.POST['selectedTerm'])
     ranked_matches = get_ranked_ontology_matches(selected_term)

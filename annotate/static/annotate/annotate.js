@@ -482,8 +482,20 @@ function resetDropdowns() {
     Reset all dropdown lists
     to their default values
     */
+
     for (var i = 0; i < $('select').length; i++) {
         var currentSelectId = $('select')[i].id;
+
+        if (currentSelectId == 'match-list' || currentSelectId == 'search-list') {
+            // Empty dropdown list
+            document.getElementById(currentSelectId).options.length = 0;
+
+            // Display default option
+            var defaultOption = document.createElement('option');
+            defaultOption.text = 'No match';
+            document.getElementById(currentSelectId).add(defaultOption);
+        }
+
         if (currentSelectId != 'switch-file-dropdown') {
             document.getElementById(currentSelectId).selectedIndex = 0;
         }
@@ -932,12 +944,15 @@ function addAnnotation(event) {
     // Removes selection of newly-annotated text
     window.getSelection().removeAllRanges();
 
-    // Reset all selections and displays
+    // Reset all selections
     toggleAttributeCheck(attributeCheckboxes, false);
     toggleAttributeCheck(attributeRadiobuttons, false);
     toggleAttributeDisplay(attributeCheckboxes, 'checkbox', 'none');
     toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
     resetDropdowns();
+
+    // Clear ontology search field
+    document.getElementById('search-dict').value = '';
 
     onPageLoad(false);
 }
@@ -1151,25 +1166,23 @@ function suggestCui(event) {
         success: function (response) {
             // Empty dropdown list
             dropdown.options.length = 0;
-            
-            if (response != '') {
-                var matches = JSON.parse(response);
-                if (matches.length > 0 && matches[0] != '') {
-                    // Display number of matches in dropdown
-                    var option = document.createElement('option');
-                    option.text = matches.length + ' matches found';
-                    dropdown.add(option);
 
-                    // Add matches to dropdown
-                    for (var i = 0; i < matches.length; i++) {
-                        option = document.createElement('option');
-                        option.text = matches[i].split(' :: ')[0];
-                        option.title = matches[i].split(' :: ')[1];
-                        dropdown.add(option);
-                    }
+            var matches = JSON.parse(response);
+            if (matches.length > 0 && matches[0] != '') {
+                // Display number of matches in dropdown
+                var option = document.createElement('option');
+                option.text = matches.length + ' matches found';
+                dropdown.add(option);
+
+                // Add matches to dropdown
+                for (var i = 0; i < matches.length; i++) {
+                    option = document.createElement('option');
+                    option.text = matches[i].split(' :: ')[0];
+                    option.title = matches[i].split(' :: ')[1];
+                    dropdown.add(option);
                 }
-            } else {
-                // Display no matches message in dropdown
+            }else {
+                // Display default option in dropdown
                 var option = document.createElement('option');
                 option.text = 'No match';
                 dropdown.add(option);
