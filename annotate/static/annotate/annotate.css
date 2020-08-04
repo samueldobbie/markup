@@ -193,3 +193,10 @@ input[type=radio] {
 .delete-icon {
   color: rgb(255, 117, 117);
 }
+
+.coming-soon-message {
+  text-transform: uppercase;
+  text-align: center;
+  margin-top: 15%;
+  font-weight: bold;
+}

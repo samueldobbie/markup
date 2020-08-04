@@ -208,17 +208,20 @@ def suggest_annotations(request):
     Return annotation suggestions (with
     attributes) for the open document text
     '''
+    # Get document sentences and existing annotations
     document_text = request.POST['documentText']
     document_sentences = text_to_sentences(document_text)
+    document_annotations = set(json.loads(request.POST['documentAnnotations']))
 
     # clean_document_sentences = clean_sentences(document_sentences)
-    # document_annotations = set(clean_sentences(json.loads(request.POST['documentAnnotations'])))
 
+    # Predict annotations for each sentence
     suggestions = []
     for sentence in document_sentences:
-        prediction = annotation_predictor.predict(sentence)
-        if prediction is not None:
-            suggestions.append(prediction)
+        if len(sentence.split(' ')) >= 4 and sentence not in document_annotations:
+            prediction = annotation_predictor.predict(sentence)
+            if prediction is not None:
+                suggestions.append(prediction)
 
     return HttpResponse(json.dumps(suggestions))
 
@@ -442,7 +445,9 @@ umls_database = pickle.load(open('data/pickle/umls-database.pickle', 'rb'))
 umls_mappings = pickle.load(open('data/pickle/umls-mappings.pickle', 'rb'))
 
 # Authorised UMLS distributor license
-umls_license_code = open('data/text/umls-license.txt').read().strip()
+umls_license_code = ''
+if 'umls-license.txt' in os.listdir('data/text/'):
+    umls_license_code = open('data/text/umls-license.txt').read().strip()
 
 # Stopwords for cleaning sentences
 stopwords = set(open('data/text/stopwords.txt', encoding='utf-8').read().split('\n'))

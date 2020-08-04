@@ -37,14 +37,15 @@
         </div>
 
         <div id="train-model" class="item item-2 standard-text" style="display:none; overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px;">
-            <p style="text-transform: uppercase; text-align: center; margin-top: 15%;">The ability to train the model directly will be added soon.</p>
-            <!-- <p id="train-model-term"></p>
-            <button id="train-positive-response" class="main-button green-button">Prescription</button>
-            <button id="train-negative-response" class="main-button red-button">Not Prescription</button> -->
+            <p class="coming-soon-message">The ability to train the model directly will be added soon.</p>
         </div>
 
         <div id="view-suggestions-list" class="item item-2 standard-text" style="display:none; overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px; text-align:center;">
-            <div id="suggestion-loader" class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+            <span id="suggestion-loader">
+                <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+                <br>
+                <span style="font-weight: bold;">Predicting annotations...</span>
+            </span>
             <p id="no-suggestions" class="standard-text" style="display:none;">No suggestions currently available. Try adding more manual annotations, or training the model directly.</p>
             <span id="suggestion-list"></span>
         </div>
