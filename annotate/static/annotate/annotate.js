@@ -390,15 +390,17 @@ function updateDisplayMode() {
     /*
     Updates display mode based on users' preference
     */
-    var backgroundColor, color;
+    var backgroundColor, oppositeBackgroundColor, color;
 
     if (localStorage.getItem('mode') == 'dark') {
         document.getElementById('darkMode').innerHTML = 'Light Mode';
         backgroundColor = '#1A1E24';
+        oppositeBackgroundColor = '#f1f1f1';
         color = 'white';
     } else {
         document.getElementById('darkMode').innerHTML = 'Dark Mode';
         backgroundColor = '#f1f1f1';
+        oppositeBackgroundColor = '#1A1E24';
         color = '#1A1E24';
     }
 
@@ -434,6 +436,13 @@ function updateDisplayMode() {
     $('.displayedAnnotation').each(function () {
         $(this).css('color', 'black');
     });
+
+    var loaderDivs = document.getElementsByClassName('lds-ellipsis');
+    for (var i = 0; i < loaderDivs.length; i++) {
+        for (var j = 0; j < loaderDivs[i].childNodes.length; j++) {
+            loaderDivs[i].childNodes[j].style.background = oppositeBackgroundColor;
+        }
+    }
 }
 
 
@@ -1235,7 +1244,7 @@ function stopViewingAnnotationSuggestions() {
     document.getElementById('config-data-options').style.display = '';
     document.getElementById('annotation-data').style.display = '';
     document.getElementById('suggestion-list').innerText = '';
-    document.getElementById('loading').style.display = '';
+    document.getElementById('suggestion-loader').style.display = '';
     document.getElementById('no-suggestions').style.display = 'none';
     document.getElementById('view-suggestions-list').style.display = 'none';
     document.getElementById('stop-viewing').style.display = 'none';
@@ -1258,8 +1267,8 @@ function getAnnotationSuggestions() {
             'documentAnnotations': JSON.stringify(documentAnnotations)
         },
         success: function (response) {
-            // Remove loader
-            document.getElementById('loading').style.display = 'none';
+            // Hide loader
+            document.getElementById('suggestion-loader').style.display = 'none';
 
             // Parse suggestions
             var suggestions = JSON.parse(response);
