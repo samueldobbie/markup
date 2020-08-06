@@ -171,8 +171,15 @@ function onPageLoad(initalLoad=true) {
     }
 
     // Load annotations from current annotationList
-    updateAnnotationFileURL();
     loadExistingAnnotations();
+
+    // Add blob link to export annotations
+    updateAnnotationFileURL();
+    
+    // Predict annotations for open document
+    getAnnotationSuggestions();
+    
+    // Add events to all annotation dropdowns
     bindCollapsibleEvents();
 }
 
@@ -390,17 +397,19 @@ function updateDisplayMode() {
     /*
     Updates display mode based on users' preference
     */
-    var backgroundColor, oppositeBackgroundColor, color;
+    var backgroundColor, oppositeBackgroundColor, similarBackgroundColor, color;
 
     if (localStorage.getItem('mode') == 'dark') {
         document.getElementById('darkMode').innerHTML = 'Light Mode';
         backgroundColor = '#1A1E24';
         oppositeBackgroundColor = '#f1f1f1';
+        similarBackgroundColor = '#31363d'
         color = 'white';
     } else {
         document.getElementById('darkMode').innerHTML = 'Dark Mode';
         backgroundColor = '#f1f1f1';
         oppositeBackgroundColor = '#1A1E24';
+        similarBackgroundColor = '#e7e7e7';
         color = '#1A1E24';
     }
 
@@ -425,16 +434,21 @@ function updateDisplayMode() {
         'color': '#33FFB5'
     });
 
-    $('.sectionTitle').css({
+    $('.section-title').css({
         'color': color
     });
 
-    $('.inlineAnnotation').each(function () {
+    $('.inline-annotation').each(function () {
         $(this).css('color', 'black');
     });
 
-    $('.displayedAnnotation').each(function () {
+    $('.displayed-annotation').each(function () {
         $(this).css('color', 'black');
+    });
+
+    $('#annotation-suggestion-container').css({
+        'background-color': similarBackgroundColor,
+        'color': color
     });
 
     var loaderDivs = document.getElementsByClassName('lds-ellipsis');
@@ -596,14 +610,14 @@ function displayAnnotation(entityValue, attributeValues, annotationIdentifier) {
     // Add annotation inline within the open document
     // <span class="annotation-category">' + entityValue + '</span>
     document.getElementById('file-data').contentEditable = 'true';
-    document.execCommand('insertHTML', false, '<span class="annotation inlineAnnotation" id="' + annotationIdentifier + '-aid" style="background-color:' + highlightColor + '; color:black;">' + highlighted + '</span>');
+    document.execCommand('insertHTML', false, '<span class="annotation inline-annotation" id="' + annotationIdentifier + '-aid" style="background-color:' + highlightColor + '; color:black;">' + highlighted + '</span>');
     document.getElementById('file-data').contentEditable = 'false';
 
     // Keep track of offets for each annotation
     offsetList.push([annotationIdentifier, entityValue, attributeValues, highlighted]);
 
     // Construct annotation to be added to the annotation display panel
-    var annotationClass = 'class="annotation displayedAnnotation collapsible"';
+    var annotationClass = 'class="annotation displayed-annotation collapsible"';
     var annotationId = 'id="' + annotationIdentifier + '"';
     var annotationStyle = 'style="background-color:' + highlightColor + ';'
     if (localStorage.getItem('mode') == 'dark') {
@@ -1016,14 +1030,14 @@ function parseExistingAnnotations(annotationText, documentId) {
 // Load annotations if user supplied existing annotation file
 function loadExistingAnnotations() {
     // Reset annotation display list
-    document.getElementById('annotation-data').innerText = '';
+    // document.getElementById('annotation-data').innerText = '';
 
     // Get current document ID
     document.getElementById('file-data').innerText = localStorage.getItem('documentText' + currentDocumentId);
 
     // Add section titles to annotation display
     for (var i = 0; i < entityList.length; i++) {
-        document.getElementById('annotation-data').innerHTML += "<div id='" + entityList[i] + "-section' style='display:none;'><p class='sectionTitle'>" + entityList[i] + "</p></div>";
+        document.getElementById('annotation-data').innerHTML += "<div id='" + entityList[i] + "-section' style='display:none;'><p class='section-title'>" + entityList[i] + "</p></div>";
     }
 
     // TO-DO: validate ann file annotations before trying to populate
@@ -1106,7 +1120,7 @@ function adjustAnnotationUponHover(id, type) {
     */
 
     // Reset annotations to original brightness
-    var annotations = $.merge($('.inlineAnnotation'), $('.displayedAnnotation'));
+    var annotations = $.merge($('.inline-annotation'), $('.displayed-annotation'));
     for (var i = 0; i < annotations.length; i++) {
         annotations[i].style.filter = 'brightness(100%)';
     }
@@ -1203,51 +1217,25 @@ function suggestCui(event) {
 
 function bindCollapsibleEvents() {
     /*
-    Enable a dropdown to appear upon clicking
-    an annotation, in the annotation display panel,
-    which details the annotations' attributes
+    Display collapsible upon clicking an annotation
+    in the annotation display panel, to show the
+    annotations' attributes
     */
-    var collapsibles = document.getElementsByClassName('collapsible');
-    for (var i = 0; i < collapsibles.length; i++) {
-        collapsibles[i].addEventListener('click', function() {
-            this.classList.toggle('active');
-            var content = this.nextElementSibling;
-            if (content.style.maxHeight){
-                content.style.maxHeight = null;
-            } else {
-                content.style.maxHeight = content.scrollHeight + 'px';
-            }
-        });
-    }
-}
 
+    // Prevent mutliple bindings of same event
+    $(".collapsible").unbind('click');
 
-function startViewingAnnotationSuggestions() {
-    document.getElementById('file-data').style.display = 'none';
-    document.getElementById('train-annotation-suggestions').style.display = 'none';
-    document.getElementById('view-suggestions').style.display = 'none';
-    document.getElementById('config-data-options').style.display = 'none';
-    document.getElementById('annotation-data').style.display = 'none';
-    document.getElementById('view-suggestions-list').style.display = '';
-    document.getElementById('stop-viewing').style.display = '';
-
-    sleep(500).then(() => {
-        getAnnotationSuggestions();
+    // Add event to collapsibles
+    $('.collapsible').on('click', function(e) {
+        var thisCollapsible = $(this);
+        var thisContent = thisCollapsible.next();
+        thisCollapsible.toggleClass('active');
+        if( thisCollapsible.hasClass('active') ) {
+            thisContent.slideDown(200);
+        } else {
+            thisContent.slideUp(200);
+        };
     });
-}
-
-
-function stopViewingAnnotationSuggestions() {
-    document.getElementById('file-data').style.display = '';
-    document.getElementById('train-annotation-suggestions').style.display = '';
-    document.getElementById('view-suggestions').style.display = '';
-    document.getElementById('config-data-options').style.display = '';
-    document.getElementById('annotation-data').style.display = '';
-    document.getElementById('suggestion-list').innerText = '';
-    document.getElementById('suggestion-loader').style.display = '';
-    document.getElementById('no-suggestions').style.display = 'none';
-    document.getElementById('view-suggestions-list').style.display = 'none';
-    document.getElementById('stop-viewing').style.display = 'none';
 }
 
 
@@ -1255,8 +1243,8 @@ function getAnnotationSuggestions() {
     // Get open document text and existing annotations
     var documentText = localStorage.getItem('documentText' + currentDocumentId);
     var documentAnnotations = [];
-    for (var i = 0; i < $('.displayedAnnotation').length; i++) {
-        documentAnnotations.push($('.displayedAnnotation')[i].innerText);
+    for (var i = 0; i < $('.displayed-annotation').length; i++) {
+        documentAnnotations.push($('.displayed-annotation')[i].innerText);
     }
 
     $.ajax({
@@ -1267,59 +1255,57 @@ function getAnnotationSuggestions() {
             'documentAnnotations': JSON.stringify(documentAnnotations)
         },
         success: function (response) {
-            // Hide loader
-            document.getElementById('suggestion-loader').style.display = 'none';
-
             // Parse suggestions
             var suggestions = JSON.parse(response);
 
             // Hide no suggestion message if suggestion(s) exist
-            if (suggestions.length == 0) {
-                document.getElementById('no-suggestions').style.display = '';
-            }
+            if (suggestions.length > 0) {
+                // Display number of suggestions
+                document.getElementById('annotation-suggestion-container').innerText = suggestions.length + ' annotation suggestions';
 
-            // Get Prescription highlight color
-            var entityType = 'Prescription';
-            for (var i = 0; i < $('label').length; i++) {
-                if ($('label')[i].innerText == entityType) {
-                    var highlightColor = colors[$('label')[i].getAttribute('colorIndex')];
-                    break;
-                }
-            }
-
-            // Construct and display suggestions
-            for (var i = 0; i < suggestions.length; i++) {
-                // Construct suggestion container
-                var suggestionId = 'suggestion-' + i;
-                var suggestionClass = 'class="annotation displayedAnnotation collapsible"';
-                var suggestionStyle = 'style="background-color:' + highlightColor + ';'
-                if (localStorage.getItem('mode') == 'dark') {
-                    suggestionStyle += 'color: #1A1E24;"';
-                } else {
-                    suggestionStyle += '"'
-                }
-
-                // Populate collapsible with suggestion attributes
-                var suggestionAttributes = '';
-                var contentDiv = '<div for="' + suggestionId + '" class="content"><p>';
-                for (var key in suggestions[i]) {
-                    if (key != 'sentence' && suggestions[i][key]) {
-                        contentDiv += '<p class="annotation-attribute">' + key + ': ' + suggestions[i][key] + '</p>';
-                        suggestionAttributes += ' ' + key + '="' + suggestions[i][key] + '"';
+                // Get Prescription highlight color
+                var entityType = 'Prescription';
+                for (var i = 0; i < $('label').length; i++) {
+                    if ($('label')[i].innerText == entityType) {
+                        var highlightColor = colors[$('label')[i].getAttribute('colorIndex')];
+                        break;
                     }
                 }
-                
-                // Add accept and reject buttons to collapsible
-                contentDiv += '<a suggestion-id=' + suggestionId + ' onClick="rejectSuggestion(this);"><button class="main-button red-button" style="font-size: 22px; width: 3vw; cursor: pointer; margin: 2% 0.5%;"><i class="fas fa-times"></i></button></a>';
-                contentDiv += '<a suggestion-id=' + suggestionId + ' onClick="acceptSuggestion(this);"><button class="main-button green-button" style="font-size: 22px; width: 3vw; cursor: pointer; margin: 2% 0.5%;"><i class="fas fa-check"></i></button></a></p></div>'
 
-                // Add suggestion to display
-                document.getElementById('suggestion-list').innerHTML += '<p id=' + suggestionId + ' ' + suggestionClass + ' ' + suggestionStyle + ' ' + suggestionAttributes + '>' + suggestions[i]['sentence'] + '</p>' + contentDiv;
+                // Construct and display suggestions
+                for (var i = 0; i < suggestions.length; i++) {
+                    // Construct suggestion container
+                    var suggestionId = 'suggestion-' + i;
+                    var suggestionClass = 'class="annotation displayed-annotation collapsible"';
+                    var suggestionStyle = 'style="background-color:' + highlightColor + ';'
+                    if (localStorage.getItem('mode') == 'dark') {
+                        suggestionStyle += 'color: #1A1E24;"';
+                    } else {
+                        suggestionStyle += '"'
+                    }
+
+                    // Populate collapsible with suggestion attributes
+                    var suggestionAttributes = '';
+                    var contentDiv = '<div for="' + suggestionId + '" class="content"><p>';
+                    for (var key in suggestions[i]) {
+                        if (key != 'sentence' && suggestions[i][key]) {
+                            contentDiv += '<p class="annotation-attribute">' + key + ': ' + suggestions[i][key] + '</p>';
+                            suggestionAttributes += ' ' + key + '="' + suggestions[i][key] + '"';
+                        }
+                    }
+                    
+                    // Add accept and reject buttons to collapsible
+                    contentDiv += '<a suggestion-id=' + suggestionId + ' onClick="rejectSuggestion(this);"><button class="main-button red-button" style="font-size: 15px; width: 2.5vw; cursor: pointer; margin: 2% 0.5%;"><i class="fas fa-times"></i></button></a>';
+                    contentDiv += '<a suggestion-id=' + suggestionId + ' onClick="acceptSuggestion(this);"><button class="main-button green-button" style="font-size: 15px; width: 2.5vw; cursor: pointer; margin: 2% 0.5%;"><i class="fas fa-check"></i></button></a></p></div>'
+
+                    // Add suggestion to display
+                    document.getElementById('annotation-suggestion-list').innerHTML += '<p id=' + suggestionId + ' ' + suggestionClass + ' ' + suggestionStyle + ' ' + suggestionAttributes + '>' + suggestions[i]['sentence'] + '</p>' + contentDiv;
+                }
             }
-
-            // Add events to all suggestion dropdowns
-            bindCollapsibleEvents();
         }
+    }).done(function () {
+        // Add events to all annotation dropdowns
+        bindCollapsibleEvents();
     });
 }
 
@@ -1381,28 +1367,6 @@ function rejectSuggestion(event) {
 
     // Remove rejected annotation
     annotation.parentNode.removeChild(annotation);
-}
-
-
-function startTrainingActiveLearner() {
-    $('#file-data').hide();
-    $('#train-annotation-suggestions').hide();
-    $('#view-suggestions').hide();
-    $('#config-data-options').hide();
-    $('#annotation-data').hide();
-    $('#train-model').show();
-    $('#stop-training').show();
-}
-
-
-function stopTrainingActiveLearner() {
-    $('#file-data').show();
-    $('#train-annotation-suggestions').show();
-    $('#view-suggestions').show();
-    $('#config-data-options').show();
-    $('#annotation-data').show();
-    $('#train-model').hide();
-    $('#stop-training').hide();
 }
 
 

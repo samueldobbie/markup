@@ -45,13 +45,16 @@
 }
 
 .item {
-  margin-top: 1%;
-  padding: 2%;
+  margin-top: 2.5%;
+  padding: 0 2%;
+  overflow-y: scroll;
+  max-height: 80vh;
+  margin-right: 7.5px;
+  padding-right: 7.5px;
 }
 
 .item-1 {
   flex-grow: 1;
-  max-width: 20%;
 }
 
 .item-2 {
@@ -60,13 +63,17 @@
 }
 
 #config-data {
-  overflow-y: scroll;
-  max-height: 80vh;
+  min-width: 15%;
 }
 
 #file-data {
   line-height: 1.5em;
   white-space: pre-wrap;
+}
+
+#annotation-data {
+  min-width: 20%;
+  margin-right: 2%;
 }
 
 .annotation {
@@ -83,26 +90,29 @@
 }
 */
 
-.displayedAnnotation {
-  margin: 4% 1%;
-  cursor: pointer;
-}
-
 .collapsible {
-  margin-bottom: 0px;
+  margin: 4% 1% 0 1%;
+  cursor: pointer;
 }
 
 .content {
   padding: 0 12px;
   font-size: 16px;
   margin: 0 1% 4% 1%;
-  max-height: 0;
+  display: none;
   overflow: hidden;
-  transition: max-height 0.2s ease-out;
+  color: #1A1E24;
   background-color: #E7E5E5;
-  color: black;
   border-bottom-left-radius: 2px;
   border-bottom-right-radius: 2px;
+}
+
+#annotation-suggestion-list {
+  padding-bottom: 15px;
+}
+
+.section-title {
+  margin-top: 4%;
 }
 
 .annotation-attribute {
@@ -196,7 +206,15 @@ input[type=radio] {
 
 .coming-soon-message {
   text-transform: uppercase;
-  text-align: center;
   margin-top: 15%;
+  font-weight: bold;
+}
+
+#annotation-suggestion-container {
+  background-color: #e7e7e7;
+  color: #1A1E24;
+  padding-top: 5%;
+  padding-bottom: 5%;
+  text-align: center;
   font-weight: bold;
 }

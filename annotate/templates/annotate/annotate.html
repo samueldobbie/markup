@@ -2,13 +2,13 @@
 
 {% block content %}
     <div class="container">
-        <div id="config-data" class="item item-1 standard-text unselectable" style="padding-bottom: 15px;">
-            <div id="annotation-suggestions">
+        <div id="config-data" class="item item-1 standard-text unselectable">
+            <!-- <div id="annotation-suggestions">
                 <button id="view-suggestions" class="main-button green-button">View Suggestions</button>
                 <button id="train-annotation-suggestions" class="main-button gray-button">Train</button>
                 <button id="stop-training" class="main-button gray-button" style="display:none;">Back to document(s)</button>
                 <button id="stop-viewing" class="main-button gray-button" style="display:none;">Back to document(s)</button>
-            </div>
+            </div> -->
 
             <div id="config-data-options">
                 <div id="entities"></div>
@@ -36,22 +36,25 @@
             </div>
         </div>
 
-        <div id="train-model" class="item item-2 standard-text" style="display:none; overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px;">
+        <div id="train-model" class="item item-2 standard-text" style="display: none; text-align: center;">
             <p class="coming-soon-message">The ability to train the model directly will be added soon.</p>
         </div>
 
-        <div id="view-suggestions-list" class="item item-2 standard-text" style="display:none; overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px; text-align:center;">
+        <div id="view-suggestions-list" class="item item-2 standard-text" style="display: none; text-align: center;">
             <span id="suggestion-loader">
                 <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
                 <br>
                 <span style="font-weight: bold;">Predicting annotations...</span>
             </span>
-            <p id="no-suggestions" class="standard-text" style="display:none;">No suggestions currently available. Try adding more manual annotations, or training the model directly.</p>
+            <p id="no-suggestions" class="standard-text" style="display: none;">No suggestions currently available. Try adding more manual annotations, or training the model directly.</p>
             <span id="suggestion-list"></span>
         </div>
 
-        <div id="file-data" style="overflow-y: scroll; max-height:80vh; margin-right:7.5px; padding-right:7.5px;" class="item item-2 standard-text"></div>
+        <div id="file-data" class="item item-2 standard-text"></div>
 
-        <div id="annotation-data" style="overflow-y: scroll; max-height:80vh; padding-right:7.5px;" class="item item-1 standard-text unselectable"></div>
+        <div id="annotation-data" class="item item-1 standard-text unselectable">
+            <p id="annotation-suggestion-container" class="annotation displayed-annotation collapsible">No annotation suggestions</p>
+            <div id="annotation-suggestion-list" class="content"></div>
+        </div>
     </div>
 {% endblock %}
