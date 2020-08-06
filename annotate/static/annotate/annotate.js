@@ -106,7 +106,7 @@ function onPageLoad(initalLoad=true) {
         $('#switch-file-dropdown').change(function () {
             currentDocumentId = $('option:selected', this).attr('documentId');
             onPageLoad(false);
-            suggestAnnotationAjaxRequest.abort();
+            switchSuggestionPanel();
             getAnnotationSuggestions();
         });
         
@@ -116,7 +116,7 @@ function onPageLoad(initalLoad=true) {
                 currentDocumentId++;
                 document.getElementById('switch-file-dropdown').selectedIndex = currentDocumentId;
                 onPageLoad(false);
-                suggestAnnotationAjaxRequest.abort();
+                switchSuggestionPanel();
                 getAnnotationSuggestions();
             }
         });
@@ -127,7 +127,7 @@ function onPageLoad(initalLoad=true) {
                 currentDocumentId--;
                 document.getElementById('switch-file-dropdown').selectedIndex = currentDocumentId;
                 onPageLoad(false);
-                suggestAnnotationAjaxRequest.abort();
+                switchSuggestionPanel();
                 getAnnotationSuggestions();
             }
         });
@@ -1408,30 +1408,44 @@ function updateAnnotationSuggestions() {
         document.getElementById('annotation-suggestion-quantity-value').innerText = quantity - 1 + ' annotation suggestions';
     } else {
         document.getElementById('annotation-suggestion-quantity-value').innerText = 'No annotation suggestions';
-        var collapsible = $('#annotation-suggestion-quantity');
-        var content = collapsible.next();
-        collapsible.toggleClass('active');
-        content.slideUp(200);
+        resetSuggestionCollapsible();
     }
 }
 
 
-function sleep(time) {
-    return new Promise((resolve) => setTimeout(resolve, time));
+function switchSuggestionPanel() {
+    // Remove suggestions from list
+    document.getElementById('annotation-suggestion-list').innerText = '';
+
+    // Close suggestion collapsible
+    resetSuggestionCollapsible();
+
+    // Abort any ongoing annotation predictions
+    suggestAnnotationAjaxRequest.abort();
 }
 
 
+function resetSuggestionCollapsible() {
+    /*
+    Close suggestion collapsible if open
+    */
+    var collapsible = $('#annotation-suggestion-quantity');
+    var content = collapsible.next();
+    collapsible.toggleClass('active');
+    content.slideUp(200);
+}
+
+
+// Define global variables here just to make it clear they're in global scope
+var suggestAnnotationAjaxRequest;
+var annotationList, entityList;
+var offsetList = [];
+var currentDocumentId = 0;
+var entityId = 1;
+var attributeId = 1;
+var highlightText, highlightTextLength, preCaretStringLength;
 var colors = [
     '#7B68EE', '#FFD700', '#FFA500', '#DC143C', '#FFC0CB', '#00BFFF', '#FFA07A',
     '#C71585', '#32CD32', '#48D1CC', '#FF6347', '#8FE3B4', '#FF69B4', '#008B8B',
     '#FFF0F5', '#FFFACD', '#E6E6FA', '#B22222', '#4169E1', '#C0C0C0'
 ];
-
-var annotationList, entityList;
-var offsetList = [];
-
-var currentDocumentId = 0;
-var entityId = 1;
-var attributeId = 1;
-
-var highlightText, highlightTextLength, preCaretStringLength;

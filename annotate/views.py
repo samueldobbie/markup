@@ -213,12 +213,16 @@ def suggest_annotations(request):
     document_sentences = text_to_sentences(document_text)
     document_annotations = set(json.loads(request.POST['documentAnnotations']))
 
-    # clean_document_sentences = clean_sentences(document_sentences)
+    print('annotations:\n\n')
+    for ann in document_annotations:
+        print(ann)
 
+    print('\n\npredict:\n\n')
     # Predict annotations for each sentence
     suggestions = []
     for sentence in document_sentences:
         if len(sentence.split(' ')) >= 4 and sentence not in document_annotations:
+            print(sentence)
             prediction = annotation_predictor.predict(sentence)
             if prediction is not None:
                 suggestions.append(prediction)
@@ -400,9 +404,7 @@ class Seq2Seq:
         sequence = self.decode_sequence(vector).strip().split('; ')
 
         # Only consider prediction valid if drug name and dose appears in sentence
-        if len(sequence) == 4 and sequence[0] in sentence and sequence[1] in cleaned_sentence:
-            prediction = {}
-
+        if len(sequence) == 4 and sequence[0] in cleaned_sentence and sequence[1] in cleaned_sentence:
             # Get ontology term and cui
             ontology_term, ontology_cui = '', ''
             if simstring_searcher is not None:
@@ -415,6 +417,7 @@ class Seq2Seq:
                     ontology_term = best_match[0]
                     ontology_cui = best_match[1]
 
+            prediction = {}
             prediction['sentence'] = sentence
             prediction['DrugName'] = sequence[0]
             prediction['DrugDose'] = sequence[1]
