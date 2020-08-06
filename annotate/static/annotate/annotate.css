@@ -111,6 +111,11 @@
   padding-bottom: 15px;
 }
 
+.suggestion-option-container {
+  text-align: center;
+  padding-bottom: 2%;
+}
+
 .section-title {
   margin-top: 4%;
 }
