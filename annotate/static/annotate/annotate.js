@@ -446,7 +446,7 @@ function updateDisplayMode() {
         $(this).css('color', 'black');
     });
 
-    $('#annotation-suggestion-container').css({
+    $('#annotation-suggestion-quantity').css({
         'background-color': similarBackgroundColor,
         'color': color
     });
@@ -1030,7 +1030,14 @@ function parseExistingAnnotations(annotationText, documentId) {
 // Load annotations if user supplied existing annotation file
 function loadExistingAnnotations() {
     // Reset annotation display list
-    // document.getElementById('annotation-data').innerText = '';
+    var save = $('#annotation-suggestion-container').detach();
+    $('#annotation-data').empty().append(save);
+
+    /*
+    while (document.getElementById('annotation-data').childNodes.length > 1) {
+        document.getElementById('annotation-data').removeChild(document.getElementById('annotation-data').lastChild);
+    }
+    */
 
     // Get current document ID
     document.getElementById('file-data').innerText = localStorage.getItem('documentText' + currentDocumentId);
@@ -1255,13 +1262,17 @@ function getAnnotationSuggestions() {
             'documentAnnotations': JSON.stringify(documentAnnotations)
         },
         success: function (response) {
+            // Reset suggestions
+            document.getElementById('annotation-suggestion-quantity').innerText = 'No annotation suggestions';
+            document.getElementById('annotation-suggestion-list').innerHTML = '';
+
             // Parse suggestions
             var suggestions = JSON.parse(response);
 
             // Hide no suggestion message if suggestion(s) exist
             if (suggestions.length > 0) {
                 // Display number of suggestions
-                document.getElementById('annotation-suggestion-container').innerText = suggestions.length + ' annotation suggestions';
+                document.getElementById('annotation-suggestion-quantity').innerText = suggestions.length + ' annotation suggestions';
 
                 // Get Prescription highlight color
                 var entityType = 'Prescription';
