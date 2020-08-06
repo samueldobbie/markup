@@ -213,16 +213,10 @@ def suggest_annotations(request):
     document_sentences = text_to_sentences(document_text)
     document_annotations = set(json.loads(request.POST['documentAnnotations']))
 
-    print('annotations:\n\n')
-    for ann in document_annotations:
-        print(ann)
-
-    print('\n\npredict:\n\n')
     # Predict annotations for each sentence
     suggestions = []
     for sentence in document_sentences:
         if len(sentence.split(' ')) >= 4 and sentence not in document_annotations:
-            print(sentence)
             prediction = annotation_predictor.predict(sentence)
             if prediction is not None:
                 suggestions.append(prediction)

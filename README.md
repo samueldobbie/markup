@@ -2,7 +2,7 @@
 
 ### What is Markup?
 
-Markup is an online annotation tool that can be used to transform unstructured documents into structured formats for NLP and ML tasks, such as named-entity recognition and text classification. Markup learns as you annotate in order to predict and suggest complex annotations. Markup also provides integrated access to existing and custom ontologies, enabling the prediction and suggestion of ontology mappings based on the text you're annotating.
+Markup is an online annotation tool that can be used to transform unstructured documents into structured formats for NLP and ML tasks, such as named-entity recognition. Markup learns as you annotate in order to predict and suggest complex annotations. Markup also provides integrated access to existing and custom ontologies, enabling the prediction and suggestion of ontology mappings based on the text you're annotating.
 
 ### Usage
 
@@ -10,7 +10,7 @@ A full-feature version of Markup is available both via website and local install
 
 #### Online
 
-The online version of markup can be found <a href="http://www.getmarkup.com">here</a>.
+The online version of markup can be found <a href="https://www.getmarkup.com/">here</a>.
 
 #### Local Server
 
@@ -25,9 +25,9 @@ For future use, the local server can be started directly, using Python 3, by run
 ### Features
 
 - Ability to switch between and annotate multiple documents in a single session.
-- Integrated access to pre-loaded and user-defined ontologies, enabling automated mappings and direct querying.
+- Integrated access to pre-loaded and user-defined ontologies, enabling predictive mappings and direct querying.
 - Built-in configuration file creator.
-- Predictive prescription suggestions (including drug name, dosage, unit and frequency attributes).
+- Predictive annotation suggestions (incl. attributes) using an underlying sequence-to-sequence model.
 - Dynamic attribute display.
 - Any number of overlaying annotations, enabling the capture of complex data.
 - Full-feature tool available via local installation and website.
@@ -39,4 +39,5 @@ For future use, the local server can be started directly, using Python 3, by run
 - Add ability for users to join a team and share ontologies, documents, guidelines, annotations, etc.
 - Enable users to input data, or provide examples for synthetic data, to train custom models.
 - Accessible version for color-blind users.
-- Add ability to annotate and classify images.
+- Add ability to perform text + image classification.
+- Add ability to annotate images.

@@ -1405,7 +1405,11 @@ function updateAnnotationSuggestions() {
 
     var quantity = document.getElementById('annotation-suggestion-quantity-value').innerText.split(' ')[0];
     if (quantity - 1 > 0) {
-        document.getElementById('annotation-suggestion-quantity-value').innerText = quantity - 1 + ' annotation suggestions';
+        if (quantity - 1 == 1) {
+            document.getElementById('annotation-suggestion-quantity-value').innerText = '1 annotation suggestion';
+        } else {
+            document.getElementById('annotation-suggestion-quantity-value').innerText = quantity - 1 + ' annotation suggestions';
+        }
     } else {
         document.getElementById('annotation-suggestion-quantity-value').innerText = 'No annotation suggestions';
         resetSuggestionCollapsible();
