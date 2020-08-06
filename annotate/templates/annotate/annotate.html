@@ -41,11 +41,6 @@
         </div>
 
         <div id="view-suggestions-list" class="item item-2 standard-text" style="display: none; text-align: center;">
-            <span id="suggestion-loader">
-                <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
-                <br>
-                <span style="font-weight: bold;">Predicting annotations...</span>
-            </span>
             <p id="no-suggestions" class="standard-text" style="display: none;">No suggestions currently available. Try adding more manual annotations, or training the model directly.</p>
             <span id="suggestion-list"></span>
         </div>
@@ -54,7 +49,13 @@
 
         <div id="annotation-data" class="item item-1 standard-text unselectable">
             <div id="annotation-suggestion-container">
-                <p id="annotation-suggestion-quantity" class="annotation displayed-annotation collapsible">No annotation suggestions</p>
+                <div id="annotation-suggestion-quantity" class="annotation displayed-annotation collapsible">
+                    <span id="suggestion-loader">
+                        <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+                        <br>
+                        <span style="font-weight: bold;">Predicting annotations...</span>
+                    </span>
+                </div>
                 <div id="annotation-suggestion-list" class="content"></div>
             </div>
         </div>

@@ -106,6 +106,7 @@ function onPageLoad(initalLoad=true) {
         $('#switch-file-dropdown').change(function () {
             currentDocumentId = $('option:selected', this).attr('documentId');
             onPageLoad(false);
+            getAnnotationSuggestions();
         });
         
         // Move to next when multiple documents opened
@@ -114,6 +115,7 @@ function onPageLoad(initalLoad=true) {
                 currentDocumentId++;
                 document.getElementById('switch-file-dropdown').selectedIndex = currentDocumentId;
                 onPageLoad(false);
+                getAnnotationSuggestions();
             }
         });
 
@@ -123,6 +125,7 @@ function onPageLoad(initalLoad=true) {
                 currentDocumentId--;
                 document.getElementById('switch-file-dropdown').selectedIndex = currentDocumentId;
                 onPageLoad(false);
+                getAnnotationSuggestions();
             }
         });
 
@@ -139,23 +142,6 @@ function onPageLoad(initalLoad=true) {
             'attributeRadiobuttons': attributeRadiobuttons
         }, addAnnotation);
 
-        // Allow users to see suggested annotations
-        $('#view-suggestions').click(function () {
-            startViewingAnnotationSuggestions();
-        });
-
-        $('#train-annotation-suggestions').click(function () {
-            startTrainingActiveLearner();
-        });
-
-        $('#stop-training').click(function () {
-            stopTrainingActiveLearner();
-        });
-
-        $('#stop-viewing').click(function () {
-            stopViewingAnnotationSuggestions();
-        });
-
         // Suggest most relevant UMLS matches based on highlighted term 
         $('#file-data').mouseup({'type': 'match-list'}, suggestCui);
 
@@ -168,6 +154,9 @@ function onPageLoad(initalLoad=true) {
                 return 'You have unsaved changes, are you sure you want to leave?';
             });
         });
+
+        // Predict annotations for open document
+        getAnnotationSuggestions();
     }
 
     // Load annotations from current annotationList
@@ -175,9 +164,6 @@ function onPageLoad(initalLoad=true) {
 
     // Add blob link to export annotations
     updateAnnotationFileURL();
-    
-    // Predict annotations for open document
-    getAnnotationSuggestions();
     
     // Add events to all annotation dropdowns
     bindCollapsibleEvents();
@@ -449,6 +435,10 @@ function updateDisplayMode() {
     $('#annotation-suggestion-quantity').css({
         'background-color': similarBackgroundColor,
         'color': color
+    });
+
+    $('#annotation-suggestion-list').css({
+        'backgroundColor': similarBackgroundColor
     });
 
     var loaderDivs = document.getElementsByClassName('lds-ellipsis');
@@ -1247,6 +1237,9 @@ function bindCollapsibleEvents() {
 
 
 function getAnnotationSuggestions() {
+    // Display loader
+    document.getElementById('suggestion-loader').style.display = '';
+
     // Get open document text and existing annotations
     var documentText = localStorage.getItem('documentText' + currentDocumentId);
     var documentAnnotations = [];
@@ -1262,9 +1255,8 @@ function getAnnotationSuggestions() {
             'documentAnnotations': JSON.stringify(documentAnnotations)
         },
         success: function (response) {
-            // Reset suggestions
-            document.getElementById('annotation-suggestion-quantity').innerText = 'No annotation suggestions';
-            document.getElementById('annotation-suggestion-list').innerHTML = '';
+            // Hide loader
+            document.getElementById('suggestion-loader').style.display = 'none';
 
             // Parse suggestions
             var suggestions = JSON.parse(response);
@@ -1272,7 +1264,7 @@ function getAnnotationSuggestions() {
             // Hide no suggestion message if suggestion(s) exist
             if (suggestions.length > 0) {
                 // Display number of suggestions
-                document.getElementById('annotation-suggestion-quantity').innerText = suggestions.length + ' annotation suggestions';
+                document.getElementById('annotation-suggestion-quantity').innerHTML += '<span>' + suggestions.length + ' annotation suggestions</span>';
 
                 // Get Prescription highlight color
                 var entityType = 'Prescription';
@@ -1312,6 +1304,10 @@ function getAnnotationSuggestions() {
                     // Add suggestion to display
                     document.getElementById('annotation-suggestion-list').innerHTML += '<p id=' + suggestionId + ' ' + suggestionClass + ' ' + suggestionStyle + ' ' + suggestionAttributes + '>' + suggestions[i]['sentence'] + '</p>' + contentDiv;
                 }
+            } else {
+                // Reset suggestions
+                document.getElementById('annotation-suggestion-quantity').innerText = 'No annotation suggestions';
+                document.getElementById('annotation-suggestion-list').innerText = '';
             }
         }
     }).done(function () {
@@ -1323,13 +1319,21 @@ function getAnnotationSuggestions() {
 
 // Add annotation to annotation list upon acceptance of suggestion
 function acceptSuggestion(event) {
+    var suggestionId = event.getAttribute('suggestion-id');
+
     // Get accepted annotation
-    var annotation = document.getElementById(event.getAttribute('suggestion-id'));
+    var annotation = document.getElementById(suggestionId);
 
-    // Return to main document panel
-    stopViewingAnnotationSuggestions();
+    // Remove collapsible assocaited with accepted annotation
+    for (var i = 0; i < annotation.parentNode.childNodes.length; i++) {
+        if (annotation.parentNode.childNodes[i].getAttribute('for') == suggestionId) {
+            annotation.parentNode.removeChild(annotation.parentNode.childNodes[i]);
+        }
+    }
+    // Remove from suggestion list
+    annotation.parentNode.removeChild(annotation);
 
-    // Select annotation text
+    // Select text to annotate
     window.find(annotation.innerText);
     changeHighlightedTextColor();
 
@@ -1360,6 +1364,8 @@ function acceptSuggestion(event) {
 
     // Add annotation
     document.getElementById('add-annotation').click();
+
+    updateAnnotationSuggestions();
 }
 
 
@@ -1378,6 +1384,22 @@ function rejectSuggestion(event) {
 
     // Remove rejected annotation
     annotation.parentNode.removeChild(annotation);
+
+    updateAnnotationSuggestions();
+}
+
+
+function updateAnnotationSuggestions() {
+    var quantity = document.getElementById('annotation-suggestion-quantity').innerText.split(' ')[0];
+    if (quantity - 1 > 0) {
+        document.getElementById('annotation-suggestion-quantity').innerText = quantity - 1 + ' annotation suggestions';
+    } else {
+        document.getElementById('annotation-suggestion-quantity').innerText = 'No annotation suggestions';
+        var thisCollapsible = $('#annotation-suggestion-quantity');
+        var thisContent = thisCollapsible.next();
+        thisCollapsible.toggleClass('active');
+        thisContent.slideUp(200);
+    }
 }
 
 
