@@ -1,4 +1,5 @@
 import os
+import re
 import requests
 import json
 import pickle
@@ -383,14 +384,22 @@ class Seq2Seq:
 
         return decoded_sentence
 
-    def predict(self, sentence):
-        if len(sentence.split(' ')) >= self.max_encoder_seq_length:
-            vector = np.zeros((1, len(sentence.split(' ')) + 1, self.num_encoder_tokens), dtype='uint8')
+    def clean_raw_sentence(self, sentence):
+        # Seperate dosage and units (e.g. 350mgs -> 350 mgs)
+        updated_sentence = ''
+        for component in re.split('(\d+)', sentence):
+            updated_sentence += component.strip() + ' '
+        return ' '.join(updated_sentence.split(' ')).lower()
+
+    def predict(self, raw_sentence):
+        clean_sentence = self.clean_raw_sentence(raw_sentence)
+
+        if len(clean_sentence.split(' ')) >= self.max_encoder_seq_length:
+            vector = np.zeros((1, len(clean_sentence.split(' ')) + 1, self.num_encoder_tokens), dtype='uint8')
         else:
             vector = np.zeros((1, self.max_encoder_seq_length, self.num_encoder_tokens), dtype='uint8')
 
-        cleaned_sentence = sentence.lower()
-        for i, word in enumerate(cleaned_sentence.split(' ')):
+        for i, word in enumerate(clean_sentence.split(' ')):
             if word in self.input_token_index:
                 vector[0, i, self.input_token_index[word]] = 1.
         vector[0, i + 1, self.input_token_index[' ']] = 1.
@@ -398,7 +407,7 @@ class Seq2Seq:
         sequence = self.decode_sequence(vector).strip().split('; ')
 
         # Only consider prediction valid if drug name and dose appears in sentence
-        if len(sequence) == 4 and sequence[0] in cleaned_sentence and sequence[1] in cleaned_sentence:
+        if len(sequence) == 4 and sequence[0] in clean_sentence and sequence[1] in clean_sentence:
             # Get ontology term and cui
             ontology_term, ontology_cui = '', ''
             if simstring_searcher is not None:
@@ -412,7 +421,7 @@ class Seq2Seq:
                     ontology_cui = best_match[1]
 
             prediction = {}
-            prediction['sentence'] = sentence
+            prediction['sentence'] = raw_sentence
             prediction['DrugName'] = sequence[0]
             prediction['DrugDose'] = sequence[1]
             prediction['DoseUnit'] = sequence[2]
