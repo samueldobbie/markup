@@ -3,7 +3,7 @@ import os
 
 def setup():
     if os.system('pip3 install -r requirements.txt') != 0:
-        print('pip3 has not been installed.')
+        print('pip3 has not been installed or you are using 32-bit Python instead of 64-bit.')
         return
 
     if os.system('python3 manage.py runserver') == 0:
@@ -11,7 +11,7 @@ def setup():
     elif os.system('python manage.py runserver') == 0:
         os.system('python manage.py migrate')
     else:
-        print('Error: Python 3 has not been installed.')
+        print('Error: Python3 has not been installed.')
 
 
 setup()
