@@ -540,10 +540,6 @@ function setSelectionRange(element, startIndex, endIndex) {
         range.selectNodeContents(element);
 
         var textNodes = getTextNodesIn(element);
-        
-        //console.log('textNodes', textNodes);
-        //console.log('startIndex', startIndex);
-        //console.log('endIndex', endIndex);
 
         var foundStart = false;
         var charCount = 0;
@@ -552,12 +548,7 @@ function setSelectionRange(element, startIndex, endIndex) {
             var textNode = textNodes[i];
             endCharCount = charCount + textNode.length;
 
-            //console.log('charCount', charCount);
-            //console.log('endCharCount', endCharCount, '\n');
-
             if (!foundStart && startIndex >= charCount && (startIndex < endCharCount)) {
-                //console.log('textNode[i]', i);
-                //console.log('textNode', textNode);
                 range.setStart(textNode, startIndex - charCount);
                 foundStart = true;
             }
@@ -568,9 +559,6 @@ function setSelectionRange(element, startIndex, endIndex) {
             charCount = endCharCount;
         }
         var selection = window.getSelection();
-
-        //console.log(range);
-
         selection.removeAllRanges();
         selection.addRange(range);
     } else if (document.selection && document.body.createTextRange) {
@@ -804,31 +792,25 @@ function trueToHighlightIndicies(trueStartIndex, trueEndIndex) {
         lineBreakValue = 2;
     }
 
-    console.log('lineBreakValue', lineBreakValue);
-
     var beforeSpanNewlineCount = 0;
     var withinSpanNewlineCount = 0;
+    var index = 0;
     for (var i = 0; i < documentText.length; i++) {
-        console.log('documentText[i]', documentText[i]);
-        if (i == trueEndIndex - 1) {
+        if (index >= trueEndIndex - 1) {
             break;
-        } else if (i < trueStartIndex && documentText[i] == '\n') {
+        } else if (index < trueStartIndex && documentText[i] == '\n') {
             beforeSpanNewlineCount++
-        } else if (i >= trueStartIndex && documentText[i] == '\n') {
+            index += lineBreakValue;
+        } else if (index >= trueStartIndex && documentText[i] == '\n') {
             withinSpanNewlineCount++;
+            index += lineBreakValue;
+        } else {
+            index++;
         }
     }
 
     var highlightStartIndex = trueStartIndex - (beforeSpanNewlineCount * lineBreakValue);
     var highlightEndIndex = trueEndIndex - ((beforeSpanNewlineCount + withinSpanNewlineCount) * lineBreakValue);
-
-    console.log('beforeSpanNewlineCount', beforeSpanNewlineCount);
-    console.log('withinSpanNewlineCount', withinSpanNewlineCount);
-    console.log('trueStartIndex', trueStartIndex);
-    console.log('trueEndIndex', trueEndIndex);
-    console.log('highlightStartIndex', highlightStartIndex);
-    console.log('highlightEndIndex', highlightEndIndex);
-
 
     return [highlightStartIndex, highlightEndIndex];
 }
@@ -849,36 +831,33 @@ function highlightToTrueIndicies(preCaretStringLength, highlightTextLength) {
     var documentText = document.getElementById('file-data').innerText;
 
     var trueStartIndex = 0;
+    var trueEndIndex;
     for (var i = 0; i < documentText.length; i++) {
+        console.log('documentText[' + i + ']: ', documentText[i], ' preCaretStringLength: ', preCaretStringLength);
         if (preCaretStringLength == 0) {
-            if (documentText[i] == '\n') {
+            while (documentText[i] == '\n') {
                 trueStartIndex += lineBreakValue;
-            } else {
-                break;
+                i++;
             }
+
+            trueEndIndex = trueStartIndex;
+            while (highlightTextLength > 0) {
+                console.log('documentText[' + i + ']: ', documentText[i], ' preCaretStringLength: ', preCaretStringLength);
+                if (documentText[i] == '\n') {
+                    trueEndIndex += lineBreakValue;
+                } else {
+                    highlightTextLength--;
+                    trueEndIndex++;
+                }
+                i++;
+            }
+            break;
         } else if (documentText[i] == '\n') {
             trueStartIndex += lineBreakValue;
         } else {
             preCaretStringLength--;
             trueStartIndex++;
         }
-    }
-
-    var trueEndIndex = trueStartIndex;
-
-    if (trueStartIndex < documentText.length) {
-        for (var i = trueStartIndex; i < documentText.length; i++) {
-            if (highlightTextLength == 0) {
-                break;
-            } else if (documentText[i] != '\n') {
-                trueEndIndex++;
-                highlightTextLength--;
-            } else {
-                trueEndIndex += lineBreakValue;
-            }
-        }
-    } else {
-        trueEndIndex += highlightTextLength;
     }
 
     return [trueStartIndex, trueEndIndex];
