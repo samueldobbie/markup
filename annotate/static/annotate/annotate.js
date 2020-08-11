@@ -537,10 +537,10 @@ function setSelectionRange(element, start, end) {
     if (document.createRange && window.getSelection) {
         var range = document.createRange();
         range.selectNodeContents(element);
+
         var textNodes = getTextNodesIn(element);
         var foundStart = false;
         var charCount = 0, endCharCount;
-
         for (var i = 0, textNode; textNode = textNodes[i++];) {
             endCharCount = charCount + textNode.length;
             if (!foundStart && start >= charCount && (start < endCharCount || (start == endCharCount && i <= textNodes.length))) {
@@ -601,7 +601,6 @@ function displayAnnotation(entityValue, attributeValues, annotationIdentifier) {
     }
 
     // Add annotation inline within the open document
-    // <span class="annotation-category">' + entityValue + '</span>
     document.getElementById('file-data').contentEditable = 'true';
     document.execCommand('insertHTML', false, '<span class="annotation inline-annotation" id="' + annotationIdentifier + '-aid" style="background-color:' + highlightColor + '; color:black;">' + highlighted + '</span>');
     document.getElementById('file-data').contentEditable = 'false';
@@ -1026,16 +1025,10 @@ function loadExistingAnnotations() {
     var save = $('#annotation-suggestion-container').detach();
     $('#annotation-data').empty().append(save);
 
-    /*
-    while (document.getElementById('annotation-data').childNodes.length > 1) {
-        document.getElementById('annotation-data').removeChild(document.getElementById('annotation-data').lastChild);
-    }
-    */
-
-    // Get current document ID
+    // Get open document text
     document.getElementById('file-data').innerText = localStorage.getItem('documentText' + currentDocumentId);
 
-    // Add section titles to annotation display
+    // Add section titles to annotation panel
     for (var i = 0; i < entityList.length; i++) {
         document.getElementById('annotation-data').innerHTML += "<div id='" + entityList[i] + "-section' style='display:none;'><p class='section-title'>" + entityList[i] + "</p></div>";
     }
@@ -1264,8 +1257,6 @@ function getAnnotationSuggestions() {
 
             // Parse suggestions
             var suggestions = JSON.parse(response);
-
-            console.log(response);
 
             // Hide no suggestion message if suggestion(s) exist
             if (suggestions.length > 0) {

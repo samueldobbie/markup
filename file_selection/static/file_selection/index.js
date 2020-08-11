@@ -84,8 +84,9 @@ function setupDemo() {
             localStorage.setItem('documentCount', documentCount);
 
             for (var i = 0; i < documentCount; i++) {
-                localStorage.setItem('fileName' + i, 'TestDoc' + i + '.txt');
+                localStorage.setItem('fileName' + i, 'demo-document-' + i);
                 localStorage.setItem('documentText' + i, documents[i]);
+                localStorage.setItem('lineBreakType' + i, detectLineBreakType(documents[i]));
             }
 
             // Store demo config locally
@@ -96,4 +97,16 @@ function setupDemo() {
             location.href = '/annotate';
         }
     });
+}
+
+function detectLineBreakType(text) {
+    if (text.indexOf('\r\n') !== -1) {
+        return 'windows';
+    } else if (text.indexOf('\r') !== -1) {
+        return 'mac';
+    } else if (text.indexOf('\n') !== -1) {
+        return 'linux';
+    } else {
+        return 'unknown';
+    }
 }
