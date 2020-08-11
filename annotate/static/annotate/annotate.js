@@ -529,39 +529,56 @@ function populateAnnotationDisplay(entityValue, attributeValues, highlightStartI
 }
 
 
-function setSelectionRange(element, start, end) {
+function setSelectionRange(element, startIndex, endIndex) {
     /*
     Set the selection range to match the
     span of text highlighted by the user
     */
+
     if (document.createRange && window.getSelection) {
         var range = document.createRange();
         range.selectNodeContents(element);
 
         var textNodes = getTextNodesIn(element);
+        
+        //console.log('textNodes', textNodes);
+        //console.log('startIndex', startIndex);
+        //console.log('endIndex', endIndex);
+
         var foundStart = false;
-        var charCount = 0, endCharCount;
-        for (var i = 0, textNode; textNode = textNodes[i++];) {
+        var charCount = 0;
+        var endCharCount;
+        for (var i = 0; i < textNodes.length; i++) {
+            var textNode = textNodes[i];
             endCharCount = charCount + textNode.length;
-            if (!foundStart && start >= charCount && (start < endCharCount || (start == endCharCount && i <= textNodes.length))) {
-                range.setStart(textNode, start - charCount);
+
+            //console.log('charCount', charCount);
+            //console.log('endCharCount', endCharCount, '\n');
+
+            if (!foundStart && startIndex >= charCount && (startIndex < endCharCount)) {
+                //console.log('textNode[i]', i);
+                //console.log('textNode', textNode);
+                range.setStart(textNode, startIndex - charCount);
                 foundStart = true;
             }
-            if (foundStart && end <= endCharCount) {
-                range.setEnd(textNode, end - charCount);
+            if (foundStart && endIndex <= endCharCount) {
+                range.setEnd(textNode, endIndex - charCount);
                 break;
             }
             charCount = endCharCount;
         }
         var selection = window.getSelection();
+
+        //console.log(range);
+
         selection.removeAllRanges();
         selection.addRange(range);
     } else if (document.selection && document.body.createTextRange) {
         var textRange = document.body.createTextRange();
         textRange.moveToElementText(element);
         textRange.collapse(true);
-        textRange.moveEnd('character', end);
-        textRange.moveStart('character', start);
+        textRange.moveStart('character', startIndex);
+        textRange.moveEnd('character', endIndex);
         textRange.select();
     }
 }
@@ -569,8 +586,7 @@ function setSelectionRange(element, start, end) {
 
 function getTextNodesIn(node) {
     /*
-    Helper function for updating
-    the selection range
+    Helper function for updating the selection range
     */
     var textNodes = [];
     if (node.nodeType == 3) {
@@ -788,9 +804,12 @@ function trueToHighlightIndicies(trueStartIndex, trueEndIndex) {
         lineBreakValue = 2;
     }
 
+    console.log('lineBreakValue', lineBreakValue);
+
     var beforeSpanNewlineCount = 0;
     var withinSpanNewlineCount = 0;
     for (var i = 0; i < documentText.length; i++) {
+        console.log('documentText[i]', documentText[i]);
         if (i == trueEndIndex - 1) {
             break;
         } else if (i < trueStartIndex && documentText[i] == '\n') {
@@ -802,6 +821,14 @@ function trueToHighlightIndicies(trueStartIndex, trueEndIndex) {
 
     var highlightStartIndex = trueStartIndex - (beforeSpanNewlineCount * lineBreakValue);
     var highlightEndIndex = trueEndIndex - ((beforeSpanNewlineCount + withinSpanNewlineCount) * lineBreakValue);
+
+    console.log('beforeSpanNewlineCount', beforeSpanNewlineCount);
+    console.log('withinSpanNewlineCount', withinSpanNewlineCount);
+    console.log('trueStartIndex', trueStartIndex);
+    console.log('trueEndIndex', trueEndIndex);
+    console.log('highlightStartIndex', highlightStartIndex);
+    console.log('highlightEndIndex', highlightEndIndex);
+
 
     return [highlightStartIndex, highlightEndIndex];
 }
