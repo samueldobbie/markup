@@ -226,8 +226,14 @@ $(document).ready(function () {
 
 
     $('#umls-verification-form').submit(function (e) {
+        // Prevent submission
         e.preventDefault();
 
+        // Hide form and show verification loader
+        $('#umls-verification-form').hide();
+        $('#umls-verification-loader').show();
+
+        // Serialize form data
         var formData = $('#umls-verification-form').serializeArray().reduce(function(obj, item) {
             obj[item.name] = item.value;
             return obj;
@@ -248,10 +254,14 @@ $(document).ready(function () {
                     } else {
                         $('#multiple-document-selection-container').show();
                         updateComponentColour('ontology-folder-opener-container');
-                    }                    
+                    }
                 } else {
                     $('#umls-verification-form-container').css({'border': '1px solid red'});
                     $('#umls-verification-form-invalid-credentials').show();
+                    
+                    // Hide verification loader and show form
+                    $('#umls-verification-loader').hide();
+                    $('#umls-verification-form').show();
                 }
             }
         });

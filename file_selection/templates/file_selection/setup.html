@@ -149,6 +149,10 @@
                 <p id="umls-verification-form-invalid-credentials" style="color: red; display: none;">The entered username and/or password was incorrect.</p>
                 <p class="option-item">Enter your <b>UMLS</b> credentials to access this ontology. Apply for an account <a href="https://www.nlm.nih.gov/research/umls/index.html" target="_blank">here</a>.</p>
 
+                <div id="umls-verification-loader" style="display: none;">
+                    <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+                </div>
+
                 <form method="post" class="option-item" id="umls-verification-form">
                     {% csrf_token %}
                     <input class="verification-form-field" type="text" placeholder="Enter username" name="umls-username" required>

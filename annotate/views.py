@@ -27,8 +27,7 @@ def annotate_data(request):
 def setup_umls_if_valid(request):
     '''
     Check whether user has the appropiate permissions to use
-    UMLS, setup if valid (downloading if first time setting up
-    with local version of Markup)
+    UMLS, setup if valid (incl. download for first time local users)
     '''
     global umls_database, umls_mappings
 
@@ -39,9 +38,10 @@ def setup_umls_if_valid(request):
     }
     response = requests.post('https://9wgxw45k93.execute-api.eu-west-2.amazonaws.com/markup-get-umls-if-valid', json=data)
     download_link = response.text
-    valid_user = download_link == ''
+    valid_user = download_link != ''
 
     if valid_user:
+        # Download and extract UMLS database and mappings for first time users
         if umls_database is None or umls_mappings is None:
             path = 'data/pickle/'
             urllib.request.urlretrieve(download_link, path + 'umls.zip')

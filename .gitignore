@@ -1,4 +1,7 @@
 secretkey.txt
+umls-database.pickle
+umls-mappings.pickle
+umls.zip
 __pycache__/
 .vscode/
 *.pyc
