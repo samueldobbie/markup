@@ -235,7 +235,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: 'POST',
-            url: '~/is-valid-umls-user',
+            url: '~/setup-umls-if-valid',
             data: formData,
             success: function(response) {
                 if (response == 'True') {

@@ -2,8 +2,8 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url(r'^setup/~/is-valid-umls-user$',
-        views.is_valid_umls_user, name='is_valid_umls_user'),
+    url(r'^setup/~/setup-umls-if-valid$',
+        views.setup_umls_if_valid, name='setup_umls_if_valid'),
     url(r'^~/setup-demo$',
         views.setup_demo, name='setup_demo'),
     url(r'^setup/~/setup-preloaded-ontology$',

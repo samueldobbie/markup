@@ -1,12 +1,13 @@
 import os
 import re
-import requests
 import json
 import pickle
+import requests
 import stringdist
+import zipfile
+import urllib.request
 import numpy as np
 
-from bs4 import BeautifulSoup
 from django.http import HttpResponse
 from django.shortcuts import render
 from simstring.database.dict import DictDatabase
@@ -23,26 +24,37 @@ def annotate_data(request):
     return render(request, 'annotate/annotate.html', {})
 
 
-def is_valid_umls_user(request):
+def setup_umls_if_valid(request):
     '''
     Check whether user has the appropiate permissions to use
-    the UMLS ontology
+    UMLS, setup if valid (downloading if first time setting up
+    with local version of Markup)
     '''
+    global umls_database, umls_mappings
 
-    url = 'https://uts-ws.nlm.nih.gov/restful/isValidUMLSUser'
+    # Authenticate UMLS account and get UMLS download link
     data = {
-        'licenseCode': umls_license_code,
-        'user': request.POST['umls-username'],
-        'password': request.POST['umls-password']
+        'umls-username': request.POST['umls-username'],
+        'umls-password': request.POST['umls-password']
     }
-    response_text = requests.post(url, data).text
-    soup = BeautifulSoup(response_text, features='html.parser')
-    result = soup.find('result').string == 'true'
+    response = requests.post('https://9wgxw45k93.execute-api.eu-west-2.amazonaws.com/markup-get-umls-if-valid', json=data)
+    download_link = response.text
+    valid_user = download_link == ''
 
-    if result:
+    if valid_user:
+        if umls_database is None or umls_mappings is None:
+            path = 'data/pickle/'
+            urllib.request.urlretrieve(download_link, path + 'umls.zip')
+            with zipfile.ZipFile(path + 'umls.zip', 'r') as zf:
+                zf.extractall(path)
+
+            # Pre-loaded UMLS ontology
+            umls_database = pickle.load(open(path + 'umls-database.pickle', 'rb'))
+            umls_mappings = pickle.load(open(path + 'umls-mappings.pickle', 'rb'))
+
         setup_preloaded_ontology('umls')
 
-    return HttpResponse(result)
+    return HttpResponse(valid_user)
 
 
 def setup_demo(request):
@@ -435,7 +447,8 @@ class Seq2Seq:
 
 
 # Define annotation prediction model
-annotation_predictor = Seq2Seq()
+# annotation_predictor = Seq2Seq()
+annotation_predictor = None
 
 # Simstring parameters
 SIMILARITY_THRESHOLD = 0.7
@@ -447,13 +460,13 @@ demo_database = pickle.load(open('data/demo/demo-database.pickle', 'rb'))
 demo_mappings = pickle.load(open('data/demo/demo-mappings.pickle', 'rb'))
 
 # Pre-loaded UMLS ontology
-umls_database = pickle.load(open('data/pickle/umls-database.pickle', 'rb'))
-umls_mappings = pickle.load(open('data/pickle/umls-mappings.pickle', 'rb'))
+pickles = [f for f in os.listdir('data/pickle/') if os.path.isfile(os.path.join('data/pickle/', f))]
 
-# Authorised UMLS distributor license
-umls_license_code = ''
-if 'umls-license.txt' in os.listdir('data/text/'):
-    umls_license_code = open('data/text/umls-license.txt').read().strip()
+umls_database = None
+umls_mappings = None
+if 'umls-database.pickle' in pickles and 'umls-mappings.pickle' in pickles:
+    umls_database = pickle.load(open('umls-database.pickle', 'rb'))
+    umls_mappings = pickle.load(open(path + 'umls-mappings.pickle', 'rb'))
 
 # Stopwords for cleaning sentences
 stopwords = set(open('data/text/stopwords.txt', encoding='utf-8').read().split('\n'))

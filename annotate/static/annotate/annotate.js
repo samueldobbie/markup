@@ -811,7 +811,6 @@ function trueToHighlightIndicies(trueStartIndex, trueEndIndex) {
             }
         }
     }
-    console.log(documentText);
 
     var highlightStartIndex = trueStartIndex;
     var highlightEndIndex = trueEndIndex;
