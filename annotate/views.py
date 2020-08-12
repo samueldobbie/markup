@@ -139,7 +139,6 @@ def construct_ontology(ontology_data):
     term-to-code mapping to enable rapid ontology
     querying
     '''
-
     database = DictDatabase(CharacterNgramFeatureExtractor(2))
 
     term_to_cui = {}
@@ -161,7 +160,6 @@ def suggest_cui(request):
     Returns all relevant ontology matches that have a similarity
     value over the specified threshold, ranked in descending order
     '''
-
     if simstring_searcher is None:
         return HttpResponse(json.dumps([]))
 
@@ -238,6 +236,10 @@ def suggest_annotations(request):
 
 
 def text_to_sentences(document_text):
+    '''
+    Convert body of text into individual
+    sentences
+    '''
     paragraphs = document_text.split('\n')
     sentences = []
     for paragraph in paragraphs:
@@ -245,19 +247,6 @@ def text_to_sentences(document_text):
             if sentence.strip() != '':
                 sentences.append(sentence.strip())
     return sentences
-
-
-def clean_sentences(raw_sentences):
-    clean_sentences = []
-
-    for raw_sentence in raw_sentences:
-        clean_sentence = []
-        for token in raw_sentence.split(' '):
-            if token not in stopwords:
-                clean_sentence.append(token.lower())
-        clean_sentences.append(' '.join(clean_sentence))
-
-    return clean_sentences
 
 
 class Seq2Seq:
@@ -397,13 +386,21 @@ class Seq2Seq:
         return decoded_sentence
 
     def clean_raw_sentence(self, sentence):
-        # Seperate dosage and units (e.g. 350mgs -> 350 mgs)
+        '''
+        Seperate all dosages and units (e.g. 350mgs -> 350 mgs)
+        contained with a sentence
+        '''
         updated_sentence = ''
         for component in re.split('(\d+)', sentence):
             updated_sentence += component.strip() + ' '
         return ' '.join(updated_sentence.split(' ')).lower()
 
     def predict(self, raw_sentence):
+        '''
+        Predict single prescription contained
+        within sentence (extracting drug name,
+        dosage, unit, frequency)
+        '''
         clean_sentence = self.clean_raw_sentence(raw_sentence)
 
         if len(clean_sentence.split(' ')) >= self.max_encoder_seq_length:

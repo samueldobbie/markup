@@ -41,3 +41,8 @@ For futher use, the local server can be started directly by running `python mana
 - Accessible version for color-blind users.
 - Add ability to perform text + image classification.
 - Add ability to annotate images.
+
+### Known Bugs / Issues
+- Annotations may be offset when annotating across newlines in CRLF (Windows) text documents. The offset is purely visual; the annotation indicies will be correctly exported.
+- Documentation hasn't yet been added.
+- Website version is out-of-date compared to local vesion.

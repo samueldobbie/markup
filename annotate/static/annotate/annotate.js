@@ -787,7 +787,7 @@ function trueToHighlightIndicies(trueStartIndex, trueEndIndex) {
     */
     var lineBreakValue = 1;
     if (localStorage.getItem('lineBreakType' + currentDocumentId) == 'windows') {
-       lineBreakValue = 2;
+        lineBreakValue = 2;
     }
 
     var documentNodes = document.getElementById('file-data').childNodes;
