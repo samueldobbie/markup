@@ -447,8 +447,7 @@ class Seq2Seq:
 
 
 # Define annotation prediction model
-# annotation_predictor = Seq2Seq()
-annotation_predictor = None
+annotation_predictor = Seq2Seq()
 
 # Simstring parameters
 SIMILARITY_THRESHOLD = 0.7
@@ -465,8 +464,8 @@ pickles = [f for f in os.listdir('data/pickle/') if os.path.isfile(os.path.join(
 umls_database = None
 umls_mappings = None
 if 'umls-database.pickle' in pickles and 'umls-mappings.pickle' in pickles:
-    umls_database = pickle.load(open('umls-database.pickle', 'rb'))
-    umls_mappings = pickle.load(open(path + 'umls-mappings.pickle', 'rb'))
+    umls_database = pickle.load(open('data/pickle/umls-database.pickle', 'rb'))
+    umls_mappings = pickle.load(open('data/pickle/umls-mappings.pickle', 'rb'))
 
 # Stopwords for cleaning sentences
 stopwords = set(open('data/text/stopwords.txt', encoding='utf-8').read().split('\n'))
