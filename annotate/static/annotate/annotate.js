@@ -782,35 +782,47 @@ function trueToHighlightIndicies(trueStartIndex, trueEndIndex) {
     /*
     Convert the true indicies (those that include newline characters)
     to highlight indicies (those that exclude newline characters). Calculation
-    can be performed for either LF and CRLF (Linux & Windows) newline types,
-    depending on the document type
+    can be performed for either LF and CRLF newline types for documents
+    created across various operating systems
     */
-    var documentText = document.getElementById('file-data').innerText;
-
     var lineBreakValue = 1;
     if (localStorage.getItem('lineBreakType' + currentDocumentId) == 'windows') {
-        lineBreakValue = 2;
+       lineBreakValue = 2;
     }
 
-    var beforeSpanNewlineCount = 0;
-    var withinSpanNewlineCount = 0;
-    var index = 0;
-    for (var i = 0; i < documentText.length; i++) {
-        if (index >= trueEndIndex - 1) {
-            break;
-        } else if (index < trueStartIndex && documentText[i] == '\n') {
-            beforeSpanNewlineCount++
-            index += lineBreakValue;
-        } else if (index >= trueStartIndex && documentText[i] == '\n') {
-            withinSpanNewlineCount++;
-            index += lineBreakValue;
+    var documentNodes = document.getElementById('file-data').childNodes;
+    var documentText = '';
+    for (var i = 0; i < documentNodes.length; i++) {
+        if (documentNodes[i].nodeType == 3) {
+            documentText += documentNodes[i].textContent;
+        } else if ($(documentNodes[i]).is('span')) {
+            for (var j = 0; j < documentNodes[i].innerText.length; j++) {
+                if (documentNodes[i].innerText[j] == '\n') {
+                    for (var k = 0; k < lineBreakValue; k++) {
+                        documentText += '*';
+                    }
+                } else {
+                    documentText += documentNodes[i].innerText[j];
+                }
+            }
         } else {
-            index++;
+            for (var k = 0; k < lineBreakValue; k++) {
+                documentText += '_';
+            }
         }
     }
+    console.log(documentText);
 
-    var highlightStartIndex = trueStartIndex - (beforeSpanNewlineCount * lineBreakValue);
-    var highlightEndIndex = trueEndIndex - ((beforeSpanNewlineCount + withinSpanNewlineCount) * lineBreakValue);
+    var highlightStartIndex = trueStartIndex;
+    var highlightEndIndex = trueEndIndex;
+    for (var i = 0; i < trueEndIndex; i++) {
+        if (i <= trueStartIndex && (documentText[i] == '_' || documentText == '*')) {
+            highlightStartIndex--;
+            highlightEndIndex--;
+        } else if (i > trueStartIndex && documentText[i] == '_') {
+            highlightEndIndex--;
+        }
+    }
 
     return [highlightStartIndex, highlightEndIndex];
 }
@@ -833,7 +845,6 @@ function highlightToTrueIndicies(preCaretStringLength, highlightTextLength) {
     var trueStartIndex = 0;
     var trueEndIndex;
     for (var i = 0; i < documentText.length; i++) {
-        console.log('documentText[' + i + ']: ', documentText[i], ' preCaretStringLength: ', preCaretStringLength);
         if (preCaretStringLength == 0) {
             while (documentText[i] == '\n') {
                 trueStartIndex += lineBreakValue;
@@ -842,7 +853,6 @@ function highlightToTrueIndicies(preCaretStringLength, highlightTextLength) {
 
             trueEndIndex = trueStartIndex;
             while (highlightTextLength > 0) {
-                console.log('documentText[' + i + ']: ', documentText[i], ' preCaretStringLength: ', preCaretStringLength);
                 if (documentText[i] == '\n') {
                     trueEndIndex += lineBreakValue;
                 } else {
