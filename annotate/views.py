@@ -19,6 +19,12 @@ from simstring.feature_extractor.character_ngram import (
 from keras.models import Model, load_model
 from keras.layers import Input
 
+from modAL.models import ActiveLearner
+from modAL.uncertainty import uncertainty_sampling
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_extraction.text import CountVectorizer
+
 
 def annotate_data(request):
     return render(request, 'annotate/annotate.html', {})
@@ -249,12 +255,54 @@ def text_to_sentences(document_text):
     return sentences
 
 
+class SentenceClassifier:
+    def __init__(self):
+        self.data_path = 'data/text/synthetic-classifier-data.txt'
+        self.setup_model()
+
+    def setup_model(self):
+        # Read in training data
+        with open(self.data_path, encoding='utf-8') as f:
+            lines = f.read().split('\n')
+
+        # Parse training data
+        X = []
+        y = []
+        for row in lines:
+            components = row.split('\t')
+            if len(components) == 2:
+                X.append(components[0])
+                y.append(int(components[1]))
+
+        # Fit vectorizer and transform training data
+        self.vectorizer = CountVectorizer()
+        X = self.vectorizer.fit_transform(X)
+
+        # Initialise and train active learner
+        self.learner = ActiveLearner(
+            estimator=RandomForestClassifier(),
+            query_strategy=uncertainty_sampling,
+            X_training=X, y_training=y
+        )
+
+    def classify_sentences(self, sentences):
+        target_sentences = []
+        for sentence in sentences:
+            classification = self.learner.predict(self.vectorizer.transform([sentence]))
+            if classification[0] == 1:
+                target_sentences.append(sentence)
+        return target_sentences
+
+    def train(self):
+        pass
+
+
 class Seq2Seq:
     def __init__(self):
         # Declare model configurations (same as during training)
         self.latent_dim = 256
         self.num_samples = 1000000
-        self.data_path = 'data/text/synthetic-data.txt'
+        self.data_path = 'data/text/synthetic-seq2seq-data.txt'
         self.model_path = 'data/model/seq2seq.h5'
 
         # Restore model ready for use
@@ -262,7 +310,7 @@ class Seq2Seq:
 
     def restore_model(self):
         # Read in training data
-        with open(self.data_path, 'r', encoding='utf-8') as f:
+        with open(self.data_path, encoding='utf-8') as f:
             lines = f.read().split('\n')
 
         # Vectorize training data
@@ -443,7 +491,11 @@ class Seq2Seq:
             return None
 
 
+# Define active learner for classifying target sentences
+sentence_classifier = SentenceClassifier()
+
 # Define annotation prediction model
+#annotation_predictor = Seq2Seq()
 annotation_predictor = None
 
 # Simstring parameters
