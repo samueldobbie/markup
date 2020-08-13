@@ -1,31 +1,61 @@
 {% extends 'file_selection/config_creator_head.html' %}
 
 {% block content %}
-    <div class="configuration-file-creator-container">
-        <div class="entity-input-container">
-            <p class="headline">Entities</p>
-            <input id="entity-name" class="input-form" type="text" placeholder="Entity name (e.g. Seizure)">
-            <br>
-            <button id="add-entity" class="option-button option-button-small">+ Entity</button>
-            <br>
-            <br>
-            <div id="entity-list" class="configuration-list"></div>
-        </div>
+    <div class="container">
+        <div class="config-panel">
+            <div class="option-container">
+                <p class="option-headline option-item">
+                    Entities
+                    <span class="config-tooltip" title="The entity category that you want to select (e.g. Seizure).">
+                        <i class="far fa-question-circle"></i>
+                    </span>
+                </p>
+                <div class="option-item">
+                    <input id="entity-name" class="option-input-field" type="text" placeholder="Entity name (e.g. Seizure)">
+                </div>
+                <div class="option-item">
+                    <label class="option-button option-button-small">+ Entity</label>
+                </div>
+            </div>
 
-        <div class="attribute-input-container">
-            <p class="headline">Attributes</p>
-            <input id="attribute-name" class="input-form" type="text" placeholder="Attribute name (e.g. SeizureFrequency)">
-            <br>
-            <input id="attribute-relation" class="input-form" type="text" placeholder="Related entity (e.g. Seizure)">
-            <br>
-            <input id="attribute-dropdown" class="input-form" type="text" placeholder="Dropdown values (e.g. Daily, Weekly, Monthly)">
-            <br>
-            <button id="add-attribute" class="option-button option-button-small">+ Attribute</button>
-            <br><br>
-            <div id="attribute-list" class="configuration-list"></div>
-            <br>
-        </div>
+            <div class="option-container">
+                <p class="option-headline option-item">
+                    Attributes
+                    <span class="config-tooltip" title="The attributes you want an entity to have (e.g. SeizureFrequency).">
+                        <i class="far fa-question-circle"></i>
+                    </span>
+                </p>
+                <div class="option-item">
+                    <input id="attribute-name" class="option-input-field" type="text" placeholder="Attribute name (e.g. SeizureFrequency)">
+                </div>
+                <div class="option-item">
+                    <input id="attribute-relation" class="option-input-field" type="text" placeholder="Related entity (e.g. Seizure)">
+                </div>
+                <div class="option-item">
+                    <input id="attribute-dropdown" class="option-input-field" type="text" placeholder="Dropdown values (e.g. Daily, Weekly, Monthly)">
+                </div>
+                <div class="option-item">
+                    <label class="option-button option-button-small">+ Attribute</label>
+                </div>
+            </div>
 
-        <a id="save-configuration-file" class="option-button option-button-small">Save</a>
+            <div class="option-container">
+                <p class="option-headline option-item">
+                    Output
+                    <span class="config-tooltip" title="The entities and attributes that will be included in the exported configuration file.">
+                        <i class="far fa-question-circle"></i>
+                    </span>
+                </p>
+                <span id="empty-container-message">Nothing added yet.</span>
+                <div class="output-list-container" style="display: none;">
+                    <div id="entity-list" class="option-column"><span style="font-weight: normal; text-transform: uppercase;">Added Entities</span></div>
+                    <div id="attribute-list" class="option-column"><span style="font-weight: normal; text-transform: uppercase;">Added Attributes</span></div>
+                </div>
+            </div>
+
+            <div class="completed-option-container">
+                <button id="save-configuration-file" class="option-button">Save Config File</button>
+            </div>
+        </div>
     </div>
 {% endblock %}

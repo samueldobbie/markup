@@ -1,46 +1,94 @@
-.configuration-file-creator-container {
-  padding: 2.5% 25%;
+.container {
+  width: 100%;
 }
 
-.headline {
-  font-size: 25px;
+.config-panel {
+  height: 75vh;
+  width: 60vw;
+  margin: 2.5% auto;
+}
+
+.option-container {
+  padding: 1%;
+  border-radius: 5px;
+  margin: 0 8%;
+  color: white;
+  box-shadow: 0 0 2px rgba(88, 88, 88, 0.329);
+  background-color: #1A1E24;
+  margin-bottom: 1%;
+}
+
+.option-container:hover {
+  box-shadow: 0 0 2px black;
+}
+
+.option-headline {
+  font-size: 18px;
   font-weight: bold;
+  text-transform: uppercase;
 }
 
-.input-form {
-  width: 300px;
+.option-item {
+  margin: 10px 0;
+}
+
+.option-input-field {
+  background-color: white;
+  color: #1A1E24;
+  width: 95%;
   padding: 5px;
-  margin: 5px 0;
+  margin-bottom: 0.5%;
   border-radius: 2px;
-  border: 1px solid #1A1E24;
+  border: 1px solid #333;
+  outline: none;
+  font-size: 16px;
 }
 
-#save-configuration-file {
-  padding: 8px 15px;
-  font-weight: bold;
-  background-color: #33FFB5;
+.completed-option-container {
+  margin-top: 3%;
+  border-radius: 2px;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .option-button-small {
-  font-weight: bold;
+  min-width: 0;
 }
 
-.configuration-list {
-  margin-top: 1%;
+.config-tooltip {
+  cursor: help;
+  color: #b1b1b1;
+  font-size: 14px;
 }
 
-.added-element {
-  margin: 1%;
-  padding: 0.75%;
-  color: black;
-  border-radius: 2px;
-  font-size: 15px;
-  font-weight: bold;
-  background-color: lightgray;
-  cursor: pointer;
-  display: inline-block;
+#output-list-container {
+  display: flex;
 }
 
-.added-element:hover {
-  background-color: rgb(255, 162, 162);
+.option-column {
+  flex: 50%;
+}
+
+@media only screen and (max-width: 750px) {
+  .config-panel {
+      width: 80vw;
+  }
+
+  .option-container {
+      margin: 0.75% 5%;
+  }
+
+  .option-button {
+      padding: 3px;
+  }
+
+  .option-sub-headline {
+      font-size: 1em;
+  }
+
+  .option-dropdown {
+      padding: 2px;
+      font-size: 1em;
+      height: 30px;
+  }
 }
