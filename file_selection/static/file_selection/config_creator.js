@@ -28,10 +28,11 @@ $(document).ready(function () {
             // Add entity to output list
             entityList.push(entity + '\n');
 
-            var backgroundColor = colors[entityList.indexOf(entity + '\n')];
+            // Get color for entity and related attributes
+            var backgroundColor = colors.pop();
 
             // Add entity to display list
-            document.getElementById('entity-list').innerHTML += '<span class="added-element" style="background-color: ' + backgroundColor + ';">' + entity + '</span>';
+            document.getElementById('entity-list').innerHTML += '<span class="added-element" name="entity" style="background-color: ' + backgroundColor + ';">' + entity + '</span>';
             
             updateConfigurationFileURL();
             bindEvents();
@@ -68,15 +69,19 @@ $(document).ready(function () {
         attribute = attribute.trim();
 
         if (attribute != '') {
-            // Ensure the related entity is valid and get its color
-            var backgroundColor = '';
-            var entityIndex = entityList.indexOf(attributeRelation + '\n');
-            if (entityIndex == -1) {
+            // Ensure the related entity is valid
+            if (entityList.indexOf(attributeRelation + '\n') == -1) {
                 alert('You need to add the related entity as an entity before using it in an attribute.');
                 return;
-            } else {
-                backgroundColor = colors[entityIndex];
             }
+
+            // Get colour of related entity
+            var backgroundColor = '';
+            $('span[name="entity"]').each(function () {
+                if ($(this).text() == attributeRelation) {
+                    backgroundColor = $(this).css('background-color');
+                }
+            });
 
             // Hide empty message and display output lists
             $('#empty-container-message').hide();
@@ -112,6 +117,11 @@ $(document).ready(function () {
 
 
     function bindEvents() {
+        /*
+        Enable added elements to
+        be deleted upon selection
+        */
+
         $('.added-element').click(function () {
             // Get element text
             var elementText = $(this).text() + '\n';
@@ -119,6 +129,9 @@ $(document).ready(function () {
             // Remove element from output list
             var listId = $(this).parent().attr('id');
             if (listId == 'entity-list') {
+                // Make entity color available again
+                colors.push($(this).css('background-color'));
+
                 // Remove from entity list
                 for (var i = 0; i < entityList.length; i++) {
                     if (entityList[i] == elementText) {
@@ -180,9 +193,9 @@ $(document).ready(function () {
 
     // Colors to be used for entities and attributes in output list
     var colors = [
-        'A1A1A1', '#00BFFF', '#8FE3B4', '#FFC0CB', '#FFA07A', '#7B68EE', '#FFD700',
-        '#C71585', '#32CD32', '#48D1CC', '#FF6347', '#FFA500', '#FF69B4', '#008B8B',
-        '#FFF0F5', '#FFFACD', '#E6E6FA', '#B22222', '#4169E1', '#C0C0C0'
+        '#C0C0C0', '#4169E1', '#FFF0F5', '#FFFACD', '#E6E6FA', '#B22222', '#C71585',
+        '#32CD32', '#48D1CC', '#FF6347', '#FFA500', '#FF69B4', '#008B8B', '#00BFFF',
+        '#E0CCA4', '#ADD8D1', '#8FE3B4', '#FFC0CB', '#FFA07A', '#7B68EE', '#FFD700'
     ];
 });
 
