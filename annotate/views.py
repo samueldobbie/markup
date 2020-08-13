@@ -444,7 +444,7 @@ class Seq2Seq:
 
 
 # Define annotation prediction model
-annotation_predictor = Seq2Seq()
+annotation_predictor = None
 
 # Simstring parameters
 SIMILARITY_THRESHOLD = 0.7
