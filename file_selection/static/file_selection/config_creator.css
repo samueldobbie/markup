@@ -67,6 +67,13 @@
 
 .option-column {
   flex: 50%;
+  margin: 2%;
+}
+
+.added-element {
+  display: block;
+  padding: 5px;
+  margin: 5px;
 }
 
 @media only screen and (max-width: 750px) {
