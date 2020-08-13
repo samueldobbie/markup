@@ -20,9 +20,6 @@ $(document).ready(function () {
         // Get input entity value
         var entity = document.getElementById('entity-name').value.trim();
 
-        // Reset input form
-        document.getElementById('entity-name').value = '';
-
         if (entity != '' && !entityList.includes(entity + '\n')) {
             // Hide empty message and display output lists
             $('#empty-container-message').hide();
@@ -31,12 +28,17 @@ $(document).ready(function () {
             // Add entity to output list
             entityList.push(entity + '\n');
 
+            var backgroundColor = colors[entityList.indexOf(entity + '\n')];
+
             // Add entity to display list
-            document.getElementById('entity-list').innerHTML += '<span class="added-element">' + entity + '</span>';
+            document.getElementById('entity-list').innerHTML += '<span class="added-element" style="background-color: ' + backgroundColor + ';">' + entity + '</span>';
             
             updateConfigurationFileURL();
             bindEvents();
         }
+        
+        // Reset input form
+        document.getElementById('entity-name').value = '';
     });
 
 
@@ -63,13 +65,19 @@ $(document).ready(function () {
 
         // Construct correctly formatted attribute string
         var attribute = attributeName + ' ' + 'Arg:' + attributeRelation + ', Value:' + attributeDropdownValues;
+        attribute = attribute.trim();
 
-        // Reset input forms
-        document.getElementById('attribute-name').value = '';
-        document.getElementById('attribute-relation').value = '';
-        document.getElementById('attribute-dropdown').value = '';
+        if (attribute != '') {
+            // Ensure the related entity is valid and get its color
+            var backgroundColor = '';
+            var entityIndex = entityList.indexOf(attributeRelation + '\n');
+            if (entityIndex == -1) {
+                alert('You need to add the related entity as an entity before using it in an attribute.');
+                return;
+            } else {
+                backgroundColor = colors[entityIndex];
+            }
 
-        if (attribute.trim() != '') {
             // Hide empty message and display output lists
             $('#empty-container-message').hide();
             $('#output-list-container').show();
@@ -78,11 +86,16 @@ $(document).ready(function () {
             attributeList.push(attribute + "\n");
 
             // Add attribute to display list
-            document.getElementById('attribute-list').innerHTML += '<span class="added-element">' + attribute + '</span>';
+            document.getElementById('attribute-list').innerHTML += '<span class="added-element" style="background-color: ' + backgroundColor + ';">' + attribute + '</span>';
         
             updateConfigurationFileURL();
             bindEvents();
         }
+
+        // Reset input forms
+        document.getElementById('attribute-name').value = '';
+        document.getElementById('attribute-relation').value = '';
+        document.getElementById('attribute-dropdown').value = '';
     });
 
 
@@ -140,6 +153,13 @@ $(document).ready(function () {
     // Initalize entity and attribute lists with default headers
     var entityList = ["[entities]\n"];
     var attributeList = ["[attributes]\n"];
+
+    // Colors to be used for entities and attributes in output list
+    var colors = [
+        'A1A1A1', '#00BFFF', '#8FE3B4', '#FFC0CB', '#FFA07A', '#7B68EE', '#FFD700',
+        '#C71585', '#32CD32', '#48D1CC', '#FF6347', '#FFA500', '#FF69B4', '#008B8B',
+        '#FFF0F5', '#FFFACD', '#E6E6FA', '#B22222', '#4169E1', '#C0C0C0'
+    ];
 });
 
 function updateDisplayMode() {

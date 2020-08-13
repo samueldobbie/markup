@@ -74,6 +74,14 @@
   display: block;
   padding: 5px;
   margin: 5px;
+  border-radius: 5px;
+  font-weight: bold;
+  color: #1A1E24;
+  cursor: pointer;
+}
+
+.added-element:hover {
+  border: 2px solid rgb(255, 112, 112);
 }
 
 @media only screen and (max-width: 750px) {
