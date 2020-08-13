@@ -495,8 +495,7 @@ class Seq2Seq:
 sentence_classifier = SentenceClassifier()
 
 # Define annotation prediction model
-#annotation_predictor = Seq2Seq()
-annotation_predictor = None
+annotation_predictor = Seq2Seq()
 
 # Simstring parameters
 SIMILARITY_THRESHOLD = 0.7

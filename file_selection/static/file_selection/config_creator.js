@@ -83,10 +83,10 @@ $(document).ready(function () {
             $('#output-list-container').show();
 
             // Add constructed attribute to output list
-            attributeList.push(attribute + "\n");
+            attributeList.push(attribute + '\n');
 
             // Add attribute to display list
-            document.getElementById('attribute-list').innerHTML += '<span class="added-element" style="background-color: ' + backgroundColor + ';">' + attribute + '</span>';
+            document.getElementById('attribute-list').innerHTML += '<span class="added-element" attribute-for="' + attributeRelation + '" style="background-color: ' + backgroundColor + ';">' + attribute + '</span>';
         
             updateConfigurationFileURL();
             bindEvents();
@@ -119,13 +119,30 @@ $(document).ready(function () {
             // Remove element from output list
             var listId = $(this).parent().attr('id');
             if (listId == 'entity-list') {
+                // Remove from entity list
                 for (var i = 0; i < entityList.length; i++) {
                     if (entityList[i] == elementText) {
                         entityList.splice(i, 1);
                         break;
                     }
                 }
+
+                // Remove all attributes that relate to selected entity
+                for (var i = 0; i < attributeList.length; i++) {
+                    if (attributeList[i] != '[attributes]\n') {
+                        var attributeComponent = attributeList[i].split('Arg:')[1];
+                        var relatedEntity = attributeComponent.split(', Value:')[0] + '\n';
+                        if (relatedEntity == elementText) {
+                            attributeList.splice(i, 1);
+                        }
+                    }
+                }
+
+                $('span[attribute-for=' + elementText + ']').each(function () {
+                    $(this).remove();
+                });
             } else if (listId == 'attribute-list') {
+                // Remove from attribute list
                 for (var i = 0; i < attributeList.length; i++) {
                     if (attributeList[i] == elementText) {
                         attributeList.splice(i, 1);
@@ -133,8 +150,15 @@ $(document).ready(function () {
                     }
                 }
             }
+
             // Delete element from display list
             $(this).remove();
+
+            // Show empty container list is valid
+            if (entityList.length == 1 && attributeList.length == 1) {
+                $('#empty-container-message').show();
+                $('#output-list-container').hide();
+            }
         });
     }
 
@@ -151,8 +175,8 @@ $(document).ready(function () {
     });
 
     // Initalize entity and attribute lists with default headers
-    var entityList = ["[entities]\n"];
-    var attributeList = ["[attributes]\n"];
+    var entityList = ['[entities]\n'];
+    var attributeList = ['[attributes]\n'];
 
     // Colors to be used for entities and attributes in output list
     var colors = [
