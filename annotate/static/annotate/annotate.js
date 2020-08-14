@@ -11,6 +11,9 @@ function onPageLoad(initalLoad=true) {
     var documentText = localStorage.getItem('documentText' + currentDocumentId);
     var configText = localStorage.getItem('configText');
 
+    // Check whether config is empty and return home if true
+    validateConfigSelection(configText);
+
     setRequestHeader(getCookie('csrftoken'));
 
     if (initalLoad) {
@@ -43,9 +46,6 @@ function onPageLoad(initalLoad=true) {
 
     // Set page title to open document file name
     document.getElementsByTagName('title')[0].innerText = localStorage.getItem('fileName' + currentDocumentId) + ' - Markup';
-
-    // Check that documentText is not empty, otherwise return to homepage
-    validateDocumentSelection(documentText);
 
     // Display selected documentText
     document.getElementById('file-data').innerText = documentText;
@@ -172,12 +172,12 @@ function onPageLoad(initalLoad=true) {
     bindCollapsibleEvents();
 }
 
-function validateDocumentSelection(documentText) {
+function validateConfigSelection(configText) {
     /*
-    Return to homepage if an invalid document is selected
+    Return to homepage if using an invalid config document
     */
-    if (documentText == null || documentText.trim() == '') {
-        alert('This document is empty. Please double-check the file you selected.');
+    if (configText == null || configText.trim() == '') {
+        window.location = '/';
     }
 }
 

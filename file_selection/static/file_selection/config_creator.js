@@ -141,7 +141,8 @@ $(document).ready(function () {
                 }
 
                 // Remove all attributes that relate to selected entity
-                for (var i = 0; i < attributeList.length; i++) {
+                var i = attributeList.length - 1;
+                while (i > 0) {
                     if (attributeList[i] != '[attributes]\n') {
                         var attributeComponent = attributeList[i].split('Arg:')[1];
                         var relatedEntity = attributeComponent.split(', Value:')[0] + '\n';
@@ -149,6 +150,7 @@ $(document).ready(function () {
                             attributeList.splice(i, 1);
                         }
                     }
+                    i--;
                 }
 
                 $('span[attribute-for=' + elementText + ']').each(function () {
@@ -172,6 +174,8 @@ $(document).ready(function () {
                 $('#empty-container-message').show();
                 $('#output-list-container').hide();
             }
+
+            updateConfigurationFileURL();
         });
     }
 

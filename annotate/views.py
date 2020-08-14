@@ -490,9 +490,12 @@ class Seq2Seq:
         else:
             return None
 
+    def train(self, instance, label):
+        self.model.fit(data, labels)
+
 
 # Define active learner for classifying target sentences
-sentence_classifier = SentenceClassifier()
+# sentence_classifier = SentenceClassifier()
 
 # Define annotation prediction model
 annotation_predictor = Seq2Seq()
