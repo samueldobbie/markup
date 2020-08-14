@@ -4,11 +4,25 @@
     font-size: 18px;
 }
 
+.doc-headline {
+    margin-bottom: 2%;
+}
+
 .doc-line {
     max-width: 75ch;
     margin: 2%;
+    font-size: 16px;
 }
 
-.doc-headline {
-    margin-bottom: 2%;
+.doc-list {
+    margin-left: 6%;
+}
+
+.doc-example {
+    border: 2px solid #1A1E24;
+    border-radius: 2px;
+    background-color: rgb(245, 245, 245);
+    color: #1A1E24;
+    padding: 25px;
+    font-weight: bold;
 }

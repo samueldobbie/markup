@@ -9,21 +9,43 @@
         <h2 class="doc-headline">
             Setup
         </h2>
+        <p class="doc-line">
+            <u>Quantity (required)</u>: The number of documents you will be annotating (defaults to <u>single</u>).
+        </p>
+        <p class="doc-line">
+            Markup currently only accepts .txt files as input, although PDF and Word documents will be accepted soon. 
+        </p>
         <h3 class="doc-headline">
-            Single Document Annotation
+            Single Document
         </h3>
-        <ul class="doc-line">
-            <li>Quantity is set to Single file by default.</li>
-            <li>Under Document To Annotate select the text file (check this needs to be text file and can’t be a word doc).</li>
-            <li>Configuration File.</li>
-            <ul class="doc-line">
-                <li>Either Select a pre-created annotation.conf file.</li>
-                <li>Or Create one using the inbuilt function.</li>
-                <li>More on both these later.</li>
+        <p class="doc-line">
+            <u>Document to annotate (required)</u>: The text document you intend to annotate.
+        </p>
+        <p class="doc-line">
+            <u>Configuration file (required)</u>: Defines all entities and attributes available during annotation.
+            Select a pre-existing configuration file or create a new one using the in-built function. The configuration file
+            must have the .conf file extension.
+        </p>
+        <p class="doc-line">
+            <u>Existing annotations (optional)</u>: A file containing existing annotations for the document you intend to annotate.
+            The annotation file must have the .ann file extension and be in <a href="http://brat.nlplab.org/standoff.html" target="_blank">brat standoff format</a>.  
+        </p>
+        <p class="doc-line">
+            <u>Ontology (optional)</u>: A dictionary of terms and codes to be accessed during annotation.
+            <ul class="doc-line doc-list">
+                <li><u>Pre-loaded</u>: Markup offers pre-loaded ontologies that can be used. Certain pre-loaded ontologies require external permissions (e.g. the Unified Medical Language System), for which you will need to login to authorise access.</li>
+                <li><u>Custom</u>: You can provide a custom ontology by providing a text document, where each line is of the form [TERM][TAB][CODE], as shown below.</li>
             </ul>
-            <li>If the document has been annotated before select the corresponding .ann file, else leave blank (when exporting the annotations a .ann file will be created).</li>
-            <li>If the user as a UMLS account, under Ontology select UMLS from the drop down menu, users will be asked to provide a Username and Password for their UMLS account (this is not the full UMLS vocabulary, but a reduced version).  The user can also select a custom text file with their own personalised ontology for the documents they wish to annotate.</li>
-        </ul>
+        </p>
+
+        <span class="doc-line">
+            <div class="doc-example">
+                <p>Focal Seizure <span style="margin-left: 50px;">RANDOM01938</span></p>
+                <p>Epilepsy <span style="margin-left: 50px;">RANDOM43904</span></p>
+                <p>Sodium Valporate <span style="margin-left: 50px;">RANDOM30921</span></p>
+                <p>...</p>
+            </div>
+        </span>        
         
         <h3 class="doc-headline">
             Multiple Documents
