@@ -30,7 +30,8 @@ function updateDisplayMode() {
     }
 
     $('body').css({
-        'background-color': backgroundColor
+        'background-color': backgroundColor,
+        'color': color
     });
 
     $('nav').css({

@@ -1,10 +1,14 @@
 .doc-container {
-    text-align: center;
-    margin-top: 12%;
+    margin: 2.5% auto;
+    width: 50%;
+    font-size: 18px;
 }
 
-.doc-message {
-    font-size: 25px;
-    text-transform: uppercase;
-    color: white;
+.doc-line {
+    max-width: 75ch;
+    margin: 2%;
+}
+
+.doc-headline {
+    margin-bottom: 2%;
 }
