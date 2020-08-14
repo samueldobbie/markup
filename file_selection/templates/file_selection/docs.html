@@ -2,6 +2,65 @@
 
 {% block content %}
     <div class="doc-container">
-        <p class="doc-message">Documentation will be added soon.</p>
+        MarkUp Documentation
+Markup annotates document in the brat standoff format without the relation annotations. (http://brat.nlplab.org/standoff.html)
+Setup – Single Document Annotation
+•	Quantity is set to Single file by default.
+•	Under Document To Annotate select the text file (check this needs to be text file and can’t be a word doc).
+•	Configuration File.
+o	Either Select a pre-created annotation.conf file.
+o	Or Create one using the inbuilt function.
+o	More on both these later.
+•	If the document has been annotated before select the corresponding .ann file, else leave blank (when exporting the annotations a .ann file will be created).
+•	If the user as a UMLS account, under Ontology select UMLS from the drop down menu, users will be asked to provide a Username and Password for their UMLS account (this is not the full UMLS vocabulary, but a reduced version).  The user can also select a custom text file with their own personalised ontology for the documents they wish to annotate.
+Setup – Multiple Documents Annotation
+•	Use dropdown to select Multiple files.
+•	Use the file browser to select the folder containing the files you wish to annotate.
+o	This folder must contain a .conf file (if there are multiple.conf files, the last in a alphanumerical order will be used).
+o	.ann files are not required for the first time annotating, as saving the first time will creating. However, if previously annotated documents are loaded, to see these annotations the .ann file with the same name as the document is needed.
+•	If the user as a UMLS account, under Ontology select UMLS from the drop down menu, users will be asked to provide a Username and Password for their UMLS account (this is not the full UMLS vocabulary, but a reduced version).  The user can also select a custom text file with their own personalised ontology for the documents they wish to annotate.
+•	There are two ways to move from one document to another. Firstly, using the arrows in the top right hand corner. Secondly, to the left of these arrows is the name of the current document. Clicking on this will lead to a dropdown with all the files loaded from the folder selected. 
+How to annotate
+•	Highlight the desired word or phrase to annotate.
+o	Either double click quickly on the word or if a string of words, double click on the first or last word, hold the second click and drag to highlight the whole phrase. This will snap to highlight whole words, speeding up the process.
+o	It is also possible to single click and drag to cover the word/string.
+•	On the left hand side, the entities from the .conf file are listed. Click on the desired entity and below the last option the attributes for that entity will appear. 
+•	These drop down boxes can be typed into for swiftly annotating, or scrolled thought to select. If an attribute value wasn’t added to the conf file, the value can be typed and will be saved as typed (useful for numbers).
+•	If when annotating you would like to add a CUI (or other identifying key?), below the attributes there are two dropdown boxes and a search bar. If the highlighted phrase is within the ontology selected, selecting the phrase will add the CUI to the annotation.
+o	If the exact term is not in the ontology but a similar term is there, the user can select this other term (very useful for typos). The terms are displayed in order of similarity to the highlighted phrase.
+o	If the suggestions aren’t appropriate, it is possible to use the search box to type out a term that would match the phrase. Then select the phrase (or a suitable near match) from the second dropdown box.
+•	To finally add the annotation, click the + Annotation button.
+•	The annotation should then appear on the right hand side of the main body of text.
+•	The annotation can be reviewed by clicking on this new annotation on the right hand side.
+o	The annotations will be grouped by entities.
+o	Clicking on this annotation will flash on the main body of text (only if it is the latest annotation on phrase)
+o	The annotation can be deleted by clicking on the small bin icon in the bottom right corner.
+o	The ability to edit annotations without deleting will be coming soon.
+•	Unlike brat, it is possible to annotate over the same phrase twice, adding to the same or different entity.
+Annotation Suggestions
+•	Markup will indicate any annotation suggestions above where then annotations appear on the right hand side (it may take a few seconds for the suggestions to appear, depending on the specification of your machine).
+•	These annotations will be grouped by entity and coloured according to the entities on the left hand side.
+•	Clicking on a suggested annotation will give the user the opportunity to review the suggestion before adding or rejecting.
+o	Rejecting the suggestion will improve the model for future annotations.
+•	The ability to edit the suggestions will be added soon.
+•	Upon adding the annotation, the annotation will span the whole sentence where the appropriate sequence (?) is found.
+Exporting Annotations
+•	After all the annotations have been added. Clicking on the Export button (next to + Annotation) will tell your browser to save the .ann file. It will usually save automatically to your download folder, however it is possible, within the setting of some browsers, to select where this .ann file will be saved (this will also change the setting for other downloads and saves while using that browser)
+o	Here are two links for doing this using Chrome and Firefox
+	https://www.howtogeek.com/231002/how-to-change-the-chrome-download-folder-location/
+	https://www.howtogeek.com/260271/how-to-change-the-firefox-download-folder-location/ 
+o	We have found it useful to use a browser that if not your usual when annotating so you can utilise this setting, without interrupting day to day use.
+Annotation Configuration File
+•	The annotation configuration file must be in the format of the annotation type configuration used by brat annotation configuration (http://brat.nlplab.org/configuration.html) however, it does not include the relations or event definitions. We do not support advanced entity level configuration, but advanced attribute configuration is included. 
+•	Keyboard shortcut configuration is a feature that is soon to be added.
+•	We suggest using the built in Configuration Creator if you have no experience creating a annotation configuration file.
+o	Add each of the entities you wish to annotate, one by one, into the Entities – Entity name bar. Selecting + ENTITY after each one.
+o	Then you need to add the attributes to each Entity.
+o	In the attributes section add the attribute name, the entity to go with that attribute, followed by any values you wish that attribute to have. For multiple values, separate each with a comma. Add the attribute by pressing +Attribute. The attribute will be shown on the page, with the entity and its values. Clicking on the attribute will remove it.
+o	Repeat the process until you have added each of you desired attributes. The attributes are added in order they are created, we suggest adding all the attributes for one entity, then moving on to the next.
+o	Finally save the annotation configuration file to your system, with the save button.
+•	The saved .conf file can be edited in any text editor.
+•	To add a new entity, simply add it the entities section of the conf file, anywhere above the ‘[attributes]’ line. Then add the attributes, following the format as the already populated section.  With each value separated by a vertical bar (‘|’). 
+
     </div>
 {% endblock %}
