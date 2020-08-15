@@ -49,7 +49,7 @@ def setup_umls_if_valid(request):
     if valid_user:
         # Download and extract UMLS database and mappings for first time users
         if umls_database is None or umls_mappings is None:
-            path = 'data/pickle/'
+            path = 'data/ontology/'
             urllib.request.urlretrieve(download_link, path + 'umls.zip')
             with zipfile.ZipFile(path + 'umls.zip', 'r') as zf:
                 zf.extractall(path)
@@ -510,13 +510,13 @@ demo_database = pickle.load(open('data/demo/demo-database.pickle', 'rb'))
 demo_mappings = pickle.load(open('data/demo/demo-mappings.pickle', 'rb'))
 
 # Pre-loaded UMLS ontology
-pickles = [f for f in os.listdir('data/pickle/') if os.path.isfile(os.path.join('data/pickle/', f))]
+pickles = [f for f in os.listdir('data/ontology/') if os.path.isfile(os.path.join('data/ontology/', f))]
 
 umls_database = None
 umls_mappings = None
 if 'umls-database.pickle' in pickles and 'umls-mappings.pickle' in pickles:
-    umls_database = pickle.load(open('data/pickle/umls-database.pickle', 'rb'))
-    umls_mappings = pickle.load(open('data/pickle/umls-mappings.pickle', 'rb'))
+    umls_database = pickle.load(open('data/ontology/umls-database.pickle', 'rb'))
+    umls_mappings = pickle.load(open('data/ontology/umls-mappings.pickle', 'rb'))
 
 # Stopwords for cleaning sentences
 stopwords = set(open('data/text/stopwords.txt', encoding='utf-8').read().split('\n'))
