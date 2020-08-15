@@ -241,18 +241,51 @@ def suggest_annotations(request):
     return HttpResponse(json.dumps(suggestions))
 
 
+def teach_active_learner(request):
+    '''
+    Teach active learner upon acceptance,
+    rejection of related annotation
+    '''
+    sentence = request.POST['sentence']
+    label = int(request.POST['label'])
+    sentence_classifier.teach(sentence, label)
+    return HttpResponse(None)
+
+
+def teach_seq2seq():
+    pass
+
+
 class SentenceClassifier:
     def __init__(self):
-        self.vectorizer_path = 'data/model/active-learner-vectorizer.pickle'
-        self.classifier_path = 'data/model/active-learner-classifier.pickle'
+        self.data_path = 'data/text/synthetic-classifier-data.txt'
         self.setup_model()
 
     def setup_model(self):
         '''
-        Load vectorizer and active learner
+        Define active learner and train
+        with synthetic + stored examples
         '''
-        self.vectorizer = pickle.load(open(self.vectorizer_path, 'rb'))
-        self.learner = pickle.load(open(self.classifier_path, 'rb'))
+        # Read in training data
+        with open(self.data_path, encoding='utf-8') as f:
+            data = f.read().split('\n')
+
+        # Setup vectorizer and prepare training data
+        self.vectorizer = CountVectorizer()
+        self.X, self.y = [], []
+        for row in data:
+            row = row.split('\t')
+            if len(row) == 2:
+                self.X.append(row[0].strip())
+                self.y.append(int(row[1]))
+        self.X = self.vectorizer.fit_transform(self.X)
+
+        self.learner = ActiveLearner(
+            estimator=RandomForestClassifier(),
+            query_strategy=uncertainty_sampling,
+            X_training=self.X,
+            y_training=self.y
+        )
 
     def get_target_sentences(self, text, annotations):
         '''
@@ -264,9 +297,12 @@ class SentenceClassifier:
         target_sentences = []
         for sentence in sentences:
             classification = self.learner.predict(self.vectorizer.transform([sentence]))
-            if classification[0] == 1 and sentence not in annotations:
+            if classification[0] == 1 and self.convert_to_export_format(sentence) not in annotations:
                 target_sentences.append(sentence)
         return target_sentences
+
+    def convert_to_export_format(self, sentence):
+        return '-'.join(sentence.split(' '))
 
     def text_to_sentences(self, text):
         '''
@@ -281,12 +317,18 @@ class SentenceClassifier:
                     sentences.append(sentence.strip())
         return sentences
 
-    def train(self, sentence, label):
+    def teach(self, sentence, label):
         '''
         Teach and save updated model
         '''
-        self.learner.teach(self.vectorizer.transform([sentence]), label)
-        pickle.dump(self.learner, open('active-learner-classifier.pickle', 'wb'))
+        # Update data
+        sentence = sentence.lower().strip()
+        with open(self.data_path, 'a', encoding='utf-8') as f:
+            f.write('\n' + sentence + '\t' + str(label))
+
+        # Setup learner with new data
+        # To-do: traing incrementally
+        self.setup_model()
 
 
 class Seq2Seq:
@@ -483,7 +525,7 @@ class Seq2Seq:
             return None
 
     def train(self, instance, label):
-        self.model.fit(data, labels)
+        pass
 
 
 # Define active learner for classifying target sentences

@@ -163,10 +163,16 @@ input[type=radio] {
   outline: none;
   border: none;
   font-weight: bold;
+  cursor: pointer;
 }
 
 .main-button:hover {
   filter: brightness(105%);
+}
+
+.suggestion-button {
+  font-size: 15px;
+  width: 2.5vw;
 }
 
 .green-button {
@@ -175,6 +181,10 @@ input[type=radio] {
 
 .gray-button {
   background-color: rgb(196, 196, 196);
+}
+
+.yellow-button {
+  background-color: #fff45b;
 }
 
 .red-button {

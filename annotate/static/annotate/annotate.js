@@ -1255,8 +1255,8 @@ function getAnnotationSuggestions() {
     // Get open document text and existing annotations
     var documentText = localStorage.getItem('documentText' + currentDocumentId);
     var documentAnnotations = [];
-    for (var i = 0; i < $('.displayed-annotation').length; i++) {
-        documentAnnotations.push($('.displayed-annotation')[i].innerText);
+    for (var i = 0; i < annotationList[currentDocumentId].length; i++) {
+        documentAnnotations.push(annotationList[currentDocumentId][i][0][0].split('\t')[2].trim());
     }
 
     suggestAnnotationAjaxRequest = $.ajax({
@@ -1301,7 +1301,7 @@ function getAnnotationSuggestions() {
 
                     // Populate collapsible with suggestion attributes
                     var suggestionAttributes = '';
-                    var contentDiv = '<div for="' + suggestionId + '" class="content"><p>';
+                    var contentDiv = '<div for="' + suggestionId + '" class="content" style="background-color: #f1f1f1;"><p>';
                     for (var key in suggestions[i]) {
                         if (key != 'sentence' && suggestions[i][key]) {
                             contentDiv += '<p class="annotation-attribute">' + key + ': ' + suggestions[i][key] + '</p>';
@@ -1310,8 +1310,9 @@ function getAnnotationSuggestions() {
                     }
                     
                     // Add accept and reject buttons to collapsible
-                    contentDiv += '<div class="suggestion-option-container"><a suggestion-id=' + suggestionId + ' onClick="rejectSuggestion(this);"><button class="main-button red-button" style="font-size: 15px; width: 2.5vw; cursor: pointer;"><i class="fas fa-times"></i></button></a>';
-                    contentDiv += '<a suggestion-id=' + suggestionId + ' onClick="acceptSuggestion(this);"><button class="main-button green-button" style="font-size: 15px; width: 2.5vw; cursor: pointer;"><i class="fas fa-check"></i></button></a></div></p></div>'
+                    contentDiv += '<div class="suggestion-option-container"><a suggestion-id=' + suggestionId + ' onClick="rejectSuggestion(this);"><button class="main-button suggestion-button red-button"><i class="fas fa-times"></i></button></a>';
+                    contentDiv += '<a suggestion-id=' + suggestionId + ' onClick="editSuggestion(this);"><button class="main-button suggestion-button yellow-button"><i class="fas fa-edit"></i></button></a>'
+                    contentDiv += '<a suggestion-id=' + suggestionId + ' onClick="acceptSuggestion(this);"><button class="main-button suggestion-button green-button"><i class="fas fa-check"></i></button></a></div></p></div>'
 
                     // Add suggestion to display
                     document.getElementById('annotation-suggestion-list').innerHTML += '<p id=' + suggestionId + ' ' + suggestionClass + ' ' + suggestionStyle + ' ' + suggestionAttributes + '>' + suggestions[i]['sentence'] + '</p>' + contentDiv;
@@ -1335,6 +1336,7 @@ function acceptSuggestion(event) {
 
     // Get accepted annotation
     var annotation = document.getElementById(suggestionId);
+    var annotationText = annotation.innerText;
 
     // Remove collapsible assocaited with accepted annotation
     for (var i = 0; i < annotation.parentNode.childNodes.length; i++) {
@@ -1378,7 +1380,15 @@ function acceptSuggestion(event) {
     document.getElementById('add-annotation').click();
 
     // Update count of annotations in suggestion panel
-    updateAnnotationSuggestions();
+    updateSuggestionCount();
+    
+    // Train active learner
+    teachActiveLearner(annotationText, 1);
+}
+
+
+function editSuggestion(event) {
+    alert('Ability to edit suggestion attributes will be added soon.');
 }
 
 
@@ -1387,6 +1397,9 @@ function rejectSuggestion(event) {
 
     // Get rejected annotation
     var annotation = document.getElementById(suggestionId);
+
+    // Train active learner
+    teachActiveLearner(annotation.innerText, 0);
     
     // Remove collapsible assocaited with rejected annotation
     for (var i = 0; i < annotation.parentNode.childNodes.length; i++) {
@@ -1398,11 +1411,11 @@ function rejectSuggestion(event) {
     annotation.parentNode.removeChild(annotation);
 
     // Update count of annotations in suggestion panel
-    updateAnnotationSuggestions();
+    updateSuggestionCount();
 }
 
 
-function updateAnnotationSuggestions() {
+function updateSuggestionCount() {
     /*
     Update the count of annotations in
     suggestion panel upon accepting or 
@@ -1420,6 +1433,18 @@ function updateAnnotationSuggestions() {
         document.getElementById('annotation-suggestion-quantity-value').innerText = 'No annotation suggestions';
         resetSuggestionCollapsible();
     }
+}
+
+
+function teachActiveLearner(sentence, label) {
+    $.ajax({
+        type: 'POST',
+        url: '~/teach-active-learner',
+        data: {
+            'sentence': sentence,
+            'label': label
+        }
+    });
 }
 
 
