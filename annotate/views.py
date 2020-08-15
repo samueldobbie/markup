@@ -222,79 +222,71 @@ def get_ranked_ontology_matches(cleaned_term):
 
 def suggest_annotations(request):
     '''
-    Return annotation suggestions (with
-    attributes) for the open document text
+    Return annotation suggestions
+    (incl. attributes) for the open document
     '''
-    # Get document sentences and existing annotations
-    document_text = request.POST['documentText']
-    document_sentences = text_to_sentences(document_text)
-    document_annotations = set(json.loads(request.POST['documentAnnotations']))
+    text = request.POST['documentText']
+    annotations = set(json.loads(request.POST['documentAnnotations']))
 
-    # Predict annotations for each sentence
+    # Predict target sentences (that contain prescriptions)
+    target_sentences = sentence_classifier.get_target_sentences(text, annotations)
+
+    # Predict attributes from target sentences
     suggestions = []
-    for sentence in document_sentences:
-        if len(sentence.split(' ')) >= 4 and sentence not in document_annotations:
-            prediction = annotation_predictor.predict(sentence)
-            if prediction is not None:
-                suggestions.append(prediction)
+    for sentence in target_sentences:
+        prediction = annotation_predictor.predict(sentence)
+        if prediction is not None:
+            suggestions.append(prediction)
 
     return HttpResponse(json.dumps(suggestions))
 
 
-def text_to_sentences(document_text):
-    '''
-    Convert body of text into individual
-    sentences
-    '''
-    paragraphs = document_text.split('\n')
-    sentences = []
-    for paragraph in paragraphs:
-        for sentence in paragraph.split('. '):
-            if sentence.strip() != '':
-                sentences.append(sentence.strip())
-    return sentences
-
-
 class SentenceClassifier:
     def __init__(self):
-        self.data_path = 'data/text/synthetic-classifier-data.txt'
+        self.vectorizer_path = 'data/model/active-learner-vectorizer.pickle'
+        self.classifier_path = 'data/model/active-learner-classifier.pickle'
         self.setup_model()
 
     def setup_model(self):
-        # Read in training data
-        with open(self.data_path, encoding='utf-8') as f:
-            lines = f.read().split('\n')
+        '''
+        Load vectorizer and active learner
+        '''
+        self.vectorizer = pickle.load(open(self.vectorizer_path, 'rb'))
+        self.learner = pickle.load(open(self.classifier_path, 'rb'))
 
-        # Parse training data
-        X = []
-        y = []
-        for row in lines:
-            components = row.split('\t')
-            if len(components) == 2:
-                X.append(components[0])
-                y.append(int(components[1]))
+    def get_target_sentences(self, text, annotations):
+        '''
+        Return sentences that contain
+        a prescription
+        '''
+        sentences = self.text_to_sentences(text)
 
-        # Fit vectorizer and transform training data
-        self.vectorizer = CountVectorizer()
-        X = self.vectorizer.fit_transform(X)
-
-        # Initialise and train active learner
-        self.learner = ActiveLearner(
-            estimator=RandomForestClassifier(),
-            query_strategy=uncertainty_sampling,
-            X_training=X, y_training=y
-        )
-
-    def classify_sentences(self, sentences):
         target_sentences = []
         for sentence in sentences:
             classification = self.learner.predict(self.vectorizer.transform([sentence]))
-            if classification[0] == 1:
+            if classification[0] == 1 and sentence not in annotations:
                 target_sentences.append(sentence)
         return target_sentences
 
-    def train(self):
-        pass
+    def text_to_sentences(self, text):
+        '''
+        Convert body of text into individual
+        sentences
+        '''
+        paragraphs = text.split('\n')
+        sentences = []
+        for paragraph in paragraphs:
+            for sentence in paragraph.split('. '):
+                if sentence.strip() != '':
+                    sentences.append(sentence.strip())
+        return sentences
+
+    def train(self, sentence, label):
+        '''
+        Teach and save updated model
+        '''
+        self.learner.teach(self.vectorizer.transform([sentence]), label)
+        pickle.dump(self.learner, open('active-learner-classifier.pickle', 'wb'))
 
 
 class Seq2Seq:
@@ -495,7 +487,7 @@ class Seq2Seq:
 
 
 # Define active learner for classifying target sentences
-# sentence_classifier = SentenceClassifier()
+sentence_classifier = SentenceClassifier()
 
 # Define annotation prediction model
 annotation_predictor = Seq2Seq()
