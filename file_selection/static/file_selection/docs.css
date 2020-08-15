@@ -21,8 +21,7 @@
 .doc-example {
     border: 2px solid #1A1E24;
     border-radius: 2px;
-    background-color: rgb(245, 245, 245);
+    background-color: rgb(235, 235, 235);
     color: #1A1E24;
     padding: 25px;
-    font-weight: bold;
 }
