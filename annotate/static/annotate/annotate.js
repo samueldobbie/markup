@@ -984,6 +984,11 @@ function addAnnotation(event) {
     // Clear ontology search field
     document.getElementById('search-dict').value = '';
 
+    // Feed prescription sentence into active learner
+    if (entityValue == 'Prescription') {
+        teachActiveLearner(highlightText, 1);
+    }
+
     onPageLoad(false);
 }
 
