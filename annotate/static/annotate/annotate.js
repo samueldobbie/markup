@@ -77,6 +77,9 @@ function onPageLoad(initalLoad=true) {
         toggleAttributeDisplay(attributeCheckboxes, 'checkbox', 'none');
         toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
 
+        // Update display of selected entity
+        $('input[type=radio]').click(updateSelectedEntity);
+
         // Display correct attributes upon clicking an entity
         $('input[type=radio]').click({
             'configArgs': configArgs,
@@ -634,6 +637,21 @@ function displayAnnotation(entityValue, attributeValues, annotationIdentifier) {
 
     // Inject constructed annotation into display panel 
     document.getElementById(entityValue + '-section').innerHTML += '<p ' + annotationClass + ' ' + annotationId + ' ' + annotationStyle + '>' + highlighted + '</p>' + contentDiv;
+}
+
+
+function updateSelectedEntity() {
+    // Remove styles from all entities
+    $('.config-label').each(function() {
+        $(this).css({
+            marginLeft: '0'
+        });
+    });
+
+    // Style selected entity
+    $(this).next().css({
+        marginLeft: '5%'
+    });
 }
 
 
