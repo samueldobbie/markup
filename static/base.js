@@ -4,11 +4,18 @@ function clearLocalStorage() {
     outdated information from being displayed upon revisiting
     */
     if (window.location.href.indexOf('annotate') == -1) {
-        var tempMode = localStorage.getItem('mode');
+        // Clear storage (excl. display preference)
+        var displayMode = localStorage.getItem('mode');
         localStorage.clear();
-        if (tempMode) {
-            localStorage.setItem('mode', tempMode);
+        if (displayMode) {
+            localStorage.setItem('mode', displayMode);
         }
+    
+        // Revert ontology selection to default
+        $.ajax({
+            type: 'POST',
+            url: '/reset-ontology'
+        });
     }
 }
 
@@ -49,5 +56,7 @@ function setRequestHeader(csrftoken){
 function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
 }
+
+setRequestHeader(getCookie('csrftoken'));
 
 clearLocalStorage();

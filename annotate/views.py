@@ -161,6 +161,19 @@ def construct_ontology(ontology_data):
     return database, term_to_cui
 
 
+def reset_ontology(request):
+    '''
+    Void any existing uses of ontologies
+    to avoid cross-overs between sessions
+    '''
+    global simstring_searcher, term_to_cui
+
+    simstring_searcher = None
+    term_to_cui = None
+
+    return HttpResponse(None)
+
+
 def suggest_cui(request):
     '''
     Returns all relevant ontology matches that have a similarity
@@ -539,15 +552,15 @@ SIMILARITY_THRESHOLD = 0.7
 simstring_searcher = None
 term_to_cui = None
 
-# Pre-loaded demo ontology
+# Load demo ontology
 demo_database = pickle.load(open('data/demo/demo-database.pickle', 'rb'))
 demo_mappings = pickle.load(open('data/demo/demo-mappings.pickle', 'rb'))
 
-# Pre-loaded UMLS ontology
-pickles = [f for f in os.listdir('data/ontology/') if os.path.isfile(os.path.join('data/ontology/', f))]
-
+# Load UMLS ontology
 umls_database = None
 umls_mappings = None
+
+pickles = [f for f in os.listdir('data/ontology/') if os.path.isfile(os.path.join('data/ontology/', f))]
 if 'umls-database.pickle' in pickles and 'umls-mappings.pickle' in pickles:
     umls_database = pickle.load(open('data/ontology/umls-database.pickle', 'rb'))
     umls_mappings = pickle.load(open('data/ontology/umls-mappings.pickle', 'rb'))

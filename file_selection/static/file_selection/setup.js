@@ -408,8 +408,6 @@ function detectLineBreakType(text) {
 
 
 function storeFileDataLocally(file, fileStorageName, lineBreakStorageName=null) {
-    setRequestHeader(getCookie('csrftoken'));
-
     if (file.type == 'application/pdf') {
         var fileReader = new FileReader();
         fileReader.onload = function() {

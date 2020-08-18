@@ -14,8 +14,6 @@ function onPageLoad(initalLoad=true) {
     // Check whether config is empty and return home if true
     validateConfigSelection(configText);
 
-    setRequestHeader(getCookie('csrftoken'));
-
     if (initalLoad) {
         if (documentOpenType == 'multiple') {
             // Display arrows to move forward or backwards by file
@@ -984,7 +982,7 @@ function addAnnotation(event) {
     // Clear ontology search field
     document.getElementById('search-dict').value = '';
 
-    // Feed prescription sentence into active learner
+    // Feed prescription sentences into active learner
     if (entityValue == 'Prescription') {
         teachActiveLearner(highlightText, 1);
     }
@@ -1217,7 +1215,7 @@ function suggestCui(event) {
                     option.title = matches[i].split(' :: ')[1];
                     dropdown.add(option);
                 }
-            }else {
+            } else {
                 // Display default option in dropdown
                 var option = document.createElement('option');
                 option.text = 'No match';
