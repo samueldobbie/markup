@@ -644,13 +644,15 @@ function updateSelectedEntity() {
     // Remove styles from all entities
     $('.config-label').each(function() {
         $(this).css({
-            marginLeft: '0'
+            marginLeft: '0',
+            transition : 'margin 300ms'
         });
     });
 
     // Style selected entity
     $(this).next().css({
-        marginLeft: '5%'
+        marginLeft: '5%',
+        transition : 'margin 300ms'
     });
 }
 

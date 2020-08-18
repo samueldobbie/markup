@@ -319,22 +319,23 @@ class SentenceClassifier:
 
     def text_to_sentences(self, text):
         '''
-        Convert body of text into individual
-        sentences
+        Convert body of text into individual sentences
         '''
-        paragraphs = text.split('\n')
         sentences = []
-        for paragraph in paragraphs:
+        for paragraph in text.split('\n'):
             for sentence in paragraph.split('. '):
-                if sentence.strip() != '':
-                    sentences.append(sentence.strip())
+                for sub_sentence in sentence.split(' and '):
+                    sub_sentence = sub_sentence.strip()
+                    if sub_sentence != '':
+                        sentences.append(sub_sentence)
+
         return sentences
 
     def teach(self, sentence, label):
         '''
         Teach and save updated model
         '''
-        # Update data
+        # Update local data
         sentence = sentence.lower().strip()
         with open(self.data_path, 'a', encoding='utf-8') as f:
             f.write('\n' + sentence + '\t' + str(label))
@@ -509,6 +510,8 @@ class Seq2Seq:
         vector[0, i + 1, self.input_token_index[' ']] = 1.
 
         sequence = self.decode_sequence(vector).strip().split('; ')
+
+        print('\n\n', raw_sentence, '\t', self.decode_sequence(vector), '\n\n')
 
         # Only consider prediction valid if drug name and dose appears in sentence
         if len(sequence) == 4 and sequence[0] in clean_sentence and sequence[1] in clean_sentence:
