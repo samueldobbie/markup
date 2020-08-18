@@ -42,7 +42,7 @@
             <div class="doc-example">
                 <p>Focal Seizure <span style="margin-left: 50px;">RANDOM01938</span></p>
                 <p>Epilepsy <span style="margin-left: 50px;">RANDOM43904</span></p>
-                <p>Sodium Valporate <span style="margin-left: 50px;">RANDOM30921</span></p>
+                <p>Sodium Valproate <span style="margin-left: 50px;">RANDOM30921</span></p>
                 <p>...</p>
             </div>
         </span>        
@@ -51,16 +51,16 @@
             Multiple Documents
         </h3>
         <ul class="doc-line">
-            <li>Use dropdown to select Multiple files.</li>
+            <li>Use the drop-down to select Multiple files.</li>
             <li>Use the file browser to select the folder containing the files you wish to annotate.</li>
             
             <ul class="doc-line">
-                <li>This folder must contain a .conf file (if there are multiple.conf files, the last in a alphanumerical order will be used).</li>
+                <li>This folder must contain a .conf file (if there are multiple.conf files, the last in an alphanumerical order will be used).</li>
                 <li>.ann files are not required for the first time annotating, as saving the first time will creating. However, if previously annotated documents are loaded, to see these annotations the .ann file with the same name as the document is needed.</li>
             </ul>
             
-            <li>If the user as a UMLS account, under Ontology select UMLS from the drop down menu, users will be asked to provide a Username and Password for their UMLS account (this is not the full UMLS vocabulary, but a reduced version).  The user can also select a custom text file with their own personalised ontology for the documents they wish to annotate.</li>
-            <li>There are two ways to move from one document to another. Firstly, using the arrows in the top right hand corner. Secondly, to the left of these arrows is the name of the current document. Clicking on this will lead to a dropdown with all the files loaded from the folder selected.</li>
+            <li>If the user as a UMLS account, under Ontology select UMLS from the drop-down menu, users will be asked to provide a Username and Password for their UMLS account (this is not the full UMLS vocabulary, but a reduced version).  The user can also select a custom text file with their own personalised ontology for the documents they wish to annotate.</li>
+            <li>There are two ways to move from one document to another. Firstly, using the arrows in the top right-hand corner. Secondly, to the left of these arrows is the name of the current document. Clicking on this will lead to a dropdown with all the files loaded from the folder selected.</li>
         </ul>
 
         <h2 class="doc-headline">
@@ -72,19 +72,19 @@
                 <li>Either double click quickly on the word or if a string of words, double click on the first or last word, hold the second click and drag to highlight the whole phrase. This will snap to highlight whole words, speeding up the process.</li>
                 <li>It is also possible to single click and drag to cover the word/string.</li>
             </ul>
-            <li>On the left hand side, the entities from the .conf file are listed. Click on the desired entity and below the last option the attributes for that entity will appear.</li>
-            <li>These drop down boxes can be typed into for swiftly annotating, or scrolled thought to select. If an attribute value wasn’t added to the conf file, the value can be typed and will be saved as typed (useful for numbers).</li>
-            <li>If when annotating you would like to add a CUI (or other identifying key?), below the attributes there are two dropdown boxes and a search bar. If the highlighted phrase is within the ontology selected, selecting the phrase will add the CUI to the annotation.</li>
+            <li>On the left-hand side, the entities from the .conf file are listed. Click on the desired entity and below the last option, the attributes for that entity will appear.</li>
+            <li>These drop-down boxes can be typed into for swiftly annotating, or scrolled thought to select. If an attribute value wasn’t added to the conf file, the value can be typed and will be saved as typed (useful for numbers).</li>
+            <li>If when annotating you would like to add a CUI (or another identifying key), below the attributes there are two dropdown boxes and a search bar. If the highlighted phrase is within the ontology selected, selecting the phrase will add the CUI to the annotation.</li>
             <ul class="doc-line">
                 <li>If the exact term is not in the ontology but a similar term is there, the user can select this other term (very useful for typos). The terms are displayed in order of similarity to the highlighted phrase.</li>
                 <li>If the suggestions aren’t appropriate, it is possible to use the search box to type out a term that would match the phrase. Then select the phrase (or a suitable near match) from the second dropdown box.</li>
             </ul>
             <li>To finally add the annotation, click the + Annotation button.</li>
-            <li>The annotation should then appear on the right hand side of the main body of text.</li>
-            <li>The annotation can be reviewed by clicking on this new annotation on the right hand side.</li>
+            <li>The annotation should then appear on the right-hand side of the main body of text.</li>
+            <li>The annotation can be reviewed by clicking on this new annotation on the right-hand side.</li>
             <ul class="doc-line">
                 <li>The annotations will be grouped by entities.</li>
-                <li>Clicking on this annotation will flash on the main body of text (only if it is the latest annotation on phrase)</li>
+                <li>Clicking on this annotation will flash on the main body of text (only if it is the latest annotation on the phrase)</li>
                 <li>The annotation can be deleted by clicking on the small bin icon in the bottom right corner.</li>
                 <li>The ability to edit annotations without deleting will be coming soon.</li>
             </ul>
@@ -95,17 +95,17 @@
             Annotation Suggestions
         </h2>
         <ul class="doc-line">
-            <li>Markup will indicate any annotation suggestions above where then annotations appear on the right hand side (it may take a few seconds for the suggestions to appear, depending on the specification of your machine).
-            <li>These annotations will be grouped by entity and coloured according to the entities on the left hand side.
+            <li>Markup will indicate any annotation suggestions above where then annotations appear on the right-hand side (it may take a few seconds for the suggestions to appear, depending on the specification of your machine).
+            <li>These annotations will be grouped by entity and coloured according to the entities on the left-hand side.
             <li>Clicking on a suggested annotation will give the user the opportunity to review the suggestion before accepting or rejecting it, where:
             <ul class="doc-line">
-                <li>Accepting will add the annotation, along with its appropiate entity and attributes.</li>
+                <li>Accepting will add the annotation, along with its appropriate entity and attributes.</li>
                 <li>Rejecting will feedback into the prediction model to improve future annotations.</li>
             </ul>
             <li>The ability to edit the suggestions will be added soon.
             <li>Upon adding the annotation, the annotation will span the whole sentence where the appropriate sequence is found.
             Exporting Annotations
-            <li>After all the annotations have been added. Clicking on the Export button (next to + Annotation) will tell your browser to save the .ann file. It will usually save automatically to your download folder, however it is possible, within the setting of some browsers, to select where this .ann file will be saved. Guidelines demonstrating the process for updating this setting is demonstrated on Chrome and Firefox <a href="https://www.howtogeek.com/231002/how-to-change-the-chrome-download-folder-location/" target="_blank">here</a> and <a href="https://www.howtogeek.com/260271/how-to-change-the-firefox-download-folder-location/" target="_blank">here</a>, respectively.
+            <li>After all the annotations have been added. Clicking on the Export button (next to + Annotation) will tell your browser to save the .ann file. It will usually save automatically to your download folder, however, it is possible, within the setting of some browsers, to select where this .ann file will be saved. Guidelines demonstrating the process for updating this setting is demonstrated on Chrome and Firefox <a href="https://www.howtogeek.com/231002/how-to-change-the-chrome-download-folder-location/" target="_blank">here</a> and <a href="https://www.howtogeek.com/260271/how-to-change-the-firefox-download-folder-location/" target="_blank">here</a>, respectively.
         </ul>
 
         <h2 class="doc-headline">
@@ -114,12 +114,12 @@
         <ul class="doc-line">
             <li>The annotation configuration file must be in the format of the annotation type configuration used by <a href="http://brat.nlplab.org/configuration.html" target="_blank">brat annotation configuration</a> however, it does not include the relations or event definitions. We do not yet support advanced entity level configuration, but advanced attribute configuration is included.</li>
             <li>Keyboard shortcut configuration is a feature that is soon to be added.</li>
-            <li>We suggest using the built in Configuration Creator if you have no experience creating a annotation configuration file.</li>
+            <li>We suggest using the built-in Configuration Creator if you have no experience creating an annotation configuration file.</li>
             <ul class="doc-line">
                 <li>Add each of the entities you wish to annotate, one by one, into the Entities – Entity name bar. Selecting + ENTITY after each one.</li>
                 <li>Then you need to add the attributes to each Entity.</li>
-                <li>In the attributes section add the attribute name, the entity to go with that attribute, followed by any values you wish that attribute to have. For multiple values, separate each with a comma. Add the attribute by pressing +Attribute. The attribute will be shown on the page, with the entity and its values. Clicking on the attribute will remove it.</li>
-                <li>Repeat the process until you have added each of you desired attributes. The attributes are added in order they are created, we suggest adding all the attributes for one entity, then moving on to the next.</li>
+                <li>In the attributes section, add the attribute name, the entity to go with that attribute, followed by any values you wish that attribute to have. For multiple values, separate each with a comma. Add the attribute by pressing +Attribute. The attribute will be shown on the page, with the entity and its values. Clicking on the attribute will remove it.</li>
+                <li>Repeat the process until you have added each of your desired attributes. The attributes are added in the order they are created, we suggest adding all the attributes for one entity, then moving on to the next.</li>
                 <li>Finally save the annotation configuration file to your system, with the save button.</li>
             </ul>
             <li>The saved .conf file can be edited in any text editor.</li>
