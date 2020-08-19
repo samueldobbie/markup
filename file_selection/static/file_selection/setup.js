@@ -38,7 +38,7 @@ $(document).ready(function () {
         // Store selected file locally
         storeFileDataLocally(document.getElementById('document-file-opener').files[0], 'documentText' + 0, 'lineBreakType' + 0);
         
-        localStorage.setItem('fileName' + 0, document.getElementById('document-file-opener').files[0].name.split(".").slice(0, -1).join("."));
+        localStorage.setItem('fileName' + 0, document.getElementById('document-file-opener').files[0].name.split('.').slice(0, -1).join('.'));
         localStorage.setItem('documentCount', 0);
 
         // Display name of file next to upload button
@@ -94,7 +94,7 @@ $(document).ready(function () {
     });
 
 
-    $("#ontology-file-dropdown").change(function () {
+    $('#ontology-file-dropdown').change(function () {
         /*
         Display ontology login authentication panel
         */
@@ -134,10 +134,10 @@ $(document).ready(function () {
     /*** Multiple document section ***/
 
     $('#multiple-document-selection').click(function () {
-        $(".file-selection-container").fadeOut();
+        $('.file-selection-container').fadeOut();
 
         sleep(500).then(() => {
-            $(".multiple-document-selection-container").fadeIn();
+            $('.multiple-document-selection-container').fadeIn();
         });
 
         // Store file selection type locally
@@ -150,18 +150,18 @@ $(document).ready(function () {
         var documentIndex = {};
         var documentFileList = document.getElementById('folder-file-opener').files;
 
-        for (var i=0; i<documentFileList.length; i++) {
+        for (var i = 0; i < documentFileList.length; i++) {
             if (documentFileList[i].name.split('.').includes('txt')) {
                 documentIndex[documentFileList[i].name.split('.')[0]] = documentCount; 
                 storeFileDataLocally(documentFileList[i], 'documentText' + documentCount, 'lineBreakType' + documentCount);
-                localStorage.setItem('fileName' + documentCount, documentFileList[i].name.split(".").slice(0, -1).join("."));
+                localStorage.setItem('fileName' + documentCount, documentFileList[i].name.split('.').slice(0, -1).join('.'));
                 documentCount++;
             } else if (documentFileList[i].name.split('.').includes('conf')) {
                 storeFileDataLocally(documentFileList[i], 'configText');
             }
         }
 
-        for (var j=0; j<documentFileList.length; j++) {
+        for (var j = 0; j < documentFileList.length; j++) {
             if (documentFileList[j].name.split('.').includes('ann')) {
                 var index = documentIndex[documentFileList[j].name.split('.')[0]];
                 storeFileDataLocally(documentFileList[j], 'annotationText' + index);
@@ -178,7 +178,7 @@ $(document).ready(function () {
     });
 
 
-    $("#ontology-folder-dropdown").change(function () {
+    $('#ontology-folder-dropdown').change(function () {
         var selectedValue = this.value;
         if (selectedValue != 'Choose pre-loaded') {
             $('#setup-type-container').hide();
@@ -407,27 +407,31 @@ function detectLineBreakType(text) {
 }
 
 
+function convertLineBreakType(text, convertFrom, convertTo) {
+    if (convertFrom == 'windows' && convertTo == 'linux') {
+        return text.replace(/\r\n/g, '\n');
+    }
+    return text;
+}
+
+
 function storeFileDataLocally(file, fileStorageName, lineBreakStorageName=null) {
     if (file.type == 'application/pdf') {
         var fileReader = new FileReader();
         fileReader.onload = function() {
-
-            //Step 4:turn array buffer into typed array
-            var typedarray = new Uint8Array(this.result);
-    
-            //Step 5:PDFJS should be able to read this
-            PDFJS.getDocument(typedarray).then(function(pdf) {
-                console.log(pdf);
-            });
+            // Implement file reading of other formats
         };
-        //Step 3:Read the file as ArrayBuffer
         fileReader.readAsArrayBuffer(file);
     } else {
         var reader = new FileReader();
         reader.onload = function () {
-            localStorage.setItem(fileStorageName, reader.result);
+            var fileText = reader.result;
+            if (fileStorageName == 'configText' && detectLineBreakType(fileText) == 'windows') {
+                fileText = convertLineBreakType(fileText, 'windows', 'linux');
+            }
+            localStorage.setItem(fileStorageName, fileText);
             if (lineBreakStorageName) {
-                localStorage.setItem(lineBreakStorageName, detectLineBreakType(reader.result));
+                localStorage.setItem(lineBreakStorageName, detectLineBreakType(fileText));
             }
         };
         reader.readAsText(file);

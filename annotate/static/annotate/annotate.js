@@ -202,7 +202,7 @@ function parseConfigurationData(configText) {
             continue;
         }
 
-        if (isEntitySentence && configSentence[0] != '[') {
+        if (isEntitySentence && configSentence[0] != '[' && !entityList.includes(configSentence)) {
             entityList.push(configSentence);
         } else if (configSentence[0] != '[') {
             configValues.push(configSentence);
