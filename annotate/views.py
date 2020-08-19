@@ -271,7 +271,8 @@ def teach_seq2seq():
 
 class SentenceClassifier:
     def __init__(self):
-        self.data_path = 'data/text/synthetic-classifier-data.txt'
+        self.user_data_path = 'data/text/user-classifier-data.txt'
+        self.synthetic_data_path = 'data/text/synthetic-classifier-data.txt'
         self.setup_model()
 
     def setup_model(self):
@@ -280,8 +281,14 @@ class SentenceClassifier:
         with synthetic + stored examples
         '''
         # Read in training data
-        with open(self.data_path, encoding='utf-8') as f:
+        with open(self.user_data_path, encoding='utf-8') as f:
             data = f.read().split('\n')
+
+        with open(self.synthetic_data_path, encoding='utf-8') as f:
+            data += f.read().split('\n')
+
+        # Remove duplicates
+        data = set(data)
 
         # Setup vectorizer and prepare training data
         self.vectorizer = CountVectorizer()
@@ -335,13 +342,13 @@ class SentenceClassifier:
         '''
         Teach and save updated model
         '''
-        # Update local data
+        # Store local data
         sentence = sentence.lower().strip()
-        with open(self.data_path, 'a', encoding='utf-8') as f:
-            f.write('\n' + sentence + '\t' + str(label))
+        with open(self.user_data_path, 'a', encoding='utf-8') as f:
+            f.write(sentence + '\t' + str(label) + '\n')
 
         # Setup learner with new data
-        # To-do: traing incrementally
+        # To-do: train incrementally
         self.setup_model()
 
 
@@ -510,8 +517,6 @@ class Seq2Seq:
         vector[0, i + 1, self.input_token_index[' ']] = 1.
 
         sequence = self.decode_sequence(vector).strip().split('; ')
-
-        print('\n\n', raw_sentence, '\t', self.decode_sequence(vector), '\n\n')
 
         # Only consider prediction valid if drug name and dose appears in sentence
         if len(sequence) == 4 and sequence[0] in clean_sentence and sequence[1] in clean_sentence:

@@ -1406,7 +1406,7 @@ function acceptSuggestion(event) {
     updateSuggestionCount();
     
     // Train active learner
-    teachActiveLearner(annotationText, 1);
+    // teachActiveLearner(annotationText, 1);
 }
 
 
