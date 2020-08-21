@@ -11,12 +11,19 @@ function clearLocalStorage() {
             localStorage.setItem('mode', displayMode);
         }
     
-        // Revert ontology selection to default
-        $.ajax({
-            type: 'POST',
-            url: '/reset-ontology'
-        });
+        resetOntologyToDefault();
     }
+}
+
+
+function resetOntologyToDefault() {
+    /*
+    Set selected ontology to null
+    */
+    $.ajax({
+        type: 'POST',
+        url: '/reset-ontology'
+    });
 }
 
 

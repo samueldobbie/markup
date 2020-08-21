@@ -44,8 +44,8 @@ $(document).ready(function () {
         // Display name of file next to upload button
         document.getElementById('document-file-name').innerText = document.getElementById('document-file-opener').files[0].name;
         
-        // Change colour of component
-        updateComponentColour('document-file-opener-container');
+        // Change color of component
+        updateCompleteComponent('document-file-opener-container');
     });
 
 
@@ -59,8 +59,8 @@ $(document).ready(function () {
         // Display remove button
         document.getElementById('annotation-file-remover').style.display = '';
         
-        // Change colour of component
-        updateComponentColour('annotation-file-opener-container');
+        // Change color of component
+        updateCompleteComponent('annotation-file-opener-container');
     });
 
 
@@ -77,7 +77,7 @@ $(document).ready(function () {
         // Hide remove button
         document.getElementById('annotation-file-remover').style.display = 'none';
 
-        // Change colour of component
+        // Change color of component
         document.getElementById('annotation-file-opener-container').style.border = 'none';
     });
 
@@ -89,8 +89,8 @@ $(document).ready(function () {
         // Display name of file next to upload button
         document.getElementById('configuration-file-name').innerText = document.getElementById('configuration-file-opener').files[0].name;
         
-        // Change colour of component
-        updateComponentColour('configuration-file-opener-container');
+        // Change color of component
+        updateCompleteComponent('configuration-file-opener-container');
     });
 
 
@@ -99,10 +99,13 @@ $(document).ready(function () {
         Display ontology login authentication panel
         */
         var selectedValue = this.value;
-        if (selectedValue != 'Choose pre-loaded') {
+        if (selectedValue != 'default') {
             $('#setup-type-container').hide();
             $('#single-document-selection-container').hide();
             $('#' + selectedValue + '-verification-form-container').show();
+        } else if (!$('#ontology-file-opener').val()) {
+            resetCompleteComponent('ontology-file-opener-container');
+            resetOntologyToDefault();
         }
     });
 
@@ -173,17 +176,20 @@ $(document).ready(function () {
         // May need to be done differently on non-Chrome browsers
         document.getElementById('folder-file-name').innerText = document.getElementById('folder-file-opener').files[0].webkitRelativePath.split('/')[0];
         
-        // Change colour of component
-        updateComponentColour('folder-file-opener-container');
+        // Change color of component
+        updateCompleteComponent('folder-file-opener-container');
     });
 
 
     $('#ontology-folder-dropdown').change(function () {
         var selectedValue = this.value;
-        if (selectedValue != 'Choose pre-loaded') {
+        if (selectedValue != 'default') {
             $('#setup-type-container').hide();
             $('#multiple-document-selection-container').hide();
             $('#' + selectedValue + '-verification-form-container').show();
+        } else if (!$('#ontology-folder-opener').val()) {
+            resetCompleteComponent('ontology-folder-opener-container');
+            resetOntologyToDefault();
         }
     });
 
@@ -250,19 +256,21 @@ $(document).ready(function () {
                     $('#setup-type-container').show();
                     if ($('#setup-type-dropdown').val() == 'single') {
                         $('#single-document-selection-container').show();
-                        updateComponentColour('ontology-file-opener-container');
+                        updateCompleteComponent('ontology-file-opener-container');
                     } else {
                         $('#multiple-document-selection-container').show();
-                        updateComponentColour('ontology-folder-opener-container');
+                        updateCompleteComponent('ontology-folder-opener-container');
                     }
                 } else {
                     $('#umls-verification-form-container').css({'border': '1px solid red'});
                     $('#umls-verification-form-invalid-credentials').show();
-                    
-                    // Hide verification loader and show form
-                    $('#umls-verification-loader').hide();
-                    $('#umls-verification-form').show();
                 }
+                // Hide verification loader and show form
+                $('#umls-verification-loader').hide();
+                $('#umls-verification-form').show();
+
+                // Clear input forms
+                $('.verification-form-field').val('');
             }
         });
     });
@@ -271,7 +279,7 @@ $(document).ready(function () {
     updateDisplayMode();
 
     // Set setup type to complete by default
-    updateComponentColour('setup-type-container');
+    updateCompleteComponent('setup-type-container');
 
     $('.setup-tooltip').simpletooltip({
         position: 'right',
@@ -361,11 +369,11 @@ function setupCustomOntology(file, type) {
             },
             success: function (result) {
                 if (type == 'single') {
-                    // Change colour of component
-                    updateComponentColour('ontology-file-opener-container');
+                    // Change color of component
+                    updateCompleteComponent('ontology-file-opener-container');
                 } else if (type == 'multiple') {
-                    // Change colour of component
-                    updateComponentColour('ontology-folder-opener-container');
+                    // Change color of component
+                    updateCompleteComponent('ontology-folder-opener-container');
                 }
 
                 // Hide loader
@@ -388,9 +396,13 @@ function setupCustomOntology(file, type) {
 }
 
 
-function updateComponentColour(id) {
+function updateCompleteComponent(id) {
     document.getElementById(id).style.border = '1px solid #33FFB5';
     document.getElementById(id).setAttribute('complete', 'true');
+}
+
+function resetCompleteComponent(id) {
+    document.getElementById(id).style.border = '';
 }
 
 
