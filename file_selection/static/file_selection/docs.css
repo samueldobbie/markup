@@ -25,3 +25,10 @@
     color: #1A1E24;
     padding: 25px;
 }
+
+.doc-field {
+    background-color: rgb(221, 221, 221);
+    border-radius: 2px;
+    color: #1A1E24;
+    padding: 1.5px;
+}
