@@ -24,15 +24,14 @@
             <span class="doc-field">Document to annotate</span> - The document you intend to annotate (must have .txt file extension).
         </p>
         <p class="doc-line">
-            <span class="doc-field">Configuration file</span> - Defines all entities and attributes available during annotation.
-            Select an existing configuration file (must have .conf file extension) or create a new one using the <a href="/config-creator" target="_blank">in-built config creator</a>.
+            <span class="doc-field">Configuration file</span> - Defines all entities and attributes available during annotation. Select an existing configuration file (that has the .conf file extension and is formatted as shown <a href="http://brat.nlplab.org/configuration.html" target="_blank">here</a>), or create a new one using the <a href="/config-creator" target="_blank">in-built config creator</a>.
         </p>
         <p class="doc-line">
             <b>Optional</b>
         </p>
         <p class="doc-line">
             <span class="doc-field">Existing annotations</span> - A file containing existing annotations for the document you intend to annotate.
-            The annotation file must have the .ann file extension and be in <a href="http://brat.nlplab.org/standoff.html" target="_blank">standoff format</a>.  
+            The annotation file must have the .ann file extension and be in <a href="http://brat.nlplab.org/standoff.html" target="_blank">standoff format</a>.
         </p>
         <p class="doc-line">
             <span class="doc-field">Ontology</span> - A dictionary of terms, codes, and related data to be accessed during annotation.
@@ -62,8 +61,8 @@
         <p class="doc-line">
             <span class="doc-field">Folder to annotate</span> - The folder containing the documents you wish to annotate. The folder must contain:
             <ul class="doc-line doc-list">
-                <li>A configuration file (must have .conf file extension).</li>
                 <li>The documents you wish to annotate (must have .txt file extension).</li>
+                <li>A configuration file which defines all entities and attributes available during annotation. Select an existing configuration file (that has the .conf file extension and is formatted as shown <a href="http://brat.nlplab.org/configuration.html" target="_blank">here</a>), or create a new one using the <a href="/config-creator" target="_blank">in-built config creator</a>.</li>
                 <li>Any existing annotation files you wish to use (must have .ann file extension). The name of each annotation file must match the name of its corresponding text document (e.g. annotations for <span class="doc-field">some-random-file.txt</span> must be stored in <span class="doc-field">some-random-file.ann</span>).</li>
             </ul>
         </p>
@@ -106,42 +105,48 @@
         </p>
 
         <h2 class="doc-headline">
-            Annotation Suggestions
+            Predictive Annotation Suggestions
         </h2>
-        <ul class="doc-line">
-            <li>Markup will indicate any annotation suggestions above where then annotations appear on the right-hand side (it may take a few seconds for the suggestions to appear, depending on the specification of your machine).
-            <li>These annotations will be grouped by entity and coloured according to the entities on the left-hand side.
-            <li>Clicking on a suggested annotation will give the user the opportunity to review the suggestion before accepting or rejecting it, where:
-            <ul class="doc-line">
-                <li>Accepting will add the annotation, along with its appropriate entity and attributes.</li>
-                <li>Rejecting will feedback into the prediction model to improve future annotations.</li>
+        <p class="doc-line">
+            Markup functionality includes a novel system to predict and suggest complex annotation using Active and Sequence-to-Sequence learning models.
+        </p>
+        <p class="doc-line">
+            Upon opening or switching to a document, Markup will predict all annotations and display them in a collapsible drop-down within the annotation panel. Each annotation will be grouped and coloured based on its entity category, and ordered based on its appearance within the document text.
+        </p>
+        <p class="doc-line">
+            Each annotation suggestion will consist of:
+            <ul class="doc-line doc-list">
+                <li>A span of text within the open document that will be annotated.</li>
+                <li>An entity category.</li>
+                <li>Populated attributes.</li>
             </ul>
-            <li>The ability to edit the suggestions will be added soon.
-            <li>Upon adding the annotation, the annotation will span the whole sentence where the appropriate sequence is found.
-            Exporting Annotations
-            <li>After all the annotations have been added. Clicking on the Export button (next to + Annotation) will tell your browser to save the .ann file. It will usually save automatically to your download folder, however, it is possible, within the setting of some browsers, to select where this .ann file will be saved. Guidelines demonstrating the process for updating this setting is demonstrated on Chrome and Firefox <a href="https://www.howtogeek.com/231002/how-to-change-the-chrome-download-folder-location/" target="_blank">here</a> and <a href="https://www.howtogeek.com/260271/how-to-change-the-firefox-download-folder-location/" target="_blank">here</a>, respectively.
-        </ul>
+        </p>
+        <p class="doc-line">
+            Selecting an annotation suggestion will give the user the opportunity to review all details related to the annotation (e.g. attribute values) before accepting, editing or rejecting it, where:
+            <ul class="doc-line doc-list">
+                <li>Accepting will add the annotation to the document.</li>
+                <li>Editing will enable the user to add, adjust, and remove attribute values prior to adding the annotation.</li>
+                <li>Rejecting will remove the annotation from the suggestion list.</li>
+            </ul>
+        </p>
+        <p class="doc-line">
+            The response to a suggestion from a user will feedback into the prediction models to improve future predictions. Model adjustments will only be made to the model local to the user, and thus will have no impact on predictions for other users. 
+        </p>
 
         <h2 class="doc-headline">
-            Configuration File
+            Export
         </h2>
-        <ul class="doc-line">
-            <li>The annotation configuration file must be in the format of the annotation type configuration used by <a href="http://brat.nlplab.org/configuration.html" target="_blank">brat annotation configuration</a> however, it does not include the relations or event definitions. We do not yet support advanced entity level configuration, but advanced attribute configuration is included.</li>
-            <li>Keyboard shortcut configuration is a feature that is soon to be added.</li>
-            <li>We suggest using the built-in Configuration Creator if you have no experience creating an annotation configuration file.</li>
-            <ul class="doc-line">
-                <li>Add each of the entities you wish to annotate, one by one, into the Entities – Entity name bar. Selecting + ENTITY after each one.</li>
-                <li>Then you need to add the attributes to each Entity.</li>
-                <li>In the attributes section, add the attribute name, the entity to go with that attribute, followed by any values you wish that attribute to have. For multiple values, separate each with a comma. Add the attribute by pressing +Attribute. The attribute will be shown on the page, with the entity and its values. Clicking on the attribute will remove it.</li>
-                <li>Repeat the process until you have added each of your desired attributes. The attributes are added in the order they are created, we suggest adding all the attributes for one entity, then moving on to the next.</li>
-                <li>Finally save the annotation configuration file to your system, with the save button.</li>
+        <p class="doc-line">
+            After completing the annotation process, the user can export all anontations by selecting the <span class="doc-field">Export</span> button in the configuraton panel. Exporting the annotations will produce an annotation file, with the .ann file extension, that contains all added annotations in <a href="http://brat.nlplab.org/standoff.html" target="_blank">standoff format</a>.
+        </p>
+        <p class="doc-line">
+            Browsers recommend by default that annotations be saved to the local <span class="doc-field">Download</span> folder. When annotating large quantities of documents, it can be useful to update this default location, which can be done on various browsers, as shown in the following guides:
+            <ul class="doc-line doc-list">
+                <li><a href="https://www.howtogeek.com/231002/how-to-change-the-chrome-download-folder-location/" target="_blank">Chrome</a></li>
+                <li><a href="https://www.howtogeek.com/260271/how-to-change-the-firefox-download-folder-location/" target="_blank">Firefox</a></li>
+                <li><a href="https://ccm.net/faq/10003-opera-change-the-default-folder-for-your-downloads" target="_blank">Opera</a></li>
+                <li><a href="https://osxdaily.com/2018/07/01/change-safari-download-location-mac/" target="_blank">Safari</a></li>
             </ul>
-            <li>The saved .conf file can be edited in any text editor.</li>
-            <li>To add a new entity, simply add it the entities section of the conf file, anywhere above the ‘[attributes]’ line. Then add the attributes, following the format as the already populated section.  With each value separated by a vertical bar (‘|’).</li>
-        </ul>
-
-        Exporting
-
-        Active Learning / Seq2Seq
+        </p>
     </div>
 {% endblock %}
