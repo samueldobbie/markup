@@ -35,7 +35,7 @@
             The annotation file must have the .ann file extension and be in <a href="http://brat.nlplab.org/standoff.html" target="_blank">standoff format</a>.  
         </p>
         <p class="doc-line">
-            <span class="doc-field">Ontology</span> - A dictionary of terms and codes to be accessed during annotation.
+            <span class="doc-field">Ontology</span> - A dictionary of terms, codes, and related data to be accessed during annotation.
             <ul class="doc-line doc-list">
                 <li><span class="doc-field">Pre-loaded</span> - Markup offers pre-loaded ontologies that can be used. Certain pre-loaded ontologies require external permissions (e.g. the Unified Medical Language System), for which you will need to login to authorise access.</li>
                 <li><span class="doc-field">Custom</span> - You can provide a custom ontology by providing a text document, where each line is of the form <b>[TERM][TAB][CODE]</b>, as shown below.</li>
@@ -54,44 +54,56 @@
             Multiple Documents
         </h3>
         <p class="doc-line">
+            Opening multiple documents streamlines the annotation process by enabling the navigation, annotation, and exportation of any number of documents during a single session.  
+        </p>
+        <p class="doc-line">
             <b>Required</b>
         </p>
         <p class="doc-line">
             <span class="doc-field">Folder to annotate</span> - The folder containing the documents you wish to annotate. The folder must contain:
             <ul class="doc-line doc-list">
-                <li>The documents you wish to annotate (must have .txt file extension).</li>
                 <li>A configuration file (must have .conf file extension).</li>
+                <li>The documents you wish to annotate (must have .txt file extension).</li>
                 <li>Any existing annotation files you wish to use (must have .ann file extension). The name of each annotation file must match the name of its corresponding text document (e.g. annotations for <span class="doc-field">some-random-file.txt</span> must be stored in <span class="doc-field">some-random-file.ann</span>).</li>
+            </ul>
+        </p>
+        <p class="doc-line">
+            <b>Optional</b>
+        </p>
+        <p class="doc-line">
+            <span class="doc-field">Ontology</span> - A dictionary of terms, codes, and related data to be accessed during annotation.
+            <ul class="doc-line doc-list">
+                <li><span class="doc-field">Pre-loaded</span> - Markup offers pre-loaded ontologies that can be used. Certain pre-loaded ontologies require external permissions (e.g. the Unified Medical Language System), for which you will need to login to authorise access.</li>
+                <li><span class="doc-field">Custom</span> - You can provide a custom ontology by providing a text document, where each line is of the form <b>[TERM][TAB][CODE]</b>, as shown above.</li>
             </ul>
         </p>
 
         <h2 class="doc-headline">
             Annotation
         </h2>
-        <ul class="doc-line">
-            <li>Highlight the desired word or phrase to annotate.</li>
-            <ul class="doc-line">
-                <li>Either double click quickly on the word or if a string of words, double click on the first or last word, hold the second click and drag to highlight the whole phrase. This will snap to highlight whole words, speeding up the process.</li>
-                <li>It is also possible to single click and drag to cover the word/string.</li>
+        <p class="doc-line">
+            To add an annotation, you must:
+            
+            <ul class="doc-line doc-list">
+                <li>Highlight the desired span of text within the open document.</li>
+                <li>Select a desired entity.</li>
+                <li>Populate or select a value from the available attributes, which have been dynamically displayed based on the selected entity, as desired.</li>
+                <li>Select an ontology term to map to. Markup automatically suggests ontology mappings based on the text you're annotating, although a direct search of the ontology can be performed via Markup if necessary.</li>
+                <li>Add the annotation by pressing the <span class="doc-field">+ Annotation</span> button</li>
             </ul>
-            <li>On the left-hand side, the entities from the .conf file are listed. Click on the desired entity and below the last option, the attributes for that entity will appear.</li>
-            <li>These drop-down boxes can be typed into for swiftly annotating, or scrolled thought to select. If an attribute value wasn’t added to the conf file, the value can be typed and will be saved as typed (useful for numbers).</li>
-            <li>If when annotating you would like to add a CUI (or another identifying key), below the attributes there are two dropdown boxes and a search bar. If the highlighted phrase is within the ontology selected, selecting the phrase will add the CUI to the annotation.</li>
-            <ul class="doc-line">
-                <li>If the exact term is not in the ontology but a similar term is there, the user can select this other term (very useful for typos). The terms are displayed in order of similarity to the highlighted phrase.</li>
-                <li>If the suggestions aren’t appropriate, it is possible to use the search box to type out a term that would match the phrase. Then select the phrase (or a suitable near match) from the second dropdown box.</li>
-            </ul>
-            <li>To finally add the annotation, click the + Annotation button.</li>
-            <li>The annotation should then appear on the right-hand side of the main body of text.</li>
-            <li>The annotation can be reviewed by clicking on this new annotation on the right-hand side.</li>
-            <ul class="doc-line">
-                <li>The annotations will be grouped by entities.</li>
-                <li>Clicking on this annotation will flash on the main body of text (only if it is the latest annotation on the phrase)</li>
-                <li>The annotation can be deleted by clicking on the small bin icon in the bottom right corner.</li>
-                <li>The ability to edit annotations without deleting will be coming soon.</li>
-            </ul>
-            <li>Unlike brat, it is possible to annotate over the same phrase twice, adding to the same or different entity.</li>
-        </ul>
+        </p>
+        <p class="doc-line">
+            Upon adding an annotation, it will displayed both within the document text and on the annotation panel. Within the annotation panel, annotations will be grouped by their entity, and ordered based on the appearance within the document text.
+        </p>
+        <p class="doc-line">
+            Hovering over an annotation in either the document panel or annotation panel will highlight the annotation in both panels, and will display a tooltip containing information about the annotation (e.g. attributes).
+        </p>
+        <p class="doc-line">
+            Clicking an annotation within the annotation panel will display a dropdown that contains all information (e.g. attributes) that correspond with the annotation, along with options for editing and deleting the annotation. 
+        </p>
+        <p class="doc-line">
+            Markup allows for unlimited annotation of a single region, thus enabling the capture of complex data.
+        </p>
 
         <h2 class="doc-headline">
             Annotation Suggestions
