@@ -356,7 +356,7 @@ class Seq2Seq:
     def __init__(self):
         # Declare model configurations (same as during training)
         self.latent_dim = 256
-        self.num_samples = 1000000
+        self.num_samples = 50000
         self.data_path = 'data/text/synthetic-seq2seq-data.txt'
         self.model_path = 'data/model/seq2seq.h5'
 
@@ -517,14 +517,20 @@ class Seq2Seq:
         vector[0, i + 1, self.input_token_index[' ']] = 1.
 
         sequence = self.decode_sequence(vector).strip().split('; ')
+        
+        if len(sequence) == 4:
+            drug_name = sequence[0].split('dn: ')[1]
+            drug_dose = sequence[1].split('dd: ')[1]
+            drug_unit = sequence[2].split('du: ')[1]
+            drug_frequency = sequence[3].split('df: ')[1]
 
         # Only consider prediction valid if drug name and dose appears in sentence
-        if len(sequence) == 4 and sequence[0] in clean_sentence and sequence[1] in clean_sentence:
+        if drug_name in clean_sentence and drug_dose in clean_sentence:
             # Get ontology term and cui
             ontology_term, ontology_cui = '', ''
             if simstring_searcher is not None:
                 ranked_matches = get_ranked_ontology_matches(
-                    clean_selected_term(sequence[0])
+                    clean_selected_term(drug_name)
                 )
 
                 if len(ranked_matches) != 0:
@@ -534,10 +540,10 @@ class Seq2Seq:
 
             prediction = {}
             prediction['sentence'] = raw_sentence
-            prediction['DrugName'] = sequence[0]
-            prediction['DrugDose'] = sequence[1]
-            prediction['DoseUnit'] = sequence[2]
-            prediction['Frequency'] = sequence[3]
+            prediction['DrugName'] = drug_name
+            prediction['DrugDose'] = drug_dose
+            prediction['DoseUnit'] = drug_unit
+            prediction['Frequency'] = drug_frequency
             prediction['CUIPhrase'] = ontology_term
             prediction['CUI'] = ontology_cui
 
