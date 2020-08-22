@@ -14,6 +14,9 @@ import os
 import random
 import string
 
+
+# Load secret key (generate and store if none exists)
+
 secret_key_path = os.path.dirname(__file__) + '/secretkey.txt'
 
 if os.path.exists(secret_key_path):
@@ -26,6 +29,7 @@ else:
     with open(secret_key_path, 'w') as f:
         f.write(SECRET_KEY)
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -35,8 +39,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'www.getmarkup.com', 'getmarkup.com']
-
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -82,12 +85,7 @@ TEMPLATES = [
     },
 ]
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static')
-]
-
 WSGI_APPLICATION = 'markup.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
@@ -98,7 +96,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -122,7 +119,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
@@ -136,12 +132,13 @@ USE_L10N = True
 
 USE_TZ = True
 
+DATA_UPLOAD_MAX_MEMORY_SIZE = None
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
-DATA_UPLOAD_MAX_MEMORY_SIZE = 100000000
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static')
+]
