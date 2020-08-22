@@ -49,14 +49,14 @@ def setup_umls_if_valid(request):
     if valid_user:
         # Download and extract UMLS database and mappings for first time users
         if umls_database is None or umls_mappings is None:
-            path = 'data/ontology/'
-            urllib.request.urlretrieve(download_link, path + 'umls.zip')
-            with zipfile.ZipFile(path + 'umls.zip', 'r') as zf:
-                zf.extractall(path)
+            ontology_path = PATH + '/data/ontology/'
+            urllib.request.urlretrieve(download_link, ontology_path + 'umls.zip')
+            with zipfile.ZipFile(ontology_path + 'umls.zip', 'r') as zf:
+                zf.extractall(ontology_path)
 
             # Pre-loaded UMLS ontology
-            umls_database = pickle.load(open(path + 'umls-database.pickle', 'rb'))
-            umls_mappings = pickle.load(open(path + 'umls-mappings.pickle', 'rb'))
+            umls_database = pickle.load(open(ontology_path + 'umls-database.pickle', 'rb'))
+            umls_mappings = pickle.load(open(ontology_path + 'umls-mappings.pickle', 'rb'))
 
         setup_preloaded_ontology('umls')
 
@@ -270,9 +270,9 @@ def teach_seq2seq():
 
 
 class SentenceClassifier:
-    def __init__(self):
-        self.user_data_path = 'data/text/user-classifier-data.txt'
-        self.synthetic_data_path = 'data/text/synthetic-classifier-data.txt'
+    def __init__(self, PATH):
+        self.user_data_path = PATH + '/data/text/user-classifier-data.txt'
+        self.synthetic_data_path = PATH + '/data/text/synthetic-classifier-data.txt'
         self.setup_model()
 
     def setup_model(self):
@@ -353,12 +353,12 @@ class SentenceClassifier:
 
 
 class Seq2Seq:
-    def __init__(self):
+    def __init__(self, PATH):
         # Declare model configurations (same as during training)
         self.latent_dim = 256
         self.num_samples = 50000
-        self.data_path = 'data/text/synthetic-seq2seq-data.txt'
-        self.model_path = 'data/model/seq2seq.h5'
+        self.data_path = PATH + '/data/text/synthetic-seq2seq-data.txt'
+        self.model_path = PATH + '/data/model/seq2seq.h5'
 
         # Restore model ready for use
         self.restore_model()
@@ -554,12 +554,14 @@ class Seq2Seq:
     def train(self, instance, label):
         pass
 
+# Project path
+PATH = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..'))
 
 # Define active learner for classifying target sentences
-sentence_classifier = SentenceClassifier()
+sentence_classifier = SentenceClassifier(PATH)
 
 # Define annotation prediction model
-annotation_predictor = Seq2Seq()
+annotation_predictor = Seq2Seq(PATH)
 
 # Simstring parameters
 SIMILARITY_THRESHOLD = 0.7
@@ -567,17 +569,17 @@ simstring_searcher = None
 term_to_cui = None
 
 # Load demo ontology
-demo_database = pickle.load(open('data/demo/demo-database.pickle', 'rb'))
-demo_mappings = pickle.load(open('data/demo/demo-mappings.pickle', 'rb'))
+demo_database = pickle.load(open(PATH + '/data/demo/demo-database.pickle', 'rb'))
+demo_mappings = pickle.load(open(PATH + '/data/demo/demo-mappings.pickle', 'rb'))
 
 # Load UMLS ontology
 umls_database = None
 umls_mappings = None
 
-pickles = [f for f in os.listdir('data/ontology/') if os.path.isfile(os.path.join('data/ontology/', f))]
+pickles = [f for f in os.listdir(PATH + '/data/ontology/') if os.path.isfile(os.path.join('data/ontology/', f))]
 if 'umls-database.pickle' in pickles and 'umls-mappings.pickle' in pickles:
-    umls_database = pickle.load(open('data/ontology/umls-database.pickle', 'rb'))
-    umls_mappings = pickle.load(open('data/ontology/umls-mappings.pickle', 'rb'))
+    umls_database = pickle.load(open(PATH + '/data/ontology/umls-database.pickle', 'rb'))
+    umls_mappings = pickle.load(open(PATH + '/data/ontology/umls-mappings.pickle', 'rb'))
 
 # Stopwords for cleaning sentences
-stopwords = set(open('data/text/stopwords.txt', encoding='utf-8').read().split('\n'))
+stopwords = set(open(PATH + '/data/text/stopwords.txt', encoding='utf-8').read().split('\n'))
