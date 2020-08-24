@@ -24,14 +24,14 @@ For futher use, the local server can be started directly by running `python mana
 
 ### Documentation
 
-Documentation to help with setting up and using Markup can be found <a href="http://www.getmarkup.com/docs">here</a>.
+Documentation to help with setting up and using Markup can be found <a href="https://www.getmarkup.com/docs">here</a>.
 
 ### Features
 
-- Ability to switch between and annotate multiple documents in a single session.
+- Ability to navigate between and annotate multiple documents in a single session.
+- Predictive annotation suggestions (incl. attributes) using underlying active learning and sequence-to-sequence models.
 - Integrated access to pre-loaded and user-defined ontologies, enabling predictive mappings and direct querying.
 - Built-in configuration file creator.
-- Predictive annotation suggestions (incl. attributes) using underlying active learning and sequence-to-sequence models.
 - Dynamic attribute display.
 - Any number of overlaying annotations, enabling the capture of complex data.
 - Full-feature tool available via local installation and website.
@@ -41,12 +41,11 @@ Documentation to help with setting up and using Markup can be found <a href="htt
 
 - Add user accounts.
 - Add ability for users to join a team and share ontologies, documents, guidelines, annotations, etc.
-- Enable users to input data, or provide examples for synthetic data, to train custom models.
+- Enable users to input data, or provide examples for synthetic data, to train custom models without technical expertise.
 - Accessible version for colour-blind users.
 - Add ability to perform text and image classification.
 - Add ability to annotate images.
 
 ### Known Bugs / Issues
 - Annotations may be offset when annotating across newlines in CRLF (Windows) text documents. The offset is purely visual; the exported indicies will be correct.
-- Website version is out-of-date in comparison to local vesion.
 - GIF in README is out-of-date

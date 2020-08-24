@@ -340,15 +340,14 @@ class SentenceClassifier:
 
     def teach(self, sentence, label):
         '''
-        Teach and save updated model
+        Save training data and update model
         '''
         # Store local data
         sentence = sentence.lower().strip()
         with open(self.user_data_path, 'a', encoding='utf-8') as f:
             f.write(sentence + '\t' + str(label) + '\n')
 
-        # Setup learner with new data
-        # To-do: train incrementally
+        # Setup learner with new data (to-do: train incrementally)
         self.setup_model()
 
 
@@ -517,12 +516,14 @@ class Seq2Seq:
         vector[0, i + 1, self.input_token_index[' ']] = 1.
 
         sequence = self.decode_sequence(vector).strip().split('; ')
-        
+
         if len(sequence) == 4:
             drug_name = sequence[0].split('dn: ')[1]
             drug_dose = sequence[1].split('dd: ')[1]
             drug_unit = sequence[2].split('du: ')[1]
             drug_frequency = sequence[3].split('df: ')[1]
+        else:
+            return None
 
         # Only consider prediction valid if drug name and dose appears in sentence
         if drug_name in clean_sentence and drug_dose in clean_sentence:
@@ -548,8 +549,8 @@ class Seq2Seq:
             prediction['CUI'] = ontology_cui
 
             return prediction
-        else:
-            return None
+        
+        return None
 
     def train(self, instance, label):
         pass
