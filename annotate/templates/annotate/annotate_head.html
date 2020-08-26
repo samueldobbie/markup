@@ -3,7 +3,10 @@
 {% block head %}
     {% load static %}
     <title>Annotate - Markup</title>
+    <link href="{% static 'annotate/third-party/perfect-scrollbar.css' %}" rel="stylesheet" />
     <link href="{% static 'annotate/annotate.css' %}" rel="stylesheet" />
+
+    <script src="{% static 'annotate/third-party/perfect-scrollbar.min.js' %}"></script>
     <script src="https://kit.fontawesome.com/140067eff9.js" crossorigin="anonymous"></script>
     <script src="{% static 'annotate/annotate.js' %}"></script>
 {% endblock %}

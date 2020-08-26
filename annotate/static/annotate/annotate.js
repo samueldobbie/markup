@@ -1,5 +1,9 @@
 $(document).ready(function () {
     onPageLoad();
+
+    new PerfectScrollbar(document.getElementById('config-data'));
+    new PerfectScrollbar(document.getElementById('file-data'));
+    new PerfectScrollbar(document.getElementById('annotation-data'));
 });
 
 

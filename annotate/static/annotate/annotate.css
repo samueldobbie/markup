@@ -8,30 +8,6 @@
   color: white;
 }
 
-::-webkit-scrollbar {
-  background-color: rgba(255, 255, 255, 0);
-  width: 7.5px;
-  border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0);
-  width: 7.5px;
-  border-radius: 5px;
-}
-
-#config-data:hover::-webkit-scrollbar-thumb {
-  background-color: rgba(155, 155, 155, 0.75);
-}
-
-#file-data:hover::-webkit-scrollbar-thumb {
-  background-color: rgba(155, 155, 155, 0.75);
-}
-
-#annotation-data:hover::-webkit-scrollbar-thumb {
-  background-color: rgba(155, 155, 155, 0.75);
-}
-
 .dropdown {
   padding: 5px;
   border-radius: 2px;
@@ -45,12 +21,13 @@
 }
 
 .item {
-  margin-top: 2.5%;
-  padding: 0 2%;
-  overflow-y: scroll;
+  position: relative;
+  overflow: scroll;
   max-height: 80vh;
-  margin-right: 7.5px;
-  padding-right: 7.5px;
+  margin-top: 2.5%;
+  padding-top: 0.25%;
+  padding-left: 2%;
+  padding-right: 2%;
 }
 
 .item-1 {
@@ -224,3 +201,4 @@ input[type=radio] {
   text-align: center;
   font-weight: bold;
 }
+
