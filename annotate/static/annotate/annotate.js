@@ -81,9 +81,6 @@ function onPageLoad(initalLoad=true) {
         toggleAttributeDisplay(attributeCheckboxes, 'checkbox', 'none');
         toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
 
-        // Update display of selected entity
-        $('input[type=radio]').click(updateSelectedEntity);
-
         // Display correct attributes upon clicking an entity
         $('input[type=radio]').click({
             'configArgs': configArgs,
@@ -91,6 +88,13 @@ function onPageLoad(initalLoad=true) {
             'attributeCheckboxes': attributeCheckboxes,
             'attributeDropdowns': attributeDropdowns
         }, displayDynamicAttributes);
+
+        // Update display of selected entity
+        $('input[type=radio]').click({
+            'attributeCheckboxes': attributeCheckboxes,
+            'attributeDropdowns': attributeDropdowns,
+            'attributeRadiobuttons': attributeRadiobuttons
+        }, updateSelectedEntity);
 
         // Change colour of highlighted text
         $('#file-data').mouseup(function () {
@@ -476,6 +480,8 @@ function toggleAttributeDisplay(vals, type, data) {
     /*
     Toggle display of specified attributes
     */
+    console.log(vals, type, data);
+
     for (var i = 0; i < vals.length; i++) {
         if (type == 'checkbox') {
             vals[i].style.display = data;
@@ -498,7 +504,7 @@ function toggleAttributeCheck(vals, data) {
 }
 
 
-function resetDropdowns() {
+function resetAttributeValues() {
     /*
     Reset all dropdown lists
     to their default values
@@ -644,7 +650,11 @@ function displayAnnotation(entityValue, attributeValues, annotationIdentifier) {
 }
 
 
-function updateSelectedEntity() {
+function updateSelectedEntity(event) {
+    var attributeCheckboxes = event.data.attributeCheckboxes;
+    var attributeRadiobuttons = event.data.attributeRadiobuttons;
+    var attributeDropdowns = event.data.attributeDropdowns;
+
     // Remove styles from all entities
     $('.config-label').each(function() {
         $(this).css({
@@ -653,11 +663,24 @@ function updateSelectedEntity() {
         });
     });
 
-    // Style selected entity
-    $(this).next().css({
-        marginLeft: '5%',
-        transition : 'margin 300ms'
-    });
+    if (activeEntity == $(this).val()) {
+        activeEntity = '';
+
+        // Deselect and remove hiding of all attributes
+        toggleAttributeCheck(attributeCheckboxes, false);
+        toggleAttributeCheck(attributeRadiobuttons, false);
+        toggleAttributeDisplay(attributeCheckboxes, 'checkbox', 'none');
+        toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
+        resetAttributeValues();
+    } else {
+        activeEntity = $(this).val();
+
+        // Style selected entity
+        $(this).next().css({
+            marginLeft: '5%',
+            transition : 'margin 300ms'
+        });
+    }
 }
 
 
@@ -1001,7 +1024,7 @@ function addAnnotation(event) {
     toggleAttributeCheck(attributeRadiobuttons, false);
     toggleAttributeDisplay(attributeCheckboxes, 'checkbox', 'none');
     toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
-    resetDropdowns();
+    resetAttributeValues();
 
     // Clear ontology search field
     document.getElementById('search-dict').value = '';
@@ -1499,6 +1522,7 @@ function resetSuggestionCollapsible() {
 
 
 // Define global variables here just to make it clear they're in global scope
+var activeEntity;
 var suggestAnnotationAjaxRequest;
 var annotationList, entityList;
 var offsetList = [];
@@ -1509,5 +1533,6 @@ var highlightText, highlightTextLength, preCaretStringLength;
 var colors = [
     '#7B68EE', '#FFD700', '#FFA500', '#DC143C', '#FFC0CB', '#00BFFF', '#FFA07A',
     '#C71585', '#32CD32', '#48D1CC', '#FF6347', '#8FE3B4', '#FF69B4', '#008B8B',
-    '#FFF0F5', '#FFFACD', '#E6E6FA', '#B22222', '#4169E1', '#C0C0C0'
+    '#FF0066', '#0088FF', '#44FF00', '#FF8080', '#E6DAAC', '#FFF0F5', '#FFFACD',
+    '#E6E6FA', '#B22222', '#4169E1', '#C0C0C0', 
 ];

@@ -10,6 +10,8 @@ $(document).ready(function () {
         }
         updateDisplayMode();
     });
+
+    // Initialize display mode based on users' preference
     updateDisplayMode();
 });
 

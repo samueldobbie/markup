@@ -17,9 +17,6 @@ $(document).ready(function () {
         Show single or multiple selection options
         based on file quantity
         */
-
-       // clearLocalStorage();
-
         var selectedValue = this.value;
         if (selectedValue == 'single') {
             $('#single-document-selection-container').show();

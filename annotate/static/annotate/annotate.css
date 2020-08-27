@@ -97,7 +97,8 @@
 }
 
 .config-label {
-  border-radius: 2px;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
   padding: 2px 5px;
   color: #1A1E24;
   cursor: pointer;
