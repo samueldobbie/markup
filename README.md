@@ -10,7 +10,7 @@ A full-feature version of Markup is available both via website and local install
 
 #### Online
 
-The online version of markup can be found <a href="https://www.getmarkup.com/">here</a>.
+The online version of Markup can be found <a href="https://www.getmarkup.com/">here</a>.
 
 #### Local Server
 
@@ -48,4 +48,3 @@ Documentation to help with setting up and using Markup can be found <a href="htt
 
 ### Known Bugs / Issues
 - Annotations may be offset when annotating across newlines in CRLF (Windows) text documents. The offset is purely visual; the exported indicies will be correct.
-- GIF in README is out-of-date

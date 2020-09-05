@@ -655,13 +655,7 @@ function updateSelectedEntity(event) {
     var attributeRadiobuttons = event.data.attributeRadiobuttons;
     var attributeDropdowns = event.data.attributeDropdowns;
 
-    // Remove styles from all entities
-    $('.config-label').each(function() {
-        $(this).css({
-            marginLeft: '0',
-            transition : 'margin 300ms'
-        });
-    });
+    removeEntityStyling();
 
     if (activeEntity == $(this).val()) {
         activeEntity = '';
@@ -681,6 +675,17 @@ function updateSelectedEntity(event) {
             transition : 'margin 300ms'
         });
     }
+}
+
+
+function removeEntityStyling() {
+    // Remove styles from all entities
+    $('.config-label').each(function() {
+        $(this).css({
+            marginLeft: '0',
+            transition : 'margin 300ms'
+        });
+    });
 }
 
 
@@ -1025,6 +1030,11 @@ function addAnnotation(event) {
     toggleAttributeDisplay(attributeCheckboxes, 'checkbox', 'none');
     toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
     resetAttributeValues();
+    removeEntityStyling();
+    activeEntity = '';
+
+    // Reset scroll of config section
+    document.getElementById('config-data').scrollTop = 0;
 
     // Clear ontology search field
     document.getElementById('search-dict').value = '';
