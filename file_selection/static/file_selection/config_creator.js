@@ -3,6 +3,7 @@ $(document).ready(function () {
         /*
         Enable switching between display modes
         */
+
         if (localStorage.getItem('mode') == 'dark') {
             localStorage.setItem('mode', 'light');
         } else {

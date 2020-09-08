@@ -10,10 +10,11 @@
 
 .dropdown {
   padding: 5px;
-  border-radius: 2px;
-  border: 1px solid #1A1E24;
+  border-radius: 3px;
   color: #1A1E24;
   outline: none;
+  border: none;
+  box-shadow: 0px 0.25px #1A1E24;
 }
 
 .container {
@@ -54,8 +55,10 @@
 }
 
 .annotation {
-  border-radius: 2px;
+  border-radius: 3px;
   padding: 5px;
+  border: none;
+  box-shadow: 0px 0.25px #1A1E24;
 }
 
 .collapsible {
@@ -71,8 +74,8 @@
   overflow: hidden;
   color: #1A1E24;
   background-color: #E7E5E5;
-  border-bottom-left-radius: 2px;
-  border-bottom-right-radius: 2px;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
 }
 
 #annotation-suggestion-list {
@@ -97,11 +100,14 @@
 }
 
 .config-label {
-  border-top-right-radius: 3px;
-  border-bottom-right-radius: 3px;
-  padding: 2px 5px;
+  border-radius: 4px;
+  padding: 3px 5px;
   color: #1A1E24;
+  white-space: nowrap;
   cursor: pointer;
+  text-align: center;
+  border: none;
+  box-shadow: 0px 0.25px #1A1E24;
 }
 
 .config-label:hover {
@@ -119,10 +125,11 @@ input[type=radio] {
 .input-field {
   padding: 5px;
   margin-bottom: 5px;
-  border-radius: 2px;
+  border-radius: 3px;
   outline: none;
-  border: 1px solid #1A1E24;
   color: #1A1E24;
+  border: none;
+  box-shadow: 0px 0.25px #1A1E24;
 }
 
 #match-list {
@@ -134,14 +141,15 @@ input[type=radio] {
 }
 
 .main-button {
-  border-radius: 2px;
+  border-radius: 3px;
   color: #1A1E24;
   padding: 5px;
   margin-top: 5px;
   outline: none;
-  border: none;
   font-weight: bold;
   cursor: pointer;
+  border: none;
+  box-shadow: 0px 0.25px #1A1E24;
 }
 
 .main-button:hover {

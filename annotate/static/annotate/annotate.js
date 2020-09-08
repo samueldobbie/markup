@@ -1,58 +1,47 @@
 $(document).ready(function () {
-    onPageLoad();
+    // Setup annotation page
+    onPageLoad(true);
 
+    // Construct scroll bar for each panel
     new PerfectScrollbar(document.getElementById('config-data'));
     new PerfectScrollbar(document.getElementById('file-data'));
     new PerfectScrollbar(document.getElementById('annotation-data'));
 });
 
 
-function onPageLoad(initalLoad=true) {
-    // Read local data of files user selected
+function onPageLoad(initalLoad) {
+    // Read data from the files provided by the user
     var documentOpenType = localStorage.getItem('documentOpenType');
     var documentCount = localStorage.getItem('documentCount');
-
     var documentText = localStorage.getItem('documentText' + currentDocumentId);
     var configText = localStorage.getItem('configText');
 
-    // Check whether config is empty and return home if true
+    // Return home if an invalid configuration file has been provided
     validateConfigSelection(configText);
 
-    if (initalLoad) {
-        if (documentOpenType == 'multiple') {
-            // Display arrows to move forward or backwards by file
-            document.getElementById('move-to-previous-file').style.display = '';
-            document.getElementById('move-to-next-file').style.display = '';
+    // Update page title based on open document file name
+    var openDocumentName = localStorage.getItem('fileName' + currentDocumentId);
+    document.getElementsByTagName('title')[0].innerText = openDocumentName + ' - Markup';
 
-            // Display dropdown menu to jump between files
-            document.getElementById('switch-file').style.display = '';
-    
-            // Populate navigation menu
-            for (var i = 0; i < documentCount; i++) {
-                document.getElementById('switch-file-dropdown').innerHTML += '<option value="' + localStorage.getItem('fileName' + currentDocumentId) + '" documentId="' + i + '">' + localStorage.getItem('fileName' + i) + '</option>';
-            }
-        }    
-
-        annotationList = [];
-        for (var i = 0; i <= documentCount; i++) {
-            annotationList.push([]);
-        }
-
-        for (var j = 0; j <= documentCount; j++) {
-            var currentAnnotationText = localStorage.getItem('annotationText' + j);
-            if (currentAnnotationText != null) {
-                parseExistingAnnotations(currentAnnotationText, j);
-            }
-        }
-    }
-
-    // Set page title to open document file name
-    document.getElementsByTagName('title')[0].innerText = localStorage.getItem('fileName' + currentDocumentId) + ' - Markup';
-
-    // Display selected documentText
+    // Display open document text
     document.getElementById('file-data').innerText = documentText;
 
     if (initalLoad) {
+        // Display features specific to multiple document mode
+        if (documentOpenType == 'multiple') {
+            prepareMultipleDocumentDisplay(documentCount);
+        }
+
+        // Populate global annotation list
+        for (var i = 0; i <= documentCount; i++) {
+            annotationList.push([]);
+
+            var annotationText = localStorage.getItem('annotationText' + i);
+            if (annotationText != null) {
+                parseExistingAnnotations(annotationText, i);
+            }
+        }
+
         // Parse data from configuration file
         var parsedConfigData = parseConfigurationData(configText);
         entityList = parsedConfigData[0];
@@ -101,12 +90,12 @@ function onPageLoad(initalLoad=true) {
             changeHighlightedTextColor();
         });
 
-        // Display information about annotation and adjust brightness on hover (annotation-data panel)
+        // Display annotation data and adjust brightness in annotation panel
         $('#annotation-data').mouseover(function (e) {
             adjustAnnotationUponHover(e.target.id, 'annotation-data');
         });
 
-        // Display information about annotation and adjust brightness on hover (file-data panel)
+        // Display annotation data and adjust brightness in file panel
         $('#file-data').mouseover(function (e) {
             adjustAnnotationUponHover(e.target.id, 'file-data');
         });
@@ -171,22 +160,47 @@ function onPageLoad(initalLoad=true) {
         getAnnotationSuggestions();
     }
 
-    // Load annotations from current annotationList
+    // Load existing annotations for open document
     loadExistingAnnotations();
 
     // Add blob link to export annotations
     updateAnnotationFileURL();
     
-    // Add events to all annotation dropdowns
+    // Add events to annotation dropdowns
     bindCollapsibleEvents();
 }
 
+
 function validateConfigSelection(configText) {
     /*
-    Return to homepage if using an invalid config document
+    Return to homepage if invalid configuration
+    document has been provided
     */
+
     if (configText == null || configText.trim() == '') {
         window.location = '/';
+    }
+}
+
+
+function prepareMultipleDocumentDisplay(documentCount) {
+    /*
+    Display additional functionality available
+    when opening multiple documents at once
+    */
+
+    // Display arrows to move forward and backwards between documents
+    document.getElementById('move-to-previous-file').style.display = '';
+    document.getElementById('move-to-next-file').style.display = '';
+
+    // Display navigation dropdown for jumping between documents
+    document.getElementById('switch-file').style.display = '';
+
+    // Populate navigation dropdown
+    for (var i = 0; i < documentCount; i++) {
+        var documentName = localStorage.getItem('fileName' + i);
+        var dropdownOption = '<option documentId="' + i + '">' + documentName + '</option>';
+        document.getElementById('switch-file-dropdown').innerHTML += dropdownOption;
     }
 }
 
@@ -1531,10 +1545,11 @@ function resetSuggestionCollapsible() {
 }
 
 
-// Define global variables here just to make it clear they're in global scope
+// Define global variables to make it clear they're in global scope
 var activeEntity;
 var suggestAnnotationAjaxRequest;
-var annotationList, entityList;
+var annotationList = [];
+var entityList = [];
 var offsetList = [];
 var currentDocumentId = 0;
 var entityId = 1;
