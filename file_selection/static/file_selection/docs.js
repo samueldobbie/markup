@@ -51,4 +51,8 @@ function updateDisplayMode() {
     $('.doc-message').css({
         'color': color
     });
+
+    $('.doc-link').css({
+        'color': color
+    });
 }

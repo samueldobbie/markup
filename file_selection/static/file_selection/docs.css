@@ -18,17 +18,30 @@
     margin-left: 6%;
 }
 
+.doc-link {
+    color: #1a241c;
+    font-weight: bold;
+}
+
+.doc-link:hover {
+    filter: brightness(110%);
+}
+
 .doc-example {
-    border: 2px solid #1A1E24;
-    border-radius: 5px;
-    background-color: rgb(235, 235, 235);
+    background-color: #eee;
+    border: 1px solid #999;
     color: #1A1E24;
-    padding: 25px;
+    padding: 20px;
+}
+
+.doc-example-line {
+    font-family: 'Consolas';
 }
 
 .doc-field {
-    background-color: rgb(221, 221, 221);
-    border-radius: 2px;
+    background-color: rgb(223, 223, 223);
+    border-radius: 3px;
     color: #1A1E24;
-    padding: 1.5px;
+    box-shadow: 0px 0.25px #1A1E24;
+    padding: 0.25px 3px;
 }

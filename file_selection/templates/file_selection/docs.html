@@ -4,7 +4,7 @@
     <div class="doc-container">
         <h1 class="doc-headline">Markup Documentation</h1>
         <p class="doc-line">
-            Markup is an online annotation tool that can be used to transform unstructured documents into structured <a href="http://brat.nlplab.org/standoff.html" target="_blank">standoff format</a> for NLP and ML tasks, such as named-entity recognition. Markup learns as you annotate in order to predict and suggest complex annotations. Markup also provides integrated access to existing and custom ontologies, enabling the prediction and suggestion of ontology mappings based on the text you're annotating.
+            Markup is an online annotation tool that can be used to transform unstructured documents into structured <a class="doc-link" href="http://brat.nlplab.org/standoff.html" target="_blank">standoff format</a> for NLP and ML tasks, such as named-entity recognition. Markup learns as you annotate in order to predict and suggest complex annotations. Markup also provides integrated access to existing and custom ontologies, enabling the prediction and suggestion of ontology mappings based on the text you're annotating.
         </p>
 
         <h2 class="doc-headline">
@@ -24,14 +24,14 @@
             <span class="doc-field">Document to annotate</span> - The document you intend to annotate (must have .txt file extension).
         </p>
         <p class="doc-line">
-            <span class="doc-field">Configuration file</span> - Defines all entities and attributes available during annotation. Select an existing configuration file (that has the .conf file extension and is formatted as shown <a href="http://brat.nlplab.org/configuration.html" target="_blank">here</a>), or create a new one using the <a href="/config-creator" target="_blank">in-built config creator</a>.
+            <span class="doc-field">Configuration file</span> - Defines all entities and attributes available during annotation. Select an existing configuration file (that has the .conf file extension and is formatted as shown <a class="doc-link" href="http://brat.nlplab.org/configuration.html" target="_blank">here</a>), or create a new one using the <a class="doc-link" href="/config-creator" target="_blank">in-built config creator</a>.
         </p>
         <p class="doc-line">
             <b>Optional</b>
         </p>
         <p class="doc-line">
             <span class="doc-field">Existing annotations</span> - A file containing existing annotations for the document you intend to annotate.
-            The annotation file must have the .ann file extension and be in <a href="http://brat.nlplab.org/standoff.html" target="_blank">standoff format</a>.
+            The annotation file must have the .ann file extension and be in <a class="doc-link" href="http://brat.nlplab.org/standoff.html" target="_blank">standoff format</a>.
         </p>
         <p class="doc-line">
             <span class="doc-field">Ontology</span> - A dictionary of terms, codes, and related data to be accessed during annotation.
@@ -42,10 +42,10 @@
         </p>
         <span class="doc-line">
             <div class="doc-example">
-                <p>Focal Seizure <span style="margin-left: 50px;">RANDOM01938</span></p>
-                <p>Epilepsy <span style="margin-left: 50px;">RANDOM43904</span></p>
-                <p>Sodium Valproate <span style="margin-left: 50px;">RANDOM30921</span></p>
-                <p>...</p>
+                <p class="doc-example-line">Focal Seizure <span class="doc-example-line" style="margin-left: 50px;">RANDOM01938</span></p>
+                <p class="doc-example-line">Epilepsy <span class="doc-example-line" style="margin-left: 50px;">RANDOM43904</span></p>
+                <p class="doc-example-line">Sodium Valproate <span class="doc-example-line" style="margin-left: 50px;">RANDOM30921</span></p>
+                <p class="doc-example-line">...</p>
             </div>
         </span>        
         
@@ -62,7 +62,7 @@
             <span class="doc-field">Folder to annotate</span> - The folder containing the documents you wish to annotate. The folder must contain:
             <ul class="doc-line doc-list">
                 <li>The documents you wish to annotate (must have .txt file extension).</li>
-                <li>A configuration file which defines all entities and attributes available during annotation. Select an existing configuration file (that has the .conf file extension and is formatted as shown <a href="http://brat.nlplab.org/configuration.html" target="_blank">here</a>), or create a new one using the <a href="/config-creator" target="_blank">in-built config creator</a>.</li>
+                <li>A configuration file which defines all entities and attributes available during annotation. Select an existing configuration file (that has the .conf file extension and is formatted as shown <a class="doc-link" href="http://brat.nlplab.org/configuration.html" target="_blank">here</a>), or create a new one using the <a class="doc-link" href="/config-creator" target="_blank">in-built config creator</a>.</li>
                 <li>Any existing annotation files you wish to use (must have .ann file extension). The name of each annotation file must match the name of its corresponding text document (e.g. annotations for <span class="doc-field">some-random-file.txt</span> must be stored in <span class="doc-field">some-random-file.ann</span>).</li>
             </ul>
         </p>
@@ -137,16 +137,10 @@
             Export
         </h2>
         <p class="doc-line">
-            After completing the annotation process, the user can export all anontations by selecting the <span class="doc-field">Export</span> button in the configuraton panel. Exporting the annotations will produce an annotation file, with the .ann file extension, that contains all added annotations in <a href="http://brat.nlplab.org/standoff.html" target="_blank">standoff format</a>.
+            After completing the annotation process, the user can export all anontations by selecting the <span class="doc-field">Export</span> button in the configuraton panel. Exporting the annotations will produce an annotation file, with the .ann file extension, that contains all added annotations in <a class="doc-link" href="http://brat.nlplab.org/standoff.html" target="_blank">standoff format</a>.
         </p>
         <p class="doc-line">
-            Browsers recommend by default that annotations be saved to the local <span class="doc-field">Download</span> folder. When annotating large quantities of documents, it can be useful to update this default location, which can be done on various browsers, as shown in the following guides:
-            <ul class="doc-line doc-list">
-                <li><a href="https://www.howtogeek.com/231002/how-to-change-the-chrome-download-folder-location/" target="_blank">Chrome</a></li>
-                <li><a href="https://www.howtogeek.com/260271/how-to-change-the-firefox-download-folder-location/" target="_blank">Firefox</a></li>
-                <li><a href="https://ccm.net/faq/10003-opera-change-the-default-folder-for-your-downloads" target="_blank">Opera</a></li>
-                <li><a href="https://osxdaily.com/2018/07/01/change-safari-download-location-mac/" target="_blank">Safari</a></li>
-            </ul>
+            Browsers recommend by default that annotations be saved to the local <span class="doc-field">Download</span> folder. When annotating large quantities of documents, it can be useful to update this default location, which can be done on various browsers, as shown in the following guides: <a class="doc-link" href="https://www.howtogeek.com/231002/how-to-change-the-chrome-download-folder-location/" target="_blank">Chrome</a>, <a class="doc-link" href="https://www.howtogeek.com/260271/how-to-change-the-firefox-download-folder-location/" target="_blank">Firefox</a>, <a class="doc-link" href="https://ccm.net/faq/10003-opera-change-the-default-folder-for-your-downloads" target="_blank">Opera</a>, <a class="doc-link" href="https://osxdaily.com/2018/07/01/change-safari-download-location-mac/" target="_blank">Safari</a>.
         </p>
     </div>
 {% endblock %}
