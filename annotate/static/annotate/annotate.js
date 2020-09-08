@@ -144,10 +144,10 @@ function onPageLoad(initalLoad) {
         }, addAnnotation);
 
         // Suggest most relevant UMLS matches based on highlighted term 
-        $('#file-data').mouseup({'type': 'match-list'}, suggestCui);
+        $('#file-data').mouseup({'type': 'highlight'}, suggestCui);
 
         // Suggest most relevant UMLS matches based on searched term
-        $('#search-dict').on('input', {'type': 'search-list'}, suggestCui);
+        $('#ontology-search-input-field').on('input', {'type': 'search'}, suggestCui);
 
         // Prompt user to save annotations before leaving page
         $('a[name=nav-element]').click(function() {
@@ -494,7 +494,6 @@ function toggleAttributeDisplay(vals, type, data) {
     /*
     Toggle display of specified attributes
     */
-    console.log(vals, type, data);
 
     for (var i = 0; i < vals.length; i++) {
         if (type == 'checkbox') {
@@ -527,7 +526,7 @@ function resetAttributeValues() {
     for (var i = 0; i < $('select').length; i++) {
         var currentSelectId = $('select')[i].id;
 
-        if (currentSelectId == 'match-list' || currentSelectId == 'search-list') {
+        if (currentSelectId == 'match-list') {
             // Empty dropdown list
             document.getElementById(currentSelectId).options.length = 0;
 
@@ -988,11 +987,9 @@ function addAnnotation(event) {
 
     // Get chosen option(s) from ontology (if not default)
     var matchList = document.getElementById('match-list');
-    var searchList = document.getElementById('search-list');
 
     var options = [
-        [matchList.options[matchList.selectedIndex].text, matchList.options[matchList.selectedIndex].title],
-        [searchList.options[searchList.selectedIndex].text, searchList.options[searchList.selectedIndex].title]
+        [matchList.options[matchList.selectedIndex].text, matchList.options[matchList.selectedIndex].title]
     ];
 
     for (var i = 0; i < options.length; i++) {
@@ -1051,7 +1048,7 @@ function addAnnotation(event) {
     document.getElementById('config-data').scrollTop = 0;
 
     // Clear ontology search field
-    document.getElementById('search-dict').value = '';
+    document.getElementById('ontology-search-input-field').value = '';
 
     // Feed prescription sentences into active learner
     if (entityValue == 'Prescription') {
@@ -1242,22 +1239,22 @@ function suggestCui(event) {
     from ontology based on specified text
     */
 
-    var dropdownId = event.data.type;
-    var dropdown = document.getElementById(dropdownId);
+    var queryType = event.data.type;
+    var dropdown = document.getElementById('match-list');
 
     // Get input text from appropiate source
     var selectedTerm;
-    if (dropdownId == 'match-list') {
+    if (queryType == 'highlight') {
         if (window.getSelection().anchorNode == null) {
             return;
         }
         selectedTerm = window.getSelection().anchorNode.textContent;
-    } else if (dropdownId == 'search-list') {
-        selectedTerm = document.getElementById('search-dict').value;
+    } else if (queryType == 'search') {
+        selectedTerm = document.getElementById('ontology-search-input-field').value;
     }
 
     // Prevent mapping of long sentences
-    if (selectedTerm.split(' ').length > 8) {
+    if (selectedTerm == null || selectedTerm.split(' ').length > 8) {
         return;
     }
 
@@ -1443,11 +1440,11 @@ function acceptSuggestion(event) {
     }
 
     // Populate ontology dropdown with best matches
-    $('#search-dict').val(annotation.getAttribute('CUIPhrase')).trigger('input');
+    $('#ontology-search-input-field').val(annotation.getAttribute('CUIPhrase')).trigger('input');
 
     // Select best match from ontology dropdown
-    if (document.getElementById('search-list').length > 1) {
-        document.getElementById('search-list').selectedIndex = 1;
+    if (document.getElementById('match-list').length > 1) {
+        document.getElementById('match-list').selectedIndex = 1;
     }
 
     // Add annotation
