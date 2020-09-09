@@ -2,7 +2,7 @@
   width: 100%;
 }
 
-.config-panel {
+.training-data-panel {
   height: 75vh;
   width: 60vw;
   margin: 2.5% auto;
@@ -56,7 +56,7 @@
   min-width: 0;
 }
 
-.config-tooltip {
+.training-tooltip {
   cursor: help;
   color: #b1b1b1;
   font-size: 14px;
@@ -100,7 +100,7 @@
 }
 
 @media only screen and (max-width: 750px) {
-  .config-panel {
+  .training-data-panel {
       width: 80vw;
   }
 
