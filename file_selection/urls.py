@@ -7,5 +7,6 @@ urlpatterns = [
     url(r'^setup/$', views.setup, name='setup'),
     url(r'^docs/$', views.docs, name='docs'),
     url(r'^config-creator/$', views.config_creator, name='config_creator'),
+    url(r'^training-data-creator/$', views.training_data_creator, name='training_data_creator'),
     path('', include('annotate.urls'))
 ]

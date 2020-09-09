@@ -1,0 +1,67 @@
+{% extends 'file_selection/training_data_creator_head.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="config-panel">
+            <div class="option-container">
+                <p class="option-headline option-item">
+                    Variables
+                    <span class="config-tooltip" title="The entity category that you want to select (e.g. Seizure).">
+                        <i class="far fa-question-circle"></i>
+                    </span>
+                </p>
+                <div class="option-item">
+                    <select id="ontology-file-dropdown" class="option-dropdown">
+                        <option value="default">Select variable type</option>
+                        <option value="umls">Numerical range</option>
+                        <option value="umls">Text values</option>
+                    </select>
+                    <input id="entity-name1" class="option-input-field" type="text" placeholder="Name (e.g. Drug Dose)">
+                    <textarea id="entity-name3" class="option-input-field" style="resize: vertical;" type="text" placeholder="Comma-seperated values (e.g. grams, milligrams)"></textarea>
+                    <div id="numerical-range" style="display: none;">
+                        <input id="entity-name3" class="option-input-field" style="width: 20%;" type="text" placeholder="Low (e.g. 0)">
+                        <input id="entity-name3" class="option-input-field" style="width: 20%;" type="text" placeholder="High (e.g. 100)">
+                        <input id="entity-name3" class="option-input-field" style="width: 20%;" type="text" placeholder="Step (e.g. 1)">
+                    </div>
+                </div>
+                <div class="option-item">
+                    <label id="add-entity" class="option-button option-button-small">+ Variable</label>
+                </div>
+            </div>
+
+            <div class="option-container">
+                <p class="option-headline option-item">
+                    Sentence Templates
+                    <span class="config-tooltip" title="Templates containing a mix of text and variables, which will be used for sentence generation.">
+                        <i class="far fa-question-circle"></i>
+                    </span>
+                </p>
+                <div class="option-item">
+                    <input id="entity-name4" class="option-input-field" type="text" placeholder="Template (e.g. She is taking [Drug Name] with a dose of [Drug Dose].)">
+                </div>
+                <div class="option-item">
+                    <label id="add-entity" class="option-button option-button-small">+ Template</label>
+                </div>
+            </div>
+
+            <div class="option-container">
+                <p class="option-headline option-item">
+                    Quantity
+                    <span class="config-tooltip" title="The maximum number of unique sentences that will be generated.">
+                        <i class="far fa-question-circle"></i>
+                    </span>
+                </p>
+                <div class="option-item">
+                    <input type="range" name="rangeInput" min="0" max="25000" step="50" value="0" oninput="updateTextInput(this.value);">
+                    <span id="quantity-range-value" value="">0</span>
+                </div>
+            </div>
+
+            <div class="completed-option-container" style="margin-bottom: 2.5%;">
+                <a id="save-configuration-file" class="option-button" style="text-decoration: none;">
+                    Generate Training Data
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
