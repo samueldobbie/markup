@@ -20,11 +20,10 @@
 
 .doc-link {
     color: #1a241c;
-    font-weight: bold;
 }
 
 .doc-link:hover {
-    filter: brightness(110%);
+    background-color: #33FFB5;
 }
 
 .doc-example {
@@ -39,7 +38,7 @@
 }
 
 .doc-field {
-    background-color: rgb(223, 223, 223);
+    background-color: #33ffb446;
     border-radius: 3px;
     color: #1A1E24;
     box-shadow: 0px 0.25px #1A1E24;

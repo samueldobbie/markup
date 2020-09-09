@@ -38,10 +38,11 @@
   width: 95%;
   padding: 5px;
   margin-bottom: 0.5%;
-  border-radius: 2px;
-  border: 1px solid #333;
+  border-radius: 3px;
   outline: none;
   font-size: 16px;
+  border: none;
+  box-shadow: 0px 0.25px #1A1E24;
 }
 
 .completed-option-container {
@@ -74,10 +75,12 @@
   display: block;
   padding: 5px;
   margin: 5px;
-  border-radius: 5px;
+  border-radius: 3px;
   font-weight: bold;
   color: #1A1E24;
   cursor: pointer;
+  border: none;
+  box-shadow: 0px 0.25px #1A1E24;
 }
 
 .added-element:hover {
