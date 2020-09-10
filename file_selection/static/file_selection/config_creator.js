@@ -208,17 +208,15 @@ function updateDisplayMode() {
     /*
     Updates the display mode based on the users' preference
     */
-    var targetBackgroundColor, oppositeBackgroundColor, color;
+    var targetBackgroundColor, color;
 
     if (localStorage.getItem('mode') == 'dark') {
         document.getElementById('darkMode').innerHTML = 'Light Mode';
         targetBackgroundColor = '#1A1E24';
-        oppositeBackgroundColor = '#f1f1f1';
         color = 'white';
     } else {
         document.getElementById('darkMode').innerHTML = 'Dark Mode';
         targetBackgroundColor = '#f1f1f1';
-        oppositeBackgroundColor = '#1A1E24';
         color = '#1A1E24';
     }
 
