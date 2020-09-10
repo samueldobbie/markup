@@ -36,7 +36,7 @@
                     </span>
                 </p>
                 <div class="option-item">
-                    <textarea id="template-input" class="option-input-field" style="resize: vertical;" placeholder="Single sentence template (e.g. She is taking [Drug Dose] [Drug Unit] of [Drug Name].)"></textarea>
+                    <textarea id="template-input" class="option-input-field" style="resize: vertical;" placeholder="Single sentence template (e.g. She is taking ${Drug Dose} ${Drug Unit} of ${Drug Name}.)"></textarea>
                 </div>
                 <div class="option-item">
                     <label id="add-template" class="option-button option-button-small">+ Template</label>
@@ -57,8 +57,11 @@
             </div>
 
             <div class="completed-option-container" style="margin-bottom: 2.5%;">
-                <a id="save-training-data" class="option-button" style="text-decoration: none;">
+                <button id="generate-training-data" class="option-button">
                     Generate Training Data
+                </button>
+                <a id="export-training-data" class="option-button" style="text-decoration: none; display: none;">
+                    Export Training Data
                 </a>
             </div>
         </div>

@@ -134,6 +134,44 @@ $(document).ready(function () {
     });
 
 
+    $('#generate-training-data').click(function () {
+        // Generate data
+        for (var i = 0; i < quantity; i++) {
+            console.log(i);
+            // Pick random sentence template
+            var template = templates[getRandomIndex(templates.length)];
+    
+            // Populate template with appropiate variable values
+            var populatedTemplate = '';
+            var templateComponents = template.split('${');
+            for (var j = 0; j < templateComponents.length; j++) {
+                var templateComponent = templateComponents[j].split('}')
+                for (var k = 0; k < templateComponent.length; k++) {
+                    var variableIndex = addedVariableNames.indexOf(templateComponent[k].toLowerCase().trim());
+                    if (variableIndex != -1) {
+                        var variableValues = variables[variableIndex]['values'];
+                        populatedTemplate += variableValues[getRandomIndex(variableValues.length)];
+                    } else {
+                        populatedTemplate += templateComponent[k];
+                    }
+                }
+            }
+            populatedTemplate += '\n';
+    
+            // Add training data
+            trainingData.add(populatedTemplate);
+        }
+
+        // Enable generated data to be exported
+        updateTrainingFileURL();
+
+        $('#generate-training-data').hide();
+        $('#export-training-data').show();
+
+        alert(1);
+    });
+
+
     // Add tooltips to option headlines
     $('.training-tooltip').simpletooltip({
         position: 'right',
@@ -147,6 +185,7 @@ $(document).ready(function () {
     // Initialize display mode based on users' preference
     updateDisplayMode();
 });
+
 
 function updateDisplayMode() {
     /*
@@ -193,14 +232,13 @@ function updateTextInput(value) {
 }
 
 
-function generateTrainingData() {
-    // Enable generated data to be exported
-    updateTrainingFileURL();
+function getRandomIndex(max) {
+    return Math.floor(Math.random() * max);
 }
 
 
 function updateTrainingFileURL() {
-    var saveButton = document.getElementById('save-training-data');
+    var saveButton = document.getElementById('export-training-data');
     var fileName = 'training-data.txt';
     var contentType = 'text/plain';
     var blob = new Blob(trainingData, {type: contentType});
@@ -213,5 +251,5 @@ function updateTrainingFileURL() {
 var addedVariableNames = [];
 var variables = [];
 var templates = [];
-var quantity;
-var trainingData = [];
+var quantity = 0;
+var trainingData = new Set();
