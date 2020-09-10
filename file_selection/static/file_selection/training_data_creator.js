@@ -119,7 +119,7 @@ $(document).ready(function () {
         */
 
         // Get input data
-        var template = $('#template-input').val().trim();
+        var template = $('#template-input').val().trim() + '\t' + $('#template-target').val().trim();
 
         // Check that template hasn't already been added
         if (templates.includes(template)) {
@@ -128,43 +128,64 @@ $(document).ready(function () {
         }
 
         // Validate template input
-        if (template == '') {
-            alert('Template cannot be empty.');
+        if ($('#template-input').val().trim() == '' || $('#template-target').val().trim() == '') {
+            alert('Sentence template and target output required.');
             return;
         }
-
-        // Clear input field
-        $('#template-input').val('');
 
         // Add template to global list
         templates.push(template);
 
         // Add template to display
-        document.getElementById('template-list').innerHTML += '<span class="added-element" type="template">' + template + '</span>';
+        document.getElementById('template-list').innerHTML += '<span class="added-element" type="template">' + $('#template-input').val().trim() + '</span>';
     
+        // Clear input fields
+        $('#template-input').val('');
+        $('#template-target').val('');
+
         // Add event for deleting template
         bindEvents();
     });
 
 
     $('#generate-training-data').click(function () {
+        if (templates.length == 0) {
+            alert('Need at least one template.');
+            return;
+        }
+
+        if (quantity == 0) {
+            alert('Need a quantity greater than zero.');
+            return;
+        }
+
         // Generate data
         for (var i = 0; i < quantity; i++) {
             console.log(i);
             // Pick random sentence template
             var template = templates[getRandomIndex(templates.length)];
-    
+
             // Populate template with appropiate variable values
             var populatedTemplate = '';
+            var generatedVariableValues = {};
             var templateComponents = template.split('${');
             for (var j = 0; j < templateComponents.length; j++) {
                 var templateComponent = templateComponents[j].split('}')
                 for (var k = 0; k < templateComponent.length; k++) {
-                    var variableIndex = addedVariableNames.indexOf(templateComponent[k].toLowerCase().trim());
+                    var token = templateComponent[k].toLowerCase().trim();
+                    var variableIndex = addedVariableNames.indexOf(token);
+
+                    // Check whether the token is a variable or not
                     if (variableIndex != -1) {
-                        var variableValues = variables[variableIndex]['values'];
-                        populatedTemplate += variableValues[getRandomIndex(variableValues.length)];
+                        if (!(token in generatedVariableValues)) {
+                            // Select random value
+                            var variableValues = variables[variableIndex]['values'];
+                            generatedVariableValues[token] = variableValues[getRandomIndex(variableValues.length)];
+                        }
+                        // Use randomised values consistently for each sentence
+                        populatedTemplate += generatedVariableValues[token];
                     } else {
+                        // Add regular word token
                         populatedTemplate += templateComponent[k];
                     }
                 }
@@ -175,11 +196,11 @@ $(document).ready(function () {
             trainingData.add(populatedTemplate);
         }
 
-        // Enable generated data to be exported
+        // Prepare data for export
         updateTrainingFileURL();
-
-        $('#generate-training-data').hide();
-        $('#export-training-data').show();
+        
+        // Export data
+        document.getElementById('export-training-data').click();
     });
 
 

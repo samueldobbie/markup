@@ -31,13 +31,14 @@
 
             <div class="option-container">
                 <p class="option-headline option-item">
-                    Sentence Templates
-                    <span class="training-tooltip" title="Templates containing a mix of text and variables, which will be used for sentence generation.">
+                    Sequence Templates
+                    <span class="training-tooltip" title="Templates containing a mix of text and variables, which will be used for data generation.">
                         <i class="far fa-question-circle"></i>
                     </span>
                 </p>
                 <div class="option-item">
-                    <textarea id="template-input" class="option-input-field" style="resize: vertical;" placeholder="Single sentence template (e.g. She is taking ${drug dose} ${dose unit} of ${drug name}.)"></textarea>
+                    <textarea id="template-input" class="option-input-field" style="resize: vertical;" placeholder="Input sequence (e.g. She is taking ${drug dose} ${dose unit} of ${drug name}.)"></textarea>
+                    <textarea id="template-target" class="option-input-field" style="resize: vertical;" placeholder="Output sequence (e.g. dose: ${drug dose}; unit: ${dose unit}; name: ${drug name};)"></textarea>
                 </div>
                 <div class="option-item">
                     <label id="add-template" class="option-button option-button-small">+ Template</label>
@@ -62,9 +63,7 @@
                 <button id="generate-training-data" class="option-button">
                     Generate Training Data
                 </button>
-                <a id="export-training-data" class="option-button" style="text-decoration: none; display: none;">
-                    Export Training Data
-                </a>
+                <a id="export-training-data" class="option-button" style="text-decoration: none; display: none;"></a>
             </div>
         </div>
     </div>
