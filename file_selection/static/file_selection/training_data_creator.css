@@ -71,11 +71,16 @@
   margin: 2%;
 }
 
+.output-list {
+  margin: 3% 0 2% 0;
+}
+
 .added-element {
-  display: block;
+  display: inline-block;
   padding: 5px;
   margin: 5px;
-  border-radius: 3px;
+  border-radius: 5%;
+  background-color: rgb(212, 212, 212);
   font-weight: bold;
   color: #1A1E24;
   cursor: pointer;
@@ -84,7 +89,7 @@
 }
 
 .added-element:hover {
-  border: 2px solid rgb(255, 112, 112);
+  background-color: rgb(255, 112, 112);
 }
 
 .option-dropdown {

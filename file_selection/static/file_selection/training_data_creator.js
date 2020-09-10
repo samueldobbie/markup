@@ -103,6 +103,12 @@ $(document).ready(function () {
 
         // Add variable to global list
         variables.push(variable);
+
+        // Add variable to display
+        document.getElementById('variable-list').innerHTML += '<span class="added-element" type="variable">' + variable['name'] + '</span>';
+    
+        // Add event for deleting variable
+        bindEvents();
     });
 
 
@@ -130,7 +136,14 @@ $(document).ready(function () {
         // Clear input field
         $('#template-input').val('');
 
+        // Add template to global list
         templates.push(template);
+
+        // Add template to display
+        document.getElementById('template-list').innerHTML += '<span class="added-element" type="template">' + template + '</span>';
+    
+        // Add event for deleting template
+        bindEvents();
     });
 
 
@@ -167,10 +180,35 @@ $(document).ready(function () {
 
         $('#generate-training-data').hide();
         $('#export-training-data').show();
-
-        alert(1);
     });
 
+
+    function bindEvents() {
+        /*
+        Enable added elements to
+        be deleted upon selection
+        */
+
+        $('.added-element').click(function () {
+            // Get variable name
+            var elementText = $(this).text();
+            var elementType = $(this).attr('type');
+
+            // Remove element from output list
+            if (elementType == 'variable') {
+                var variableIndex = addedVariableNames.indexOf(elementText);
+                variables.splice(variableIndex, 1);
+                addedVariableNames.splice(variableIndex, 1);
+            } else {
+                // Remove template from output list
+                var templateIndex = templates.indexOf(elementText);
+                templates.splice(templateIndex, 1);
+            }
+
+            // Delete element from display list
+            $(this).remove();
+        });
+    }
 
     // Add tooltips to option headlines
     $('.training-tooltip').simpletooltip({

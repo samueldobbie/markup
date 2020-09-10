@@ -15,7 +15,7 @@
                         <option value="text">Text values</option>
                         <option value="numerical">Numerical range</option>
                     </select>
-                    <input id="variable-name" class="option-input-field" type="text" placeholder="Name (e.g. Dose Unit)">
+                    <input id="variable-name" class="option-input-field" type="text" placeholder="Name (e.g. dose unit)">
                     <textarea id="variable-text-value" class="option-input-field" style="resize: vertical;" type="text" placeholder="Comma-seperated values (e.g. grams, milligrams)"></textarea>
                     <div id="variable-numerical-range" style="display: none;">
                         <input id="numerical-range-low" class="option-input-field" style="width: 30.5%;" type="number" min="0" placeholder="Low (e.g. 0)">
@@ -26,6 +26,7 @@
                 <div class="option-item">
                     <label id="add-variable" class="option-button option-button-small">+ Variable</label>
                 </div>
+                <div id="variable-list" class="output-list"></div>
             </div>
 
             <div class="option-container">
@@ -36,11 +37,12 @@
                     </span>
                 </p>
                 <div class="option-item">
-                    <textarea id="template-input" class="option-input-field" style="resize: vertical;" placeholder="Single sentence template (e.g. She is taking ${Drug Dose} ${Drug Unit} of ${Drug Name}.)"></textarea>
+                    <textarea id="template-input" class="option-input-field" style="resize: vertical;" placeholder="Single sentence template (e.g. She is taking ${drug dose} ${dose unit} of ${drug name}.)"></textarea>
                 </div>
                 <div class="option-item">
                     <label id="add-template" class="option-button option-button-small">+ Template</label>
                 </div>
+                <div id="template-list" class="output-list"></div>
             </div>
 
             <div class="option-container">
