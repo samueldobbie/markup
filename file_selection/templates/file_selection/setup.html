@@ -13,8 +13,8 @@
                     </span>
                 </p>
                 <select id="setup-type-dropdown" class="option-dropdown option-item">
-                    <option value="single" selected>Single file</option>
-                    <option value="multiple">Mutliple files</option>
+                    <option value="single" selected>Single document</option>
+                    <option value="multiple">Mutliple documents</option>
                 </select>
             </div>
 
@@ -51,63 +51,65 @@
                     </div>
                 </div>
 
-                <div class="option-container option-file-container" complete="true" id="annotation-file-opener-container">
-                    <p class="option-headline option-item">
-                        Existing annotations
-                        <span class="setup-tooltip" title="Optional: The file containing existing annotations for the document you intend to annotate (must be .ann file).">
-                            <i class="far fa-question-circle"></i>
-                        </span>
-                    </p>
-                    <div class="option-item">
-                        <label for="annotation-file-opener" class="option-button option-button-small">Select</label>
-                        <input id="annotation-file-opener" type="file" accept=".ann" style="display: none;">
-                        <label id="annotation-file-remover" class="option-button option-button-small" style="background-color: rgb(255, 162, 162); display: none;">Remove</label>
-                        <span id="annotation-file-name"></span>
-                    </div>
-                </div>
-
-                <!--
-                <div class="option-container option-folder-container" complete="true" id="training-file-opener-container">
-                    <p class="option-headline option-item">
-                        Training Data
-                        <span class="setup-tooltip" title="Optional: Data to be used to train a model for predicting, suggesting, and adding complex annotations. See documentation for custom formatting details.">
-                            <i class="far fa-question-circle"></i>
-                        </span>
-                    </p>
-                    <div class="option-item">
-                        <label for="training-file-opener" class="option-button option-button-small">Select</label>
-                        <input id="training-file-opener" type="file" accept=".txt" style="display: none;">
-                        <span>or</span>
-                        <a href="/training-data-creator/" style="text-decoration: none;"><label class="option-button option-button-small">Create</label></a>
-                        <span id="training-file-name"></span>
-                    </div>
-                </div>
-                -->
-        
-                <div class="option-container option-file-container" complete="true" id="ontology-file-opener-container">
-                    <p class="option-headline option-item">
-                        Ontology
-                        <span class="setup-tooltip" title="Optional: An existing or custom ontology you want to access during annotation. See documentation for custom formatting details.">
-                            <i class="far fa-question-circle"></i>
-                        </span>
-                    </p>
-                    <div class="option-item">
-                        <div id="single-ontology-loader" style="display: none;">
-                            <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+                <div id="advanced-file-options" style="display: none;">
+                    <div class="option-container option-file-container" complete="true" id="annotation-file-opener-container">
+                        <p class="option-headline option-item">
+                            Existing annotations
+                            <span class="setup-tooltip" title="Optional: The file containing existing annotations for the document you intend to annotate (must be .ann file).">
+                                <i class="far fa-question-circle"></i>
+                            </span>
+                        </p>
+                        <div class="option-item">
+                            <label for="annotation-file-opener" class="option-button option-button-small">Select</label>
+                            <input id="annotation-file-opener" type="file" accept=".ann" style="display: none;">
+                            <label id="annotation-file-remover" class="option-button option-button-small" style="background-color: rgb(255, 162, 162); display: none;">Remove</label>
+                            <span id="annotation-file-name"></span>
                         </div>
+                    </div>
 
-                        <div id="single-ontology-options">
-                            <select id="ontology-file-dropdown" class="option-dropdown">
-                                <option value="default">Choose pre-loaded</option>
-                                <option value="umls">UMLS</option>
-                            </select>
+                    <div class="option-container option-folder-container" complete="true" id="training-file-opener-container">
+                        <p class="option-headline option-item">
+                            Training Data
+                            <span class="setup-tooltip" title="Optional: Data to be used to train a model for predicting, suggesting, and adding complex annotations. See documentation for custom formatting details.">
+                                <i class="far fa-question-circle"></i>
+                            </span>
+                        </p>
+                        <div class="option-item">
+                            <label for="training-file-opener" class="option-button option-button-small">Select</label>
+                            <input id="training-file-opener" type="file" accept=".txt" style="display: none;">
                             <span>or</span>
-                            <label for="ontology-file-opener" class="option-button option-button-small">Custom</label>
-                            <input id="ontology-file-opener" type="file" accept=".txt" style="display: none;">
-                            <span id="ontology-file-name"></span>
+                            <a href="/training-data-creator/" style="text-decoration: none;"><label class="option-button option-button-small">Create</label></a>
+                            <span id="training-file-name"></span>
+                        </div>
+                    </div>
+            
+                    <div class="option-container option-file-container" complete="true" id="ontology-file-opener-container">
+                        <p class="option-headline option-item">
+                            Ontology
+                            <span class="setup-tooltip" title="Optional: An existing or custom ontology you want to access during annotation. See documentation for custom formatting details.">
+                                <i class="far fa-question-circle"></i>
+                            </span>
+                        </p>
+                        <div class="option-item">
+                            <div id="single-ontology-loader" style="display: none;">
+                                <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+                            </div>
+
+                            <div id="single-ontology-options">
+                                <select id="ontology-file-dropdown" class="option-dropdown">
+                                    <option value="default">Choose pre-loaded</option>
+                                    <option value="umls">UMLS</option>
+                                </select>
+                                <span>or</span>
+                                <label for="ontology-file-opener" class="option-button option-button-small">Custom</label>
+                                <input id="ontology-file-opener" type="file" accept=".txt" style="display: none;">
+                                <span id="ontology-file-name"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <div class="option-container option-file-container" id="expand-file-options" style="box-shadow: none;"><span id="expand-file-message" class="expand-message">+ Advanced options</span></div>
         
                 <div class="completed-option-container">
                     <button id="start-annotating-file" class="option-button">Start annotating!</button>
@@ -130,31 +132,35 @@
                         <span id="folder-file-name"></span>
                     </div>
                 </div>
-        
-                <div class="option-container option-folder-container" complete="true" id="ontology-folder-opener-container">
-                    <p class="option-headline option-item">
-                        Ontology
-                        <span class="setup-tooltip" title="Optional: An existing or custom ontology you want to access during annotation. See documentation for custom formatting details.">
-                            <i class="far fa-question-circle"></i>
-                        </span>
-                    </p>
-                    <div class="option-item">
-                        <div id="multiple-ontology-loader" style="display: none;">
-                            <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
-                        </div>
 
-                        <div id="multiple-ontology-options">
-                            <select id="ontology-folder-dropdown" class="option-dropdown">
-                                <option value="default">Choose pre-loaded</option>
-                                <option value="umls">UMLS</option>
-                            </select>
-                            <span>or</span>
-                            <label for="ontology-folder-opener" class="option-button option-button-small">Custom</label>
-                            <input id="ontology-folder-opener" type="file" accept=".txt" style="display: none;">
-                            <span id="ontology-folder-name"></span>
+                <div id="advanced-folder-options" style="display: none;">
+                    <div class="option-container option-folder-container" complete="true" id="ontology-folder-opener-container">
+                        <p class="option-headline option-item">
+                            Ontology
+                            <span class="setup-tooltip" title="Optional: An existing or custom ontology you want to access during annotation. See documentation for custom formatting details.">
+                                <i class="far fa-question-circle"></i>
+                            </span>
+                        </p>
+                        <div class="option-item">
+                            <div id="multiple-ontology-loader" style="display: none;">
+                                <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+                            </div>
+
+                            <div id="multiple-ontology-options">
+                                <select id="ontology-folder-dropdown" class="option-dropdown">
+                                    <option value="default">Choose pre-loaded</option>
+                                    <option value="umls">UMLS</option>
+                                </select>
+                                <span>or</span>
+                                <label for="ontology-folder-opener" class="option-button option-button-small">Custom</label>
+                                <input id="ontology-folder-opener" type="file" accept=".txt" style="display: none;">
+                                <span id="ontology-folder-name"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <div class="option-container option-folder-container" id="expand-folder-options" style="box-shadow: none;"><span id="expand-folder-message" class="expand-message">+ Advanced options</span></div>
         
                 <div class="completed-option-container">
                     <button id="start-annotating-folder" class="option-button">Start annotating!</button>

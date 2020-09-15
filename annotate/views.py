@@ -556,7 +556,7 @@ class Seq2Seq:
         pass
 
 # Project path
-PATH = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..'))
+PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 # Define active learner for classifying target sentences
 sentence_classifier = SentenceClassifier(PATH)

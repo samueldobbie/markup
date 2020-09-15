@@ -32,6 +32,7 @@ Documentation to help with setting up and using Markup can be found <a href="htt
 - Predictive annotation suggestions (incl. attributes) using underlying active learning and sequence-to-sequence models.
 - Integrated access to pre-loaded and user-defined ontologies, enabling predictive mappings and direct querying.
 - Built-in configuration file creator.
+- Built-in synthetic data generator and custom model training.
 - Dynamic attribute display.
 - Any number of overlaying annotations, enabling the capture of complex data.
 - Full-feature tool available via local installation and website.
@@ -41,7 +42,6 @@ Documentation to help with setting up and using Markup can be found <a href="htt
 
 - Add user accounts.
 - Add ability for users to join a team and share ontologies, documents, guidelines, annotations, etc.
-- Enable users to input data, or provide examples for synthetic data, to train custom models without technical expertise.
 - Accessible version for colour-blind users.
 - Add ability to perform text and image classification.
 - Add ability to annotate images.

@@ -271,6 +271,31 @@ $(document).ready(function () {
             }
         });
     });
+
+
+    /* Toggle between displaying / hiding
+    advanced setup options (existing annotations,
+    training data specification, and ontology selection)
+    */
+    $('.expand-message').click(function () {
+        var type = 'file';
+        if ($(this).parent().attr('id') == 'expand-folder-options') {
+            type = 'folder';
+        }
+        toggleAdvancedOptions(type);
+    });
+
+
+    function toggleAdvancedOptions(type) {
+        if ($('#expand-' + type + '-message').text() == '+ Advanced options') {
+            $('#advanced-' + type + '-options').slideDown();
+            $('#expand-' + type + '-message').text('- Advanced options');
+        } else {
+            $('#advanced-' + type + '-options').slideUp();
+            $('#expand-' + type + '-message').text('+ Advanced options');
+        }
+    }
+
     
     // Initialize display mode based on users' preference
     updateDisplayMode();

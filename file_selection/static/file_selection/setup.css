@@ -82,6 +82,11 @@
     background-color: #33FFB5;
 }
 
+.expand-message {
+    color: rgb(79, 131, 173);
+    cursor: pointer;
+}
+
 @media only screen and (max-width: 750px) {
     .setup-panel {
         width: 80vw;
