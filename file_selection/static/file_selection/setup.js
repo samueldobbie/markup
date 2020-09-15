@@ -91,6 +91,15 @@ $(document).ready(function () {
     });
 
 
+    $('#training-file-opener').change(function () {
+        // Display name of file next to upload button
+        document.getElementById('training-file-name').innerText = document.getElementById('training-file-opener').files[0].name;
+
+        // Train custom model
+        trainCustomModel(document.getElementById('training-file-opener').files[0]);
+    });
+
+
     $('#ontology-file-dropdown').change(function () {
         /*
         Display ontology login authentication panel
@@ -362,6 +371,11 @@ function updateDisplayMode() {
             loaderDivs[i].childNodes[j].style.background = oppositeBackgroundColor;
         }
     }
+}
+
+
+function trainCustomModel() {
+    return;
 }
 
 

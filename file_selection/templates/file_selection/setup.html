@@ -67,7 +67,7 @@
                         </div>
                     </div>
 
-                    <div class="option-container option-folder-container" complete="true" id="training-file-opener-container">
+                    <!-- <div class="option-container option-file-container" complete="true" id="training-file-opener-container">
                         <p class="option-headline option-item">
                             Training Data
                             <span class="setup-tooltip" title="Optional: Data to be used to train a model for predicting, suggesting, and adding complex annotations. See documentation for custom formatting details.">
@@ -81,7 +81,7 @@
                             <a href="/training-data-creator/" style="text-decoration: none;"><label class="option-button option-button-small">Create</label></a>
                             <span id="training-file-name"></span>
                         </div>
-                    </div>
+                    </div> -->
             
                     <div class="option-container option-file-container" complete="true" id="ontology-file-opener-container">
                         <p class="option-headline option-item">
@@ -109,7 +109,7 @@
                     </div>
                 </div>
 
-                <div class="option-container option-file-container" id="expand-file-options" style="box-shadow: none;"><span id="expand-file-message" class="expand-message">+ Advanced options</span></div>
+                <div class="option-container" id="expand-file-options" style="box-shadow: none;"><span id="expand-file-message" class="expand-message">+ Advanced options</span></div>
         
                 <div class="completed-option-container">
                     <button id="start-annotating-file" class="option-button">Start annotating!</button>
@@ -134,6 +134,22 @@
                 </div>
 
                 <div id="advanced-folder-options" style="display: none;">
+                    <!-- <div class="option-container option-folder-container" complete="true" id="training-file-opener-container">
+                        <p class="option-headline option-item">
+                            Training Data
+                            <span class="setup-tooltip" title="Optional: Data to be used to train a model for predicting, suggesting, and adding complex annotations. See documentation for custom formatting details.">
+                                <i class="far fa-question-circle"></i>
+                            </span>
+                        </p>
+                        <div class="option-item">
+                            <label for="training-file-opener" class="option-button option-button-small">Select</label>
+                            <input id="training-file-opener" type="file" accept=".txt" style="display: none;">
+                            <span>or</span>
+                            <a href="/training-data-creator/" style="text-decoration: none;"><label class="option-button option-button-small">Create</label></a>
+                            <span id="training-file-name"></span>
+                        </div>
+                    </div> -->
+
                     <div class="option-container option-folder-container" complete="true" id="ontology-folder-opener-container">
                         <p class="option-headline option-item">
                             Ontology
@@ -160,7 +176,7 @@
                     </div>
                 </div>
 
-                <div class="option-container option-folder-container" id="expand-folder-options" style="box-shadow: none;"><span id="expand-folder-message" class="expand-message">+ Advanced options</span></div>
+                <div class="option-container" id="expand-folder-options" style="box-shadow: none;"><span id="expand-folder-message" class="expand-message">+ Advanced options</span></div>
         
                 <div class="completed-option-container">
                     <button id="start-annotating-folder" class="option-button">Start annotating!</button>

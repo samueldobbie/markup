@@ -32,7 +32,7 @@ Documentation to help with setting up and using Markup can be found <a href="htt
 - Predictive annotation suggestions (incl. attributes) using underlying active learning and sequence-to-sequence models.
 - Integrated access to pre-loaded and user-defined ontologies, enabling predictive mappings and direct querying.
 - Built-in configuration file creator.
-- Built-in synthetic data generator and custom model training.
+- Built-in synthetic data generator and custom model trainer (local version only due to high computational expense).
 - Dynamic attribute display.
 - Any number of overlaying annotations, enabling the capture of complex data.
 - Full-feature tool available via local installation and website.
