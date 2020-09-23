@@ -178,7 +178,8 @@ function validateConfigSelection(configText) {
     */
 
     if (configText == null || configText.trim() == '') {
-        window.location = '/';
+        alert('You need to provide a configuration file.');
+        window.location = '/setup';
     }
 }
 

@@ -328,15 +328,15 @@ class SentenceClassifier:
         '''
         Convert body of text into individual sentences
         '''
-        sentences = []
-        for paragraph in text.split('\n'):
-            for sentence in paragraph.split('. '):
-                for sub_sentence in sentence.split(' and '):
-                    sub_sentence = sub_sentence.strip()
-                    if sub_sentence != '':
-                        sentences.append(sub_sentence)
+        sentences = re.split(delimiters, text)
+        sentences = map(self.clean_sentence, sentences)
+        return list(filter(self.is_valid_sentence, sentences))
 
-        return sentences
+    def clean_sentence(self, sentence):
+        return sentence.strip()
+
+    def is_valid_sentence(self, sentence):
+        return sentence != '' and sentence not in stopwords
 
     def teach(self, sentence, label):
         '''
@@ -578,9 +578,15 @@ umls_database = None
 umls_mappings = None
 
 pickles = [f for f in os.listdir(PATH + '/data/ontology/') if os.path.isfile(os.path.join('data/ontology/', f))]
+
 if 'umls-database.pickle' in pickles and 'umls-mappings.pickle' in pickles:
     umls_database = pickle.load(open(PATH + '/data/ontology/umls-database.pickle', 'rb'))
     umls_mappings = pickle.load(open(PATH + '/data/ontology/umls-mappings.pickle', 'rb'))
+
+# Construct regex string containing sentence delimiters
+with open(PATH + '/data/text/sentence-delimiters.txt', encoding='utf-8') as f:
+    values = [d.strip('\n') for d in f]
+    delimiters = r'({})'.format('|'.join(values))
 
 # Stopwords for cleaning sentences
 stopwords = set(open(PATH + '/data/text/stopwords.txt', encoding='utf-8').read().split('\n'))

@@ -1,4 +1,6 @@
 date: 1st january 2000	0
+ramipril 2.5mgs	1
+clobazam 10mgs prn	1
 she has not had any mri and i think provided that things are stable and she does not have any further episodes then we can hold off arranging this.	0
 i reviewed this 42 year old lady with epilepsy, together with her husband, in clinic today.	0
 methylphenobarbitone 200 gram every day (increasing)	1
@@ -14,6 +16,7 @@ oxazolidinedione 310 g od to reduce gradually	1
 he is currently taking lamotrigine 50mg twice a day.	1
 old villa, park avenue, cross, bristol, dc32 1ba	0
 diagnosis:	0
+carbamazepine 400mgs bd	1
 carbamazepine product 180 milliliters bd to reduce gradually	1
 old road	0
 oxcarbazepine 60 g od (increasing)	1
@@ -31,6 +34,7 @@ dear dr jane doe	0
 this was difficult to describe but it was like an overfamiliar or deja vu feeling.	0
 at present, she is on tiagabine 470 mls once a day without any side effects	1
 3. alzheimer's disease	0
+levetiracetam 500mgs bd	1
 i reviewed bob in clinic today accompanied by five of his care workers.	0
 455 grams of oxazolidinedione has been prescribed to the patient to be taken three times a day	1
 felbamate 185 grams in the morning for 2 weeks and then stop	1
@@ -41,11 +45,13 @@ mysolin 225 mgs daily for 2 weeks and then stop	1
 this is interesting as previously she was getting events with coloured objects in her field of vision which were probably occipital lobe seizures.	0
 i have given him some safety and driving advice and will ask our epilepsy nurses to contact him to go through things in more details.	0
 prescription: perampanel 175 mgs od	1
+thyroxin 100mcgms	1
 medication: topiramate 430 milliliters every day	1
 yours sincerely	0
 current medication includes succinimide antiepileptic 260 milliliter every day	1
 1. possible recurrant blackouts	0
 old port	0
+lamotrigine 200mgs bd	1
 2. background of epilepsy, probable focal onset	0
 she has a background of chronic back pain and is largely mute.	0
 current medication includes tegretol 275 mls three times a day	1
@@ -54,4 +60,5 @@ current medication includes phenacemide 425 milligram in the morning	1
 mr jones remembers feeling "a bit weird" whilst sitting on the setee before waking up on the floor with a headache	0
 ethosuximide 365 mg every day (increasing)	1
 lamictal 415 gs daily (increasing)	1
+ramipril 2.5mgs	1
 she is currently taking sodium valproate 400mg bd	1
