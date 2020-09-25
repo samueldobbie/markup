@@ -1,4 +1,4 @@
-{% extends 'file_selection/index_head.html' %}
+{% extends 'home/home_head.html' %}
 
 {% block content %}
     {% csrf_token %}
@@ -7,7 +7,7 @@
             <span class="tagline-component tagline-component-main">markup</span>
             <span class="tagline-component tagline-component-sub">Rapid annotation, powered by active learning.</span>
         </p>
-        <button onclick="location.href='/docs';" class="option-button documentation-button">Docs</button>
+        <button onclick="location.href='/doc';" class="option-button documentation-button">Docs</button>
         <button onclick="location.href='/setup';" class="option-button">Annotate</button>
         <br><br><a id="try-demo">...or try out a demo</a>
     </div>

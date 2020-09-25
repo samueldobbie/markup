@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    {% load static %}
+
+    <title>Training Data Creator - Markup</title>
+    
+    <link href="{% static 'setup/third-party/simpletooltip.min.css' %}" rel="stylesheet" media="screen" />
+    <link href="{% static 'setup/training_data_creator.css' %}" rel="stylesheet" />
+
+    <script src="{% static 'setup/third-party/simpletooltip.min.js' %}"></script>
+    <script src="{% static 'setup/training_data_creator.js' %}"></script>
+{% endblock %}

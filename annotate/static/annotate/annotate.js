@@ -648,13 +648,13 @@ function displayAnnotation(entityValue, attributeValues, annotationIdentifier) {
     }
 
     // Add a dropdown that shows the attribute values of an annotation upon click
-    var contentDiv = '<div class="content"><p>';   
+    var contentDiv = '<div for="annotation-' + annotationIdentifier + '" class="content"><p>';   
     for (var i = 0; i < attributeValues.length; i++) {
         contentDiv += '<p class="annotation-attribute">' + attributeValues[i] + '</p>';
     }
     // Add edit and delete buttons
-    contentDiv += '<a annotation-id="' + annotationIdentifier + '" class="annotation-icon delete-icon" onClick="deleteAnnotation(this);"><i class="fas fa-trash"></i></a>';
-    contentDiv += '<a annotation-id="' + annotationIdentifier + '" class="annotation-icon edit-icon" onClick="alert(\'Ability to edit coming soon!\');"><i class="fas fa-edit"></i></a></p></div>';
+    contentDiv += '<div class="annotation-option-container"><a annotation-id="' + annotationIdentifier + '" class="annotation-icon delete-icon" onClick="deleteAnnotation(this);"><i class="fas fa-trash"></i></a>';
+    contentDiv += '<a annotation-id="' + annotationIdentifier + '" class="annotation-icon edit-icon" onClick="editAnnotation(this);"><i class="fas fa-edit"></i></a></div></p></div>';
     
     // Display the section title based on the annotation entity category
     document.getElementById(entityValue + '-section').style.display = '';
@@ -1383,7 +1383,7 @@ function getAnnotationSuggestions() {
                     
                     // Add accept and reject buttons to collapsible
                     contentDiv += '<div class="suggestion-option-container"><a suggestion-id=' + suggestionId + ' onClick="rejectSuggestion(this);"><button class="main-button suggestion-button red-button"><i class="fas fa-times"></i></button></a>';
-                    contentDiv += '<a suggestion-id=' + suggestionId + ' onClick="editSuggestion(this);"><button class="main-button suggestion-button yellow-button"><i class="fas fa-edit"></i></button></a>'
+                    contentDiv += '<a suggestion-id=' + suggestionId + ' onClick="editAnnotation(this);"><button class="main-button suggestion-button yellow-button"><i class="fas fa-edit"></i></button></a>'
                     contentDiv += '<a suggestion-id=' + suggestionId + ' onClick="acceptSuggestion(this);"><button class="main-button suggestion-button green-button"><i class="fas fa-check"></i></button></a></div></p></div>'
 
                     // Add suggestion to display
@@ -1408,7 +1408,7 @@ function acceptSuggestion(event) {
 
     // Get accepted annotation
     var annotation = document.getElementById(suggestionId);
-    var annotationText = annotation.innerText;
+    // var annotationText = annotation.innerText;
 
     // Remove collapsible assocaited with accepted annotation
     for (var i = 0; i < annotation.parentNode.childNodes.length; i++) {
@@ -1459,13 +1459,17 @@ function acceptSuggestion(event) {
 }
 
 
-function editSuggestion(event) {
-    alert('Ability to edit suggestion attributes will be added soon.');
+function editAnnotation(element) {
+    let forValue = element.parentElement.parentElement.getAttribute('for').split('-');
+    let type = forValue[0];
+    let id = forValue[1];
+    
+
 }
 
 
-function rejectSuggestion(event) {
-    var suggestionId = event.getAttribute('suggestion-id');
+function rejectSuggestion(element) {
+    var suggestionId = element.getAttribute('suggestion-id');
 
     // Get rejected annotation
     var annotation = document.getElementById(suggestionId);

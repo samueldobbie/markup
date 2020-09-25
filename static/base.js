@@ -11,14 +11,14 @@ function clearLocalStorage() {
             localStorage.setItem('mode', displayMode);
         }
     
-        resetOntologyToDefault();
+        resetOntology();
     }
 }
 
 
-function resetOntologyToDefault() {
+function resetOntology() {
     /*
-    Set selected ontology to null
+    Set selected ontology to default
     */
     $.ajax({
         type: 'POST',
