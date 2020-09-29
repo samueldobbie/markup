@@ -186,22 +186,18 @@ function validateConfigSelection(configText) {
 
 function prepareMultipleDocumentDisplay(documentCount) {
     /*
-    Display additional functionality available
-    when opening multiple documents at once
+    Display navigation options
+    when opening multiple documents
     */
-
-    // Display arrows to move forward and backwards between documents
-    document.getElementById('move-to-previous-file').style.display = '';
-    document.getElementById('move-to-next-file').style.display = '';
-
-    // Display navigation dropdown for jumping between documents
-    document.getElementById('switch-file').style.display = '';
+    $('#move-to-previous-file').show();
+    $('#move-to-next-file').show();
+    $('#switch-file').show();
 
     // Populate navigation dropdown
-    for (var i = 0; i < documentCount; i++) {
-        var documentName = localStorage.getItem('fileName' + i);
-        var dropdownOption = '<option documentId="' + i + '">' + documentName + '</option>';
-        document.getElementById('switch-file-dropdown').innerHTML += dropdownOption;
+    for (let i = 0; i < documentCount; i++) {
+        const documentName = localStorage.getItem('fileName' + i);
+        const dropdownOption = '<option documentId="' + i + '">' + documentName + '</option>';
+        $('#switch-file-dropdown').append(dropdownOption);
     }
 }
 
@@ -210,7 +206,6 @@ function parseConfigurationData(configText) {
     /*
     Parse configuration data from specified config file
     */
-
     var configSentences = configText.split('\n');
     var configValues = [];
     var configKey = '';
@@ -638,7 +633,7 @@ function displayAnnotation(entityValue, attributeValues, annotationIdentifier) {
     offsetList.push([annotationIdentifier, entityValue, attributeValues, highlighted]);
 
     // Construct annotation to be added to the annotation display panel
-    var annotationClass = 'class="annotation displayed-annotation collapsible"';
+    var annotationClass = 'class="annotation displayed-annotation collapsible" output-id="T' + entityId + '"';
     var annotationId = 'id="' + annotationIdentifier + '"';
     var annotationStyle = 'style="background-color:' + highlightColor + ';'
     if (localStorage.getItem('mode') == 'dark') {
@@ -650,11 +645,10 @@ function displayAnnotation(entityValue, attributeValues, annotationIdentifier) {
     // Add a dropdown that shows the attribute values of an annotation upon click
     var contentDiv = '<div for="annotation-' + annotationIdentifier + '" class="content"><p>';   
     for (var i = 0; i < attributeValues.length; i++) {
-        contentDiv += '<p class="annotation-attribute">' + attributeValues[i] + '</p>';
+        contentDiv += '<p class="annotation-attribute" onClick="editAnnotation(this);">' + attributeValues[i] + '</p>';
     }
-    // Add edit and delete buttons
-    contentDiv += '<div class="annotation-option-container"><a annotation-id="' + annotationIdentifier + '" class="annotation-icon delete-icon" onClick="deleteAnnotation(this);"><i class="fas fa-trash"></i></a>';
-    contentDiv += '<a annotation-id="' + annotationIdentifier + '" class="annotation-icon edit-icon" onClick="editAnnotation(this);"><i class="fas fa-edit"></i></a></div></p></div>';
+    // Add delete button
+    contentDiv += '<div class="annotation-option-container"><a annotation-id="' + annotationIdentifier + '" class="annotation-icon delete-icon" onClick="deleteAnnotation(this);"><i class="fas fa-trash"></i></a></div></p></div>';
     
     // Display the section title based on the annotation entity category
     document.getElementById(entityValue + '-section').style.display = '';
@@ -1376,14 +1370,13 @@ function getAnnotationSuggestions() {
                     var contentDiv = '<div for="' + suggestionId + '" class="content" style="background-color: #f1f1f1;"><p>';
                     for (var key in suggestions[i]) {
                         if (key != 'sentence' && suggestions[i][key]) {
-                            contentDiv += '<p class="annotation-attribute">' + key + ': ' + suggestions[i][key] + '</p>';
+                            contentDiv += '<p class="annotation-attribute" onClick="editSuggestion(this);">' + key + ': ' + suggestions[i][key] + '</p>';
                             suggestionAttributes += ' ' + key + '="' + suggestions[i][key] + '"';
                         }
                     }
                     
                     // Add accept and reject buttons to collapsible
                     contentDiv += '<div class="suggestion-option-container"><a suggestion-id=' + suggestionId + ' onClick="rejectSuggestion(this);"><button class="main-button suggestion-button red-button"><i class="fas fa-times"></i></button></a>';
-                    contentDiv += '<a suggestion-id=' + suggestionId + ' onClick="editAnnotation(this);"><button class="main-button suggestion-button yellow-button"><i class="fas fa-edit"></i></button></a>'
                     contentDiv += '<a suggestion-id=' + suggestionId + ' onClick="acceptSuggestion(this);"><button class="main-button suggestion-button green-button"><i class="fas fa-check"></i></button></a></div></p></div>'
 
                     // Add suggestion to display
@@ -1396,7 +1389,6 @@ function getAnnotationSuggestions() {
             }
         }
     }).done(function () {
-        // Add events to all suggestion dropdowns
         bindCollapsibleEvents();
     });
 }
@@ -1460,11 +1452,47 @@ function acceptSuggestion(event) {
 
 
 function editAnnotation(element) {
-    let forValue = element.parentElement.parentElement.getAttribute('for').split('-');
-    let type = forValue[0];
-    let id = forValue[1];
-    
+    const name = $(element).text().split(': ')[0].trim();
+    const value = $(element).text().split(': ')[1].trim();
+    const updatedValue = prompt('Updated value (' + name + ')', value);
 
+    if (updatedValue) {
+        $(element).text(name + ': ' + updatedValue);
+    }
+
+    const forId = $(element).parent().attr('for').split('-')[1];
+    const annotationId = $('#' + forId).attr('output-id');
+    for (let i = 0; i < annotationList[currentDocumentId].length; i++) {
+        const annotation = annotationList[currentDocumentId][i];
+
+        if (annotation[0][0].split('\t')[0] == annotationId) {
+            for (let j = 1; j < annotation.length; j++) {
+                let components = annotation[j][0].split('\t');
+                if (name == components[1].split(' ')[0]) {
+                    let subComponents = components[1].split(' ');
+                    subComponents[2] = updatedValue + '\n';
+                    components[1] = subComponents.join(' ');
+                }
+                annotationList[currentDocumentId][i][j] = [components.join('\t')];
+            }
+            updateAnnotationFileURL();
+            break;
+        }
+    }
+}
+
+
+function editSuggestion(element) {
+    const name = $(element).text().split(': ')[0].trim();
+    const value = $(element).text().split(': ')[1].trim();
+    const updatedValue = prompt('Updated value (' + name + ')', value);
+
+    if (updatedValue) {
+        $(element).text(name + ': ' + updatedValue);
+    }
+
+    const forId = $(element).parent().attr('for');
+    $('#' + forId).attr(name, updatedValue);
 }
 
 
