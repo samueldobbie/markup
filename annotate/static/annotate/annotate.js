@@ -1310,6 +1310,8 @@ function bindCollapsibleEvents() {
             content.slideUp(200);
         };
     });
+
+    showSuggestionInDocument();
 }
 
 
@@ -1357,7 +1359,7 @@ function getAnnotationSuggestions() {
                 for (var i = 0; i < suggestions.length; i++) {
                     // Construct suggestion container
                     var suggestionId = 'suggestion-' + i;
-                    var suggestionClass = 'class="annotation displayed-annotation collapsible"';
+                    var suggestionClass = 'class="annotation displayed-annotation collapsible suggestion"';
                     var suggestionStyle = 'style="background-color:' + highlightColor + ';'
                     if (localStorage.getItem('mode') == 'dark') {
                         suggestionStyle += 'color: #1A1E24;"';
@@ -1479,6 +1481,37 @@ function editAnnotation(element) {
             break;
         }
     }
+}
+
+
+function showSuggestionInDocument() {
+    $('.suggestion').mouseenter(function () {
+        const suggestionText = $(this).text();
+
+        // Hide current annotations
+        $('#file-data').text(localStorage.getItem('documentText' + currentDocumentId));
+
+        let updatedHTML = $('#file-data').html();
+        let index = updatedHTML.indexOf(suggestionText);
+
+        if (index > -1) { 
+            // Construct updated html with highlighted suggestion
+            updatedHTML = (
+                updatedHTML.substring(0, index) +
+                    '<span style="background-color: yellow;">' +
+                    updatedHTML.substring(index, index + suggestionText.length) +
+                    '</span>' +
+                    updatedHTML.substring(index + suggestionText.length)
+            );
+            // Update document
+            $('#file-data').html(updatedHTML);
+        }
+    });
+
+    $('.suggestion').mouseleave(function () {
+        loadExistingAnnotations();
+        bindCollapsibleEvents();
+    });
 }
 
 
