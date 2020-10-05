@@ -1327,8 +1327,9 @@ function getAnnotationSuggestions() {
         documentAnnotations.push(annotationList[currentDocumentId][i][0][0].split('\t')[2].trim());
     }
 
-    suggestAnnotationAjaxRequest = $.ajax({
+    $.ajax({
         type: 'POST',
+        async: true,
         url: '~/suggest-annotations',
         data: { 
             'documentText': documentText,
@@ -1600,9 +1601,6 @@ function switchSuggestionPanel() {
 
     // Close suggestion collapsible
     resetSuggestionCollapsible();
-
-    // Abort any ongoing annotation predictions
-    suggestAnnotationAjaxRequest.abort();
 }
 
 
@@ -1616,10 +1614,7 @@ function resetSuggestionCollapsible() {
     content.slideUp(200);
 }
 
-
-// Define global variables to make it clear they're in global scope
 var activeEntity;
-var suggestAnnotationAjaxRequest;
 var annotationList = [];
 var entityList = [];
 var offsetList = [];
