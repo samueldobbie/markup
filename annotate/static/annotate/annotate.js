@@ -1300,7 +1300,7 @@ function bindCollapsibleEvents() {
     $('.collapsible').unbind('click');
 
     // Add event to collapsibles
-    $('.collapsible').on('click', function(e) {
+    $('.collapsible').on('click', function() {
         var collapsible = $(this);
         var content = collapsible.next();
         collapsible.toggleClass('active');
@@ -1454,6 +1454,7 @@ function acceptSuggestion(event) {
 
 
 function editAnnotation(element) {
+    /*
     const name = $(element).text().split(': ')[0].trim();
     const value = $(element).text().split(': ')[1].trim();
     const updatedValue = prompt('Updated value (' + name + ')', value);
@@ -1463,11 +1464,15 @@ function editAnnotation(element) {
     }
 
     const forId = $(element).parent().attr('for').split('-')[1];
-    const annotationId = $('#' + forId).attr('output-id');
+    const targetId = $('#' + forId).attr('output-id');
     for (let i = 0; i < annotationList[currentDocumentId].length; i++) {
         const annotation = annotationList[currentDocumentId][i];
+        const annotationId = annotation[0][0].split('\t')[0];
+        const annotationName = annotation[0][0].split('\t')[1].split(' ')[0];
 
-        if (annotation[0][0].split('\t')[0] == annotationId) {
+        console.log(annotationName, name);
+
+        if (annotationId == targetId && annotationName == name) {
             for (let j = 1; j < annotation.length; j++) {
                 let components = annotation[j][0].split('\t');
                 if (name == components[1].split(' ')[0]) {
@@ -1481,17 +1486,22 @@ function editAnnotation(element) {
             break;
         }
     }
+    */
 }
 
-
 function showSuggestionInDocument() {
+    var currentHTML;
+
     $('.suggestion').mouseenter(function () {
-        const suggestionText = $(this).text();
-
-        // Hide current annotations
-        $('#file-data').text(localStorage.getItem('documentText' + currentDocumentId));
-
+        // Hide annotations
+        currentHTML = $('#file-data').html();
+        $('#file-data').text(
+            localStorage.getItem('documentText' + currentDocumentId)
+        );
         let updatedHTML = $('#file-data').html();
+
+        // Get location of suggestion
+        let suggestionText = $(this).text();
         let index = updatedHTML.indexOf(suggestionText);
 
         if (index > -1) { 
@@ -1509,8 +1519,7 @@ function showSuggestionInDocument() {
     });
 
     $('.suggestion').mouseleave(function () {
-        loadExistingAnnotations();
-        bindCollapsibleEvents();
+        $('#file-data').html(currentHTML);
     });
 }
 
