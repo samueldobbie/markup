@@ -1327,7 +1327,7 @@ function getAnnotationSuggestions() {
         documentAnnotations.push(annotationList[currentDocumentId][i][0][0].split('\t')[2].trim());
     }
 
-    $.ajax({
+    predictionAjaxRequest = $.ajax({
         type: 'POST',
         async: true,
         url: '~/suggest-annotations',
@@ -1471,8 +1471,6 @@ function editAnnotation(element) {
         const annotationId = annotation[0][0].split('\t')[0];
         const annotationName = annotation[0][0].split('\t')[1].split(' ')[0];
 
-        console.log(annotationName, name);
-
         if (annotationId == targetId && annotationName == name) {
             for (let j = 1; j < annotation.length; j++) {
                 let components = annotation[j][0].split('\t');
@@ -1601,6 +1599,9 @@ function switchSuggestionPanel() {
 
     // Close suggestion collapsible
     resetSuggestionCollapsible();
+
+    // Abort any ongoing annotation predictions
+    predictionAjaxRequest.abort();
 }
 
 
@@ -1615,6 +1616,7 @@ function resetSuggestionCollapsible() {
 }
 
 var activeEntity;
+var predictionAjaxRequest;
 var annotationList = [];
 var entityList = [];
 var offsetList = [];

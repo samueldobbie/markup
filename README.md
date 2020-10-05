@@ -48,4 +48,4 @@ Documentation to help with setting up and using Markup can be found <a href="htt
 
 ### Known Bugs / Issues
 - Annotations may be offset when annotating across newlines in CRLF (Windows) text documents. The offset is purely visual; the exported indicies will be correct.
-- When using the website version of Markup, features may be unavailable while annotations are being predicted.
+- When using the website version of Markup, certain features may freeze while annotations are being predicted.

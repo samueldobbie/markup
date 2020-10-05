@@ -336,7 +336,7 @@ class SentenceClassifier:
         return sentence.strip()
 
     def is_valid_sentence(self, sentence):
-        return sentence != '' and sentence not in stopwords
+        return sentence != '' and sentence not in stopwords and len(sentence.split(' ')) >= 3 
 
     def teach(self, sentence, label):
         '''
