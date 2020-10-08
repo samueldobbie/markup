@@ -1,8 +1,10 @@
 .vscode/
+.venv/
 __pycache__/
 
 umls-database.pickle
 umls-mappings.pickle
+user-classifier-data.txt
 secretkey.txt
 
 *.pyc

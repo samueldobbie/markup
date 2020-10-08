@@ -24,7 +24,7 @@ For futher use, the local server can be started directly by running `python mana
 
 ### Documentation
 
-Documentation to help with setting up and using Markup can be found <a href="https://www.getmarkup.com/docs">here</a>.
+Documentation to help with setting up and using Markup can be found <a href="https://www.getmarkup.com/doc">here</a>.
 
 ### Features
 

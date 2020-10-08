@@ -1,6 +1,5 @@
 import os
 
-
 def setup():
     if os.system('pip3 install -r requirements.txt') != 0:
         print('pip3 has not been installed or you are using 32-bit Python instead of 64-bit.')
@@ -13,5 +12,5 @@ def setup():
     else:
         print('Error: Python3 has not been installed.')
 
-
-setup()
+if __name__ == '__main__':
+    setup()
