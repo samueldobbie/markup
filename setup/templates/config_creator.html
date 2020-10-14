@@ -1,4 +1,13 @@
-{% extends 'setup/config_creator_head.html' %}
+{% extends 'base.html' %}
+
+{% block head %}
+    {% load static %}
+    <title>Configuration Creator - Markup</title>
+    <link href="{% static 'css/third-party/simpletooltip.min.css' %}" rel="stylesheet" media="screen" />
+    <link href="{% static 'css/config_creator.css' %}" rel="stylesheet" />
+    <script src="{% static 'js/third-party/simpletooltip.min.js' %}"></script>
+    <script src="{% static 'js/config_creator.js' %}"></script>
+{% endblock %}
 
 {% block content %}
     <div class="container">

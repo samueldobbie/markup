@@ -1,4 +1,4 @@
 from django.shortcuts import render
 
 def doc(request):
-    return render(request, 'doc/doc.html', {})
+    return render(request, 'doc.html', {})

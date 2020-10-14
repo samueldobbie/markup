@@ -1,4 +1,11 @@
-{% extends 'home/home_head.html' %}
+{% extends 'base.html' %}
+
+{% block head %}
+    {% load static %}
+    <title>Markup - Rapid Annotation, Powered by Active Learning</title>
+    <link href="{% static 'css/home.css' %}" rel="stylesheet" />
+    <script src="{% static 'js/home.js' %}"></script>
+{% endblock %}
 
 {% block content %}
     {% csrf_token %}

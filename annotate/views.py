@@ -27,7 +27,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 
 def annotate_data(request):
-    return render(request, 'annotate/annotate.html', {})
+    return render(request, 'annotate.html', {})
 
 
 def setup_umls_if_valid(request):

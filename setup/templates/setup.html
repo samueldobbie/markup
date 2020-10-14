@@ -1,4 +1,13 @@
-{% extends 'setup/setup_head.html' %}
+{% extends 'base.html' %}
+
+{% block head %}
+    {% load static %}
+    <title>Setup - Markup</title>
+    <link href="{% static 'css/third-party/simpletooltip.min.css' %}" rel="stylesheet" media="screen" />
+    <link href="{% static 'css/setup.css' %}" rel="stylesheet" />
+    <script src="{% static 'js/third-party/simpletooltip.min.js' %}"></script>
+    <script src="{% static 'js/setup.js' %}"></script>
+{% endblock %}
 
 {% block content %}
     {% csrf_token %}
@@ -78,7 +87,7 @@
                             <label for="training-file-opener" class="option-button option-button-small">Select</label>
                             <input id="training-file-opener" type="file" accept=".txt" style="display: none;">
                             <span>or</span>
-                            <a href="/training-data-creator/" style="text-decoration: none;"><label class="option-button option-button-small">Create</label></a>
+                            <a href="/data-generator/" style="text-decoration: none;"><label class="option-button option-button-small">Create</label></a>
                             <span id="training-file-name"></span>
                         </div>
                     </div> -->
@@ -145,7 +154,7 @@
                             <label for="training-file-opener" class="option-button option-button-small">Select</label>
                             <input id="training-file-opener" type="file" accept=".txt" style="display: none;">
                             <span>or</span>
-                            <a href="/training-data-creator/" style="text-decoration: none;"><label class="option-button option-button-small">Create</label></a>
+                            <a href="/data-generator/" style="text-decoration: none;"><label class="option-button option-button-small">Create</label></a>
                             <span id="training-file-name"></span>
                         </div>
                     </div> -->

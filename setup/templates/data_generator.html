@@ -1,4 +1,13 @@
-{% extends 'setup/training_data_creator_head.html' %}
+{% extends 'base.html' %}
+
+{% block head %}
+    {% load static %}
+    <title>Data Generator - Markup</title>
+    <link href="{% static 'css/third-party/simpletooltip.min.css' %}" rel="stylesheet" media="screen" />
+    <link href="{% static 'css/data_generator.css' %}" rel="stylesheet" />
+    <script src="{% static 'js/third-party/simpletooltip.min.js' %}"></script>
+    <script src="{% static 'js/data_generator.js' %}"></script>
+{% endblock %}
 
 {% block content %}
     <div class="container">

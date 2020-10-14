@@ -1,4 +1,11 @@
-{% extends 'doc/doc_head.html' %}
+{% extends 'base.html' %}
+
+{% block head %}
+    {% load static %}
+    <title>Documentation - Markup</title>
+    <link href="{% static 'css/doc.css' %}" rel="stylesheet" />
+    <script src="{% static 'js/doc.js' %}"></script>
+{% endblock %}
 
 {% block content %}
     <div class="doc-container">
