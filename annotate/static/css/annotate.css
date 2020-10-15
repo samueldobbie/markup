@@ -8,6 +8,10 @@
   color: white;
 }
 
+.lds-ellipsis div {
+  background: var(--background-inverse);
+}
+
 .dropdown {
   padding: 5px;
   border-radius: 3px;
@@ -77,8 +81,8 @@
   margin: 0 1% 4% 1%;
   display: none;
   overflow: hidden;
-  color: #1A1E24;
-  background-color: #E7E5E5;
+  color: var(--color-primary);
+  background-color: var(--background-secondary);
   border: none;
   box-shadow: 0px 0.25px #1A1E24;
 }
@@ -207,11 +211,10 @@ input[type=radio] {
 }
 
 #annotation-suggestion-quantity {
-  background-color: #e7e7e7;
-  color: #1A1E24;
+  color: var(--color-primary);
+  background-color: var(--background-secondary);
   padding-top: 5%;
   padding-bottom: 5%;
   text-align: center;
   font-weight: bold;
 }
-

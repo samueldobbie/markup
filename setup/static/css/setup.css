@@ -8,6 +8,10 @@
     margin: 2.5% auto;
 }
 
+.lds-ellipsis div {
+    background: var(--background-inverse);
+}
+
 .option-container {
     padding: 1%;
     border-radius: 5px;
@@ -73,11 +77,11 @@
 }
 
 .setup-link {
-    color: #1a241c;
+    color: rgb(134, 134, 134);
 }
 
 .setup-link:hover {
-    background-color: #33FFB5;
+    color: purple;
 }
 
 .expand-message {
