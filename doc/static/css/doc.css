@@ -19,12 +19,11 @@
 }
 
 .doc-link {
-    color: #1a241c;
+    color: rgb(134, 134, 134);
 }
 
 .doc-link:hover {
-    color: #1a241c;
-    background-color: #33FFB5;
+    color: purple;
 }
 
 .doc-example {
@@ -32,6 +31,7 @@
     border: 1px solid #999;
     color: #1A1E24;
     padding: 20px;
+    border-radius: 5px;
 }
 
 .doc-example-line {
@@ -39,9 +39,8 @@
 }
 
 .doc-field {
-    background-color: #33ffb446;
-    border-radius: 3px;
+    background-color: #cccccc;
     color: #1A1E24;
-    box-shadow: 0px 0.25px #1A1E24;
+    border-radius: 1px;
     padding: 0.25px 3px;
 }

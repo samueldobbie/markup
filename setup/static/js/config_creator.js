@@ -1,17 +1,4 @@
 $(document).ready(function () {
-    $('#darkMode').click(function () {
-        /*
-        Enable switching between display modes
-        */
-
-        if (localStorage.getItem('mode') == 'dark') {
-            localStorage.setItem('mode', 'light');
-        } else {
-            localStorage.setItem('mode', 'dark');
-        }
-        updateDisplayMode();
-    });
-
     $('#add-entity').click(function () {
         /*
         Enable input and adding of entity
@@ -180,9 +167,6 @@ $(document).ready(function () {
         });
     }
 
-    // Initialize display mode based on users' preference
-    updateDisplayMode();
-
     // Add tooltips to option headlines
     $('.config-tooltip').simpletooltip({
         position: 'right',
@@ -203,41 +187,3 @@ $(document).ready(function () {
         '#E0CCA4', '#ADD8D1', '#8FE3B4', '#FFC0CB', '#FFA07A', '#7B68EE', '#FFD700'
     ];
 });
-
-function updateDisplayMode() {
-    /*
-    Updates the display mode based on the users' preference
-    */
-    var targetBackgroundColor, color;
-
-    if (localStorage.getItem('mode') == 'dark') {
-        document.getElementById('darkMode').innerHTML = 'Light Mode';
-        targetBackgroundColor = '#1A1E24';
-        color = 'white';
-    } else {
-        document.getElementById('darkMode').innerHTML = 'Dark Mode';
-        targetBackgroundColor = '#f1f1f1';
-        color = '#1A1E24';
-    }
-
-    $('body').css({
-        'background-color': targetBackgroundColor
-    });
-
-    $('nav').css({
-        'background-color': targetBackgroundColor
-    });
-
-    $('.nav-logo').css({
-        'color': color
-    });
-
-    $('.nav-item').css({
-        'color': color
-    });
-
-    $('.option-container').css({
-        'color': color,
-        'background-color': targetBackgroundColor,
-    });
-}

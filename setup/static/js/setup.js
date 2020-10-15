@@ -1,17 +1,4 @@
 $(document).ready(function () {
-    $('#darkMode').click(function () {
-        /*
-        Enable switching between display modes
-        */
-        if (localStorage.getItem('mode') == 'dark') {
-            localStorage.setItem('mode', 'light');
-        } else {
-            localStorage.setItem('mode', 'dark');
-        }
-        updateDisplayMode();
-    });
-
-
     $('#setup-type-dropdown').change(function () {
         /*
         Show single or multiple selection options
@@ -304,11 +291,7 @@ $(document).ready(function () {
             $('#expand-' + type + '-message').text('+ Advanced options');
         }
     }
-
     
-    // Initialize display mode based on users' preference
-    updateDisplayMode();
-
     // Set setup type to complete by default
     updateCompleteComponent('setup-type-container');
 
@@ -320,58 +303,6 @@ $(document).ready(function () {
         border_width: 4
     });
 });
-
-
-function updateDisplayMode() {
-    /*
-    Updates the display mode based on the users' preference
-    */
-    var targetBackgroundColor, oppositeBackgroundColor, color;
-
-    if (localStorage.getItem('mode') == 'dark') {
-        document.getElementById('darkMode').innerHTML = 'Light Mode';
-        targetBackgroundColor = '#1A1E24';
-        oppositeBackgroundColor = '#f1f1f1';
-        color = 'white';
-    } else {
-        document.getElementById('darkMode').innerHTML = 'Dark Mode';
-        targetBackgroundColor = '#f1f1f1';
-        oppositeBackgroundColor = '#1A1E24';
-        color = '#1A1E24';
-    }
-
-    $('body').css({
-        'background-color': targetBackgroundColor
-    });
-
-    $('nav').css({
-        'background-color': targetBackgroundColor
-    });
-
-    $('.nav-logo').css({
-        'color': color
-    });
-
-    $('.nav-item').css({
-        'color': color
-    });
-
-    $('.option-container').css({
-        'color': color,
-        'background-color': targetBackgroundColor,
-    });
-
-    $('.ontology-wait-message').css({
-        'color': oppositeBackgroundColor
-    });
-
-    var loaderDivs = document.getElementsByClassName('lds-ellipsis');
-    for (var i = 0; i < loaderDivs.length; i++) {
-        for (var j = 0; j < loaderDivs[i].childNodes.length; j++) {
-            loaderDivs[i].childNodes[j].style.background = oppositeBackgroundColor;
-        }
-    }
-}
 
 
 function trainCustomModel() {

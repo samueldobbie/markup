@@ -8,7 +8,6 @@
 }
 
 .tagline-component {
-    color: white;
     display: block;
 }
 
@@ -28,7 +27,6 @@
 
 #try-demo {
     font-size: 18px;
-    color: white;
     cursor: pointer;
     text-decoration: underline;
 }
