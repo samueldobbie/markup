@@ -1,9 +1,11 @@
 from django.conf.urls import url
+
 from . import views
 
+app_name = 'annotate'
+
 urlpatterns = [
-    url(r'^~/setup-demo$',
-        views.setup_demo, name='setup_demo'),
+    url('setup-demo', views.setup_demo, name='setup_demo'),
     url(r'^setup/~/setup-umls-if-valid$',
         views.setup_umls_if_valid, name='setup_umls_if_valid'),
     url(r'^setup/~/setup-preloaded-ontology$',
