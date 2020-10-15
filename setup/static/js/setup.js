@@ -240,7 +240,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: 'POST',
-            url: '~/setup-umls-if-valid',
+            url: '/annotate/setup-umls/',
             data: formData,
             success: function(response) {
                 if (response == 'True') {
@@ -329,7 +329,7 @@ function setupCustomOntology(file, type) {
     reader.onload = function () {
         $.ajax({
             type: 'POST',
-            url: '~/setup-custom-ontology',
+            url: '/annotate/setup-custom-ontology/',
             data: {
                 'ontologyData': reader.result,
                 'csrfmiddlewaretoken': getCookie('csrftoken')

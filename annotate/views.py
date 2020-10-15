@@ -30,7 +30,7 @@ def annotate_data(request):
     return render(request, 'annotate.html', {})
 
 
-def setup_umls_if_valid(request):
+def setup_umls(request):
     '''
     Check whether user has the appropiate permissions to use
     UMLS, setup if valid (incl. download for first time local users)

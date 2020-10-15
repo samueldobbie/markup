@@ -74,7 +74,7 @@ const session = {
     resetOntology() {
         $.ajax({
             type: 'POST',
-            url: '/reset-ontology'
+            url: '/annotate/reset-ontology/'
         });
     }
 }

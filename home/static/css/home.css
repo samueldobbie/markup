@@ -21,11 +21,11 @@
     text-transform: uppercase;
 }
 
-.documentation-button {
+.gray-button {
     background-color: rgb(216, 216, 216);
 }
 
-#try-demo {
+.try-demo {
     font-size: 18px;
     cursor: pointer;
     text-decoration: underline;

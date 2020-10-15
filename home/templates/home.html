@@ -11,11 +11,29 @@
     {% csrf_token %}
     <div class="landing-container unselectable">
         <p class="tagline">
-            <span class="tagline-component tagline-component-main">markup</span>
-            <span class="tagline-component tagline-component-sub">Rapid annotation, powered by active learning.</span>
+            <span class="tagline-component tagline-component-main">
+                markup
+            </span>
+            
+            <span class="tagline-component tagline-component-sub">
+                Rapid annotation, powered by active learning.
+            </span>
         </p>
-        <button onclick="location.href='/doc';" class="option-button documentation-button">Docs</button>
-        <button onclick="location.href='/setup';" class="option-button">Annotate</button>
-        <br><br><a id="try-demo" onclick="tryDemo();">...or try out a demo</a>
+        
+        <div>
+            <a href="{% url 'doc' %}">
+                <button class="option-button gray-button">Docs</button>
+            </a>
+
+            <a href="{% url 'setup' %}">
+                <button class="option-button">Annotate</button>
+            </a>
+            
+            <br><br>
+
+            <a class="try-demo" onclick="tryDemo();">
+                ...or try out a demo
+            </a>
+        </div>
     </div>
 {% endblock %}

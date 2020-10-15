@@ -170,7 +170,6 @@ function validateConfigSelection(configText) {
     Return to homepage if invalid configuration
     document has been provided
     */
-
     if (configText == null || configText.trim() == '') {
         alert('You need to provide a configuration file.');
         window.location = '/setup';
@@ -1163,7 +1162,7 @@ function suggestCui(event) {
 
     $.ajax({
         type: 'POST',
-        url: '~/suggest-cui',
+        url: 'suggest-cui/',
         async: false,
         data: {
             selectedTerm: selectedTerm
@@ -1238,7 +1237,7 @@ function getAnnotationSuggestions() {
     predictionAjaxRequest = $.ajax({
         type: 'POST',
         async: true,
-        url: '~/suggest-annotations',
+        url: 'suggest-annotations/',
         data: { 
             'documentText': documentText,
             'documentAnnotations': JSON.stringify(documentAnnotations)
@@ -1492,7 +1491,7 @@ function updateSuggestionCount() {
 function teachActiveLearner(sentence, label) {
     $.ajax({
         type: 'POST',
-        url: '~/teach-active-learner',
+        url: 'teach-active-learner/',
         data: {
             'sentence': sentence,
             'label': label

@@ -55,7 +55,7 @@
                         <label for="configuration-file-opener" class="option-button option-button-small">Select</label>
                         <input id="configuration-file-opener" type="file" accept=".conf" style="display: none;">
                         <span>or</span>
-                        <a href="/config-creator/" style="text-decoration: none;"><label class="option-button option-button-small">Create</label></a>
+                        <a href="{% url 'config_creator' %}" style="text-decoration: none;"><label class="option-button option-button-small">Create</label></a>
                         <span id="configuration-file-name"></span>
                     </div>
                 </div>
@@ -87,7 +87,7 @@
                             <label for="training-file-opener" class="option-button option-button-small">Select</label>
                             <input id="training-file-opener" type="file" accept=".txt" style="display: none;">
                             <span>or</span>
-                            <a href="/data-generator/" style="text-decoration: none;"><label class="option-button option-button-small">Create</label></a>
+                            <a href="{% url 'data_generator' %}" style="text-decoration: none;"><label class="option-button option-button-small">Create</label></a>
                             <span id="training-file-name"></span>
                         </div>
                     </div> -->
@@ -154,7 +154,7 @@
                             <label for="training-file-opener" class="option-button option-button-small">Select</label>
                             <input id="training-file-opener" type="file" accept=".txt" style="display: none;">
                             <span>or</span>
-                            <a href="/data-generator/" style="text-decoration: none;"><label class="option-button option-button-small">Create</label></a>
+                            <a href="{% url 'data_generator' %}" style="text-decoration: none;"><label class="option-button option-button-small">Create</label></a>
                             <span id="training-file-name"></span>
                         </div>
                     </div> -->

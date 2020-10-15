@@ -3,9 +3,10 @@ function tryDemo() {
 
     $.ajax({
         type: 'POST',
-        url: '/setup-demo',
+        url: '/annotate/setup-demo/',
         data: {'csrfmiddlewaretoken': cookie},
         success: function (response) {
+            console.log(response);
             const data = JSON.parse(response);
             const config = data['config'];
             const docs = data['documents'];
@@ -24,7 +25,7 @@ function tryDemo() {
             }
 
             // Move to annotation page
-            location.href = '/annotate';
+            location.href = '/annotate/';
         }
     });
 }
