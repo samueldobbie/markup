@@ -69,7 +69,7 @@
   margin: 2%;
 }
 
-.added-element {
+.item {
   display: block;
   padding: 5px;
   margin: 5px;
@@ -81,8 +81,8 @@
   box-shadow: 0px 0.25px #1A1E24;
 }
 
-.added-element:hover {
-  border: 2px solid rgb(255, 112, 112);
+.item:hover {
+  color: red;
 }
 
 @media only screen and (max-width: 750px) {

@@ -24,7 +24,7 @@ html {
 }
 
 html[data-theme='dark'] {
-    --background-primary: #353535;
+    --background-primary: #2b2a2a;
     --background-secondary: rgb(70, 70, 70);
     --background-inverse: #f5f5f5;
     --color-primary: rgb(228, 228, 228);
