@@ -1,300 +1,27 @@
 $(document).ready(function () {
+    /* Default file selection options */
+
     $('#setup-type-dropdown').change(function () {
-        /*
-        Show single or multiple selection options
-        based on file quantity
-        */
-        var selectedValue = this.value;
-        if (selectedValue == 'single') {
-            $('#single-document-selection-container').show();
-            $('#multiple-document-selection-container').hide();
+        // Display components based on selected upload method
+        const method = $(this).val();
+        if (method == 'single') {
+            $('#file-selection-container').show();
+            $('#folder-selection-container').hide();
         } else {
-            $('#single-document-selection-container').hide();
-            $('#multiple-document-selection-container').show();
+            $('#file-selection-container').hide();
+            $('#folder-selection-container').show();
         }
-
-        // Store file selection type locally
-        localStorage.setItem('documentOpenType', selectedValue);
+        localStorage.setItem('documentOpenType', method);
     });
 
-
-    $('#document-file-opener').change(function () {
-        // Store selected file locally
-        storeFileDataLocally(document.getElementById('document-file-opener').files[0], 'documentText' + 0, 'lineBreakType' + 0);
-        
-        localStorage.setItem('fileName' + 0, document.getElementById('document-file-opener').files[0].name.split('.').slice(0, -1).join('.'));
-        localStorage.setItem('documentCount', 0);
-
-        // Display name of file next to upload button
-        document.getElementById('document-file-name').innerText = document.getElementById('document-file-opener').files[0].name;
-        
-        // Change color of component
-        updateCompleteComponent('document-file-opener-container');
-    });
-
-
-    $('#annotation-file-opener').change(function () {
-        // Store file data locally
-        storeFileDataLocally(document.getElementById('annotation-file-opener').files[0], 'annotationText' + 0);
-
-        // Display name of file next to upload button
-        document.getElementById('annotation-file-name').innerText = document.getElementById('annotation-file-opener').files[0].name;
-        
-        // Display remove button
-        document.getElementById('annotation-file-remover').style.display = '';
-        
-        // Change color of component
-        updateCompleteComponent('annotation-file-opener-container');
-    });
-
-
-    $('#annotation-file-remover').click(function () {
-        // Remove uploaded file
-        document.getElementById('annotation-file-opener').value = '';
-
-        // Remove name of file from span
-        document.getElementById('annotation-file-name').innerText = '';
-
-        // Remove uploaded file from localStorage
-        localStorage.removeItem('annotationText' + 0);
-
-        // Hide remove button
-        document.getElementById('annotation-file-remover').style.display = 'none';
-
-        // Change color of component
-        document.getElementById('annotation-file-opener-container').style.border = 'none';
-    });
-
-
-    $('#configuration-file-opener').change(function () {
-        // Store file data locally
-        storeFileDataLocally(document.getElementById('configuration-file-opener').files[0], 'configText');
-
-        // Display name of file next to upload button
-        document.getElementById('configuration-file-name').innerText = document.getElementById('configuration-file-opener').files[0].name;
-        
-        // Change color of component
-        updateCompleteComponent('configuration-file-opener-container');
-    });
-
-
-    $('#training-file-opener').change(function () {
-        // Display name of file next to upload button
-        document.getElementById('training-file-name').innerText = document.getElementById('training-file-opener').files[0].name;
-
-        // Train custom model
-        trainCustomModel(document.getElementById('training-file-opener').files[0]);
-    });
-
-
-    $('#ontology-file-dropdown').change(function () {
-        /*
-        Display ontology login authentication panel
-        */
-        var selectedValue = this.value;
-        if (selectedValue != 'default') {
-            $('#setup-type-container').hide();
-            $('#single-document-selection-container').hide();
-            $('#' + selectedValue + '-verification-form-container').show();
-        } else if (!$('#ontology-file-opener').val()) {
-            resetCompleteComponent('ontology-file-opener-container');
-            resetOntologyToDefault();
-        }
-    });
-
-
-    $('#ontology-file-opener').change(function () {
-        // Display name of file next to upload button
-        document.getElementById('ontology-file-name').innerText = document.getElementById('ontology-file-opener').files[0].name;
-
-        // Setup ontology
-        setupCustomOntology(document.getElementById('ontology-file-opener').files[0], 'single');
-    });
-
-
-    $('#start-annotating-file').click(function () {
-        var complete = true;
-        for (var i = 0; i < document.getElementsByClassName('option-file-container').length; i++) {
-            if (document.getElementsByClassName('option-file-container')[i].getAttribute('complete') != 'true') {
-                document.getElementsByClassName('option-file-container')[i].style.border = '1px solid red';
-                complete = false;
-            }
-        }
-
-        if (complete) {
-            location.href = '/annotate';
-        }
-    });
-
-
-    /*** Multiple document section ***/
-
-    $('#multiple-document-selection').click(function () {
-        $('.file-selection-container').fadeOut();
-
-        sleep(500).then(() => {
-            $('.multiple-document-selection-container').fadeIn();
-        });
-
-        // Store file selection type locally
-        localStorage.setItem('documentOpenType', 'multiple');
-    });
-
-
-    $('#folder-file-opener').change(function () {
-        var documentCount = 0;
-        var documentIndex = {};
-        var documentFileList = document.getElementById('folder-file-opener').files;
-
-        for (var i = 0; i < documentFileList.length; i++) {
-            if (documentFileList[i].name.split('.').includes('txt')) {
-                documentIndex[documentFileList[i].name.split('.')[0]] = documentCount; 
-                storeFileDataLocally(documentFileList[i], 'documentText' + documentCount, 'lineBreakType' + documentCount);
-                localStorage.setItem('fileName' + documentCount, documentFileList[i].name.split('.').slice(0, -1).join('.'));
-                documentCount++;
-            } else if (documentFileList[i].name.split('.').includes('conf')) {
-                storeFileDataLocally(documentFileList[i], 'configText');
-            }
-        }
-
-        for (var j = 0; j < documentFileList.length; j++) {
-            if (documentFileList[j].name.split('.').includes('ann')) {
-                var index = documentIndex[documentFileList[j].name.split('.')[0]];
-                storeFileDataLocally(documentFileList[j], 'annotationText' + index);
-            }
-        }
-        localStorage.setItem('documentCount', documentCount);
-
-        // Display name of folder next to upload button
-        // May need to be done differently on non-Chrome browsers
-        document.getElementById('folder-file-name').innerText = document.getElementById('folder-file-opener').files[0].webkitRelativePath.split('/')[0];
-        
-        // Change color of component
-        updateCompleteComponent('folder-file-opener-container');
-    });
-
-
-    $('#ontology-folder-dropdown').change(function () {
-        var selectedValue = this.value;
-        if (selectedValue != 'default') {
-            $('#setup-type-container').hide();
-            $('#multiple-document-selection-container').hide();
-            $('#' + selectedValue + '-verification-form-container').show();
-        } else if (!$('#ontology-folder-opener').val()) {
-            resetCompleteComponent('ontology-folder-opener-container');
-            resetOntologyToDefault();
-        }
-    });
-
-    
-    $('#ontology-folder-opener').change(function () {
-        // Display name of file next to upload button
-        document.getElementById('ontology-folder-name').innerText = document.getElementById('ontology-folder-opener').files[0].name;
-        
-        // Setup ontology
-        setupCustomOntology(document.getElementById('ontology-folder-opener').files[0], 'multiple');
-    });
-
-
-    $('#start-annotating-folder').click(function () {
-        var complete = true;
-        for (var i = 0; i < document.getElementsByClassName('option-folder-container').length; i++) {
-            if (document.getElementsByClassName('option-folder-container')[i].getAttribute('complete') != 'true') {
-                document.getElementsByClassName('option-folder-container')[i].style.border = '1px solid red';
-                complete = false;
-            }
-        }
-
-        if (complete) {
-            location.href = '/annotate';
-        }
-    });
-
-
-    $('#umls-verification-exit').click(function () {
-        $('#umls-verification-form-container').hide();
-        $('#setup-type-container').show();
-        if ($('#setup-type-dropdown').val() == 'single') {
-            $('#single-document-selection-container').show();
-            $('#ontology-file-dropdown').prop('selectedIndex', 0);
-        } else {
-            $('#multiple-document-selection-container').show();
-            $('#ontology-folder-dropdown').prop('selectedIndex', 0);
-        }
-    });
-
-
-    $('#umls-verification-form').submit(function (e) {
-        // Prevent submission
-        e.preventDefault();
-
-        // Hide form and show verification loader
-        $('#umls-verification-form').hide();
-        $('#umls-verification-loader').show();
-
-        // Serialize form data
-        var formData = $('#umls-verification-form').serializeArray().reduce(function(obj, item) {
-            obj[item.name] = item.value;
-            return obj;
-        }, {});
-
-        $.ajax({
-            type: 'POST',
-            url: '/annotate/setup-umls/',
-            data: formData,
-            success: function(response) {
-                if (response == 'True') {
-                    // Return back to setup with updated ontology component
-                    $('#umls-verification-form-container').hide();
-                    $('#setup-type-container').show();
-                    if ($('#setup-type-dropdown').val() == 'single') {
-                        $('#single-document-selection-container').show();
-                        updateCompleteComponent('ontology-file-opener-container');
-                    } else {
-                        $('#multiple-document-selection-container').show();
-                        updateCompleteComponent('ontology-folder-opener-container');
-                    }
-                } else {
-                    $('#umls-verification-form-container').css({'border': '1px solid red'});
-                    $('#umls-verification-form-invalid-credentials').show();
-                }
-                // Hide verification loader and show form
-                $('#umls-verification-loader').hide();
-                $('#umls-verification-form').show();
-
-                // Clear input forms
-                $('.verification-form-field').val('');
-            }
-        });
-    });
-
-
-    /* Toggle between displaying / hiding
-    advanced setup options (existing annotations,
-    training data specification, and ontology selection)
-    */
+    // Toggle advanced settings display
     $('.expand-message').click(function () {
-        var type = 'file';
-        if ($(this).parent().attr('id') == 'expand-folder-options') {
-            type = 'folder';
-        }
+        const parentId = $(this).parent().attr('id');
+        const type = parentId == 'expand-folder-options' ? 'folder' : 'file';
         toggleAdvancedOptions(type);
     });
 
-
-    function toggleAdvancedOptions(type) {
-        if ($('#expand-' + type + '-message').text() == '+ Advanced options') {
-            $('#advanced-' + type + '-options').slideDown();
-            $('#expand-' + type + '-message').text('- Advanced options');
-        } else {
-            $('#advanced-' + type + '-options').slideUp();
-            $('#expand-' + type + '-message').text('+ Advanced options');
-        }
-    }
-    
-    // Set setup type to complete by default
-    updateCompleteComponent('setup-type-container');
-
+    // Show tooltips
     $('.setup-tooltip').simpletooltip({
         position: 'right',
         border_color: 'white',
@@ -302,76 +29,288 @@ $(document).ready(function () {
         background_color: 'white',
         border_width: 4
     });
+
+    // Set setup type to complete by default
+    updateCompleteComponent('setup-type-container');
+
+    /* Single file selection options */
+
+    $('#document-file-opener').change(function () {
+        storeSingleFile('document');
+    });
+
+    $('#annotation-file-opener').change(function () {
+        storeSingleFile('annotation');
+    });
+
+    $('#config-file-opener').change(function() {
+        storeSingleFile('config');
+    });
+
+    $('#ontology-file-opener').change(function () {
+        useCustomOntology('file');
+    });
+
+    $('#ontology-file-dropdown').change(function () {
+        useExistingOntology('file');
+    });
+
+    $('#annotation-file-remover').click(function () {
+        // Remove file
+        localStorage.removeItem('annotationText0');
+        $('#annotation-file-opener').val('');
+        $('#annotation-file-name').text('');
+
+        // Reset component styling
+        $('#annotation-file-remover').hide();
+        $('#annotation-file-opener-container').css('border', 'none');
+    });
+
+    $('#start-annotating-file').click(function() {
+        startAnnotating('file');
+    });
+
+    /* Multiple file selection options */
+
+    $('#folder-file-opener').change(function () {
+        const fileList = $('#folder-file-opener')[0].files;
+
+        // Store documents and config text
+        let docIndex = 0;
+        let docIndicies = {};
+        for (let i = 0; i < fileList.length; i++) {
+            const fileType = getFileType(fileList[i]);
+            const fileName = getFileName(fileList[i]);
+            
+            if (fileType == 'conf') {
+                storeFile(fileList[i], 'configText');
+            } else if (fileType == 'txt') {
+                storeFile(fileList[i], 'documentText' + docIndex, 'lineBreakType' + docIndex);
+                localStorage.setItem('fileName' + docIndex, fileName);
+                docIndicies[fileName] = docIndex; 
+                docIndex++;
+            }
+        }
+
+        // Map annotations to relevant document
+        for (let i = 0; i < fileList.length; i++) {
+            const fileType = getFileType(fileList[i]);
+            const fileName = getFileName(fileList[i]);
+
+            if (fileType == 'ann') {
+                storeFile(fileList[i], 'annotationText' + docIndicies[fileName]);
+            }
+        }
+        localStorage.setItem('documentCount', docIndex);
+
+        // Display folder name and update component
+        const folderName = fileList[0].webkitRelativePath.split('/')[0];
+        $('#folder-file-name').text(folderName);
+        updateCompleteComponent('folder-file-opener-container');
+    });
+
+    $('#ontology-folder-dropdown').change(function () {
+        useExistingOntology('folder');
+    });
+    
+    $('#ontology-folder-opener').change(function () {
+        useCustomOntology('folder');
+    });
+
+    $('#start-annotating-folder').click(function() {
+        startAnnotating('folder');
+    });
+
+    /* Ontology file upload options */
+
+    $('#umls-verification-exit').click(function () {
+        // Hide authentication panel
+        $('#umls-verification-form-container').hide();
+        $('#setup-type-container').show();
+
+        // Show ontology selection
+        const type = $('#setup-type-dropdown').val() == 'single' ? 'file' : 'folder';
+        $('#' + type + '-selection-container').show();
+        $('#ontology-' + type + '-dropdown').prop('selectedIndex', 0);
+    });
+
+    $('#umls-verification-form').submit(function (e) {
+        // Hide form and show loader
+        $('#umls-verification-form').hide();
+        $('#umls-verification-loader').show();
+
+        $.ajax({
+            type: 'POST',
+            url: '/annotate/setup-umls/',
+            data: getFormData($('#umls-verification-form')),
+            success: function(response) {
+                if (response == 'True') {
+                    authoriseUser();
+                } else {
+                    denyUser();
+                }
+                // Reset authentication forms
+                $('#umls-verification-loader').hide();
+                $('#umls-verification-form').show();
+                $('.verification-form-field').val('');
+            }
+        });
+        // Prevent submission
+        e.preventDefault();
+    });
 });
 
+function toggleAdvancedOptions(type) {
+    if ($('#expand-' + type + '-message').text() == '+ Advanced options') {
+        $('#advanced-' + type + '-options').slideDown();
+        $('#expand-' + type + '-message').text('- Advanced options');
+    } else {
+        $('#advanced-' + type + '-options').slideUp();
+        $('#expand-' + type + '-message').text('+ Advanced options');
+    }
+}
+
+function authoriseUser() {
+    // Return to setup
+    $('#umls-verification-form-container').hide();
+    $('#setup-type-container').show();
+
+    // Update ontology component
+    const type = $('#setup-type-dropdown').val() == 'single' ? 'file' : 'folder';
+    $('#' + type + '-selection-container').show();
+    updateCompleteComponent('ontology-' + type + '-opener-container');
+}
+
+function denyUser() {
+    // Show error message
+    $('#umls-verification-form-container').css({'border': '1px solid red'});
+    $('#umls-verification-form-invalid-credentials').show();
+}
+
+function getFormData(form) {
+    // Serialize form data
+    return form.serializeArray().reduce(
+        function(object, item) {
+            object[item.name] = item.value;
+            return object;
+        }, {}
+    );
+}
+
+function useCustomOntology(type) {
+    // Setup and show ontology
+    const file = $('#ontology-' + type + '-opener').files[0];
+    $('#ontology-' + type + '-name').text(getFileName(file));
+    setupCustomOntology(file, type);
+}
+
+function useExistingOntology(type) {
+    const ontology = $('#ontology-' + type + '-dropdown').val();
+
+    if (ontology != 'default') {
+        // Hide components and show authentication form
+        $('#setup-type-container').hide();
+        $('#' + type + '-selection-container').hide();
+        $('#' + ontology + '-verification-form-container').show();
+    } else if (!$('#ontology-' + type + '-opener').val()) {
+        resetCompleteComponent('ontology-' + type + '-opener-container');
+    }
+}
+
+function getFileType(file) {
+    const fileName = file.name.split('.');
+    if (fileName.includes('txt')) {
+        return 'txt';
+    } else if (fileName.includes('conf')) {
+        return 'conf';
+    } else if (fileName.includes('ann')) {
+        return 'ann';
+    }
+    return 'unknown';
+}
+
+function storeSingleFile(type) {
+    const file = $('#' + type + '-file-opener')[0].files[0];
+    const fileName = getFileName(file);
+
+    if (type == 'annotation') {
+        storeFile(file, 'annotationText0');
+        $('#annotation-file-remover').show();
+    } else if (type == 'document') {
+        storeFile(file, 'documentText0', 'lineBreakType0');
+        localStorage.setItem('documentCount', 0);
+        localStorage.setItem('fileName0', fileName);
+    } else if (type == 'config') {
+        storeFile(file, 'configText');
+    }
+
+    $('#' + type + '-file-name').text(fileName);
+    updateCompleteComponent(type + '-file-opener-container');
+}
+
+function startAnnotating(type) {
+    // Verify all required components are complete
+    let ready = true;
+    $('.option-' + type + '-container').each(function() {
+        if ($(this).attr('complete') != 'true') {
+            $(this).css('border', '1px solid red');
+            ready = false;
+        }
+    });
+    // Move to annotation page
+    if (ready) location.href = '/annotate';
+}
+
+function getFileName(file) {
+    return file.name.split('.').slice(0, -1).join('.');
+}
 
 function trainCustomModel() {
     return;
 }
 
-
 function setupCustomOntology(file, type) {
-    // Display loader
-    document.getElementById(type + '-ontology-options').style.display = 'none';
-    document.getElementById(type + '-ontology-loader').style.display = '';
+    // Show loader and wait message
+    toggleOntologyComponents(type);
 
-    if (type == 'single') {
-        // Hide start annotating button + display wait message
-        document.getElementById('start-annotating-file').style.display = 'none';
-        document.getElementById('ontology-wait-message-file').style.display = '';
-    } else if (type == 'multiple') {
-        // Hide start annotating button + display wait message
-        document.getElementById('start-annotating-folder').style.display = 'none';
-        document.getElementById('ontology-wait-message-folder').style.display = '';
-    }
-
-    var reader = new FileReader();
+    // Construct simstring database with ontology data
+    let reader = new FileReader();
     reader.onload = function () {
         $.ajax({
             type: 'POST',
             url: '/annotate/setup-custom-ontology/',
             data: {
                 'ontologyData': reader.result,
-                'csrfmiddlewaretoken': getCookie('csrftoken')
             },
-            success: function (result) {
-                if (type == 'single') {
-                    // Change color of component
-                    updateCompleteComponent('ontology-file-opener-container');
-                } else if (type == 'multiple') {
-                    // Change color of component
-                    updateCompleteComponent('ontology-folder-opener-container');
-                }
-
-                // Hide loader
-                document.getElementById(type + '-ontology-options').style.display = '';
-                document.getElementById(type + '-ontology-loader').style.display = 'none';
-
-                if (type == 'single') {
-                    // Show start annotating button + hide wait message
-                    document.getElementById('start-annotating-file').style.display = '';
-                    document.getElementById('ontology-wait-message-file').style.display = 'none';
-                } else if (type == 'multiple') {
-                    // Show start annotating button + hide wait message
-                    document.getElementById('start-annotating-folder').style.display = '';
-                    document.getElementById('ontology-wait-message-folder').style.display = 'none';
-                }
+            success: function () {
+                // Hide loader and wait message
+                toggleOntologyComponents(type);
+                updateCompleteComponent('ontology-' + type + '-opener-container');
             }
         });
     };
+
     reader.readAsText(file);
 }
 
+function toggleOntologyComponents(type) {
+    // Hide loader
+    $('#' + type + '-ontology-options').toggle();
+    $('#' + type + '-ontology-loader').toggle();
+
+    // Prevent moving to annotation page and display wait message
+    $('#start-annotating-' + type).toggle();
+    $('#ontology-wait-message-' + type).toggle();
+}
 
 function updateCompleteComponent(id) {
-    document.getElementById(id).style.border = '1px solid #33FFB5';
-    document.getElementById(id).setAttribute('complete', 'true');
+    $('#' + id).css('border', '1px solid #33FFB5');
+    $('#' + id).attr('complete', 'true');
 }
 
 function resetCompleteComponent(id) {
-    document.getElementById(id).style.border = '';
+    $('#' + id).css('border', '');
 }
-
 
 function detectLineBreakType(text) {
     if (text.indexOf('\r\n') !== -1) {
@@ -380,11 +319,9 @@ function detectLineBreakType(text) {
         return 'mac';
     } else if (text.indexOf('\n') !== -1) {
         return 'linux';
-    } else {
-        return 'unknown';
     }
+    return 'unknown';
 }
-
 
 function convertLineBreakType(text, convertFrom, convertTo) {
     if (convertFrom == 'windows' && convertTo == 'linux') {
@@ -393,26 +330,23 @@ function convertLineBreakType(text, convertFrom, convertTo) {
     return text;
 }
 
+function storeFile(file, fileStorageName, lineBreakStorageName=null) {
+    let reader = new FileReader();
 
-function storeFileDataLocally(file, fileStorageName, lineBreakStorageName=null) {
-    if (file.type == 'application/pdf') {
-        var fileReader = new FileReader();
-        fileReader.onload = function() {
-            // Implement file reading of other formats
-        };
-        fileReader.readAsArrayBuffer(file);
-    } else {
-        var reader = new FileReader();
-        reader.onload = function () {
-            var fileText = reader.result;
-            if (fileStorageName == 'configText' && detectLineBreakType(fileText) == 'windows') {
-                fileText = convertLineBreakType(fileText, 'windows', 'linux');
-            }
-            localStorage.setItem(fileStorageName, fileText);
-            if (lineBreakStorageName) {
-                localStorage.setItem(lineBreakStorageName, detectLineBreakType(fileText));
-            }
-        };
-        reader.readAsText(file);
-    }
+    reader.onload = function () {
+        let fileText = reader.result;
+
+        // Convert from CRLF to LF
+        if (fileStorageName == 'configText' && detectLineBreakType(fileText) == 'windows') {
+            fileText = convertLineBreakType(fileText, 'windows', 'linux');
+        }
+
+        // Store data locally
+        if (lineBreakStorageName) {
+            localStorage.setItem(lineBreakStorageName, detectLineBreakType(fileText));
+        }
+        localStorage.setItem(fileStorageName, fileText);
+    };
+
+    reader.readAsText(file);
 }

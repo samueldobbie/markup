@@ -60,8 +60,10 @@ const request = {
 
 const session = {
     new() {
-        this.clearLocalStorage();
-        this.resetOntology();
+        if (this.isValidPage()) {
+            this.clearLocalStorage();
+            this.resetOntology();
+        }
     },
 
     clearLocalStorage() {
@@ -80,6 +82,19 @@ const session = {
             type: 'POST',
             url: '/annotate/reset-ontology/'
         });
+    },
+
+    isValidPage() {
+        const components = window.location.pathname.split('/');
+        for (let i = components.length - 1; i >= 0; i--) {
+            if (components[i] != '') {
+                if (components[i] == 'annotate') {
+                    return false;
+                }
+                return true;
+            } 
+        }
+        return true;
     }
 }
 

@@ -27,7 +27,7 @@
                 </select>
             </div>
 
-            <div id="single-document-selection-container">
+            <div id="file-selection-container">
                 <div class="option-container option-file-container" complete="false" id="document-file-opener-container">
                     <p class="option-headline option-item">
                         <span style="color: red;">* </span>
@@ -43,7 +43,7 @@
                     </div>
                 </div>
 
-                <div class="option-container option-file-container" complete="false" id="configuration-file-opener-container">
+                <div class="option-container option-file-container" complete="false" id="config-file-opener-container">
                     <p class="option-headline option-item">
                         <span style="color: red;">* </span>
                         Configuration file
@@ -52,11 +52,11 @@
                         </span>
                     </p>
                     <div class="option-item">
-                        <label for="configuration-file-opener" class="option-button option-button-small">Select</label>
-                        <input id="configuration-file-opener" type="file" accept=".conf" style="display: none;">
+                        <label for="config-file-opener" class="option-button option-button-small">Select</label>
+                        <input id="config-file-opener" type="file" accept=".conf" style="display: none;">
                         <span>or</span>
                         <a href="{% url 'config_creator' %}" style="text-decoration: none;"><label class="option-button option-button-small">Create</label></a>
-                        <span id="configuration-file-name"></span>
+                        <span id="config-file-name"></span>
                     </div>
                 </div>
 
@@ -100,11 +100,11 @@
                             </span>
                         </p>
                         <div class="option-item">
-                            <div id="single-ontology-loader" style="display: none;">
+                            <div id="file-ontology-loader" style="display: none;">
                                 <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
                             </div>
 
-                            <div id="single-ontology-options">
+                            <div id="file-ontology-options">
                                 <select id="ontology-file-dropdown" class="option-dropdown">
                                     <option value="default">Choose pre-loaded</option>
                                     <option value="umls">UMLS</option>
@@ -126,7 +126,7 @@
                 </div>
             </div>
 
-            <div id="multiple-document-selection-container" style="display: none;">
+            <div id="folder-selection-container" style="display: none;">
                 <div class="option-container option-folder-container" complete="false" id="folder-file-opener-container">
                     <p class="option-headline option-item">
                         <span style="color: red;">* </span>
@@ -167,11 +167,11 @@
                             </span>
                         </p>
                         <div class="option-item">
-                            <div id="multiple-ontology-loader" style="display: none;">
+                            <div id="folder-ontology-loader" style="display: none;">
                                 <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
                             </div>
 
-                            <div id="multiple-ontology-options">
+                            <div id="folder-ontology-options">
                                 <select id="ontology-folder-dropdown" class="option-dropdown">
                                     <option value="default">Choose pre-loaded</option>
                                     <option value="umls">UMLS</option>
