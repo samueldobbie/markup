@@ -10,18 +10,18 @@ $(document).ready(function () {
 
 
 function onPageLoad(initalLoad) {
-    // Read data from the files provided by the user
-    var documentOpenType = localStorage.getItem('documentOpenType');
-    var documentCount = localStorage.getItem('documentCount');
-    var documentText = localStorage.getItem('documentText' + currentDocumentId);
-    var configText = localStorage.getItem('configText');
+    // Read data from setup files
+    let openDocumentId = localStorage.getItem('openDocumentId');
+    const documentOpenType = localStorage.getItem('documentOpenType');
+    const documentCount = localStorage.getItem('documentCount');
+    const documentText = localStorage.getItem('documentText' + openDocumentId);
+    const configText = localStorage.getItem('configText');
 
-    // Return home if an invalid configuration file has been provided
+    // Exit if invalid config file
     validateConfigSelection(configText);
 
     // Update page title based on open document file name
-    var openDocumentName = localStorage.getItem('fileName' + currentDocumentId);
-    document.getElementsByTagName('title')[0].innerText = openDocumentName + ' - Markup';
+    $('title')[0].innerText = localStorage.getItem('fileName' + openDocumentId) + ' - Markup';
 
     // Display open document text
     document.getElementById('file-data').innerText = documentText;
@@ -96,7 +96,7 @@ function onPageLoad(initalLoad) {
 
         // Enable navigation between opened files via dropdown selection
         $('#switch-file-dropdown').change(function () {
-            currentDocumentId = $('option:selected', this).attr('documentId');
+            localStorage.setItem('openDocumentId', $('option:selected', this).attr('documentId'));
             onPageLoad(false);
             switchSuggestionPanel();
             getAnnotationSuggestions();
@@ -104,9 +104,8 @@ function onPageLoad(initalLoad) {
         
         // Move to next when multiple documents opened
         $('#move-to-next-file').click(function () {
-            if (currentDocumentId < documentCount-1) {
-                currentDocumentId++;
-                document.getElementById('switch-file-dropdown').selectedIndex = currentDocumentId;
+            if (openDocumentId < documentCount - 1) {
+                localStorage.setItem('openDocumentId', openDocumentId + 1);
                 onPageLoad(false);
                 switchSuggestionPanel();
                 getAnnotationSuggestions();
@@ -115,9 +114,8 @@ function onPageLoad(initalLoad) {
 
         // Move to previous when multiple documents opened
         $('#move-to-previous-file').click(function () {
-            if (currentDocumentId > 0) {
-                currentDocumentId--;
-                document.getElementById('switch-file-dropdown').selectedIndex = currentDocumentId;
+            if (openDocumentId > 0) {
+                localStorage.setItem('openDocumentId', openDocumentId - 1);
                 onPageLoad(false);
                 switchSuggestionPanel();
                 getAnnotationSuggestions();
@@ -154,6 +152,8 @@ function onPageLoad(initalLoad) {
         getAnnotationSuggestions();
     }
 
+    document.getElementById('switch-file-dropdown').selectedIndex = openDocumentId;
+
     // Load existing annotations for open document
     loadExistingAnnotations();
 
@@ -171,7 +171,7 @@ function validateConfigSelection(configText) {
     document has been provided
     */
     if (configText == null || configText.trim() == '') {
-        alert('You need to provide a configuration file.');
+        alert('You need to provide a valid configuration file. Read the documentation for more information.');
         window.location = '/setup';
     }
 }
@@ -660,21 +660,22 @@ function updateAnnotationFileURL() {
     Construct a blob with the most up-to-date
     annotation list and map it to the save button
     */
+    const openDocumentId = localStorage.getItem('openDocumentId');
     var saveButton = document.getElementById('save-annotation-file');
-    var fileName = localStorage.getItem('fileName' + currentDocumentId) + '.ann';
+    var fileName = localStorage.getItem('fileName' + openDocumentId) + '.ann';
 
     // Construct list to be output
     var outputList = [];
     var annotationText = '';
-    for (var i = 0; i < annotationList[currentDocumentId].length; i++) {
-        if (annotationList[currentDocumentId][i].length > 1) {
-            for (var j = 0; j < annotationList[currentDocumentId][i].length; j++) {
-                outputList.push(annotationList[currentDocumentId][i][j]);
-                annotationText += annotationList[currentDocumentId][i][j];
+    for (var i = 0; i < annotationList[openDocumentId].length; i++) {
+        if (annotationList[openDocumentId][i].length > 1) {
+            for (var j = 0; j < annotationList[openDocumentId][i].length; j++) {
+                outputList.push(annotationList[openDocumentId][i][j]);
+                annotationText += annotationList[openDocumentId][i][j];
             }
         } else {
-            outputList.push(annotationList[currentDocumentId][i]);
-            annotationText += annotationList[currentDocumentId][i];
+            outputList.push(annotationList[openDocumentId][i]);
+            annotationText += annotationList[openDocumentId][i];
         }
     }
     // Construct blob file
@@ -688,7 +689,7 @@ function updateAnnotationFileURL() {
     saveButton.download = fileName;
 
     // Store annotations locally to avoid loss upon refreshing
-    localStorage.setItem('annotationText' + currentDocumentId, annotationText);
+    localStorage.setItem('annotationText' + openDocumentId, annotationText);
 }
 
 
@@ -701,6 +702,8 @@ function changeHighlightedTextColor() {
     losing their selection, this has to be performed manually
     */
 
+    const openDocumentId = localStorage.getItem('openDocumentId');
+
     if (window.getSelection() == '') {
         // Prevent annotations from disappearing from display upon highlighting over them
         if (document.getElementById('highlighted') != null) {
@@ -708,7 +711,7 @@ function changeHighlightedTextColor() {
             $('#highlighted').replaceWith(function () { return this.innerHTML; });
 
             // Reset document text to default
-            document.getElementById('file-data').innerText = localStorage.getItem('documentText' + currentDocumentId);
+            document.getElementById('file-data').innerText = localStorage.getItem('documentText' + openDocumentId);
 
             // Repopulate all annotations and re-bind all events
             loadExistingAnnotations();
@@ -750,8 +753,11 @@ function trueToHighlightIndicies(trueStartIndex, trueEndIndex) {
     can be performed for either LF and CRLF newline types for documents
     created across various operating systems
     */
+
+    const openDocumentId = localStorage.getItem('openDocumentId');
+
     var lineBreakValue = 1;
-    if (localStorage.getItem('lineBreakType' + currentDocumentId) == 'windows') {
+    if (localStorage.getItem('lineBreakType' + openDocumentId) == 'windows') {
         lineBreakValue = 2;
     }
 
@@ -799,8 +805,11 @@ function highlightToTrueIndicies(preCaretStringLength, highlightTextLength) {
     can be performed for either LF and CRLF (Linux & Windows) newline types,
     depending on the document type
     */
+
+    const openDocumentId = localStorage.getItem('openDocumentId');
+
     var lineBreakValue = 1;
-    if (localStorage.getItem('lineBreakType' + currentDocumentId) == 'windows') {
+    if (localStorage.getItem('lineBreakType' + openDocumentId) == 'windows') {
         lineBreakValue = 2;
     }
 
@@ -839,6 +848,8 @@ function highlightToTrueIndicies(preCaretStringLength, highlightTextLength) {
 
 
 function addAnnotation(event) {
+    const openDocumentId = localStorage.getItem('openDocumentId');
+
     var attributeCheckboxes = event.data.attributeCheckboxes;
     var attributeRadiobuttons = event.data.attributeRadiobuttons;
     var attributeDropdowns = event.data.attributeDropdowns;
@@ -918,17 +929,17 @@ function addAnnotation(event) {
     }
 
     // Add annotation to annotation list in order as it appears in the document
-    if (annotationList[currentDocumentId].length == 0) {
-        annotationList[currentDocumentId].push(annotation);
+    if (annotationList[openDocumentId].length == 0) {
+        annotationList[openDocumentId].push(annotation);
     } else {
-        for (var i = 0; i < annotationList[currentDocumentId].length; i++) {
-            if (trueStartIndex < parseInt(annotationList[currentDocumentId][i][0][0].split(' ')[1])) {
-                annotationList[currentDocumentId].splice(i, 0, annotation);
+        for (var i = 0; i < annotationList[openDocumentId].length; i++) {
+            if (trueStartIndex < parseInt(annotationList[openDocumentId][i][0][0].split(' ')[1])) {
+                annotationList[openDocumentId].splice(i, 0, annotation);
                 break;
             } 
             
-            if (i == (annotationList[currentDocumentId].length - 1)) {
-                annotationList[currentDocumentId].push(annotation);
+            if (i == (annotationList[openDocumentId].length - 1)) {
+                annotationList[openDocumentId].push(annotation);
                 break;
             }
         }
@@ -1009,12 +1020,14 @@ function parseExistingAnnotations(annotationText, documentId) {
 
 // Load annotations if user supplied existing annotation file
 function loadExistingAnnotations() {
+    const openDocumentId = localStorage.getItem('openDocumentId');
+
     // Reset annotation display list
     var save = $('#annotation-suggestion-container').detach();
     $('#annotation-data').empty().append(save);
 
     // Get open document text
-    document.getElementById('file-data').innerText = localStorage.getItem('documentText' + currentDocumentId);
+    document.getElementById('file-data').innerText = localStorage.getItem('documentText' + openDocumentId);
 
     // Add section titles to annotation panel
     for (var i = 0; i < entityList.length; i++) {
@@ -1028,7 +1041,7 @@ function loadExistingAnnotations() {
 
     // Parse annotation data and populate annotation display
     var annotationIdentifier = 0;
-    for (var i = 0; i < annotationList[currentDocumentId].length; i++) {
+    for (var i = 0; i < annotationList[openDocumentId].length; i++) {
         var attributeValues = [];
         var entityValue = '';
         var trueStartIndex = 0;
@@ -1036,8 +1049,8 @@ function loadExistingAnnotations() {
         var highlightStartIndex = 0;
         var highlightEndIndex = 0;
 
-        for (var j = 0; j < annotationList[currentDocumentId][i].length; j++) {
-            var annotationWords = annotationList[currentDocumentId][i][j][0].split('\t');
+        for (var j = 0; j < annotationList[openDocumentId][i].length; j++) {
+            var annotationWords = annotationList[openDocumentId][i][j][0].split('\t');
             var data = annotationWords[1].split(' ');
 
             if (annotationWords[0][0] == 'T') {
@@ -1079,12 +1092,14 @@ function deleteAnnotation(event) {
     annotation and offset lists
     */
 
+    const openDocumentId = localStorage.getItem('openDocumentId');
+
     var targetAnnotationIdentifier = parseInt(event.getAttribute('annotation-id'));
 
     // Finds correct annotation index based on offset list and removes annotation
     for (var i = 0; i < offsetList.length; i++) {
         if (offsetList[i][0] == targetAnnotationIdentifier) {
-            annotationList[currentDocumentId].splice(i, 1);
+            annotationList[openDocumentId].splice(i, 1);
             offsetList.splice(i, 1);
             break;
         }
@@ -1223,15 +1238,17 @@ function bindCollapsibleEvents() {
 
 
 function getAnnotationSuggestions() {
+    const openDocumentId = localStorage.getItem('openDocumentId');
+
     // Reset suggestion quantity value and display loader
     document.getElementById('annotation-suggestion-quantity-value').innerText = '';
     document.getElementById('annotation-suggestion-quantity-loader').style.display = '';
 
     // Get open document text and existing annotations
-    var documentText = localStorage.getItem('documentText' + currentDocumentId);
+    var documentText = localStorage.getItem('documentText' + openDocumentId);
     var documentAnnotations = [];
-    for (var i = 0; i < annotationList[currentDocumentId].length; i++) {
-        documentAnnotations.push(annotationList[currentDocumentId][i][0][0].split('\t')[2].trim());
+    for (var i = 0; i < annotationList[openDocumentId].length; i++) {
+        documentAnnotations.push(annotationList[openDocumentId][i][0][0].split('\t')[2].trim());
     }
 
     predictionAjaxRequest = $.ajax({
@@ -1373,8 +1390,8 @@ function editAnnotation(element) {
 
     const forId = $(element).parent().attr('for').split('-')[1];
     const targetId = $('#' + forId).attr('output-id');
-    for (let i = 0; i < annotationList[currentDocumentId].length; i++) {
-        const annotation = annotationList[currentDocumentId][i];
+    for (let i = 0; i < annotationList[openDocumentId].length; i++) {
+        const annotation = annotationList[openDocumentId][i];
         const annotationId = annotation[0][0].split('\t')[0];
         const annotationName = annotation[0][0].split('\t')[1].split(' ')[0];
 
@@ -1386,7 +1403,7 @@ function editAnnotation(element) {
                     subComponents[2] = updatedValue + '\n';
                     components[1] = subComponents.join(' ');
                 }
-                annotationList[currentDocumentId][i][j] = [components.join('\t')];
+                annotationList[openDocumentId][i][j] = [components.join('\t')];
             }
             updateAnnotationFileURL();
             break;
@@ -1396,13 +1413,15 @@ function editAnnotation(element) {
 }
 
 function showSuggestionInDocument() {
+    const openDocumentId = localStorage.getItem('openDocumentId');
+
     var currentHTML;
 
     $('.suggestion').mouseenter(function () {
         // Hide annotations
         currentHTML = $('#file-data').html();
         $('#file-data').text(
-            localStorage.getItem('documentText' + currentDocumentId)
+            localStorage.getItem('documentText' + openDocumentId)
         );
         let updatedHTML = $('#file-data').html();
 
@@ -1527,7 +1546,6 @@ var predictionAjaxRequest;
 var annotationList = [];
 var entityList = [];
 var offsetList = [];
-var currentDocumentId = 0;
 var entityId = 1;
 var attributeId = 1;
 var highlightText, highlightTextLength, preCaretStringLength;

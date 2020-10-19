@@ -35,25 +35,15 @@ $(document).ready(function () {
 
     /* Single file selection options */
 
-    $('#document-file-opener').change(function () {
-        storeSingleFile('document');
-    });
+    $('#document-file-opener').change(function () { storeSingleFile('document') });
 
-    $('#annotation-file-opener').change(function () {
-        storeSingleFile('annotation');
-    });
+    $('#annotation-file-opener').change(function () { storeSingleFile('annotation') });
 
-    $('#config-file-opener').change(function() {
-        storeSingleFile('config');
-    });
+    $('#config-file-opener').change(function() { storeSingleFile('config') });
 
-    $('#ontology-file-opener').change(function () {
-        useCustomOntology('file');
-    });
+    $('#ontology-file-opener').change(function () { useCustomOntology('file') });
 
-    $('#ontology-file-dropdown').change(function () {
-        useExistingOntology('file');
-    });
+    $('#ontology-file-dropdown').change(function () { useExistingOntology('file') });
 
     $('#annotation-file-remover').click(function () {
         // Remove file
@@ -249,6 +239,9 @@ function storeSingleFile(type) {
 }
 
 function startAnnotating(type) {
+    // Set default open document
+    localStorage.setItem('openDocumentId', 0);
+
     // Verify all required components are complete
     let ready = true;
     $('.option-' + type + '-container').each(function() {

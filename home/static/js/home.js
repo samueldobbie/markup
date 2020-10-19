@@ -6,13 +6,13 @@ function tryDemo() {
         url: '/annotate/setup-demo/',
         data: {'csrfmiddlewaretoken': cookie},
         success: function (response) {
-            console.log(response);
             const data = JSON.parse(response);
             const config = data['config'];
             const docs = data['documents'];
             const openType = docs.length <= 1 ? 'single' : 'multiple'
 
             // Store configurations
+            localStorage.setItem('openDocumentId', 0);
             localStorage.setItem('configText', config);
             localStorage.setItem('documentCount', docs.length);
             localStorage.setItem('documentOpenType', openType);
