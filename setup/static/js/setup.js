@@ -3,15 +3,15 @@ $(document).ready(function () {
 
     $('#setup-type-dropdown').change(function () {
         // Display components based on selected upload method
-        const method = $(this).val();
-        if (method == 'single') {
+        const openMethod = $(this).val();
+        if (openMethod == 'single') {
             $('#file-selection-container').show();
             $('#folder-selection-container').hide();
         } else {
             $('#file-selection-container').hide();
             $('#folder-selection-container').show();
         }
-        localStorage.setItem('documentOpenType', method);
+        localStorage.setItem('openMethod', openMethod);
     });
 
     // Toggle advanced settings display
@@ -69,29 +69,29 @@ $(document).ready(function () {
         let docIndex = 0;
         let docIndicies = {};
         for (let i = 0; i < fileList.length; i++) {
-            const fileType = getFileType(fileList[i]);
-            const fileName = getFileName(fileList[i]);
+            const docType = getDocType(fileList[i]);
+            const docName = getDocName(fileList[i]);
             
-            if (fileType == 'conf') {
+            if (docType == 'conf') {
                 storeFile(fileList[i], 'configText');
-            } else if (fileType == 'txt') {
-                storeFile(fileList[i], 'documentText' + docIndex, 'lineBreakType' + docIndex);
-                localStorage.setItem('fileName' + docIndex, fileName);
-                docIndicies[fileName] = docIndex; 
+            } else if (docType == 'txt') {
+                storeFile(fileList[i], 'docText' + docIndex, 'lineBreakType' + docIndex);
+                localStorage.setItem('docName' + docIndex, docName);
+                docIndicies[docName] = docIndex; 
                 docIndex++;
             }
         }
 
         // Map annotations to relevant document
         for (let i = 0; i < fileList.length; i++) {
-            const fileType = getFileType(fileList[i]);
-            const fileName = getFileName(fileList[i]);
+            const docType = getDocType(fileList[i]);
+            const docName = getDocName(fileList[i]);
 
-            if (fileType == 'ann') {
-                storeFile(fileList[i], 'annotationText' + docIndicies[fileName]);
+            if (docType == 'ann') {
+                storeFile(fileList[i], 'annotationText' + docIndicies[docName]);
             }
         }
-        localStorage.setItem('documentCount', docIndex);
+        localStorage.setItem('docCount', docIndex);
 
         // Display folder name and update component
         const folderName = fileList[0].webkitRelativePath.split('/')[0];
@@ -190,7 +190,7 @@ function getFormData(form) {
 function useCustomOntology(type) {
     // Setup and show ontology
     const file = $('#ontology-' + type + '-opener').files[0];
-    $('#ontology-' + type + '-name').text(getFileName(file));
+    $('#ontology-' + type + '-name').text(getDocName(file));
     setupCustomOntology(file, type);
 }
 
@@ -207,13 +207,13 @@ function useExistingOntology(type) {
     }
 }
 
-function getFileType(file) {
-    const fileName = file.name.split('.');
-    if (fileName.includes('txt')) {
+function getDocType(file) {
+    const docName = file.name.split('.');
+    if (docName.includes('txt')) {
         return 'txt';
-    } else if (fileName.includes('conf')) {
+    } else if (docName.includes('conf')) {
         return 'conf';
-    } else if (fileName.includes('ann')) {
+    } else if (docName.includes('ann')) {
         return 'ann';
     }
     return 'unknown';
@@ -221,26 +221,26 @@ function getFileType(file) {
 
 function storeSingleFile(type) {
     const file = $('#' + type + '-file-opener')[0].files[0];
-    const fileName = getFileName(file);
+    const docName = getDocName(file);
 
     if (type == 'annotation') {
         storeFile(file, 'annotationText0');
         $('#annotation-file-remover').show();
     } else if (type == 'document') {
-        storeFile(file, 'documentText0', 'lineBreakType0');
-        localStorage.setItem('documentCount', 0);
-        localStorage.setItem('fileName0', fileName);
+        storeFile(file, 'docText0', 'lineBreakType0');
+        localStorage.setItem('docCount', 0);
+        localStorage.setItem('docName0', docName);
     } else if (type == 'config') {
         storeFile(file, 'configText');
     }
 
-    $('#' + type + '-file-name').text(fileName);
+    $('#' + type + '-file-name').text(docName);
     updateCompleteComponent(type + '-file-opener-container');
 }
 
 function startAnnotating(type) {
     // Set default open document
-    localStorage.setItem('openDocumentId', 0);
+    localStorage.setItem('openDocId', 0);
 
     // Verify all required components are complete
     let ready = true;
@@ -254,12 +254,8 @@ function startAnnotating(type) {
     if (ready) location.href = '/annotate';
 }
 
-function getFileName(file) {
+function getDocName(file) {
     return file.name.split('.').slice(0, -1).join('.');
-}
-
-function trainCustomModel() {
-    return;
 }
 
 function setupCustomOntology(file, type) {

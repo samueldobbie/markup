@@ -69,7 +69,7 @@ def setup_demo(request):
     and ontology
     '''
     response = {}
-    response['documents'] = get_demo_documents()
+    response['docs'] = get_demo_docs()
     response['config'] = get_demo_config()
 
     use_demo_ontology()
@@ -77,7 +77,7 @@ def setup_demo(request):
     return HttpResponse(json.dumps(response))
 
 
-def get_demo_documents():
+def get_demo_docs():
     '''
     Read and return the demo documents
     '''
@@ -238,8 +238,8 @@ def suggest_annotations(request):
     Return annotation suggestions
     (incl. attributes) for the open document
     '''
-    text = request.POST['documentText']
-    annotations = set(json.loads(request.POST['documentAnnotations']))
+    text = request.POST['docText']
+    annotations = set(json.loads(request.POST['docAnnotations']))
 
     # Predict target sentences (that contain prescriptions)
     target_sentences = sentence_classifier.get_target_sentences(text, annotations)

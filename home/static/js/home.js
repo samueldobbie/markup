@@ -8,19 +8,19 @@ function tryDemo() {
         success: function (response) {
             const data = JSON.parse(response);
             const config = data['config'];
-            const docs = data['documents'];
-            const openType = docs.length <= 1 ? 'single' : 'multiple'
+            const docs = data['docs'];
+            const openMethod = docs.length <= 1 ? 'single' : 'multiple'
 
             // Store configurations
-            localStorage.setItem('openDocumentId', 0);
+            localStorage.setItem('openDocId', 0);
             localStorage.setItem('configText', config);
-            localStorage.setItem('documentCount', docs.length);
-            localStorage.setItem('documentOpenType', openType);
+            localStorage.setItem('docCount', docs.length);
+            localStorage.setItem('openMethod', openMethod);
 
             // Store doc texts and file types
             for (let i = 0; i < docs.length; i++) {
-                localStorage.setItem('fileName' + i, 'demo-document-' + i);
-                localStorage.setItem('documentText' + i, docs[i]);
+                localStorage.setItem('docName' + i, 'demo-document-' + i);
+                localStorage.setItem('docText' + i, docs[i]);
                 localStorage.setItem('lineBreakType' + i, getLineBreakType(docs[i]));
             }
 
