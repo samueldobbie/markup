@@ -12,18 +12,18 @@ function setupSession(isInitalSetup) {
     if (isInitalSetup) {
         populateAnnotationList();
 
-        // Parse data from configuration file
-        var parsedConfigData = parseConfigurationData();
-        entityList = parsedConfigData[0];
-        var attributeSentences = parsedConfigData[1];
+        // Parse entity and attribute configs
+        const configs = parseConfigs();
+        entityList = configs[0];
+        attributeSentences = configs[1];
 
-        // Display entity configuration list
-        displayEntityConfigurations(entityList);
+        // Display entities in config panel
+        displayEntities(entityList);
 
         // Display attributes configuration list
-        var detailedConfigValues = displayAttributeConfigurations(entityList, attributeSentences);
-        var configArgs = detailedConfigValues[0];
-        var configVals = detailedConfigValues[1];
+        var configValues = displayAttributeConfigurations(entityList, attributeSentences);
+        var configArgs = configValues[0];
+        var configVals = configValues[1];
 
         // Get all configuration elements for manipulation
         var attributeCheckboxes = $('input[type=checkbox]');
@@ -196,7 +196,7 @@ function parseAnnotations(docId) {
     // Ensure a valid ann file exists
     if (annText == null || annText.trim() == '') return [];
 
-    // Parse annotations and populate list
+    // Parse annotations from ann text
     let parsedAnns = [];
     let currentAnn = [];
     for (let i = 0; i < annSentences.length; i++) {
@@ -214,52 +214,70 @@ function parseAnnotations(docId) {
     return parsedAnns;
 }
 
-
-function parseConfigurationData() {
-    /*
-    Parse configuration data from specified config file
-    */
+function parseConfigs() {
     const configText = localStorage.getItem('configText');
+    const configSents = configText.split('\n');
 
-    var configSentences = configText.split('\n');
-    var configValues = [];
-    var configKey = '';
+    let attributes = [];
+    let entities = [];
+    let isEntity = false;
 
-    var entityList = [];
-    var isEntitySentence = false;
+    for (let i = 0; i < configSents.length; i++) {
+        const sent = configSents[i];
+        const sentSize = sent.length;
 
-    for (var i = 0; i < configSentences.length; i++) {
-        var configSentence = configSentences[i];
+        if (sent == '') continue;
 
-        if (configSentence == '') {
-            continue;
+        // Add to relevant config list
+        if (isEntity && sent[0] != '[' && !entities.includes(sent)) {
+            entities.push(sent);
+        } else if (sent[0] != '[') {
+            attributes.push(sent);
         }
 
-        if (isEntitySentence && configSentence[0] != '[' && !entityList.includes(configSentence)) {
-            entityList.push(configSentence);
-        } else if (configSentence[0] != '[') {
-            configValues.push(configSentence);
-        }
-
-        // Check for list title (e.g. [entities], [attributes]) within sentence
-        if (configSentence.length >= 3 && configSentence[0] == '[' && configSentence[configSentence.length - 1] == ']') {
-            configKey = configSentence.slice(1, configSentence.length - 1);
-
-            // Check whether following lines contain entity data
-            if (configKey.toLowerCase() == 'entities') {
-                isEntitySentence = true;
-            } else if (isEntitySentence) {
-                isEntitySentence = false;
+        // Check for category (e.g. [entities])
+        if (sentSize >= 3 && sent[0] == '[' && sent[sentSize - 1] == ']') {
+            // Check for entity category
+            if (sent.slice(1, sentSize - 1).toLowerCase() == 'entities') {
+                isEntity = true;
+            } else if (isEntity) {
+                isEntity = false;
             }
-            continue;
         }
     }
 
-    return [entityList, configValues];
+    return [entities, attributes];
 }
 
+function displayEntities(entityList) {
+    // Display entities in config panel
+    for (let i = 0; i < entityList.length; i++) {
+        const entityName = entityList[i];
+        const entityRow = $('<p/>', {'class': 'config-value-row'});
 
-function parseAttributeData(attributeSentences) {
+        $('<input/>', {
+            'type': 'radio',
+            'id': entityName + '-radio',
+            'name': 'entities',
+            'value': entityName + '-radio'
+        }).appendTo(entityRow);
+        
+        $('<label/>', {
+            'colorIndex': i,
+            'class': 'config-label',
+            'for': entityName + '-radio',
+            'text': entityName,
+            'css': {
+                'background-color': colors[i]
+            }
+        }).appendTo(entityRow);
+        
+        $('#entities').append(entityRow);        
+    }
+    $('#entities').append('<br>');
+}
+
+function parseAttributes(attributeSents) {
     /*
     Parse attribute arguments and values
     from attribute sentences
@@ -329,18 +347,6 @@ function parseAttributeData(attributeSentences) {
     return attributeValues;
     */
 }
-
-
-function displayEntityConfigurations(entityList) {
-    /*
-    Display entity configuration list in side panel
-    */
-    for (var i = 0; i < entityList.length; i++) {
-        document.getElementById('entities').innerHTML += '<p class="config-value-row"><input type="radio" id="' + entityList[i] + '-radio" name="entities" value="' + entityList[i] + '-radio"><label colorIndex="' + i + '"style="background-color:' + colors[i] + ';" class="config-label" for="' + entityList[i] + '-radio">' + entityList[i] + '</label></p>';
-    }
-    document.getElementById('entities').innerHTML += '<br>';
-}
-
 
 function displayAttributeConfigurations(entityList, configValues) {
     /*
