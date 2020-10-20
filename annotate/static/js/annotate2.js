@@ -150,7 +150,7 @@ function setupConfigs() {
     // Parse entity and attribute configs
     const configs = parseConfigs();
     entities = configs[0];
-    attributes = parseAttributeValues(configs[1]);
+    attributes = parseAttributeValues(configs[1], entities);
 
     // Add entities to config panel
     injectEntities(entities);
@@ -190,12 +190,12 @@ function parseConfigs() {
             }
         }
     }
-
     return [entities, attributeSentences];
 }
 
-function parseAttributeValues(attributeSentences) {
+function parseAttributeValues(attributeSentences, entities) {
     const attributes = [];
+    const globalAttributes = [];
 
     for (let i = 0; i < attributeSentences.length; i++) {
         let attribute = [];
@@ -205,21 +205,37 @@ function parseAttributeValues(attributeSentences) {
         const entity = sent.split('Arg:')[1].split(',')[0].trim();
         const values = sent.split('Value:')[1].trim().split('|');
 
+        if (entity.toLowerCase() == '<entity>' ) {
+            globalAttributes.push([name, values]);
+            continue;
+        }
+
         attribute.push(name);
         attribute.push(entity);
-        attribute  = attribute.concat(values);
+        attribute = attribute.concat(values);
 
         attributes.push(attribute);
+
+        // TODO re-introduce checkbox attribute parsing
     }
 
-    // TODO re-introduce checkbox attribute parsing
-    
+    // Add global attributes to each entity
+    for (let i = 0; i < entities.length; i++) {
+        for (let j = 0; j < globalAttributes.length; j++) {
+            const attribute = [];
+            attribute.push(entities[i]);
+            attribute.push(globalAttributes[j][0]);
+            attribute.push(globalAttributes[j][1]);
+            attributes.push(attribute);
+        }
+    }
+
     return attributes;
 }
 
 function injectEntities(entities) {
     for (let i = 0; i < entities.length; i++) {
-        const name = entityList[i];
+        const name = entities[i];
         const row = $('<p/>', {'class': 'config-value-row'});
 
         $('<input/>', {
@@ -245,14 +261,39 @@ function injectEntities(entities) {
 }
 
 function injectAttributes(attributes) {
+    for (let i = 0; i < attributes.length; i++) {
+        const id = attributes[i][0] + attributes[i][1];
 
+        const row = $('<p/>');
 
+        $('<input/>', {
+            'type': 'text',
+            'list': id,
+            'placeholder': attributes[i][0],
+            'name': 'values',
+            'class': 'dropdown input-field'
+        }).appendTo(row);
 
+        const datalist = $('<datalist/>', {
+            'id': id,
+        });
 
+        for (let j = 2; j < attributes[i].length; j++) {
+            $('<option/>', {
+                'value': attributes[i][0] + ':' + attributes[i][j],
+                'text': attributes[i][j]
+            }).appendTo(datalist);
+        }
 
+        datalist.appendTo(row);
 
-
+        row.appendTo('#attribute-dropdowns');        
+    }
 }
+
+
+
+
 
 
 
