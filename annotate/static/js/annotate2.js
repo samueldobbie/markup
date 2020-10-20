@@ -137,13 +137,13 @@ function bindNavigationEvents() {
 
         if (updatedId >= 0) switchFile(updatedId);
     });
-}
 
-function switchFile(updatedId) {
-    localStorage.setItem('openDocId', updatedId);
-    setupSession(isInitialSetup=false);
-    //switchSuggestionPanel();
-    //getAnnotationSuggestions();
+    function switchFile(updatedId) {
+        localStorage.setItem('openDocId', updatedId);
+        setupSession(isInitialSetup=false);
+        //switchSuggestionPanel();
+        //getAnnotationSuggestions();
+    }
 }
 
 function setupConfigs() {
@@ -157,6 +157,9 @@ function setupConfigs() {
 
     // Add attributes to config panel
     injectAttributes(attributes);
+
+    // Add events when selecting entities
+    bindConfigEvents(attributes);
 }
 
 function parseConfigs() {
@@ -270,8 +273,12 @@ function injectAttributes(attributes) {
             'type': 'text',
             'list': id,
             'placeholder': attributes[i][0],
+            'attribute-for': attributes[i][1],
             'name': 'values',
-            'class': 'dropdown input-field'
+            'class': 'dropdown input-field',
+            'css': {
+                'display': 'none'
+            }
         }).appendTo(row);
 
         const datalist = $('<datalist/>', {
@@ -291,158 +298,65 @@ function injectAttributes(attributes) {
     }
 }
 
+function bindConfigEvents(attributes) {
+    let activeEntity = '';
 
+    // Display relevant attributes for selected entity
+    $('input[type=radio]').click(displayAttributes);
 
+    // Show active entity
+    $('input[type=radio]').click(styleSelectedEntity);
 
+    function displayAttributes() {
+        // Get selected entity
+        const entity = $(this).context.id.substring(0, $(this).context.id.length - 6);
 
+        // Show relevant attributes
+        $('input[name=values]').hide();
+        $('input[attribute-for="' + entity + '"').show();
 
+        // TODO add checkboxes
+    }
+    
+    function styleSelectedEntity() {
+        resetEntities();
+    
+        if (activeEntity == $(this).val()) {
+            activeEntity = '';
+            
+            $('input[name=values]').val('');
+            $('input[name=values]').hide();
+            
+            // // Deselect and remove hiding of all attributes
+            // toggleAttributeCheck(attributeCheckboxes, false);
+            // toggleAttributeCheck(attributeRadiobuttons, false);
+            // toggleAttributeDisplay('checkbox', 'none');
+            // toggleAttributeDisplay('dropdown', 'none');
+            // resetAttributeValues();
+        } else {
+            activeEntity = $(this).val();
+    
+            // Style selected entity
+            $(this).next().css({
+                marginLeft: '5%',
+                transition : 'margin 300ms'
+            });
+        }
+    }
+    
+    function resetEntities() {
+        $('.config-label').css({
+            marginLeft: '0',
+            transition : 'margin 300ms'
+        });
+    }
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-var predictionAjaxRequest;
 var annotationList = [];
 var entityList = [];
-var offsetList = [];
-var entityId = 1;
-var attributeId = 1;
-var highlightText, highlightTextLength, preCaretStringLength;
 var colors = [
     '#7B68EE', '#FFD700', '#FFA500', '#DC143C', '#FFC0CB', '#00BFFF', '#FFA07A',
     '#C71585', '#32CD32', '#48D1CC', '#FF6347', '#8FE3B4', '#FF69B4', '#008B8B',
     '#FF0066', '#0088FF', '#44FF00', '#FF8080', '#E6DAAC', '#FFF0F5', '#FFFACD',
     '#E6E6FA', '#B22222', '#4169E1', '#C0C0C0', 
 ];
-
-
-
-
-
-
-/*
-function populateAnnotationList() {
-const docCount = localStorage.getItem('docCount');
-
-// Store parsed annotations for each doc
-for (let docId = 0; docId <= docCount; docId++) {
-    annotationList.push(parseAnnotations(docId));
-}
-}
-
-function parseAnnotations(docId) {
-const annText = localStorage.getItem('annotationText' + docId);
-const annSentences = annText != null ? annText.split('\n') : null;
-
-// Ensure a valid ann file exists
-if (annText == null || annText.trim() == '') return [];
-
-// Parse annotations from ann text
-let parsedAnns = [];
-let currentAnn = [];
-for (let i = 0; i < annSentences.length; i++) {
-    if (annSentences[i][0] == 'T' && currentAnn.length != 0) {
-        parsedAnns.push(currentAnn);
-        currentAnn = [];
-    }
-
-    if (annSentences[i][0] == 'T' || annSentences[i][0] == 'A') {
-        currentAnn.push([annSentences[i] + '\n']);
-    }
-}
-parsedAnns.push(currentAnn);
-
-return parsedAnns;
-}
-
-function parseConfigs() {
-const configText = localStorage.getItem('configText');
-const configSents = configText.split('\n');
-
-let attributes = [];
-let entities = [];
-let isEntity = false;
-
-for (let i = 0; i < configSents.length; i++) {
-    const sent = configSents[i];
-    const sentSize = sent.length;
-
-    if (sent == '') continue;
-
-    // Add to relevant config list
-    if (isEntity && sent[0] != '[' && !entities.includes(sent)) {
-        entities.push(sent);
-    } else if (sent[0] != '[') {
-        attributes.push(sent);
-    }
-
-    // Check for category (e.g. [entities])
-    if (sentSize >= 3 && sent[0] == '[' && sent[sentSize - 1] == ']') {
-        // Check for entity category
-        if (sent.slice(1, sentSize - 1).toLowerCase() == 'entities') {
-            isEntity = true;
-        } else if (isEntity) {
-            isEntity = false;
-        }
-    }
-}
-
-return [entities, attributes];
-}
-
-function injectEntities(entityList) {
-for (let i = 0; i < entityList.length; i++) {
-    const entityName = entityList[i];
-    const entityRow = $('<p/>', {'class': 'config-value-row'});
-
-    $('<input/>', {
-        'type': 'radio',
-        'id': entityName + '-radio',
-        'name': 'entities',
-        'value': entityName + '-radio'
-    }).appendTo(entityRow);
-    
-    $('<label/>', {
-        'colorIndex': i,
-        'class': 'config-label',
-        'for': entityName + '-radio',
-        'text': entityName,
-        'css': {
-            'background-color': colors[i]
-        }
-    }).appendTo(entityRow);
-    
-    $('#entities').append(entityRow);        
-}
-$('#entities').append('<br>');
-}
-
-function enableFileNavigation() {
-const docCount = parseInt(localStorage.getItem('docCount'));
-
-// Navigate between docs via dropdown
-$('#switch-file-dropdown').change(function () {
-    switchFile($('option:selected', this).attr('documentId'));
-});
-
-// Navigate to next doc via arrow
-$('#move-to-next-file').click(function () {
-    const updatedId = parseInt(localStorage.getItem('openDocId')) + 1;
-    if (updatedId < docCount) switchFile(updatedId);
-});
-
-// Navigate to previous doc via arrow
-$('#move-to-previous-file').click(function () {
-    const updatedId = parseInt(localStorage.getItem('openDocId')) - 1;
-    if (updatedId >= 0) switchFile(updatedId);
-});
-}
-*/
