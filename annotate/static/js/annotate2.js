@@ -6,14 +6,17 @@ function setupSession(isNewSession) {
     // Validate doc inputs
     validateSession();
 
+    // Get existing annotations
+    populateAnnotationList();
+
     // Add doc, configs and annotations to display
-    populateSession(isNewSession);
+    populateSessionDisplay(isNewSession);
 
-    // TODO Add event listerners
-
-    // TODO get annotation suggestions
+    // Predict and display annotation suggestions
+    // predictAnnotations();
 
     // TODO update export url
+    // updateExportUrl();
 }
 
 function validateSession() {
@@ -28,7 +31,41 @@ function validateSession() {
     // TODO further validation
 }
 
-function populateSession(isNewSession) {
+function populateAnnotationList() {
+    const docCount = localStorage.getItem('docCount');
+
+    // Store parsed annotations for each doc
+    for (let docId = 0; docId <= docCount; docId++) {
+        annotationList.push(parseAnnotations(docId));
+    }
+}
+
+function parseAnnotations(docId) {
+    const annText = localStorage.getItem('annotationText' + docId);
+    const annSentences = annText != null ? annText.split('\n') : null;
+
+    // Ensure a valid ann file exists
+    if (annText == null || annText.trim() == '') return [];
+
+    // Parse annotations from ann text
+    let parsedAnns = [];
+    let currentAnn = [];
+    for (let i = 0; i < annSentences.length; i++) {
+        if (annSentences[i][0] == 'T' && currentAnn.length != 0) {
+            parsedAnns.push(currentAnn);
+            currentAnn = [];
+        }
+
+        if (annSentences[i][0] == 'T' || annSentences[i][0] == 'A') {
+            currentAnn.push([annSentences[i] + '\n']);
+        }
+    }
+    parsedAnns.push(currentAnn);
+
+    return parsedAnns;
+}
+
+function populateSessionDisplay(isNewSession) {
     const openDocId = localStorage.getItem('openDocId');
     const docName = localStorage.getItem('docName' + openDocId);
     const docText = localStorage.getItem('docText' + openDocId);
@@ -36,8 +73,7 @@ function populateSession(isNewSession) {
     if (isNewSession) {
         setupScrollbars();
         setupNavigationMenu();
-
-        // TODO Populate entities / attributes (initial only)
+        setupConfigs();
     }
 
     // TODO Update annotations
@@ -46,6 +82,13 @@ function populateSession(isNewSession) {
     $('title')[0].innerText = docName + ' - Markup';
     $('#file-data').text(docText);
     $('#switch-file-dropdown').prop('selectedIndex', openDocId);
+}
+
+function setupScrollbars() {
+    // Add scroll bar to each panel
+    new PerfectScrollbar(document.getElementById('config-data'));
+    new PerfectScrollbar(document.getElementById('file-data'));
+    new PerfectScrollbar(document.getElementById('annotation-data'));
 }
 
 function setupNavigationMenu() {
@@ -103,13 +146,141 @@ function switchFile(updatedId) {
     //getAnnotationSuggestions();
 }
 
-function setupScrollbars() {
-    // Add scroll bar to each panel
-    new PerfectScrollbar(document.getElementById('config-data'));
-    new PerfectScrollbar(document.getElementById('file-data'));
-    new PerfectScrollbar(document.getElementById('annotation-data'));
+function setupConfigs() {
+    // Parse entity and attribute configs
+    const configs = parseConfigs();
+    entities = configs[0];
+    attributes = parseAttributeValues(configs[1]);
+
+    // Add entities to config panel
+    injectEntities(entities);
+
+    // Add attributes to config panel
+    injectAttributes(attributes);
 }
 
+function parseConfigs() {
+    const configText = localStorage.getItem('configText');
+    const configSents = configText.split('\n');
+
+    let entities = [];
+    let isEntity = false;
+    let attributeSentences = [];
+
+    for (let i = 0; i < configSents.length; i++) {
+        const sent = configSents[i];
+        const sentSize = sent.length;
+
+        if (sent == '') continue;
+
+        // Add to relevant config list
+        if (isEntity && sent[0] != '[' && !entities.includes(sent)) {
+            entities.push(sent);
+        } else if (sent[0] != '[') {
+            attributeSentences.push(sent);
+        }
+
+        // Check for category (e.g. [entities])
+        if (sentSize >= 3 && sent[0] == '[' && sent[sentSize - 1] == ']') {
+            // Check for entity category
+            if (sent.slice(1, sentSize - 1).toLowerCase() == 'entities') {
+                isEntity = true;
+            } else if (isEntity) {
+                isEntity = false;
+            }
+        }
+    }
+
+    return [entities, attributeSentences];
+}
+
+function parseAttributeValues(attributeSentences) {
+    const attributes = [];
+
+    for (let i = 0; i < attributeSentences.length; i++) {
+        let attribute = [];
+
+        const sent = attributeSentences[i];
+        const name = sent.split('Arg:')[0].trim();
+        const entity = sent.split('Arg:')[1].split(',')[0].trim();
+        const values = sent.split('Value:')[1].trim().split('|');
+
+        attribute.push(name);
+        attribute.push(entity);
+        attribute  = attribute.concat(values);
+
+        attributes.push(attribute);
+    }
+
+    // TODO re-introduce checkbox attribute parsing
+    
+    return attributes;
+}
+
+function injectEntities(entities) {
+    for (let i = 0; i < entities.length; i++) {
+        const name = entityList[i];
+        const row = $('<p/>', {'class': 'config-value-row'});
+
+        $('<input/>', {
+            'type': 'radio',
+            'id': name + '-radio',
+            'name': 'entities',
+            'value': name + '-radio'
+        }).appendTo(row);
+        
+        $('<label/>', {
+            'colorIndex': i,
+            'class': 'config-label',
+            'for': name + '-radio',
+            'text': name,
+            'css': {
+                'background-color': colors[i]
+            }
+        }).appendTo(row);
+        
+        $('#entities').append(row);
+    }
+    $('#entities').append('<br>');
+}
+
+function injectAttributes(attributes) {
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var predictionAjaxRequest;
+var annotationList = [];
+var entityList = [];
+var offsetList = [];
+var entityId = 1;
+var attributeId = 1;
+var highlightText, highlightTextLength, preCaretStringLength;
+var colors = [
+    '#7B68EE', '#FFD700', '#FFA500', '#DC143C', '#FFC0CB', '#00BFFF', '#FFA07A',
+    '#C71585', '#32CD32', '#48D1CC', '#FF6347', '#8FE3B4', '#FF69B4', '#008B8B',
+    '#FF0066', '#0088FF', '#44FF00', '#FF8080', '#E6DAAC', '#FFF0F5', '#FFFACD',
+    '#E6E6FA', '#B22222', '#4169E1', '#C0C0C0', 
+];
 
 
 
