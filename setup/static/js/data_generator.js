@@ -73,7 +73,7 @@ $(document).ready(function () {
 
         // Generate and export training data
         dataGenerator.generate();
-        form.updateBlobUrl();
+        form.updateExportUrl();
         document.getElementById('export-training-data').click();
     });
 
@@ -222,7 +222,7 @@ const form = {
         });
     },
 
-    updateBlobUrl() {
+    updateExportUrl() {
         let saveButton = document.getElementById('export-training-data');
         let blob = new Blob(dataGenerator.data, {type: 'text/plain'});
         window.URL.revokeObjectURL(saveButton.href);

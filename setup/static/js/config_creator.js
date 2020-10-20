@@ -34,7 +34,7 @@ function addEntity() {
             }
         }).appendTo('#entity-list');
         
-        updateBlobUrl();
+        updateExportUrl();
         bindEvents();
     }
 
@@ -73,14 +73,14 @@ function addAttribute() {
             }
         }).appendTo('#attribute-list');
 
-        updateBlobUrl();
+        updateExportUrl();
         bindEvents();
     }
 
     resetInputForms('attribute');
 }
 
-function updateBlobUrl() {
+function updateExportUrl() {
     let saveButton = document.getElementById('save-configuration-file');
     let blob = new Blob(entityList.concat(attributeList), {type: 'text/plain'});
     window.URL.revokeObjectURL(saveButton.href);
@@ -104,7 +104,7 @@ function bindEvents() {
 
         // Remove from display and update output
         removeDisplayedElement(element);
-        updateBlobUrl();
+        updateExportUrl();
     });
 }
 

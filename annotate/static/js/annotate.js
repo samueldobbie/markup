@@ -10,6 +10,7 @@ function setupSession(isInitalSetup) {
     configureDisplay(isInitalSetup);
 
     if (isInitalSetup) {
+        // Get existing annotations
         populateAnnotationList();
 
         // Parse entity and attribute configs
@@ -17,13 +18,11 @@ function setupSession(isInitalSetup) {
         entityList = configs[0];
         attributeSentences = configs[1];
 
-        // Display entities in config panel
-        displayEntities(entityList);
+        // Inject entities into config panel
+        injectEntities(entityList);
 
-        // Display attributes configuration list
-        var configValues = displayAttributeConfigurations(entityList, attributeSentences);
-        var configArgs = configValues[0];
-        var configVals = configValues[1];
+        // Inject attributes into config panel
+        const configVals = injectAttributes(entityList, attributeSentences);
 
         // Get all configuration elements for manipulation
         var attributeCheckboxes = $('input[type=checkbox]');
@@ -31,16 +30,16 @@ function setupSession(isInitalSetup) {
         var attributeDropdowns = $('input[name=values]');
 
         // Initialise all configurations boxes
-        toggleAttributeDisplay(attributeCheckboxes, 'checkbox', 'none');
-        toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
+        toggleAttributeDisplay('checkbox', 'none');
+        toggleAttributeDisplay('dropdown', 'none');
 
-        // Display correct attributes upon clicking an entity
+        // Display relevant attributes upon entity selection
         $('input[type=radio]').click({
-            'configArgs': configArgs,
-            'configVals': configVals,
+            'configArgs': configVals[0],
+            'configVals': configVals[1],
             'attributeCheckboxes': attributeCheckboxes,
             'attributeDropdowns': attributeDropdowns
-        }, displayDynamicAttributes);
+        }, displayAttributes);
 
         // Update display of selected entity
         $('input[type=radio]').click({
@@ -50,9 +49,7 @@ function setupSession(isInitalSetup) {
         }, updateSelectedEntity);
 
         // Change colour of highlighted text
-        $('#file-data').mouseup(function () {
-            changeHighlightedTextColor();
-        });
+        $('#file-data').mouseup(highlightText);
 
         // Display annotation data and adjust brightness in annotation panel
         $('#annotation-data').mouseover(function (e) {
@@ -64,41 +61,7 @@ function setupSession(isInitalSetup) {
             adjustAnnotationUponHover(e.target.id, 'file-data');
         });
 
-        // Enable navigation between opened files via dropdown selection
-        $('#switch-file-dropdown').change(function () {
-            localStorage.setItem('openDocId', $('option:selected', this).attr('documentId'));
-            setupSession(isInitialSetup=false);
-            switchSuggestionPanel();
-            getAnnotationSuggestions();
-        });
-        
-        // Move to next when multiple documents opened
-        $('#move-to-next-file').click(function () {
-            const openDocId = localStorage.getItem('openDocId');
-            if (openDocId < docCount - 1) {
-                localStorage.setItem('openDocId', openDocId + 1);
-                setupSession(isInitialSetup=false);
-                switchSuggestionPanel();
-                getAnnotationSuggestions();
-            }
-        });
-
-        // Move to previous when multiple documents opened
-        $('#move-to-previous-file').click(function () {
-            const openDocId = localStorage.getItem('openDocId');
-            if (openDocId > 0) {
-                localStorage.setItem('openDocId', openDocId - 1);
-                setupSession(isInitialSetup=false);
-                switchSuggestionPanel();
-                getAnnotationSuggestions();
-            }
-        });
-
-        // Prevent highlighting of move-to-next-file arrow button on double click
-        $('#move-to-next-file').mousedown(function(e){ e.preventDefault(); });
-
-        // Prevent highlighting of move-to-previous-file arrow button on double click
-        $('#move-to-previous-file').mousedown(function(e){ e.preventDefault(); });
+        enableFileNavigation();
 
         // Allow users to add an annotation
         $('#add-annotation').click({
@@ -120,14 +83,13 @@ function setupSession(isInitalSetup) {
             });
         });
 
-        // Predict annotations for open document
         getAnnotationSuggestions();
     }
     // Load existing annotations for open document
     loadExistingAnnotations();
 
     // Add blob link to export annotations
-    updateAnnotationFileURL();
+    updateExportUrl();
     
     // Add events to annotation dropdowns
     bindCollapsibleEvents();
@@ -144,26 +106,17 @@ function validateSession() {
 }
 
 function configureDisplay(isInitalSetup) {
-    // Enable multi-doc features
     const openDocId = localStorage.getItem('openDocId');
     const openMethod = localStorage.getItem('openMethod');
     const docCount = localStorage.getItem('docCount');
 
-    if (openMethod == 'multiple') {
-        $('#move-to-previous-file').show();
-        $('#move-to-next-file').show();
-        $('#switch-file').show();
+    if (isInitalSetup) {
+        constructScrollbars();
 
-        // Populate nav dropdown
-        for (let i = 0; i < docCount; i++) {
-            $('<option/>', {
-                'documentId': i,
-                'text': localStorage.getItem('docName' + i)
-            }).appendTo('#switch-file-dropdown');
+        // Enable multi-doc features
+        if (openMethod == 'multiple') {
+            enableMultiDocFeatures(openDocId, docCount);
         }
-
-        // Select active doc in nav dropdown
-        $('#switch-file-dropdown').prop('selectedIndex', openDocId);
     }
     // Update title and doc text
     const docName = localStorage.getItem('docName' + openDocId);
@@ -172,11 +125,28 @@ function configureDisplay(isInitalSetup) {
     $('title')[0].innerText = docName + ' - Markup';
     $('#file-data').text(docText);
 
-    // Construct scroll bar for each panel
-    if (isInitalSetup) {
-        new PerfectScrollbar(document.getElementById('config-data'));
-        new PerfectScrollbar(document.getElementById('file-data'));
-        new PerfectScrollbar(document.getElementById('annotation-data'));
+    // Select active doc in nav dropdown
+    $('#switch-file-dropdown').prop('selectedIndex', openDocId);
+}
+
+function constructScrollbars() {
+    // Add scroll bar to each panel
+    new PerfectScrollbar(document.getElementById('config-data'));
+    new PerfectScrollbar(document.getElementById('file-data'));
+    new PerfectScrollbar(document.getElementById('annotation-data'));
+}
+
+function enableMultiDocFeatures(openDocId, docCount) {
+    $('#move-to-previous-file').show();
+    $('#move-to-next-file').show();
+    $('#switch-file').show();
+
+    // Populate nav dropdown
+    for (let i = 0; i < docCount; i++) {
+        $('<option/>', {
+            'documentId': i,
+            'text': localStorage.getItem('docName' + i)
+        }).appendTo('#switch-file-dropdown');
     }
 }
 
@@ -249,8 +219,7 @@ function parseConfigs() {
     return [entities, attributes];
 }
 
-function displayEntities(entityList) {
-    // Display entities in config panel
+function injectEntities(entityList) {
     for (let i = 0; i < entityList.length; i++) {
         const entityName = entityList[i];
         const entityRow = $('<p/>', {'class': 'config-value-row'});
@@ -275,6 +244,34 @@ function displayEntities(entityList) {
         $('#entities').append(entityRow);        
     }
     $('#entities').append('<br>');
+}
+
+function enableFileNavigation() {
+    const docCount = parseInt(localStorage.getItem('docCount'));
+
+    // Navigate between docs via dropdown
+    $('#switch-file-dropdown').change(function () {
+        switchFile($('option:selected', this).attr('documentId'));
+    });
+    
+    // Navigate to next doc via arrow
+    $('#move-to-next-file').click(function () {
+        const updatedId = parseInt(localStorage.getItem('openDocId')) + 1;
+        if (updatedId < docCount) switchFile(updatedId);
+    });
+
+    // Navigate to previous doc via arrow
+    $('#move-to-previous-file').click(function () {
+        const updatedId = parseInt(localStorage.getItem('openDocId')) - 1;
+        if (updatedId >= 0) switchFile(updatedId);
+    });
+}
+
+function switchFile(newId) {
+    localStorage.setItem('openDocId', newId);
+    setupSession(isInitialSetup=false);
+    switchSuggestionPanel();
+    getAnnotationSuggestions();
 }
 
 function parseAttributes(attributeSents) {
@@ -348,7 +345,7 @@ function parseAttributes(attributeSents) {
     */
 }
 
-function displayAttributeConfigurations(entityList, configValues) {
+function injectAttributes(entityList, configValues) {
     /*
     Display attribute configuration list in side panel
     */
@@ -421,19 +418,18 @@ function displayAttributeConfigurations(entityList, configValues) {
     return [configArgs, configVals];
 }
 
-function toggleAttributeDisplay(vals, type, data) {
-    /*
-    Toggle display of specified attributes
-    */
+function toggleAttributeDisplay(type, value) {
+    // Update display of specified attributes
+    if (type == 'checkbox') {
+        const checkboxes = $('input[type=checkbox]');
 
-    for (var i = 0; i < vals.length; i++) {
-        if (type == 'checkbox') {
-            vals[i].style.display = data;
-            vals[i].labels[0].style.display = data;
-        } else if (type == 'dropdown') {
-            vals[i].style.display = data;
-            vals[i].value = '';
+        for (let i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].style.display = value;
+            checkboxes[i].labels[0].style.display = value;
         }
+    } else if (type == 'dropdown') {
+        $('input[name=values]').css('display', value);
+        $('input[name=values]').val('');
     }
 }
 
@@ -606,8 +602,8 @@ function updateSelectedEntity(event) {
         // Deselect and remove hiding of all attributes
         toggleAttributeCheck(attributeCheckboxes, false);
         toggleAttributeCheck(attributeRadiobuttons, false);
-        toggleAttributeDisplay(attributeCheckboxes, 'checkbox', 'none');
-        toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
+        toggleAttributeDisplay('checkbox', 'none');
+        toggleAttributeDisplay('dropdown', 'none');
         resetAttributeValues();
     } else {
         activeEntity = $(this).val();
@@ -632,7 +628,7 @@ function removeEntityStyling() {
 }
 
 
-function displayDynamicAttributes(event) {
+function displayAttributes(event) {
     /*
     Dynamically display attributes
     based on the chosen entity
@@ -647,8 +643,8 @@ function displayDynamicAttributes(event) {
 
     // Deselect and remove hiding of all attributes
     toggleAttributeCheck(attributeCheckboxes, false);
-    toggleAttributeDisplay(attributeCheckboxes, 'checkbox', '');
-    toggleAttributeDisplay(attributeDropdowns, 'dropdown', '');
+    toggleAttributeDisplay('checkbox', '');
+    toggleAttributeDisplay('dropdown', '');
 
     // Determine which checkboxes should be displayed
     var visibleCheckboxes = [];
@@ -683,7 +679,7 @@ function displayDynamicAttributes(event) {
 }
 
 
-function updateAnnotationFileURL() {
+function updateExportUrl() {
     /*
     Construct a blob with the most up-to-date
     annotation list and map it to the save button
@@ -721,7 +717,7 @@ function updateAnnotationFileURL() {
 }
 
 
-function changeHighlightedTextColor() {
+function highlightText() {
     /*
     Change colour of text highlighted by the user
 
@@ -979,8 +975,8 @@ function addAnnotation(event) {
     // Reset all selections
     toggleAttributeCheck(attributeCheckboxes, false);
     toggleAttributeCheck(attributeRadiobuttons, false);
-    toggleAttributeDisplay(attributeCheckboxes, 'checkbox', 'none');
-    toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
+    toggleAttributeDisplay('checkbox', 'none');
+    toggleAttributeDisplay('dropdown', 'none');
     resetAttributeValues();
     removeEntityStyling();
     activeEntity = '';
@@ -1344,7 +1340,7 @@ function acceptSuggestion(event) {
 
     // Select text to annotate
     window.find(annotation.innerText);
-    changeHighlightedTextColor();
+    highlightText();
 
     // Set Prescription entity
     document.getElementById('Prescription-radio').click();
@@ -1409,7 +1405,7 @@ function editAnnotation(element) {
                 }
                 annotationList[openDocId][i][j] = [components.join('\t')];
             }
-            updateAnnotationFileURL();
+            updateExportUrl();
             break;
         }
     }
