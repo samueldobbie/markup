@@ -159,7 +159,7 @@ function setupConfigs() {
     injectAttributes(attributes);
 
     // Add events when selecting entities
-    bindConfigEvents(attributes);
+    bindConfigEvents();
 }
 
 function parseConfigs() {
@@ -201,22 +201,23 @@ function parseAttributeValues(attributeSentences, entities) {
     const globalAttributes = [];
 
     for (let i = 0; i < attributeSentences.length; i++) {
-        let attribute = [];
-
+        // Parse data within attribute sentence
         const sent = attributeSentences[i];
         const name = sent.split('Arg:')[0].trim();
         const entity = sent.split('Arg:')[1].split(',')[0].trim();
         const values = sent.split('Value:')[1].trim().split('|');
 
+        // Produce list of global attributes
         if (entity.toLowerCase() == '<entity>' ) {
             globalAttributes.push([name, values]);
             continue;
         }
 
+        // Add attribute to resulting array
+        let attribute = [];
         attribute.push(name);
         attribute.push(entity);
         attribute = attribute.concat(values);
-
         attributes.push(attribute);
 
         // TODO re-introduce checkbox attribute parsing
@@ -225,10 +226,10 @@ function parseAttributeValues(attributeSentences, entities) {
     // Add global attributes to each entity
     for (let i = 0; i < entities.length; i++) {
         for (let j = 0; j < globalAttributes.length; j++) {
-            const attribute = [];
-            attribute.push(entities[i]);
+            let attribute = [];
             attribute.push(globalAttributes[j][0]);
-            attribute.push(globalAttributes[j][1]);
+            attribute.push(entities[i]);
+            attribute = attribute.concat(globalAttributes[j][1]);
             attributes.push(attribute);
         }
     }
@@ -239,6 +240,8 @@ function parseAttributeValues(attributeSentences, entities) {
 function injectEntities(entities) {
     for (let i = 0; i < entities.length; i++) {
         const name = entities[i];
+
+        // Construct input field
         const row = $('<p/>', {'class': 'config-value-row'});
 
         $('<input/>', {
@@ -258,6 +261,7 @@ function injectEntities(entities) {
             }
         }).appendTo(row);
         
+        // Add entity to config panel
         $('#entities').append(row);
     }
     $('#entities').append('<br>');
@@ -265,8 +269,12 @@ function injectEntities(entities) {
 
 function injectAttributes(attributes) {
     for (let i = 0; i < attributes.length; i++) {
+        if (attributes[i][1] == 'ClinicDate')
+        console.log(attributes[i]);
+
         const id = attributes[i][0] + attributes[i][1];
 
+        // Construct input field
         const row = $('<p/>');
 
         $('<input/>', {
@@ -281,24 +289,22 @@ function injectAttributes(attributes) {
             }
         }).appendTo(row);
 
-        const datalist = $('<datalist/>', {
-            'id': id,
-        });
-
+        // Populate datalist with attribute options 
+        const datalist = $('<datalist/>', { 'id': id, });
         for (let j = 2; j < attributes[i].length; j++) {
             $('<option/>', {
                 'value': attributes[i][0] + ':' + attributes[i][j],
                 'text': attributes[i][j]
             }).appendTo(datalist);
         }
-
         datalist.appendTo(row);
 
+        // Add attribute to config panel
         row.appendTo('#attribute-dropdowns');        
     }
 }
 
-function bindConfigEvents(attributes) {
+function bindConfigEvents() {
     let activeEntity = '';
 
     // Display relevant attributes for selected entity
@@ -319,24 +325,16 @@ function bindConfigEvents(attributes) {
     }
     
     function styleSelectedEntity() {
-        resetEntities();
+        resetEntityStyle();
     
         if (activeEntity == $(this).val()) {
+            // Reset entity and attributes
             activeEntity = '';
-            
             $('input[name=values]').val('');
             $('input[name=values]').hide();
-            
-            // // Deselect and remove hiding of all attributes
-            // toggleAttributeCheck(attributeCheckboxes, false);
-            // toggleAttributeCheck(attributeRadiobuttons, false);
-            // toggleAttributeDisplay('checkbox', 'none');
-            // toggleAttributeDisplay('dropdown', 'none');
-            // resetAttributeValues();
         } else {
-            activeEntity = $(this).val();
-    
-            // Style selected entity
+            // Style active entity
+            activeEntity = $(this).val();    
             $(this).next().css({
                 marginLeft: '5%',
                 transition : 'margin 300ms'
@@ -344,7 +342,7 @@ function bindConfigEvents(attributes) {
         }
     }
     
-    function resetEntities() {
+    function resetEntityStyle() {
         $('.config-label').css({
             marginLeft: '0',
             transition : 'margin 300ms'
@@ -352,9 +350,9 @@ function bindConfigEvents(attributes) {
     }
 }
 
-var annotationList = [];
-var entityList = [];
-var colors = [
+const annotationList = [];
+const entityList = [];
+const colors = [
     '#7B68EE', '#FFD700', '#FFA500', '#DC143C', '#FFC0CB', '#00BFFF', '#FFA07A',
     '#C71585', '#32CD32', '#48D1CC', '#FF6347', '#8FE3B4', '#FF69B4', '#008B8B',
     '#FF0066', '#0088FF', '#44FF00', '#FF8080', '#E6DAAC', '#FFF0F5', '#FFFACD',
