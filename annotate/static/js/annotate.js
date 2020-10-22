@@ -24,10 +24,6 @@ function setupSession(isInitalSetup) {
         // Inject attributes into config panel
         const configVals = injectAttributes(entityList, attributeSentences);
 
-        console.log(configVals[0]);
-        console.log('\n\n\n\n\n');
-        console.log(configVals[1]);
-
         // Get all configuration elements for manipulation
         var attributeCheckboxes = $('input[type=checkbox]');
         var attributeRadiobuttons = $('input[type=radio]');

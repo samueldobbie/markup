@@ -15,8 +15,8 @@ function setupSession(isNewSession) {
     // Predict and display annotation suggestions
     // predictAnnotations();
 
-    // TODO update export url
-    // updateExportUrl();
+    // Update export url
+    updateExportUrl();
 }
 
 function validateSession() {
@@ -82,6 +82,8 @@ function populateSessionDisplay(isNewSession) {
     $('title')[0].innerText = docName + ' - Markup';
     $('#file-data').text(docText);
     $('#switch-file-dropdown').prop('selectedIndex', openDocId);
+
+    bindAnnotationEvents();
 }
 
 function setupScrollbars() {
@@ -269,9 +271,6 @@ function injectEntities(entities) {
 
 function injectAttributes(attributes) {
     for (let i = 0; i < attributes.length; i++) {
-        if (attributes[i][1] == 'ClinicDate')
-        console.log(attributes[i]);
-
         const id = attributes[i][0] + attributes[i][1];
 
         // Construct input field
@@ -350,11 +349,105 @@ function bindConfigEvents() {
     }
 }
 
+function bindAnnotationEvents() {
+    let selectionLength, preSelectionLength;
+
+    // Update colour of highlighted text
+    $('#file-data').mouseup(selectAnnotationText);
+
+    // // Update active annotation in file panel
+    // $('#file-data').mouseover(function (e) {
+    //     adjustAnnotationUponHover(e.target.id, 'file-data');
+    // });
+
+    // // Update active annotation in annotation panel
+    // $('#annotation-data').mouseover(function (e) {
+    //     adjustAnnotationUponHover(e.target.id, 'annotation-data');
+    // });
+
+    // // Suggest most relevant UMLS matches based on highlighted term 
+    // $('#file-data').mouseup({'type': 'highlight'}, suggestCui);
+
+    // // Suggest most relevant UMLS matches based on searched term
+    // $('#ontology-search-input-field').on('input', {'type': 'search'}, suggestCui);
+
+    // // Enable adding of manual annotations
+    // $('#add-annotation').click(addAnnotation);
+
+    // Prompt user to save annotations before ending session
+    $('a[name=nav-element]').click(function() {
+        $(window).bind('beforeunload', function(){
+            return 'You have unsaved annotations, are you sure you want to leave?';
+        });
+    });
+
+    function selectAnnotationText() {
+        // Change colour of text highlighted by the user
+
+        const openDocId = localStorage.getItem('openDocId');
+        const docText = localStorage.getItem('docText' + openDocId);
+
+        // Ignore selection
+        $('#highlighted').replaceWith(function () { return this.innerHTML; });
+
+        if (window.getSelection() == '') {
+            // Reset document text to default
+            $('#file-data').text(docText);
+        } else {
+            // Get selected text and range
+            const selectionText = window.getSelection().toString();
+            const selectionRange = window.getSelection().getRangeAt(0);
+
+            // Get range of text before selection
+            const preSelectionRange = selectionRange.cloneRange();
+            preSelectionRange.selectNodeContents(document.getElementById('file-data'));
+            preSelectionRange.setEnd(selectionRange.startContainer, selectionRange.startOffset);
+
+            // Colour-highlight selected text
+            document.getElementById('file-data').contentEditable = 'true';
+            document.execCommand('insertHTML', false, '<span id="highlighted">' + selectionText + '</span>');
+            document.getElementById('file-data').contentEditable = 'false';
+
+            // Get length of selection and pre-text (excl. newline chars)
+            selectionLength = selectionRange.toString().replace(/\n/g, '').length;
+            preSelectionLength = preSelectionRange.toString().replace(/\n/g, '').length;
+        }
+    }
+}
+
+function updateExportUrl() {
+    // Construct and link to blob file containing the annotations
+
+   const openDocId = localStorage.getItem('openDocId');
+   const docName = localStorage.getItem('docName' + openDocId) + '.ann';
+   const saveButton = document.getElementById('save-annotation-file');
+
+   // Construct list to be output
+   let outputList = [];
+   let annotationText = '';
+   for (let i = 0; i < annotationList[openDocId].length; i++) {
+       if (annotationList[openDocId][i].length > 1) {
+           for (let j = 0; j < annotationList[openDocId][i].length; j++) {
+               outputList.push(annotationList[openDocId][i][j]);
+               annotationText += annotationList[openDocId][i][j];
+           }
+       } else {
+           outputList.push(annotationList[openDocId][i]);
+           annotationText += annotationList[openDocId][i];
+       }
+   }
+   // Update local annotations
+   localStorage.setItem('annotationText' + openDocId, annotationText);
+
+   // Release existing blob url
+   window.URL.revokeObjectURL(saveButton.href);
+
+   // Construct blob file and map to save button
+   const blob = new Blob(outputList, {type: 'text/plain'});
+   saveButton.href = URL.createObjectURL(blob);
+   saveButton.download = docName;
+}
+
 const annotationList = [];
 const entityList = [];
-const colors = [
-    '#7B68EE', '#FFD700', '#FFA500', '#DC143C', '#FFC0CB', '#00BFFF', '#FFA07A',
-    '#C71585', '#32CD32', '#48D1CC', '#FF6347', '#8FE3B4', '#FF69B4', '#008B8B',
-    '#FF0066', '#0088FF', '#44FF00', '#FF8080', '#E6DAAC', '#FFF0F5', '#FFFACD',
-    '#E6E6FA', '#B22222', '#4169E1', '#C0C0C0', 
-];
+const colors = getColors(entityList.length);

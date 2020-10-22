@@ -98,6 +98,21 @@ const session = {
     }
 }
 
+function getColors(n) {
+    const colors = [
+        '#7B68EE', '#FFD700', '#FFA500', '#DC143C',
+        '#FFC0CB', '#00BFFF', '#FFA07A', '#C71585',
+        '#32CD32', '#48D1CC', '#FF6347', '#8FE3B4',
+        '#FF69B4', '#008B8B', '#FF0066', '#0088FF',
+        '#44FF00', '#FF8080', '#E6DAAC', '#FFF0F5',
+        '#FFFACD', '#E6E6FA', '#B22222', '#4169E1',
+    ];
+
+    // TODO generate N distinct colors randomly
+
+    return colors;
+}
+
 display.initalize();
 request.setHeader();
 session.new();

@@ -201,8 +201,4 @@ let entityList = ['[entities]\n'];
 let attributeList = ['[attributes]\n'];
 
 // Colors to be used for entities and attributes in output list
-let colors = [
-    '#C0C0C0', '#4169E1', '#FFF0F5', '#FFFACD', '#E6E6FA', '#B22222', '#C71585',
-    '#32CD32', '#48D1CC', '#FF6347', '#FFA500', '#FF69B4', '#008B8B', '#00BFFF',
-    '#E0CCA4', '#ADD8D1', '#8FE3B4', '#FFC0CB', '#FFA07A', '#7B68EE', '#FFD700'
-];
+let colors = getColors(100);

@@ -12,6 +12,12 @@
   background: var(--background-inverse);
 }
 
+#highlighted {
+  background-color: rgb(79, 120, 255);
+  color: white;
+  font-weight: bold;
+}
+
 .dropdown {
   padding: 5px;
   border-radius: 3px;
