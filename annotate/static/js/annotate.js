@@ -74,7 +74,8 @@ function setupSession(isInitalSetup) {
         
         // Move to next when multiple documents opened
         $('#move-to-next-file').click(function () {
-            const openDocId = localStorage.getItem('openDocId');
+            const openDocId = parseInt(localStorage.getItem('openDocId'));
+            const docCount = parseInt(localStorage.getItem('docCount'));
             if (openDocId < docCount - 1) {
                 localStorage.setItem('openDocId', openDocId + 1);
                 setupSession(isInitialSetup=false);
@@ -85,7 +86,7 @@ function setupSession(isInitalSetup) {
 
         // Move to previous when multiple documents opened
         $('#move-to-previous-file').click(function () {
-            const openDocId = localStorage.getItem('openDocId');
+            const openDocId = parseInt(localStorage.getItem('openDocId'));
             if (openDocId > 0) {
                 localStorage.setItem('openDocId', openDocId - 1);
                 setupSession(isInitialSetup=false);

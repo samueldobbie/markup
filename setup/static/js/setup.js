@@ -189,7 +189,7 @@ function getFormData(form) {
 
 function useCustomOntology(type) {
     // Setup and show ontology
-    const file = $('#ontology-' + type + '-opener').files[0];
+    const file = $('#ontology-' + type + '-opener')[0].files[0];
     $('#ontology-' + type + '-name').text(getDocName(file));
     setupCustomOntology(file, type);
 }
