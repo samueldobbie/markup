@@ -353,9 +353,6 @@ function displayDocumentAnnotations() {
 
     resetAnnotationPanel();
 
-    // Empty offset list
-    offsets.length = 0;
-
     // Parse and inject annotation data 
     var uniqueId = 0;
     for (let i = 0; i < annotations[openDocId].length; i++) {
@@ -425,127 +422,206 @@ function resetAnnotationPanel() {
             'text': entities[i]
         }).appendTo('#' + id);
     }
+
+    // Empty offset list
+    offsets.length = 0;
 }
 
-function populateAnnotationDisplay(entityValue, attributeValues, highlightStartIndex, highlightEndIndex, uniqueId) {
-    /*
-    Select the span of text highlighted by
-    the user and display the selected annotation
-    */
-    setSelectionRange(document.getElementById('file-data'), highlightStartIndex, highlightEndIndex);
+function populateAnnotationDisplay(entityValue, attributeValues, startIndex, endIndex, uniqueId) {
+    selectAnnotationTextSpan(startIndex, endIndex);
     injectAnnotation(entityValue, attributeValues, uniqueId);
 }
 
 
-function setSelectionRange(element, startIndex, endIndex) {
-    /*
-    Set the selection range to match the
-    span of text highlighted by the user
-    */
-
+function selectAnnotationTextSpan(startIndex, endIndex) {
     if (document.createRange && window.getSelection) {
-        var range = document.createRange();
-        range.selectNodeContents(element);
-
-        var textNodes = getTextNodesIn(element);
-
-        var foundStart = false;
-        var charCount = 0;
-        var endCharCount;
-        for (var i = 0; i < textNodes.length; i++) {
-            var textNode = textNodes[i];
-            endCharCount = charCount + textNode.length;
-
-            if (!foundStart && startIndex >= charCount && (startIndex < endCharCount)) {
-                range.setStart(textNode, startIndex - charCount);
-                foundStart = true;
-            }
-            if (foundStart && endIndex <= endCharCount) {
-                range.setEnd(textNode, endIndex - charCount);
-                break;
-            }
-            charCount = endCharCount;
-        }
-        var selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
+        selectDocumentRange(startIndex, endIndex);
     } else if (document.selection && document.body.createTextRange) {
-        var textRange = document.body.createTextRange();
-        textRange.moveToElementText(element);
-        textRange.collapse(true);
-        textRange.moveStart('character', startIndex);
-        textRange.moveEnd('character', endIndex);
-        textRange.select();
+        selectTextRange(startIndex, endIndex);
     }
 }
 
+function selectDocumentRange(startIndex, endIndex) {
+    const range = getSelectionRange(startIndex, endIndex);
+    setSelectionRange(range);
+}
 
-function getTextNodesIn(node) {
-    /*
-    Helper function for updating the selection range
-    */
-    var textNodes = [];
-    if (node.nodeType == 3) {
-        textNodes.push(node);
-    } else {
-        var children = node.childNodes;
-        for (var i = 0, len = children.length; i < len; ++i) {
-            textNodes.push.apply(textNodes, getTextNodesIn(children[i]));
+function getSelectionRange(startIndex, endIndex) {
+    const docHtml = $('#file-data')[0];
+    const range = document.createRange();
+    const textNodes = getTextNodes(docHtml);
+
+    // Initialize range
+    range.selectNodeContents(docHtml);
+
+    // Update start and end of range
+    let isStartOfSelection = false;
+    let startCharIndex = 0;
+    let endCharIndex = 0;
+    for (let i = 0; i < textNodes.length; i++) {
+        const textNode = textNodes[i];
+        
+        endCharIndex = startCharIndex + textNode.length;
+
+        // Set start of range
+        if (!isStartOfSelection && startIndex >= startCharIndex && startIndex < endCharIndex) {
+            range.setStart(textNode, startIndex - startCharIndex);
+            isStartOfSelection = true;
         }
-    }
-    return textNodes;
-}
 
-
-function injectAnnotation(entityValue, attributeValues, uniqueId) {
-    /*
-    Set the current selection range to
-    display a chosen annotation class
-    */
-    var highlighted = window.getSelection().toString();
-
-    // Get highlight color based on selected entity
-    for (var i = 0; i < $('label').length; i++) {
-        if ($('label')[i].innerText == entityValue) {
-            highlightColor = colors[$('label')[i].getAttribute('colorIndex')];
+        // Set end of range
+        if (isStartOfSelection && endIndex <= endCharIndex) {
+            range.setEnd(textNode, endIndex - startCharIndex);
             break;
         }
+
+        startCharIndex = endCharIndex;
     }
-
-    // Add annotation inline within the open document
-    document.getElementById('file-data').contentEditable = 'true';
-    document.execCommand('insertHTML', false, '<span class="annotation inline-annotation" id="' + uniqueId + '-aid" style="background-color:' + highlightColor + '; color:black;">' + highlighted + '</span>');
-    document.getElementById('file-data').contentEditable = 'false';
-
-    // Keep track of offets for each annotation
-    offsets.push([uniqueId, entityValue, attributeValues, highlighted]);
-
-    // Construct annotation to be added to the annotation display panel
-    var annotationClass = 'class="annotation displayed-annotation collapsible" output-id="T' + entityId + '"';
-    var annotationId = 'id="' + uniqueId + '"';
-    var annotationStyle = 'style="background-color:' + highlightColor + ';'
-    if (localStorage.getItem('theme') == 'dark') {
-        annotationStyle += 'color: #1A1E24;"';
-    } else {
-        annotationStyle += '"'
-    }
-
-    // Add a dropdown that shows the attribute values of an annotation upon click
-    var contentDiv = '<div for="annotation-' + uniqueId + '" class="content"><p>';   
-    for (var i = 0; i < attributeValues.length; i++) {
-        contentDiv += '<p class="annotation-attribute" onClick="editAnnotation(this);">' + attributeValues[i] + '</p>';
-    }
-    // Add delete button
-    contentDiv += '<div class="annotation-option-container"><a annotation-id="' + uniqueId + '" class="annotation-icon delete-icon" onClick="deleteAnnotation(this);"><i class="fas fa-trash"></i></a></div></p></div>';
-
-    // Display the section title based on the annotation entity category
-    document.getElementById(entityValue + '-section').style.display = '';
-
-    // Inject constructed annotation into display panel 
-    document.getElementById(entityValue + '-section').innerHTML += '<p ' + annotationClass + ' ' + annotationId + ' ' + annotationStyle + '>' + highlighted + '</p>' + contentDiv;
+    return range;
 }
 
+function getTextNodes(node) {
+    const nodes = [];
 
+    if (node.nodeType == Node.TEXT_NODE) {
+        nodes.push(node);
+        return nodes;
+    }
+
+    const childNodes = node.childNodes;
+    for (let i = 0; i < childNodes.length; i++) {
+        nodes.push.apply(nodes, getTextNodes(childNodes[i]));
+    }
+    return nodes;
+}
+
+function setSelectionRange(range) {
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+}
+
+function selectTextRange(startIndex, endIndex) {
+    const docHtml = $('#file-data')[0];
+    const range = document.body.createTextRange();
+    range.moveToElementText(docHtml);
+    range.collapse(true);
+    range.moveStart('character', startIndex);
+    range.moveEnd('character', endIndex);
+    range.select();
+}
+
+function injectAnnotation(entityValue, attributeValues, uniqueId) {
+    const selection = window.getSelection().toString();
+    const entityColor = getEntityColor(entityValue);
+
+    // Display annotation at selection range
+    injectInlineAnnotation(uniqueId, selection, entityColor);
+    injectPanelAnnotation(entityValue, attributeValues, uniqueId, selection, entityColor);
+
+    // Keep track of offets for each annotation
+    offsets.push([uniqueId, entityValue, attributeValues, selection]);
+}
+
+function getEntityColor(entity) {
+    const entityLabels = $('label');
+    for (let i = 0; i < entityLabels.length; i++) {
+        const entityLabel = entityLabels[i].innerText;
+
+        if (entityLabel == entity) {
+            const colorIndex = entityLabels[i].getAttribute('colorIndex');
+            return colors[colorIndex];
+        }
+    }
+}
+
+function injectInlineAnnotation(uniqueId, selection, entityColor) {
+    // Construct inline annotation
+    const annotationHTML = $('<span/>', {
+        'class': 'annotation inline-annotation',
+        'id': uniqueId + '-aid',
+        'text': selection,
+        'css': {
+            'background-color': entityColor,
+            'color': 'black'
+        }
+    }).prop('outerHTML');
+
+    // Add inline annotation
+    $('#file-data').attr('contenteditable', 'true');
+    document.execCommand('insertHTML', false, annotationHTML);
+    $('#file-data').attr('contenteditable', 'false');
+}
+
+function injectPanelAnnotation(entityValue, attributeValues, uniqueId, selection, entityColor) {
+    const sectionId = '#' + entityValue + '-section';
+
+    // Show section title
+    $(sectionId).show()
+
+    // Add annotation with annotation text
+    constructPanelAnnotation(uniqueId, selection, entityColor).appendTo(sectionId);
+
+    // Add dropdown with annotation values
+    constructContentContainer(uniqueId, attributeValues).appendTo(sectionId);
+}
+
+function constructPanelAnnotation(uniqueId, selection, entityColor) {
+    return $('<p/>', {
+        'class': 'annotation displayed-annotation collapsible',
+        'id': uniqueId,
+        'output-id': 'T' + entityId,
+        'text': selection,
+        'css': {
+            'background-color': entityColor,
+            'color': '#1A1E24'
+        }
+    });
+}
+
+function constructContentContainer(uniqueId, attributeValues) {
+    const contentContainer = $('<div/>', {
+        'class': 'content',
+        'for': 'annotation-' + uniqueId
+    });
+
+    for (let i = 0; i < attributeValues.length; i++) {
+        $('<p/>', {
+            'class': 'annotation-attribute',
+            'text': attributeValues[i],
+            'onClick': 'editAnnotation(this)'
+        }).appendTo(contentContainer);
+    }
+
+    // Container for delete, edit, etc.
+    const optionContainer = $('<div/>', {
+        'class': 'annotation-option-container',
+        'annotation-id': uniqueId,
+
+    }).appendTo(contentContainer);
+
+    // Add delete button
+    const deleteButton = $('<a/>', {
+        'class': 'annotation-icon delete-icon',
+        'annotation-id': uniqueId,
+        'onClick': 'deleteAnnotation(this)'
+    }).appendTo(optionContainer);
+
+    // Add delete icon
+    $('<i/>', {
+        'class': 'fas fa-trash'
+    }).appendTo(deleteButton);
+
+    return contentContainer;
+}
+
+function editAnnotation(element) {
+
+}
+
+function deleteAnnotation(element) {
+
+}
 
 function trueToHighlightIndicies(trueStartIndex, trueEndIndex) {
     /*
