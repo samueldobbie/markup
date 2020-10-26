@@ -3,20 +3,9 @@ $(document).ready(function () {
 });
 
 function setupSession(isNewSession) {
-    // Validate doc inputs
     validateSession();
-
-    // Get existing annotations
-    populateAnnotationList();
-
-    // Add doc, configs and annotations to display
     populateSessionDisplay(isNewSession);
-
-    // Predict and display annotation suggestions
-    // predictAnnotations();
-
-    // Update export url
-    updateExportUrl();
+    updateExportFile();
 }
 
 function validateSession() {
@@ -27,20 +16,33 @@ function validateSession() {
         alert('You need to provide a valid config file. Read the docs for more info.');
         window.location = '/setup';
     }
-
     // TODO further validation
 }
 
-function populateAnnotationList() {
+function populateSessionDisplay(isNewSession) {
+    if (isNewSession) {
+        initializeSession();
+    }
+    updateOngoingSession();
+}
+
+function initializeSession() {
+    parseAndStoreAnnotations();
+    setupScrollbars();
+    setupNavigationMenu();
+    setupConfigs();
+}
+
+function parseAndStoreAnnotations() {
     const docCount = localStorage.getItem('docCount');
 
     // Store parsed annotations for each doc
     for (let docId = 0; docId <= docCount; docId++) {
-        annotationList.push(parseAnnotations(docId));
+        annotations.push(parseDocumentAnnotations(docId));
     }
 }
 
-function parseAnnotations(docId) {
+function parseDocumentAnnotations(docId) {
     const annText = localStorage.getItem('annotationText' + docId);
     const annSentences = annText != null ? annText.split('\n') : null;
 
@@ -63,26 +65,6 @@ function parseAnnotations(docId) {
     parsedAnns.push(currentAnn);
 
     return parsedAnns;
-}
-
-function populateSessionDisplay(isNewSession) {
-    const openDocId = localStorage.getItem('openDocId');
-    const docName = localStorage.getItem('docName' + openDocId);
-    const docText = localStorage.getItem('docText' + openDocId);
-
-    if (isNewSession) {
-        setupScrollbars();
-        setupNavigationMenu();
-        setupConfigs();
-    }
-
-    // Update title, doc text and active nav item
-    $('title')[0].innerText = docName + ' - Markup';
-    $('#file-data').text(docText);
-    $('#switch-file-dropdown').prop('selectedIndex', openDocId);
-
-    displayAnnotations();
-    bindAnnotationEvents();
 }
 
 function setupScrollbars() {
@@ -150,14 +132,14 @@ function bindNavigationEvents() {
 function setupConfigs() {
     // Parse entity and attribute configs
     const configs = parseConfigs();
-    entityList = configs[0];
-    attributeList = parseAttributeValues(configs[1], entityList);
+    entities = configs[0];
+    attributes = parseAttributeValues(configs[1], entities);
 
     // Add entities to config panel
-    injectEntities(entityList);
+    injectEntities(entities);
 
     // Add attributes to config panel
-    injectAttributes(attributeList);
+    injectAttributes(attributes);
 
     // Add events when selecting entities
     bindConfigEvents();
@@ -348,22 +330,35 @@ function bindConfigEvents() {
     }
 }
 
-function displayAnnotations() {
+function updateOngoingSession() {
+    openNewDocument();
+    displayDocumentAnnotations();
+    bindAnnotationEvents();
+    suggestDocumentAnnotations();
+}
+
+function openNewDocument() {
+    const openDocId = localStorage.getItem('openDocId');
+    const docName = localStorage.getItem('docName' + openDocId);
+    const docText = localStorage.getItem('docText' + openDocId);
+
+    // Update title, doc text and active nav item
+    $('title')[0].innerText = docName + ' - Markup';
+    $('#file-data').text(docText);
+    $('#switch-file-dropdown').prop('selectedIndex', openDocId);
+}
+
+function displayDocumentAnnotations() {
     const openDocId = localStorage.getItem('openDocId');
 
-    // Empty annotation panel (excl. suggestions)
-    const suggestionList = $('#annotation-suggestion-container').detach();
-    $('#annotation-data').empty().append(suggestionList);
-
-    // Add section titles to annotation panel
-    addSectionTitles();
+    resetAnnotationPanel();
 
     // Empty offset list
-    offsetList.length = 0;
+    offsets.length = 0;
 
     // Parse and inject annotation data 
     var uniqueId = 0;
-    for (let i = 0; i < annotationList[openDocId].length; i++) {
+    for (let i = 0; i < annotations[openDocId].length; i++) {
         var entityValue = '';
         var attributeValues = [];
 
@@ -373,8 +368,8 @@ function displayAnnotations() {
         var highlightStartIndex = 0;
         var highlightEndIndex = 0;
 
-        for (let j = 0; j < annotationList[openDocId][i].length; j++) {
-            var annotationWords = annotationList[openDocId][i][j][0].split('\t');
+        for (let j = 0; j < annotations[openDocId][i].length; j++) {
+            var annotationWords = annotations[openDocId][i][j][0].split('\t');
             var data = annotationWords[1].split(' ');
 
             if (annotationWords[0][0] == 'T') {
@@ -409,6 +404,28 @@ function displayAnnotations() {
     window.getSelection().removeAllRanges();
 }
 
+function resetAnnotationPanel() {
+    // Empty annotation panel (excl. suggestions)
+    const suggestions = $('#annotation-suggestion-container').detach();
+    $('#annotation-data').empty().append(suggestions);
+    
+    // Add section titles to annotation panel
+    for (let i = 0; i < entities.length; i++) {
+        const id = entities[i] + '-section';
+
+        $('<div/>', {
+            'id': id,
+            'css': {
+                'display': 'none'
+            }
+        }).appendTo('#annotation-data');
+
+        $('<p/>', {
+            'class': 'section-title',
+            'text': entities[i]
+        }).appendTo('#' + id);
+    }
+}
 
 function populateAnnotationDisplay(entityValue, attributeValues, highlightStartIndex, highlightEndIndex, uniqueId) {
     /*
@@ -501,7 +518,7 @@ function injectAnnotation(entityValue, attributeValues, uniqueId) {
     document.getElementById('file-data').contentEditable = 'false';
 
     // Keep track of offets for each annotation
-    offsetList.push([uniqueId, entityValue, attributeValues, highlighted]);
+    offsets.push([uniqueId, entityValue, attributeValues, highlighted]);
 
     // Construct annotation to be added to the annotation display panel
     var annotationClass = 'class="annotation displayed-annotation collapsible" output-id="T' + entityId + '"';
@@ -630,24 +647,6 @@ function highlightToTrueIndicies(preCaretStringLength, highlightTextLength) {
     return [trueStartIndex, trueEndIndex];
 }
 
-function addSectionTitles() {
-    for (let i = 0; i < entityList.length; i++) {
-        const id = entityList[i] + '-section';
-
-        $('<div/>', {
-            'id': id,
-            'css': {
-                'display': 'none'
-            }
-        }).appendTo('#annotation-data');
-
-        $('<p/>', {
-            'class': 'section-title',
-            'text': entityList[i]
-        }).appendTo('#' + id);
-    }
-}
-
 function bindAnnotationEvents() {
     let selectionLength, preSelectionLength;
 
@@ -714,42 +713,55 @@ function bindAnnotationEvents() {
     }
 }
 
-function updateExportUrl() {
-    // Construct and link to blob file containing the annotations
-   const openDocId = localStorage.getItem('openDocId');
-   const docName = localStorage.getItem('docName' + openDocId) + '.ann';
-   const saveButton = document.getElementById('save-annotation-file');
+function suggestDocumentAnnotations() {
 
-   // Construct list to be output
-   let outputList = [];
-   let annotationText = '';
-   for (let i = 0; i < annotationList[openDocId].length; i++) {
-       if (annotationList[openDocId][i].length > 1) {
-           for (let j = 0; j < annotationList[openDocId][i].length; j++) {
-               outputList.push(annotationList[openDocId][i][j]);
-               annotationText += annotationList[openDocId][i][j];
-           }
-       } else {
-           outputList.push(annotationList[openDocId][i]);
-           annotationText += annotationList[openDocId][i];
-       }
-   }
-   // Update local annotations
-   localStorage.setItem('annotationText' + openDocId, annotationText);
+}
 
-   // Release existing blob url
-   window.URL.revokeObjectURL(saveButton.href);
+function updateExportFile() {
+    const output = getAnnotationOutput();
+    updateLocalAnnotations(output);
+    updateExportAnnotations(output);
+}
 
-   // Construct blob file and map to save button
-   const blob = new Blob(outputList, {type: 'text/plain'});
-   saveButton.href = URL.createObjectURL(blob);
-   saveButton.download = docName;
+function updateLocalAnnotations(output) {
+    const openDocId = localStorage.getItem('openDocId');
+    localStorage.setItem('annotationText' + openDocId, output.join(''));
+}
+
+function getAnnotationOutput() {
+    const openDocId = localStorage.getItem('openDocId');
+
+    const output = [];
+    for (let i = 0; i < annotations[openDocId].length; i++) {
+        if (annotations[openDocId][i].length > 1) {
+            for (let j = 0; j < annotations[openDocId][i].length; j++) {
+                output.push(annotations[openDocId][i][j]);
+            }
+        } else {
+            output.push(annotations[openDocId][i]);
+        }
+    }
+    return output;
+}
+
+function updateExportAnnotations(output) {
+    const openDocId = localStorage.getItem('openDocId');
+    const docName = localStorage.getItem('docName' + openDocId) + '.ann';
+    const exportButton = document.getElementById('save-annotation-file');
+
+    // Release existing blob url
+    window.URL.revokeObjectURL(exportButton.href);
+
+    // Construct blob file and map to export button
+    const blob = new Blob(output, {type: 'text/plain'});
+    exportButton.href = URL.createObjectURL(blob);
+    exportButton.download = docName;
 }
 
 let entityId = 1;
 let attributeId = 1;
-let annotationList = [];
-let offsetList = [];
-let entityList = [];
-let attributeList = [];
-let colors = getColors(entityList.length);
+let annotations = [];
+let offsets = [];
+let entities = [];
+let attributes = [];
+let colors = getColors(entities.length);
