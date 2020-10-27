@@ -5,7 +5,7 @@ $(document).ready(function () {
 function setupSession(isNewSession) {
     validateSession();
     populateSessionDisplay(isNewSession);
-    updateExportFile();
+    updateExportDocument();
 }
 
 function validateSession() {
@@ -53,12 +53,12 @@ function parseDocumentAnnotations(docId) {
     let parsedAnns = [];
     let currentAnn = [];
     for (let i = 0; i < annSentences.length; i++) {
-        if (annSentences[i][0] == 'T' && currentAnn.length != 0) {
+        if (annSentences[i][0] == ENTITY_TAG && currentAnn.length != 0) {
             parsedAnns.push(currentAnn);
             currentAnn = [];
         }
 
-        if (annSentences[i][0] == 'T' || annSentences[i][0] == 'A') {
+        if (annSentences[i][0] == ENTITY_TAG || annSentences[i][0] == ATTRIBUTE_TAG) {
             currentAnn.push([annSentences[i] + '\n']);
         }
     }
@@ -69,9 +69,9 @@ function parseDocumentAnnotations(docId) {
 
 function setupScrollbars() {
     // Add scroll bar to each panel
-    new PerfectScrollbar(document.getElementById('config-data'));
-    new PerfectScrollbar(document.getElementById('file-data'));
-    new PerfectScrollbar(document.getElementById('annotation-data'));
+    new PerfectScrollbar($('#config-data')[0]);
+    new PerfectScrollbar($('#file-data')[0]);
+    new PerfectScrollbar($('#annotation-data')[0]);
 }
 
 function setupNavigationMenu() {
@@ -92,7 +92,6 @@ function setupNavigationMenu() {
             }).appendTo('#switch-file-dropdown');
         }
     }
-
     bindNavigationEvents();
 }
 
@@ -133,15 +132,13 @@ function setupConfigs() {
     // Parse entity and attribute configs
     const configs = parseConfigs();
     entities = configs[0];
-    attributes = parseAttributeValues(configs[1], entities);
+    attributes = parseAttributeValues(configs[1]);
 
-    // Add entities to config panel
-    injectEntities(entities);
+    // Inject entities and attributes to config panel
+    injectEntities();
+    injectAttributes();
 
-    // Add attributes to config panel
-    injectAttributes(attributes);
-
-    // Add events when selecting entities
+    // Enable configs selection events
     bindConfigEvents();
 }
 
@@ -179,7 +176,7 @@ function parseConfigs() {
     return [entities, attributeSentences];
 }
 
-function parseAttributeValues(attributeSentences, entities) {
+function parseAttributeValues(attributeSentences) {
     const attributes = [];
     const globalAttributes = [];
 
@@ -190,37 +187,36 @@ function parseAttributeValues(attributeSentences, entities) {
         const entity = sent.split('Arg:')[1].split(',')[0].trim();
         const values = sent.split('Value:')[1].trim().split('|');
 
-        // Produce list of global attributes
+        // Produce array of global attributes
         if (entity.toLowerCase() == '<entity>' ) {
             globalAttributes.push([name, values]);
             continue;
         }
-
-        // Add attribute to resulting array
-        let attribute = [];
-        attribute.push(name);
-        attribute.push(entity);
-        attribute = attribute.concat(values);
-        attributes.push(attribute);
+        // Add new attribute
+        attributes.push([name, entity].concat(values));
 
         // TODO re-introduce checkbox attribute parsing
     }
-
-    // Add global attributes to each entity
-    for (let i = 0; i < entities.length; i++) {
-        for (let j = 0; j < globalAttributes.length; j++) {
-            let attribute = [];
-            attribute.push(globalAttributes[j][0]);
-            attribute.push(entities[i]);
-            attribute = attribute.concat(globalAttributes[j][1]);
-            attributes.push(attribute);
-        }
-    }
-
-    return attributes;
+    // Add global attributes
+    return attributes.concat(parseGlobalAttributes(globalAttributes));
 }
 
-function injectEntities(entities) {
+function parseGlobalAttributes(globalAttributes) {
+    // Add global attributes to each entity
+    const result = [];
+
+    for (let i = 0; i < entities.length; i++) {
+        for (let j = 0; j < globalAttributes.length; j++) {
+            const name = globalAttributes[j][0];
+            const entity = entities[i];
+            const values = globalAttributes[j][1];
+            result.push([name, entity].concat(values));
+        }
+    }
+    return result;
+}
+
+function injectEntities() {
     for (let i = 0; i < entities.length; i++) {
         const name = entities[i];
 
@@ -250,7 +246,7 @@ function injectEntities(entities) {
     $('#entities').append('<br>');
 }
 
-function injectAttributes(attributes) {
+function injectAttributes() {
     for (let i = 0; i < attributes.length; i++) {
         const id = attributes[i][0] + attributes[i][1];
 
@@ -354,51 +350,62 @@ function displayDocumentAnnotations() {
     resetAnnotationPanel();
 
     // Parse and inject annotation data 
-    var uniqueId = 0;
     for (let i = 0; i < annotations[openDocId].length; i++) {
-        var entityValue = '';
-        var attributeValues = [];
-
-        var trueStartIndex = 0;
-        var trueEndIndex = 0;
-
-        var highlightStartIndex = 0;
-        var highlightEndIndex = 0;
-
-        for (let j = 0; j < annotations[openDocId][i].length; j++) {
-            var annotationWords = annotations[openDocId][i][j][0].split('\t');
-            var data = annotationWords[1].split(' ');
-
-            if (annotationWords[0][0] == 'T') {
-                var annotationId = parseInt(annotationWords[0].split('T')[1]);
-                if (annotationId > entityId) {
-                    entityId = annotationId
-                }
-                entityValue = data[0];
-
-                trueStartIndex = parseInt(data[1]);
-                trueEndIndex = parseInt(data[2]);
-
-                var highlightIndicies = trueToHighlightIndicies(trueStartIndex, trueEndIndex);
-                highlightStartIndex = highlightIndicies[0];
-                highlightEndIndex = highlightIndicies[1];
-            }
-            
-            if (annotationWords[0][0] == 'A') {
-                var annotationId = parseInt(annotationWords[0].split('A')[1]);
-                if (annotationId > attributeId) {
-                    attributeId = annotationId
-                }
-                attributeValues.push(data[0] + ': ' + data[2]);
-            }
-        }
-        populateAnnotationDisplay(entityValue, attributeValues, highlightStartIndex, highlightEndIndex, uniqueId);
-        uniqueId++;
+        const annotationData = getAnnotationData(annotations[openDocId][i], i);
+        addAnnotationToDisplay(annotationData);
     }
     entityId++;
     attributeId++;
 
     window.getSelection().removeAllRanges();
+}
+
+
+function getAnnotationData(annotation, annotationIndex) {
+    const annotationData = {
+        'attributeValues': [],
+        'annotationIndex': annotationIndex
+    }
+
+    for (let i = 0; i < annotation.length; i++) {
+        const rowComponents = annotation[i][0].split('\t');
+        const rowData = rowComponents[1].split(' ');
+        const tag = rowComponents[0][0];
+        const tagId = parseInt(rowComponents[0][1]);
+
+        if (tag == ENTITY_TAG) {
+            addEntityData(rowData, tagId, annotationData);
+        } else if (tag == ATTRIBUTE_TAG) {
+            addAttributeData(rowData, tagId, annotationData);
+        }
+    }
+    return annotationData;
+}
+
+function addEntityData(entityData, tagId, annotationData) {
+    // Increase global entity id based on no. of entities
+    entityId = Math.max(entityId, tagId);
+
+    // Convert doc indicies (incl. linebreaks) to selection indicies
+    const indicies = trueToHighlightIndicies(
+        parseInt(entityData[1]),
+        parseInt(entityData[2])
+    );
+
+    // Include entity data
+    annotationData['entityValue'] = entityData[0];
+    annotationData['highlightStartIndex'] = indicies[0];
+    annotationData['highlightEndIndex'] = indicies[1];
+}
+
+function addAttributeData(attributeData, tagId, annotationData) {
+    // Increase global attribute id based on no. of attributes
+    attributeId = Math.max(attributeId, tagId);
+
+    // Include attribute data
+    annotationData['attributeValues'].push(
+        attributeData[0] + ': ' + attributeData[2]
+    );
 }
 
 function resetAnnotationPanel() {
@@ -427,9 +434,19 @@ function resetAnnotationPanel() {
     offsets.length = 0;
 }
 
-function populateAnnotationDisplay(entityValue, attributeValues, startIndex, endIndex, uniqueId) {
-    selectAnnotationTextSpan(startIndex, endIndex);
-    injectAnnotation(entityValue, attributeValues, uniqueId);
+function addAnnotationToDisplay(annotationData) {
+    // Highlight text span within doc
+    selectAnnotationTextSpan(
+        annotationData['highlightStartIndex'],
+        annotationData['highlightEndIndex']
+    );
+
+    // Inject annotation at selected text span
+    injectAnnotation(
+        annotationData['entityValue'],
+        annotationData['attributeValues'],
+        annotationData['annotationIndex']
+    );
 }
 
 
@@ -474,7 +491,6 @@ function getSelectionRange(startIndex, endIndex) {
             range.setEnd(textNode, endIndex - startCharIndex);
             break;
         }
-
         startCharIndex = endCharIndex;
     }
     return range;
@@ -511,16 +527,16 @@ function selectTextRange(startIndex, endIndex) {
     range.select();
 }
 
-function injectAnnotation(entityValue, attributeValues, uniqueId) {
+function injectAnnotation(entityValue, attributeValues, annotationIndex) {
     const selection = window.getSelection().toString();
     const entityColor = getEntityColor(entityValue);
 
     // Display annotation at selection range
-    injectInlineAnnotation(uniqueId, selection, entityColor);
-    injectPanelAnnotation(entityValue, attributeValues, uniqueId, selection, entityColor);
+    injectInlineAnnotation(annotationIndex, selection, entityColor);
+    injectPanelAnnotation(entityValue, attributeValues, annotationIndex, selection, entityColor);
 
     // Keep track of offets for each annotation
-    offsets.push([uniqueId, entityValue, attributeValues, selection]);
+    offsets.push([annotationIndex, entityValue, attributeValues, selection]);
 }
 
 function getEntityColor(entity) {
@@ -535,11 +551,11 @@ function getEntityColor(entity) {
     }
 }
 
-function injectInlineAnnotation(uniqueId, selection, entityColor) {
+function injectInlineAnnotation(annotationIndex, selection, entityColor) {
     // Construct inline annotation
     const annotationHTML = $('<span/>', {
         'class': 'annotation inline-annotation',
-        'id': uniqueId + '-aid',
+        'id': annotationIndex + '-aid',
         'text': selection,
         'css': {
             'background-color': entityColor,
@@ -553,24 +569,24 @@ function injectInlineAnnotation(uniqueId, selection, entityColor) {
     $('#file-data').attr('contenteditable', 'false');
 }
 
-function injectPanelAnnotation(entityValue, attributeValues, uniqueId, selection, entityColor) {
+function injectPanelAnnotation(entityValue, attributeValues, annotationIndex, selection, entityColor) {
     const sectionId = '#' + entityValue + '-section';
 
     // Show section title
     $(sectionId).show()
 
     // Add annotation with annotation text
-    constructPanelAnnotation(uniqueId, selection, entityColor).appendTo(sectionId);
+    constructPanelAnnotation(annotationIndex, selection, entityColor).appendTo(sectionId);
 
     // Add dropdown with annotation values
-    constructContentContainer(uniqueId, attributeValues).appendTo(sectionId);
+    constructContentContainer(annotationIndex, attributeValues).appendTo(sectionId);
 }
 
-function constructPanelAnnotation(uniqueId, selection, entityColor) {
+function constructPanelAnnotation(annotationIndex, selection, entityColor) {
     return $('<p/>', {
         'class': 'annotation displayed-annotation collapsible',
-        'id': uniqueId,
-        'output-id': 'T' + entityId,
+        'id': annotationIndex,
+        'output-id': ENTITY_TAG + entityId,
         'text': selection,
         'css': {
             'background-color': entityColor,
@@ -579,10 +595,10 @@ function constructPanelAnnotation(uniqueId, selection, entityColor) {
     });
 }
 
-function constructContentContainer(uniqueId, attributeValues) {
+function constructContentContainer(annotationIndex, attributeValues) {
     const contentContainer = $('<div/>', {
         'class': 'content',
-        'for': 'annotation-' + uniqueId
+        'for': 'annotation-' + annotationIndex
     });
 
     for (let i = 0; i < attributeValues.length; i++) {
@@ -596,14 +612,14 @@ function constructContentContainer(uniqueId, attributeValues) {
     // Container for delete, edit, etc.
     const optionContainer = $('<div/>', {
         'class': 'annotation-option-container',
-        'annotation-id': uniqueId,
+        'annotation-id': annotationIndex,
 
     }).appendTo(contentContainer);
 
     // Add delete button
     const deleteButton = $('<a/>', {
         'class': 'annotation-icon delete-icon',
-        'annotation-id': uniqueId,
+        'annotation-id': annotationIndex,
         'onClick': 'deleteAnnotation(this)'
     }).appendTo(optionContainer);
 
@@ -793,13 +809,13 @@ function suggestDocumentAnnotations() {
 
 }
 
-function updateExportFile() {
+function updateExportDocument() {
     const output = getAnnotationOutput();
-    updateLocalAnnotations(output);
-    updateExportAnnotations(output);
+    storeAnnotationsLocally(output);
+    updateExportUrl(output);
 }
 
-function updateLocalAnnotations(output) {
+function storeAnnotationsLocally(output) {
     const openDocId = localStorage.getItem('openDocId');
     localStorage.setItem('annotationText' + openDocId, output.join(''));
 }
@@ -820,7 +836,7 @@ function getAnnotationOutput() {
     return output;
 }
 
-function updateExportAnnotations(output) {
+function updateExportUrl(output) {
     const openDocId = localStorage.getItem('openDocId');
     const docName = localStorage.getItem('docName' + openDocId) + '.ann';
     const exportButton = document.getElementById('save-annotation-file');
@@ -841,3 +857,6 @@ let offsets = [];
 let entities = [];
 let attributes = [];
 let colors = getColors(entities.length);
+
+const ENTITY_TAG = 'T';
+const ATTRIBUTE_TAG = 'A';
