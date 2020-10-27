@@ -641,52 +641,57 @@ function deleteAnnotation(element) {
 
 function trueToHighlightIndicies(trueStartIndex, trueEndIndex) {
     /*
-    Convert the true indicies (those that include newline characters)
-    to highlight indicies (those that exclude newline characters). Calculation
-    can be performed for either LF and CRLF newline types for documents
-    created across various operating systems
+    Convert true indicies (incl. newlines) to highlight indicies
+    (excl. newlines) based on doc type (LF or CRLF)
     */
+    const docText = getNormalisedDocText();
+    return getHighlightIndicies(docText, trueStartIndex, trueEndIndex);
+}
 
+function getNormalisedDocText() {
+    /*
+    Return document text where newline chars have been replaced
+    by some number of regular chars based on the doc type (LF or CRLF)
+    */
     const openDocId = localStorage.getItem('openDocId');
+    const lineBreakType = localStorage.getItem('lineBreakType' + openDocId);
+    const lineBreakValue = (lineBreakType == 'windows') ? 1 : 2;
 
-    var lineBreakValue = 1;
-    if (localStorage.getItem('lineBreakType' + openDocId) == 'windows') {
-        lineBreakValue = 2;
-    }
+    let docText = '';
 
-    var documentNodes = document.getElementById('file-data').childNodes;
-    var docText = '';
-    for (var i = 0; i < documentNodes.length; i++) {
-        if (documentNodes[i].nodeType == 3) {
-            docText += documentNodes[i].textContent;
-        } else if ($(documentNodes[i]).is('span')) {
-            for (var j = 0; j < documentNodes[i].innerText.length; j++) {
-                if (documentNodes[i].innerText[j] == '\n') {
-                    for (var k = 0; k < lineBreakValue; k++) {
-                        docText += '*';
-                    }
+    for (let i = 0; i < $('#file-data').children().length; i++) {
+        const node = $('#file-data').children()[i];
+        const isSpan = $(node).is('span');
+
+        if (node.nodeType == Node.TEXT_NODE) {
+            docText += node.textContent;
+        } else if (!isSpan) {
+            docText += '_'.repeat(lineBreakValue);
+        } else {
+            for (let j = 0; j < node.innerText.length; j++) {
+                if (node.innerText[j] == '\n') {
+                    docText += '*'.repeat(lineBreakValue)
                 } else {
-                    docText += documentNodes[i].innerText[j];
+                    docText += node.innerText[j];
                 }
             }
-        } else {
-            for (var k = 0; k < lineBreakValue; k++) {
-                docText += '_';
-            }
         }
     }
+    return docText;
+}
 
-    var highlightStartIndex = trueStartIndex;
-    var highlightEndIndex = trueEndIndex;
-    for (var i = 0; i < trueEndIndex; i++) {
-        if (i <= trueStartIndex && (docText[i] == '_' || docText == '*')) {
+function getHighlightIndicies(docText, trueStartIndex, trueEndIndex) {
+    let highlightStartIndex = trueStartIndex;
+    let highlightEndIndex = trueEndIndex;
+
+    for (let i = 0; i < trueEndIndex; i++) {
+        if (i > trueStartIndex && docText[i] == '_') {
+            highlightEndIndex--;
+        } else if (i <= trueStartIndex && (docText[i] == '_' || docText == '*')) {
             highlightStartIndex--;
             highlightEndIndex--;
-        } else if (i > trueStartIndex && docText[i] == '_') {
-            highlightEndIndex--;
         }
     }
-
     return [highlightStartIndex, highlightEndIndex];
 }
 
