@@ -289,3 +289,6 @@ const dataGenerator = {
         return Math.floor(Math.random() * max);
     },
 }
+
+// End session if cookies are disabled
+session.validateCookies();

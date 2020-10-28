@@ -1555,3 +1555,6 @@ var colors = [
     '#FF0066', '#0088FF', '#44FF00', '#FF8080', '#E6DAAC', '#FFF0F5', '#FFFACD',
     '#E6E6FA', '#B22222', '#4169E1', '#C0C0C0', 
 ];
+
+// End session if cookies are disabled
+session.validateCookies();

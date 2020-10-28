@@ -202,3 +202,6 @@ let attributeList = ['[attributes]\n'];
 
 // Colors to be used for entities and attributes in output list
 let colors = getColors(100);
+
+// End session if cookies are disabled
+session.validateCookies();
