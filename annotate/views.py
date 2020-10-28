@@ -539,17 +539,15 @@ class Seq2Seq:
                     ontology_term = best_match[0]
                     ontology_cui = best_match[1]
 
-            prediction = {}
-            prediction['sentence'] = raw_sentence
-            prediction['DrugName'] = drug_name
-            prediction['DrugDose'] = drug_dose
-            prediction['DoseUnit'] = drug_unit
-            prediction['Frequency'] = drug_frequency
-            prediction['CUIPhrase'] = ontology_term
-            prediction['CUI'] = ontology_cui
-
-            return prediction
-        
+            return {
+                'sentence': raw_sentence
+                'DrugName': drug_name
+                'DrugDose': drug_dose
+                'DoseUnit': drug_unit
+                'Frequency': drug_frequency
+                'CUIPhrase': ontology_term
+                'CUI': ontology_cui
+            }
         return None
 
     def train(self, instance, label):
