@@ -449,7 +449,6 @@ function addAnnotationToDisplay(annotationData) {
     );
 }
 
-
 function selectAnnotationTextSpan(startIndex, endIndex) {
     if (document.createRange && window.getSelection) {
         selectDocumentRange(startIndex, endIndex);
@@ -669,7 +668,7 @@ function getNormalisedDocText() {
     */
     const openDocId = localStorage.getItem('openDocId');
     const lineBreakType = localStorage.getItem('lineBreakType' + openDocId);
-    const lineBreakValue = (lineBreakType == 'windows') ? 1 : 2;
+    const lineBreakValue = (lineBreakType == 'windows') ? 2 : 1;
 
     let docText = '';
 
@@ -717,7 +716,7 @@ function highlightToTrueIndicies(preSelectionLength, selectionLength) {
     */
     const openDocId = localStorage.getItem('openDocId');
     const lineBreakType = localStorage.getItem('lineBreakType' + openDocId);
-    const lineBreakValue = (lineBreakType == 'windows') ? 1 : 2;
+    const lineBreakValue = (lineBreakType == 'windows') ? 2 : 1;
     const docText = $('#file-data').text();
 
     let trueStartIndex = 0;
@@ -751,10 +750,15 @@ function highlightToTrueIndicies(preSelectionLength, selectionLength) {
 }
 
 function bindAnnotationEvents() {
-    let selectionLength, preSelectionLength;
+    let selectionText;
+    let selectionLength;
+    let preSelectionLength;
 
     // Update colour of highlighted text
     $('#file-data').mouseup(selectAnnotationText);
+
+    // Enable adding of manual annotation for selection
+    $('#add-annotation').click(addManualAnnotation);
 
     // Update active annotation in file panel
     $('#file-data').mouseover(function (e) {
@@ -793,7 +797,7 @@ function bindAnnotationEvents() {
             $('#file-data').text(docText);
         } else {
             // Get selected text and range
-            const selectionText = window.getSelection().toString();
+            selectionText = window.getSelection().toString();
             const selectionRange = window.getSelection().getRangeAt(0);
 
             // Get range of text before selection
@@ -801,87 +805,30 @@ function bindAnnotationEvents() {
             preSelectionRange.selectNodeContents(document.getElementById('file-data'));
             preSelectionRange.setEnd(selectionRange.startContainer, selectionRange.startOffset);
 
+            // Get length of selection and pre-text (excl. newline chars)
+            selectionLength = selectionRange.toString().replace(/\n/g, '').length;
+            preSelectionLength = preSelectionRange.toString().replace(/\n/g, '').length;
+
             // Colour-highlight selected text
             document.getElementById('file-data').contentEditable = 'true';
             document.execCommand('insertHTML', false, '<span id="highlighted">' + selectionText + '</span>');
             document.getElementById('file-data').contentEditable = 'false';
-
-            // Get length of selection and pre-text (excl. newline chars)
-            const selectionLength = selectionRange.toString().replace(/\n/g, '').length;
-            const preSelectionLength = preSelectionRange.toString().replace(/\n/g, '').length;
-
-            $('#add-annotation').click({
-                'selectionText': selectionText,
-                'selectionLength': selectionLength,
-                'preSelectionLength': preSelectionLength,
-            }, addManualAnnotation);
         }
     }
 
-    function updateAnnotationOnHover(id, type) {
-        /*
-        Display information about annotation and
-        adjust brightness upon hover of both annotation-data
-        and file-data panels
-        */
-    
-        // Reset annotations to original brightness
-        var annotations = $.merge($('.inline-annotation'), $('.displayed-annotation'));
-        for (var i = 0; i < annotations.length; i++) {
-            annotations[i].style.filter = 'brightness(100%)';
-        }
-    
-        // Ignore hover over non-annotation elements
-        if (id == '' || id == type || id == 'highlighted' ||
-            (id.split('-').length > 1 && id.split('-')[1] != 'aid')) {
-            return;
-        }
-    
-        var targetAnnotationIdentifier = id.split('-')[0];
-    
-        // Increase brightness of inline and displayed target annotation
-        if (document.getElementById(targetAnnotationIdentifier) != null &&
-            document.getElementById(targetAnnotationIdentifier + '-aid') != null) {
-            document.getElementById(targetAnnotationIdentifier).style.filter = 'brightness(115%)';
-            document.getElementById(targetAnnotationIdentifier + '-aid').style.filter = 'brightness(115%)';
-        }
-    
-        // Add hover information to target annotation
-        for (var i = 0; i < offsets.length; i++) {
-            if (offsets[i][0] == targetAnnotationIdentifier) {
-                var title = 'Entity: ' + offsets[i][1] + '\n';
-                for (var j = 0; j < offsets[i][2].length; j++) {
-                    title += offsets[i][2][j];
-                }
-                document.getElementById(id).title = title;
-                return;
-            }
-        }
-    }
-
-    function addManualAnnotation(event) {
+    function addManualAnnotation() {
         const openDocId = localStorage.getItem('openDocId');
 
-        const selectionText = event.data.selectionText;
-        const selectionLength = event.data.selectionLength;
-        const preSelectionLength = event.data.preSelectionLength;
-
-        var attributeRadiobuttons = $('.config-label');
+        var attributeRadiobuttons = $('input[name=entities]');
         var attributeDropdowns = $('input[name=values]');
 
         var trueIndicies = highlightToTrueIndicies(preSelectionLength, selectionLength);
         var trueStartIndex = trueIndicies[0];
         var trueEndIndex = trueIndicies[1];
-    
-        console.log('selectionText', selectionText);
-        console.log('preSelectionLength', preSelectionLength);
-        console.log('preSelectionLength', preSelectionLength);
-        console.log('trueStartIndex', trueStartIndex);
-        console.log('trueEndIndex', trueEndIndex);
 
         // Check whether selection is valid
         if (!validateAnnotationSelection(selectionText, attributeRadiobuttons)) {
-            alert('Invalid annotation - have you highlighted a span of text and chosen an entity?');
+            alert('Invalid annotation. You need to highlight a span of text and select an entity.');
             return;
         }
     
@@ -1017,6 +964,47 @@ function bindAnnotationEvents() {
         string = string.split(' ').join('-');
         string = string.split('\n').join('-');
         return string;
+    }
+
+    function updateAnnotationOnHover(id, type) {
+        /*
+        Display information about annotation and
+        adjust brightness upon hover of both annotation-data
+        and file-data panels
+        */
+    
+        // Reset annotations to original brightness
+        var annotations = $.merge($('.inline-annotation'), $('.displayed-annotation'));
+        for (var i = 0; i < annotations.length; i++) {
+            annotations[i].style.filter = 'brightness(100%)';
+        }
+    
+        // Ignore hover over non-annotation elements
+        if (id == '' || id == type || id == 'highlighted' ||
+            (id.split('-').length > 1 && id.split('-')[1] != 'aid')) {
+            return;
+        }
+    
+        var targetAnnotationIdentifier = id.split('-')[0];
+    
+        // Increase brightness of inline and displayed target annotation
+        if (document.getElementById(targetAnnotationIdentifier) != null &&
+            document.getElementById(targetAnnotationIdentifier + '-aid') != null) {
+            document.getElementById(targetAnnotationIdentifier).style.filter = 'brightness(115%)';
+            document.getElementById(targetAnnotationIdentifier + '-aid').style.filter = 'brightness(115%)';
+        }
+    
+        // Add hover information to target annotation
+        for (var i = 0; i < offsets.length; i++) {
+            if (offsets[i][0] == targetAnnotationIdentifier) {
+                var title = 'Entity: ' + offsets[i][1] + '\n';
+                for (var j = 0; j < offsets[i][2].length; j++) {
+                    title += offsets[i][2][j];
+                }
+                document.getElementById(id).title = title;
+                return;
+            }
+        }
     }
 }
 
