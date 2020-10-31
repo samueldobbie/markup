@@ -1041,7 +1041,7 @@ function bindAnnotationEvents() {
     function getInputText(queryType) {
         if (queryType == 'highlight') {
             if (window.getSelection().anchorNode != null)
-                return anchordNode.textContent.trim();
+                return window.getSelection().anchorNode.textContent.trim();
         } else {
             return $('#ontology-search-input-field').val().trim();
         }
@@ -1087,38 +1087,51 @@ function bindAnnotationEvents() {
     }
 
     function updateAnnotationOnHover(id, type) {
-        /*
-        Display information about annotation and
-        adjust brightness upon hover of both annotation-data
-        and file-data panels
-        */
+        // Reset brightness of all annotations to 100%
+        resetAnnotationBrightness();
 
-        // Reset annotations to original brightness
-        var annotations = $.merge($('.inline-annotation'), $('.displayed-annotation'));
-        for (var i = 0; i < annotations.length; i++) {
-            annotations[i].style.filter = 'brightness(100%)';
+        // Add emphasis to active annotation + display data
+        if (isAnnotationElement(id, type)) {
+            const annotationIndex = id.split('-')[0];
+            updateHoverBrightness(annotationIndex);
+            updateHoverData(id, annotationIndex);
         }
+    }
 
-        // Ignore hover over non-annotation elements
-        if (id == '' || id == type || id == 'highlighted' ||
-            (id.split('-').length > 1 && id.split('-')[1] != 'aid')) {
-            return;
+    function resetAnnotationBrightness() {
+        // Get all displayed annotations
+        const inline = $('.inline-annotation');
+        const panel = $('.displayed-annotation');
+        const elements = $.merge(inline, panel);
+
+        // Reset brightness to 100%
+        for (let i = 0; i < elements.length; i++) {
+            elements[i].style.filter = 'brightness(100%)';
         }
+    }
 
-        var targetAnnotationIdentifier = id.split('-')[0];
+    function isAnnotationElement(id, type) {
+        // Check whether the hovered over element is an annotation
+        return !(
+            id == '' || id == type || id == 'highlighted' ||
+            (id.split('-').length > 1 && id.split('-')[1] != 'aid')
+        );
+    }
 
-        // Increase brightness of inline and displayed target annotation
-        if (document.getElementById(targetAnnotationIdentifier) != null &&
-            document.getElementById(targetAnnotationIdentifier + '-aid') != null) {
-            document.getElementById(targetAnnotationIdentifier).style.filter = 'brightness(115%)';
-            document.getElementById(targetAnnotationIdentifier + '-aid').style.filter = 'brightness(115%)';
+    function updateHoverBrightness(annotationIndex) {
+        const id = '#' + annotationIndex;
+
+        if ($(id) != null && $(id + '-aid') != null) {
+            $(id).css('filter', 'brightness(115%)');
+            $(id + '-aid').css('filter', 'brightness(115%)');
         }
+    }
 
-        // Add hover information to target annotation
-        for (var i = 0; i < offsets.length; i++) {
-            if (offsets[i][0] == targetAnnotationIdentifier) {
-                var title = 'Entity: ' + offsets[i][1] + '\n';
-                for (var j = 0; j < offsets[i][2].length; j++) {
+    function updateHoverData(id, annotationIndex) {
+        for (let i = 0; i < offsets.length; i++) {
+            if (offsets[i][0] == annotationIndex) {
+                let title = 'Entity: ' + offsets[i][1] + '\n';
+                for (let j = 0; j < offsets[i][2].length; j++) {
                     title += offsets[i][2][j];
                 }
                 document.getElementById(id).title = title;
