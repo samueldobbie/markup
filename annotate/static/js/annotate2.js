@@ -597,6 +597,7 @@ function constructPanelAnnotation(annotationIndex, selection, attributeValues, e
             const kv = attributeValues[i].split(': ');
             $(annotation).attr(kv[0], kv[1]);
         }
+        $(annotation).addClass('suggestion');
     } else {
         $(annotation).attr('output-id', ENTITY_TAG + entityId);
     }
@@ -611,7 +612,7 @@ function constructContentContainer(annotationIndex, attributeValues, isSuggestio
 
     if (isSuggestion) {
         $(contentContainer).attr('for', annotationIndex);
-        $(contentContainer).addClass('suggestion');
+        $(contentContainer).addClass('suggestion-content');
     } else {
         $(contentContainer).attr('for', 'annotation-' + annotationIndex);
     }
@@ -827,6 +828,33 @@ function bindAnnotationEvents() {
             content.slideUp(200);
         };
     });
+
+    $('.suggestion').mouseenter(function () {
+        // Restore original doc upon mouse leave
+        const currentHTML = $('#file-data').html();
+        $('.suggestion').mouseleave(function () {
+            $('#file-data').html(currentHTML);
+        });
+
+        // Highlight suggestion text in yellow
+        highlightSuggestionText($(this).text());
+    });
+}
+
+function highlightSuggestionText(suggestionText) {
+    const openDocId = localStorage.getItem('openDocId');
+    const docText = localStorage.getItem('docText' + openDocId);
+    const updatedHTML = $('#file-data').text(docText).html();
+    const suggestionIndex = updatedHTML.indexOf(suggestionText);
+
+    // Highlight suggestion in html
+    if (suggestionIndex > -1) { 
+        $('#file-data').html(
+            updatedHTML.substring(0, suggestionIndex) +
+            '<span style="background-color: yellow;">' + suggestionText + '</span>' +
+            updatedHTML.substring(suggestionIndex + suggestionText.length)
+        );
+    }
 }
 
 function selectAnnotationText() {
@@ -1248,16 +1276,18 @@ function addSuggestionsToDisplay(suggestions) {
 }
 
 function acceptAnnotation(element) {
-    // Get accepted annotation
+    // Get accepted suggestion
     var suggestionId = $(element).parent().attr('annotation-id');
     var suggestion = $('#' + suggestionId)[0];
 
+    // Prepare suggestion annotation
     removeAcceptedSuggestion(suggestion, suggestionId);
     selectSuggestionText(suggestion.innerText);
     selectSuggestionEntity();
     selectSuggestionAttributes(suggestion);
     selectSuggestionOntology(suggestion);
     updateSuggestionCount();
+
     // teachActiveLearner(annotationText, 1);
     $('#add-annotation').click();
 }
@@ -1305,43 +1335,6 @@ function selectSuggestionOntology(suggestion) {
         document.getElementById('match-list').selectedIndex = 1;
     }
 }
-
-function showSuggestionInDocument() {
-    const openDocId = localStorage.getItem('openDocId');
-
-    var currentHTML;
-
-    $('.suggestion').mouseenter(function () {
-        // Hide annotations
-        currentHTML = $('#file-data').html();
-        $('#file-data').text(
-            localStorage.getItem('docText' + openDocId)
-        );
-        let updatedHTML = $('#file-data').html();
-
-        // Get location of suggestion
-        let suggestionText = $(this).text();
-        let index = updatedHTML.indexOf(suggestionText);
-
-        if (index > -1) { 
-            // Construct updated html with highlighted suggestion
-            updatedHTML = (
-                updatedHTML.substring(0, index) +
-                    '<span style="background-color: yellow;">' +
-                    updatedHTML.substring(index, index + suggestionText.length) +
-                    '</span>' +
-                    updatedHTML.substring(index + suggestionText.length)
-            );
-            // Update document
-            $('#file-data').html(updatedHTML);
-        }
-    });
-
-    $('.suggestion').mouseleave(function () {
-        $('#file-data').html(currentHTML);
-    });
-}
-
 
 function editSuggestion(element) {
     const name = $(element).text().split(': ')[0].trim();
