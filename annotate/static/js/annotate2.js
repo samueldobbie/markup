@@ -281,8 +281,6 @@ function injectAttributes() {
 }
 
 function bindConfigEvents() {
-    let activeEntity = '';
-
     // Display relevant attributes for selected entity
     $('input[type=radio]').click(displayAttributes);
 
@@ -750,6 +748,8 @@ function highlightToTrueIndicies(preSelectionLength, selectionLength) {
 }
 
 function bindAnnotationEvents() {
+    resetAnnotationEvents();
+
     // Update colour of highlighted text
     $('#file-data').mouseup(selectAnnotationText);
 
@@ -763,21 +763,22 @@ function bindAnnotationEvents() {
         updateAnnotationOnHover(e.target.id, 'annotation-data');
     });
 
-    // // Suggest most relevant UMLS matches based on highlighted term 
-    // $('#file-data').mouseup({'type': 'highlight'}, suggestCui);
+    // Suggest ontology matches based on selected text 
+    $('#file-data').mouseup({
+        'type': 'highlight'
+    }, suggestOntologyMapping);
 
-    // // Suggest most relevant UMLS matches based on searched term
-    // $('#ontology-search-input-field').on('input', {'type': 'search'}, suggestCui);
+    // Suggest ontology matches based on search text
+    $('#ontology-search-input-field').on('input', {
+        'type': 'search'
+    }, suggestOntologyMapping);
 
-    // Prompt user to save annotations before ending session
-    $('a[name=nav-element]').click(function() {
-        $(window).bind('beforeunload', function(){
-            return 'You have unsaved annotations, are you sure you want to leave?';
+    // Prompt user to save annotations before exiting session
+    $('a[class=nav-item]').click(function() {
+        $(window).bind('beforeunload', function() {
+            return 'Changes you made may not be saved.';
         });
     });
-
-    // Prevent mutliple bindings of same event
-    $('.collapsible').unbind('click');
 
     // Add event to collapsibles
     $('.collapsible').on('click', function() {
@@ -794,45 +795,57 @@ function bindAnnotationEvents() {
 
     function selectAnnotationText() {
         // Change colour of text highlighted by the user
-        const openDocId = localStorage.getItem('openDocId');
-        const docText = localStorage.getItem('docText' + openDocId);
-
-        // Ignore selection
-        $('#highlighted').replaceWith(function () { return this.innerHTML; });
-
         if (window.getSelection() == '') {
-            // Reset document text to default
-            $('#file-data').text(docText);
-            // setupSession(isNewSession=false);
+            resetSelectedText();
         } else {
-            // Get selected text and range
-            const selectionText = window.getSelection().toString();
-            const selectionRange = window.getSelection().getRangeAt(0);
-
-            // Get range of text before selection
-            const preSelectionRange = selectionRange.cloneRange();
-            preSelectionRange.selectNodeContents(document.getElementById('file-data'));
-            preSelectionRange.setEnd(selectionRange.startContainer, selectionRange.startOffset);
-
-            // Get length of selection and pre-text (excl. newline chars)
-            const selectionLength = selectionRange.toString().replace(/\n/g, '').length;
-            const preSelectionLength = preSelectionRange.toString().replace(/\n/g, '').length;
-
-            // Colour-highlight selected text
-            document.getElementById('file-data').contentEditable = 'true';
-            document.execCommand('insertHTML', false, '<span id="highlighted">' + selectionText + '</span>');
-            document.getElementById('file-data').contentEditable = 'false';
-
-            // Remove existing events
-            $('#add-annotation').unbind();
-
-            // Enable adding of manual annotation for selection
-            $('#add-annotation').click({
-                'selectionText': selectionText,
-                'selectionLength': selectionLength,
-                'preSelectionLength': preSelectionLength
-            }, addManualAnnotation);
+            updatedSelectedText();
         }
+    }
+
+    function resetSelectedText() {
+        // Reset session
+        $('#highlighted').replaceWith(function () { return this.innerHTML; });            
+        if ($('#highlighted')[0] != null) {
+            setupSession(isNewSession=false);
+        }
+    }
+
+    function updatedSelectedText() {
+        // Get selected text and range
+        const selectionText = window.getSelection().toString();
+        const selectionRange = window.getSelection().getRangeAt(0);
+
+        // Get range of text before selection
+        const preSelectionRange = selectionRange.cloneRange();
+        preSelectionRange.selectNodeContents(document.getElementById('file-data'));
+        preSelectionRange.setEnd(selectionRange.startContainer, selectionRange.startOffset);
+
+        // Get length of selection and pre-text (excl. newline chars)
+        const selectionLength = selectionRange.toString().replace(/\n/g, '').length;
+        const preSelectionLength = preSelectionRange.toString().replace(/\n/g, '').length;
+
+        // Colour-highlight selected text
+        document.getElementById('file-data').contentEditable = 'true';
+        document.execCommand('insertHTML', false, '<span id="highlighted">' + selectionText + '</span>');
+        document.getElementById('file-data').contentEditable = 'false';
+
+        addManualAnnotationEvent(
+            selectionText,
+            selectionLength,
+            preSelectionLength
+        );
+    }
+
+    function addManualAnnotationEvent(selectionText, selectionLength, preSelectionLength) {
+        // Reset manual annotation event
+        $('#add-annotation').unbind();
+
+        // Enable adding of manual annotation to selection
+        $('#add-annotation').click({
+            'selectionText': selectionText,
+            'selectionLength': selectionLength,
+            'preSelectionLength': preSelectionLength
+        }, addManualAnnotation);
     }
 
     function addManualAnnotation(event) {
@@ -848,7 +861,7 @@ function bindAnnotationEvents() {
             setupSession(isNewSession=false);
         }
     }
-    
+
     function isValidAnnotation(selectionText) {
         // Check whether a valid span of text has been selected
         let validSelection = selectionText != null && selectionText.trim() != '';
@@ -869,45 +882,36 @@ function bindAnnotationEvents() {
         return validEntity && validSelection;
     }
 
-    function constructManualAnnotation(selectionText, selectionLength, preSelectionLength) {        
+    function constructManualAnnotation(selectionText, selectionLength, preSelectionLength) {   
+        const annotation = [];
+
         // Convert highlight indicies to CRLF / LF indicies
         const indicies = highlightToTrueIndicies(preSelectionLength, selectionLength);
         const startIndex = indicies[0];
         const endIndex = indicies[1];
-    
-        const annotation = [];
-    
+
         // Add formatted entity
-        annotation.push([getFormattedEntity(startIndex, endIndex, selectionText)]);
-    
+        const formattedEntity = getFormattedEntity(
+            selectionText,
+            startIndex,
+            endIndex
+        );
+        annotation.push([formattedEntity]);
+
         // Add formatted attributes
         const formattedAttributes = getFormattedAttributes();
         for (let i = 0; i < formattedAttributes.length; i++) {
             annotation.push([formattedAttributes[i]]);
         }
-    
-        // Add annotation to annotation list in order as it appears in the document
-        const openDocId = localStorage.getItem('openDocId');
 
-        if (annotations[openDocId].length == 0) {
-            annotations[openDocId].push(annotation);
-        } else {
-            for (let i = 0; i < annotations[openDocId].length; i++) {
-                if (startIndex < parseInt(annotations[openDocId][i][0][0].split(' ')[1])) {
-                    annotations[openDocId].splice(i, 0, annotation);
-                    break;
-                } 
-                
-                if (i == (annotations[openDocId].length - 1)) {
-                    annotations[openDocId].push(annotation);
-                    break;
-                }
-            }
-        }
+        // Add formatted annotation to global array
+        addFormattedAnnotation(annotation, startIndex);
+
         // updateSuggestionModels(entityValue);        
     }
 
-    function getFormattedEntity(startIndex, endIndex, selectionText) {
+    function getFormattedEntity(selectionText, startIndex, endIndex) {
+        // Construct formatted entity
         const id = $('input[type=radio]:checked')[0].id;
         const entity = id.substring(0, id.length - 6);
         return `T${entityId++}\t${entity} ${startIndex} ${endIndex}\t${normaliseText(selectionText)}\n`;
@@ -922,7 +926,7 @@ function bindAnnotationEvents() {
             const key = checkboxes[i].id;
             result.push(formatAttribute('checkbox', key));
         }
-    
+
         // Construct attributes from dropdowns
         const dropdowns = $('input[name=values]');
         for (let i = 0; i < dropdowns.length; i++) {
@@ -931,25 +935,25 @@ function bindAnnotationEvents() {
                 result.push(formatAttribute('dropdown', kv[0], kv[1]));
             }
         }
-    
+
         // Get chosen option(s) from ontology (if not default)
         // var matchList = document.getElementById('match-list');
-    
+
         // var options = [
         //     [matchList.options[matchList.selectedIndex].text, matchList.options[matchList.selectedIndex].title]
         // ];
-    
+
         // for (var i = 0; i < options.length; i++) {
         //     var optionWords = options[i][0].split(' ');
         //     if (!((optionWords[optionWords.length - 2] == 'matches' && optionWords[optionWords.length - 1] == 'found') || options[i][0] == 'No match')) {
         //         var optionText = options[i][0];
         //         var optionCode = options[i][1].split(' ')[1];
-    
+
         //         var term = 'A' + attributeId + '\tCUIPhrase' + ' T' + (entityId - 1) + ' ' + normaliseText(optionText) + '\n';
         //         attributeData.push(term);
         //         attributeValues.push('CUIPhrase: ', optionText, '\n');
         //         attributeId++;
-    
+
         //         var cui = 'A' + attributeId + '\tCUI' + ' T' + (entityId - 1) + ' ' + optionCode + '\n';
         //         attributeData.push(cui);
         //         attributeValues.push('CUI: ', optionCode, '\n');
@@ -963,9 +967,8 @@ function bindAnnotationEvents() {
     function formatAttribute(type, key, value=null) {
         if (type == 'checkbox') {
             return `A${attributeId++}\t${normaliseText(key)} T${entityId - 1}\n`;
-        } else {
-            return `A${attributeId++}\t${normaliseText(key)} T${entityId - 1} ${normaliseText(value)}\n`;
         }
+        return `A${attributeId++}\t${normaliseText(key)} T${entityId - 1} ${normaliseText(value)}\n`;
     }
 
     function normaliseText(raw) {
@@ -982,6 +985,27 @@ function bindAnnotationEvents() {
         return pair;
     }
 
+    function addFormattedAnnotation(annotation, startIndex) {
+        const openDocId = localStorage.getItem('openDocId');
+
+        if (annotations[openDocId].length == 0) {
+            annotations[openDocId].push(annotation);
+        } else {        
+            // Add annotation in order as it appears in doc
+            for (let i = 0; i < annotations[openDocId].length; i++) {
+                if (startIndex < parseInt(annotations[openDocId][i][0][0].split(' ')[1])) {
+                    annotations[openDocId].splice(i, 0, annotation);
+                    return;
+                }
+
+                if (i == annotations[openDocId].length - 1) {
+                    annotations[openDocId].push(annotation);
+                    return;
+                }
+            }
+        }
+    }
+
     function updateSuggestionModels(entityValue) {
         // Pass selection text into active learner
         if (entityValue == 'Prescription') {
@@ -992,26 +1016,74 @@ function bindAnnotationEvents() {
     function resetAnnotationSelections() {
         // Removes selection of newly-annotated text
         window.getSelection().removeAllRanges();
-    
+
         // Reset all selections
-        // $('input[name=values]').css('display', value);
-        // $('input[name=values]').val('');
-
-        // toggleAttributeCheck(attributeCheckboxes, false);
-        // toggleAttributeCheck(entityRadiobuttons, false);
-        // toggleAttributeDisplay('checkbox', 'none');
-        // toggleAttributeDisplay('dropdown', 'none');
-
-
-        // resetAttributeValues();
-        // removeEntityStyling();
+        $('input[name=values]').css('display', 'none');
+        $('input[name=values]').val('');
+        $('#ontology-search-input-field').val('');
+        $('#config-data')[0].scrollTop = 0;
+        removeEntityStyling();
         activeEntity = '';
-    
-        // Reset scroll of config section
-        document.getElementById('config-data').scrollTop = 0;
-    
-        // Clear ontology search field
-        document.getElementById('ontology-search-input-field').value = '';
+    }
+
+    function suggestOntologyMapping(event) {
+        // Get relevant matches from defined ontology
+        const queryType = event.data.type;
+        const dropdown = $('#match-list')[0];
+        const inputText = getInputText(queryType);
+
+        // Ignore invalid inputs
+        if (inputText == '' || inputText.split(' ').length > 8) return;
+
+        displayOntologySuggestions(dropdown, inputText);
+    }
+
+    function getInputText(queryType) {
+        if (queryType == 'highlight') {
+            if (window.getSelection().anchorNode != null)
+                return anchordNode.textContent.trim();
+        } else {
+            return $('#ontology-search-input-field').val().trim();
+        }
+        return '';
+    }
+
+    function displayOntologySuggestions(dropdown, inputText) {
+        $.ajax({
+            type: 'GET',
+            url: 'suggest-cui/',
+            async: false,
+            data: {inputText: inputText},
+            success: function (response) {
+                dropdown.options.length = 0;
+                populateOntologyDropdown(
+                    JSON.parse(response),
+                    dropdown
+                );
+            }
+        });
+    }
+
+    function populateOntologyDropdown(matches, dropdown) {
+        if (matches.length > 0 && matches[0] != '') {
+            // Add match count
+            const count = document.createElement('option');
+            count.text = matches.length + ' matches found';
+            dropdown.add(count);
+
+            // Add matches
+            for (let i = 0; i < matches.length; i++) {
+                const match = document.createElement('option');
+                match.text = matches[i].split(' :: ')[0];
+                match.title = matches[i].split(' :: ')[1];
+                dropdown.add(match);
+            }
+            return;
+        }
+        // Add default option
+        const option = document.createElement('option');
+        option.text = 'No match';
+        dropdown.add(option);
     }
 
     function updateAnnotationOnHover(id, type) {
@@ -1020,28 +1092,28 @@ function bindAnnotationEvents() {
         adjust brightness upon hover of both annotation-data
         and file-data panels
         */
-    
+
         // Reset annotations to original brightness
         var annotations = $.merge($('.inline-annotation'), $('.displayed-annotation'));
         for (var i = 0; i < annotations.length; i++) {
             annotations[i].style.filter = 'brightness(100%)';
         }
-    
+
         // Ignore hover over non-annotation elements
         if (id == '' || id == type || id == 'highlighted' ||
             (id.split('-').length > 1 && id.split('-')[1] != 'aid')) {
             return;
         }
-    
+
         var targetAnnotationIdentifier = id.split('-')[0];
-    
+
         // Increase brightness of inline and displayed target annotation
         if (document.getElementById(targetAnnotationIdentifier) != null &&
             document.getElementById(targetAnnotationIdentifier + '-aid') != null) {
             document.getElementById(targetAnnotationIdentifier).style.filter = 'brightness(115%)';
             document.getElementById(targetAnnotationIdentifier + '-aid').style.filter = 'brightness(115%)';
         }
-    
+
         // Add hover information to target annotation
         for (var i = 0; i < offsets.length; i++) {
             if (offsets[i][0] == targetAnnotationIdentifier) {
@@ -1053,6 +1125,23 @@ function bindAnnotationEvents() {
                 return;
             }
         }
+    }
+
+    function resetAnnotationEvents() {
+        $('#file-data').unbind();    
+        $('.collapsible').unbind();
+        $('#annotation-data').unbind();
+        $('#ontology-search-input-field').unbind();
+        $('a[name=nav-element]').unbind();
+    }
+
+    function removeEntityStyling() {
+        $('.config-label').each(function() {
+            $(this).css({
+                marginLeft: '0',
+                transition : 'margin 300ms'
+            });
+        });
     }
 }
 
@@ -1107,6 +1196,7 @@ let annotations = [];
 let offsets = [];
 let entities = [];
 let attributes = [];
+let activeEntity = '';
 let colors = getColors(entities.length);
 
 const ENTITY_TAG = 'T';

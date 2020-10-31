@@ -182,18 +182,18 @@ def suggest_cui(request):
     if simstring_searcher is None:
         return HttpResponse(json.dumps([]))
 
-    selected_term = clean_selected_term(request.POST['selectedTerm'])
-    ranked_matches = get_ranked_ontology_matches(selected_term)
+    input_text = clean_selected_term(request.GET['inputText'])
+    ranked_matches = get_ranked_ontology_matches(input_text)
 
     return HttpResponse(json.dumps(ranked_matches))
 
 
-def clean_selected_term(selected_term):
+def clean_selected_term(input_text):
     '''
     Helper function to transform the selected term into the
     same format as the terms within the simstring database
     '''
-    return selected_term.strip().lower()
+    return input_text.strip().lower()
 
 
 def get_ranked_ontology_matches(cleaned_term):
