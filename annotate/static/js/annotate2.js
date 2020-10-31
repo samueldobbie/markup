@@ -750,15 +750,8 @@ function highlightToTrueIndicies(preSelectionLength, selectionLength) {
 }
 
 function bindAnnotationEvents() {
-    let selectionText;
-    let selectionLength;
-    let preSelectionLength;
-
     // Update colour of highlighted text
     $('#file-data').mouseup(selectAnnotationText);
-
-    // Enable adding of manual annotation for selection
-    $('#add-annotation').click(addManualAnnotation);
 
     // Update active annotation in file panel
     $('#file-data').mouseover(function (e) {
@@ -783,9 +776,24 @@ function bindAnnotationEvents() {
         });
     });
 
+    // Prevent mutliple bindings of same event
+    $('.collapsible').unbind('click');
+
+    // Add event to collapsibles
+    $('.collapsible').on('click', function() {
+        const collapsible = $(this);
+        const content = collapsible.next();
+
+        collapsible.toggleClass('active');
+        if (collapsible.hasClass('active') ) {
+            content.slideDown(200);
+        } else {
+            content.slideUp(200);
+        };
+    });
+
     function selectAnnotationText() {
         // Change colour of text highlighted by the user
-
         const openDocId = localStorage.getItem('openDocId');
         const docText = localStorage.getItem('docText' + openDocId);
 
@@ -795,9 +803,10 @@ function bindAnnotationEvents() {
         if (window.getSelection() == '') {
             // Reset document text to default
             $('#file-data').text(docText);
+            // setupSession(isNewSession=false);
         } else {
             // Get selected text and range
-            selectionText = window.getSelection().toString();
+            const selectionText = window.getSelection().toString();
             const selectionRange = window.getSelection().getRangeAt(0);
 
             // Get range of text before selection
@@ -806,102 +815,85 @@ function bindAnnotationEvents() {
             preSelectionRange.setEnd(selectionRange.startContainer, selectionRange.startOffset);
 
             // Get length of selection and pre-text (excl. newline chars)
-            selectionLength = selectionRange.toString().replace(/\n/g, '').length;
-            preSelectionLength = preSelectionRange.toString().replace(/\n/g, '').length;
+            const selectionLength = selectionRange.toString().replace(/\n/g, '').length;
+            const preSelectionLength = preSelectionRange.toString().replace(/\n/g, '').length;
 
             // Colour-highlight selected text
             document.getElementById('file-data').contentEditable = 'true';
             document.execCommand('insertHTML', false, '<span id="highlighted">' + selectionText + '</span>');
             document.getElementById('file-data').contentEditable = 'false';
+
+            // Remove existing events
+            $('#add-annotation').unbind();
+
+            // Enable adding of manual annotation for selection
+            $('#add-annotation').click({
+                'selectionText': selectionText,
+                'selectionLength': selectionLength,
+                'preSelectionLength': preSelectionLength
+            }, addManualAnnotation);
         }
     }
 
-    function addManualAnnotation() {
-        const openDocId = localStorage.getItem('openDocId');
-
-        var attributeRadiobuttons = $('input[name=entities]');
-        var attributeDropdowns = $('input[name=values]');
-
-        var trueIndicies = highlightToTrueIndicies(preSelectionLength, selectionLength);
-        var trueStartIndex = trueIndicies[0];
-        var trueEndIndex = trueIndicies[1];
+    function addManualAnnotation(event) {
+        // Annotation-specific data
+        const selectionText = event.data.selectionText;
+        const selectionLength = event.data.selectionLength;
+        const preSelectionLength = event.data.preSelectionLength;
 
         // Check whether selection is valid
-        if (!validateAnnotationSelection(selectionText, attributeRadiobuttons)) {
-            alert('Invalid annotation. You need to highlight a span of text and select an entity.');
-            return;
+        if (isValidAnnotation(selectionText)) {
+            constructManualAnnotation(selectionText, selectionLength, preSelectionLength);
+            resetAnnotationSelections();
+            setupSession(isNewSession=false);
         }
+    }
     
-        var annotation = [];
-        var attributeValues = [];
-        var attributeData = [];
-    
-        // Construct formatted entity data
-        var entityValue = $('input[type=radio]:checked')[0].id.substring(0, $('input[type=radio]:checked')[0].id.length - 6);
-        entityData = 'T' + entityId + '\t' + entityValue + ' ' + trueStartIndex + ' ' + trueEndIndex + '\t' + underscoreString(selectionText) + '\n';
-        entityId++;
-    
-        annotation.push([entityData]);
-    
-        // Construct formatted attribute data from checkboxes
-        for (var i = 0; i < $('input[type=checkbox]:checked').length; i++) {
-            var checkedAttribute = underscoreString($('input[type=checkbox]:checked')[i].id);
-            attributeValues.push(checkedAttribute);
-            attributeData.push('A' + attributeId + '\t' + checkedAttribute + ' T' + (entityId - 1) + '\n');
-            attributeId++;
-        }
-    
-        // Construct formatted attribute data from attribute dropdowns
-        for (var i = 0; i < attributeDropdowns.length; i++) {
-            if (attributeDropdowns[i].value != '') {
-                var attributeKeyValue = attributeDropdowns[i].value.split(': ');
-                if (attributeKeyValue.length == 1) {
-                    attributeKeyValue = [attributeDropdowns[i].getAttribute('placeholder'), attributeKeyValue[0]];
-                }
-                var attributeKey = attributeKeyValue[0];
-                var attributeValue = underscoreString(attributeKeyValue[1]);
-                attributeValues.push(attributeKey + ': ', attributeValue + '\n');
-                attributeData.push('A' + attributeId + '\t' + attributeKey + ' T' + (entityId - 1) + ' ' + attributeValue + '\n');
-                attributeId++;
+    function isValidAnnotation(selectionText) {
+        // Check whether a valid span of text has been selected
+        let validSelection = selectionText != null && selectionText.trim() != '';
+
+        // Ensure an entity has been selected
+        let validEntity = false;
+        const entityRadiobuttons = $('input[name=entities]');
+        for (let i = 0; i < entityRadiobuttons.length; i++) {
+            if (entityRadiobuttons[i].checked) {
+                validEntity = true;
+                break;
             }
         }
+        // Display error messages
+        if (!validEntity) alert('You must select an entity.');
+        if (!validSelection) alert('You must highlight a span of text.');
+
+        return validEntity && validSelection;
+    }
+
+    function constructManualAnnotation(selectionText, selectionLength, preSelectionLength) {        
+        // Convert highlight indicies to CRLF / LF indicies
+        const indicies = highlightToTrueIndicies(preSelectionLength, selectionLength);
+        const startIndex = indicies[0];
+        const endIndex = indicies[1];
     
-        // Get chosen option(s) from ontology (if not default)
-        var matchList = document.getElementById('match-list');
+        const annotation = [];
     
-        var options = [
-            [matchList.options[matchList.selectedIndex].text, matchList.options[matchList.selectedIndex].title]
-        ];
+        // Add formatted entity
+        annotation.push([getFormattedEntity(startIndex, endIndex, selectionText)]);
     
-        for (var i = 0; i < options.length; i++) {
-            var optionWords = options[i][0].split(' ');
-            if (!((optionWords[optionWords.length - 2] == 'matches' && optionWords[optionWords.length - 1] == 'found') || options[i][0] == 'No match')) {
-                var optionText = options[i][0];
-                var optionCode = options[i][1].split(' ')[1];
-    
-                var term = 'A' + attributeId + '\tCUIPhrase' + ' T' + (entityId - 1) + ' ' + underscoreString(optionText) + '\n';
-                attributeData.push(term);
-                attributeValues.push('CUIPhrase: ', optionText, '\n');
-                attributeId++;
-    
-                var cui = 'A' + attributeId + '\tCUI' + ' T' + (entityId - 1) + ' ' + optionCode + '\n';
-                attributeData.push(cui);
-                attributeValues.push('CUI: ', optionCode, '\n');
-                attributeId++;
-            }
-        }
-    
-        // Add attributes to annotation
-        for (var i = 0; i < attributeData.length; i++) {
-            annotation.push([attributeData[i]]);
+        // Add formatted attributes
+        const formattedAttributes = getFormattedAttributes();
+        for (let i = 0; i < formattedAttributes.length; i++) {
+            annotation.push([formattedAttributes[i]]);
         }
     
         // Add annotation to annotation list in order as it appears in the document
+        const openDocId = localStorage.getItem('openDocId');
+
         if (annotations[openDocId].length == 0) {
             annotations[openDocId].push(annotation);
         } else {
-            for (var i = 0; i < annotations[openDocId].length; i++) {
-                if (trueStartIndex < parseInt(annotations[openDocId][i][0][0].split(' ')[1])) {
+            for (let i = 0; i < annotations[openDocId].length; i++) {
+                if (startIndex < parseInt(annotations[openDocId][i][0][0].split(' ')[1])) {
                     annotations[openDocId].splice(i, 0, annotation);
                     break;
                 } 
@@ -912,7 +904,92 @@ function bindAnnotationEvents() {
                 }
             }
         }
+        // updateSuggestionModels(entityValue);        
+    }
+
+    function getFormattedEntity(startIndex, endIndex, selectionText) {
+        const id = $('input[type=radio]:checked')[0].id;
+        const entity = id.substring(0, id.length - 6);
+        return `T${entityId++}\t${entity} ${startIndex} ${endIndex}\t${normaliseText(selectionText)}\n`;
+    }
+
+    function getFormattedAttributes() {
+        const result = [];
+
+        // Construct attributes from checkboxes
+        const checkboxes = $('input[type=checkbox]:checked');
+        for (let i = 0; i < checkboxes.length; i++) {
+            const key = checkboxes[i].id;
+            result.push(formatAttribute('checkbox', key));
+        }
     
+        // Construct attributes from dropdowns
+        const dropdowns = $('input[name=values]');
+        for (let i = 0; i < dropdowns.length; i++) {
+            if (dropdowns[i].value != '') {
+                const kv = getKeyValuePair(dropdowns[i]);
+                result.push(formatAttribute('dropdown', kv[0], kv[1]));
+            }
+        }
+    
+        // Get chosen option(s) from ontology (if not default)
+        // var matchList = document.getElementById('match-list');
+    
+        // var options = [
+        //     [matchList.options[matchList.selectedIndex].text, matchList.options[matchList.selectedIndex].title]
+        // ];
+    
+        // for (var i = 0; i < options.length; i++) {
+        //     var optionWords = options[i][0].split(' ');
+        //     if (!((optionWords[optionWords.length - 2] == 'matches' && optionWords[optionWords.length - 1] == 'found') || options[i][0] == 'No match')) {
+        //         var optionText = options[i][0];
+        //         var optionCode = options[i][1].split(' ')[1];
+    
+        //         var term = 'A' + attributeId + '\tCUIPhrase' + ' T' + (entityId - 1) + ' ' + normaliseText(optionText) + '\n';
+        //         attributeData.push(term);
+        //         attributeValues.push('CUIPhrase: ', optionText, '\n');
+        //         attributeId++;
+    
+        //         var cui = 'A' + attributeId + '\tCUI' + ' T' + (entityId - 1) + ' ' + optionCode + '\n';
+        //         attributeData.push(cui);
+        //         attributeValues.push('CUI: ', optionCode, '\n');
+        //         attributeId++;
+        //     }
+        // }
+
+        return result;
+    }
+
+    function formatAttribute(type, key, value=null) {
+        if (type == 'checkbox') {
+            return `A${attributeId++}\t${normaliseText(key)} T${entityId - 1}\n`;
+        } else {
+            return `A${attributeId++}\t${normaliseText(key)} T${entityId - 1} ${normaliseText(value)}\n`;
+        }
+    }
+
+    function normaliseText(raw) {
+        // Replace spaces with hyphens
+        if (!raw) return null;
+        return raw.split(/<br>|\s|\n/).join('-');
+    }
+
+    function getKeyValuePair(dropdown) {
+        let pair = dropdown.value.split(': ');
+        if (pair.length == 1) {
+            pair = [dropdown.getAttribute('placeholder'), pair[0]];
+        }
+        return pair;
+    }
+
+    function updateSuggestionModels(entityValue) {
+        // Pass selection text into active learner
+        if (entityValue == 'Prescription') {
+            teachActiveLearner(selectionText, 1);
+        }
+    }
+
+    function resetAnnotationSelections() {
         // Removes selection of newly-annotated text
         window.getSelection().removeAllRanges();
     
@@ -921,7 +998,7 @@ function bindAnnotationEvents() {
         // $('input[name=values]').val('');
 
         // toggleAttributeCheck(attributeCheckboxes, false);
-        // toggleAttributeCheck(attributeRadiobuttons, false);
+        // toggleAttributeCheck(entityRadiobuttons, false);
         // toggleAttributeDisplay('checkbox', 'none');
         // toggleAttributeDisplay('dropdown', 'none');
 
@@ -935,35 +1012,6 @@ function bindAnnotationEvents() {
     
         // Clear ontology search field
         document.getElementById('ontology-search-input-field').value = '';
-    
-        // Feed prescription sentences into active learner
-        if (entityValue == 'Prescription') {
-            teachActiveLearner(selectionText, 1);
-        }
-    
-        setupSession(isNewSession=false);
-    }
-    
-    function validateAnnotationSelection(highlighted, attributeRadiobuttons) {
-        var validAnnotation = false;
-        for (var i = 0; i < attributeRadiobuttons.length; i++) {
-            if (attributeRadiobuttons[i].checked) {
-                validAnnotation = true;
-                break;
-            }
-        }
-    
-        if (validAnnotation && highlighted != null && highlighted.trim() != '') {
-            return true;
-        }
-        return false;
-    }
-    
-    function underscoreString(string) {
-        string = string.split('<br>').join('-');
-        string = string.split(' ').join('-');
-        string = string.split('\n').join('-');
-        return string;
     }
 
     function updateAnnotationOnHover(id, type) {
