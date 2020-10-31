@@ -25,11 +25,20 @@ function populateSessionDisplay(isNewSession) {
 }
 
 function initializeSession() {
+    initializeIds();
     parseAndStoreAnnotations();
     setupScrollbars();
     setupNavigationMenu();
     setupConfigs();
     suggestDocumentAnnotations();
+}
+
+function initializeIds() {
+    const docCount = localStorage.getItem('docCount');
+    for (let i = 0; i <= docCount; i++) {
+        entityIds.push(1);
+        attributeIds.push(1);
+    }
 }
 
 function parseAndStoreAnnotations() {
@@ -349,8 +358,8 @@ function displayDocumentAnnotations() {
         const annotationData = getAnnotationData(annotations[openDocId][i], i);
         addAnnotationToDisplay(annotationData);
     }
-    entityId++;
-    attributeId++;
+    entityIds[openDocId]++;
+    attributeIds[openDocId]++;
 
     window.getSelection().removeAllRanges();
 }
@@ -378,7 +387,8 @@ function getAnnotationData(annotation, annotationIndex) {
 
 function addEntityData(entityData, tagId, annotationData) {
     // Increase global entity id based on no. of entities
-    entityId = Math.max(entityId, tagId);
+    const openDocId = localStorage.getItem('openDocId');
+    entityIds[openDocId] = Math.max(entityIds[openDocId], tagId);
 
     // Convert doc indicies (incl. linebreaks) to selection indicies
     const indicies = trueToHighlightIndicies(
@@ -394,7 +404,8 @@ function addEntityData(entityData, tagId, annotationData) {
 
 function addAttributeData(attributeData, tagId, annotationData) {
     // Increase global attribute id based on no. of attributes
-    attributeId = Math.max(attributeId, tagId);
+    const openDocId = localStorage.getItem('openDocId');
+    attributeIds[openDocId] = Math.max(attributeIds[openDocId], tagId);
 
     // Include attribute data
     annotationData['attributeValues'].push(
@@ -597,7 +608,8 @@ function constructPanelAnnotation(annotationIndex, selection, attributeValues, e
         }
         $(annotation).addClass('suggestion');
     } else {
-        $(annotation).attr('output-id', ENTITY_TAG + entityId);
+        const openDocId = localStorage.getItem('openDocId');
+        $(annotation).attr('output-id', ENTITY_TAG + entityIds[openDocId]);
     }
 
     return annotation;
@@ -977,9 +989,10 @@ function constructManualAnnotation(selectionText, selectionLength, preSelectionL
 
 function getFormattedEntity(selectionText, startIndex, endIndex) {
     // Construct formatted entity
+    const openDocId = localStorage.getItem('openDocId');
     const id = $('input[type=radio]:checked')[0].id;
     const entity = id.substring(0, id.length - 6);
-    return `T${entityId++}\t${entity} ${startIndex} ${endIndex}\t${normaliseText(selectionText)}\n`;
+    return `T${entityIds[openDocId]++}\t${entity} ${startIndex} ${endIndex}\t${normaliseText(selectionText)}\n`;
 }
 
 function getFormattedAttributes() {
@@ -1013,10 +1026,11 @@ function getFormattedAttributes() {
 }
 
 function formatAttribute(type, key, value=null) {
+    const openDocId = localStorage.getItem('openDocId');
     if (type == 'checkbox') {
-        return `A${attributeId++}\t${normaliseText(key)} T${entityId - 1}\n`;
+        return `A${attributeIds[openDocId]++}\t${normaliseText(key)} T${entityIds[openDocId] - 1}\n`;
     }
-    return `A${attributeId++}\t${normaliseText(key)} T${entityId - 1} ${normaliseText(value)}\n`;
+    return `A${attributeIds[openDocId]++}\t${normaliseText(key)} T${entityIds[openDocId] - 1} ${normaliseText(value)}\n`;
 }
 
 function normaliseText(raw) {
@@ -1438,8 +1452,8 @@ function updateExportUrl(output) {
     exportButton.download = docName;
 }
 
-let entityId = 1;
-let attributeId = 1;
+let entityIds = [];
+let attributeIds = [];
 let annotations = [];
 let offsets = [];
 let entities = [];
