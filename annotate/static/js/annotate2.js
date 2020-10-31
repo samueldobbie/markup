@@ -20,9 +20,7 @@ function validateSession() {
 }
 
 function populateSessionDisplay(isNewSession) {
-    if (isNewSession) {
-        initializeSession();
-    }
+    if (isNewSession) initializeSession();
     updateOngoingSession();
 }
 
@@ -31,6 +29,7 @@ function initializeSession() {
     setupScrollbars();
     setupNavigationMenu();
     setupConfigs();
+    suggestDocumentAnnotations();
 }
 
 function parseAndStoreAnnotations() {
@@ -328,7 +327,6 @@ function updateOngoingSession() {
     openNewDocument();
     displayDocumentAnnotations();
     bindAnnotationEvents();
-    suggestDocumentAnnotations();
 }
 
 function openNewDocument() {
@@ -576,13 +574,13 @@ function injectPanelAnnotation(entityValue, attributeValues, annotationIndex, se
     }
 
     // Add annotation with annotation text
-    constructPanelAnnotation(annotationIndex, selection, entityColor, isSuggestion).appendTo(sectionId);
+    constructPanelAnnotation(annotationIndex, selection, attributeValues, entityColor, isSuggestion).appendTo(sectionId);
 
     // Add dropdown with annotation values
     constructContentContainer(annotationIndex, attributeValues, isSuggestion).appendTo(sectionId);
 }
 
-function constructPanelAnnotation(annotationIndex, selection, entityColor, isSuggestion) {
+function constructPanelAnnotation(annotationIndex, selection, attributeValues, entityColor, isSuggestion) {
     const annotation = $('<p/>', {
         'class': 'annotation displayed-annotation collapsible',
         'id': annotationIndex,
@@ -593,7 +591,13 @@ function constructPanelAnnotation(annotationIndex, selection, entityColor, isSug
         }
     });
 
-    if (!isSuggestion) {
+    if (isSuggestion) {
+        // Add attribute values to annotation
+        for (let i = 0; i < attributeValues.length; i++) {
+            const kv = attributeValues[i].split(': ');
+            $(annotation).attr(kv[0], kv[1]);
+        }
+    } else {
         $(annotation).attr('output-id', ENTITY_TAG + entityId);
     }
 
@@ -1182,7 +1186,7 @@ function suggestDocumentAnnotations() {
     const docText = localStorage.getItem('docText' + openDocId);
     const annotationTexts = getAnnotationTexts(openDocId);
     
-    // Empty list and display loader
+    // Reset list and display loader
     prepareSuggestionPanel();
 
     $.ajax({
@@ -1204,6 +1208,7 @@ function suggestDocumentAnnotations() {
 
 function prepareSuggestionPanel() {
     // Reset suggestion quantity value and display loader
+    $('#annotation-suggestion-list').text('');
     $('#annotation-suggestion-quantity-value').text('');
     $('#annotation-suggestion-quantity-loader').css('display', '');
 }
@@ -1242,59 +1247,63 @@ function addSuggestionsToDisplay(suggestions) {
     }
 }
 
-function acceptSuggestion(event) {
-    var suggestionId = event.getAttribute('suggestion-id');
-
+function acceptAnnotation(element) {
     // Get accepted annotation
-    var annotation = document.getElementById(suggestionId);
-    // var annotationText = annotation.innerText;
+    var suggestionId = $(element).parent().attr('annotation-id');
+    var suggestion = $('#' + suggestionId)[0];
 
-    // Remove collapsible assocaited with accepted annotation
-    for (var i = 0; i < annotation.parentNode.childNodes.length; i++) {
-        if (annotation.parentNode.childNodes[i].getAttribute('for') == suggestionId) {
-            annotation.parentNode.removeChild(annotation.parentNode.childNodes[i]);
+    removeAcceptedSuggestion(suggestion, suggestionId);
+    selectSuggestionText(suggestion.innerText);
+    selectSuggestionEntity();
+    selectSuggestionAttributes(suggestion);
+    selectSuggestionOntology(suggestion);
+    updateSuggestionCount();
+    // teachActiveLearner(annotationText, 1);
+    $('#add-annotation').click();
+}
+
+function removeAcceptedSuggestion(suggestion, suggestionId) {
+    // Remove collapsible from accepted suggestion
+    const childNodes = suggestion.parentNode.childNodes;
+    for (let i = 0; i < childNodes.length; i++) {
+        if (childNodes[i].getAttribute('for') == suggestionId) {
+            suggestion.parentNode.removeChild(childNodes[i]);
         }
     }
-    // Remove from suggestion list
-    annotation.parentNode.removeChild(annotation);
+    // Remove suggestion from list
+    suggestion.parentNode.removeChild(suggestion);
+}
 
-    // Select text to annotate
-    window.find(annotation.innerText);
-    highlightText();
+function selectSuggestionText(suggestionText) {
+    window.find(suggestionText);
+    selectAnnotationText();
+}
 
-    // Set Prescription entity
-    document.getElementById('Prescription-radio').click();
+function selectSuggestionEntity() {
+    $('#Prescription-radio').click();
+    // TODO should be able to predict / select any entity type
+}
 
-    // Populate Prescription attributes
-    var attributeDropdowns = $('input[name=values]');
-    for (var i = 0; i < attributeDropdowns.length; i++) {
-        if (attributeDropdowns[i].getAttribute('list') == 'DrugNamePrescription') {
-            attributeDropdowns[i].value = annotation.getAttribute('DrugName');
-        } else if (attributeDropdowns[i].getAttribute('list') == 'DrugDosePrescription') {
-            attributeDropdowns[i].value = annotation.getAttribute('DrugDose');
-        } else if (attributeDropdowns[i].getAttribute('list') == 'DoseUnitPrescription') {
-            attributeDropdowns[i].value = annotation.getAttribute('DoseUnit');
-        } else if (attributeDropdowns[i].getAttribute('list') == 'FrequencyPrescription') {
-            attributeDropdowns[i].value = annotation.getAttribute('Frequency');
+function selectSuggestionAttributes(suggestion) {
+    const dropdowns = $('input[name=values]');
+    for (let i = 0; i < dropdowns.length; i++) {
+        const attributeType = dropdowns[i].getAttribute('list');
+        const attributeName = attributeType.slice(0, attributeType.length - 12);
+        
+        if (attributeType.indexOf('Prescription') > -1) {
+            dropdowns[i].value = suggestion.getAttribute(attributeName);
         }
     }
+}
 
+function selectSuggestionOntology(suggestion) {
     // Populate ontology dropdown with best matches
-    $('#ontology-search-input-field').val(annotation.getAttribute('CUIPhrase')).trigger('input');
+    $('#ontology-search-input-field').val(suggestion.getAttribute('CUIPhrase')).trigger('input');
 
     // Select best match from ontology dropdown
     if (document.getElementById('match-list').length > 1) {
         document.getElementById('match-list').selectedIndex = 1;
     }
-
-    // Add annotation
-    document.getElementById('add-annotation').click();
-
-    // Update count of annotations in suggestion panel
-    updateSuggestionCount();
-    
-    // Train active learner
-    // teachActiveLearner(annotationText, 1);
 }
 
 function showSuggestionInDocument() {
