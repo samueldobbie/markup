@@ -170,6 +170,10 @@ input[type=radio] {
   filter: brightness(105%);
 }
 
+.suggestion {
+  background-color: var(--background-secondary-alt);
+}
+
 .suggestion-button {
   font-size: 15px;
   width: 2.5vw;
@@ -203,8 +207,12 @@ input[type=radio] {
   filter: brightness(105%);
 }
 
-.edit-icon {
-  color: rgb(160, 160, 160);
+.accept-icon {
+  color: rgb(49, 196, 68);
+}
+
+.reject-icon {
+  color: rgb(255, 117, 117);
 }
 
 .delete-icon {
