@@ -107,8 +107,18 @@
   margin-top: 4%;
 }
 
-.annotation-attribute {
+.attribute {
   margin-top: 10px;
+}
+
+.suggestion-attribute:hover {
+  background-color: rgba(121, 121, 121, 0.308);
+  cursor: text;
+}
+
+.highlighted-suggestion {
+  background-color: yellow;
+  color: #1A1E24;
 }
 
 .config-value-row {
