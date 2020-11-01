@@ -5,7 +5,7 @@ const display = {
         if (!localStorage.getItem('theme')) {
             localStorage.setItem('theme', 'light');
         }
-        this.update(localStorage.getItem('theme'));
+        this.update();
     },
     
     toggle() {
@@ -14,10 +14,12 @@ const display = {
         } else {
             localStorage.setItem('theme', 'light');
         }
-        this.update(localStorage.getItem('theme'));
+        this.update();
     },
     
-    update(theme) {
+    update() {
+        const theme = localStorage.getItem('theme');
+
         this.html.dataset.theme = theme;
         
         if (theme == 'light') {
@@ -95,9 +97,40 @@ const session = {
             } 
         }
         return true;
+    },
+
+    validateCookies(){
+        let cookieEnabled = navigator.cookieEnabled;
+        if (!cookieEnabled){ 
+            document.cookie = 'markup-test-cookie';
+            cookieEnabled = document.cookie.indexOf('markup-test-cookie') != -1;
+        }
+        return cookieEnabled || this.throwCookieError();
+    },
+    
+    throwCookieError(){
+        alert('Cookies must be enabled to use Markup.');
+        window.location = '/';
     }
 }
 
-display.initalize();
-request.setHeader();
-session.new();
+function getColors(n) {
+    const colors = [
+        '#7B68EE', '#FFD700', '#FFA500', '#DC143C',
+        '#FFC0CB', '#00BFFF', '#FFA07A', '#C71585',
+        '#32CD32', '#48D1CC', '#FF6347', '#8FE3B4',
+        '#FF69B4', '#008B8B', '#FF0066', '#0088FF',
+        '#44FF00', '#FF8080', '#E6DAAC', '#FFF0F5',
+        '#FFFACD', '#E6E6FA', '#B22222', '#4169E1',
+    ];
+
+    // TODO generate N distinct colors randomly
+
+    return colors;
+}
+
+$(document).ready(function () {
+    display.initalize();
+    request.setHeader();
+    session.new();
+});

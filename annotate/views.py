@@ -182,18 +182,18 @@ def suggest_cui(request):
     if simstring_searcher is None:
         return HttpResponse(json.dumps([]))
 
-    selected_term = clean_selected_term(request.POST['selectedTerm'])
-    ranked_matches = get_ranked_ontology_matches(selected_term)
+    input_text = clean_selected_term(request.GET['inputText'])
+    ranked_matches = get_ranked_ontology_matches(input_text)
 
     return HttpResponse(json.dumps(ranked_matches))
 
 
-def clean_selected_term(selected_term):
+def clean_selected_term(input_text):
     '''
     Helper function to transform the selected term into the
     same format as the terms within the simstring database
     '''
-    return selected_term.strip().lower()
+    return input_text.strip().lower()
 
 
 def get_ranked_ontology_matches(cleaned_term):
@@ -238,11 +238,13 @@ def suggest_annotations(request):
     Return annotation suggestions
     (incl. attributes) for the open document
     '''
-    text = request.POST['docText']
-    annotations = set(json.loads(request.POST['docAnnotations']))
+    doc_text = request.POST['docText']
+    annotation_texts = set(json.loads(request.POST['annotationTexts']))
 
     # Predict target sentences (that contain prescriptions)
-    target_sentences = sentence_classifier.get_target_sentences(text, annotations)
+    target_sentences = sentence_classifier.get_target_sentences(
+        doc_text, annotation_texts
+    )
 
     # Predict attributes from target sentences
     suggestions = []
@@ -517,40 +519,43 @@ class Seq2Seq:
 
         sequence = self.decode_sequence(vector).strip().split('; ')
 
-        if len(sequence) == 4:
-            drug_name = sequence[0].split('dn: ')[1]
-            drug_dose = sequence[1].split('dd: ')[1]
-            drug_unit = sequence[2].split('du: ')[1]
-            drug_frequency = sequence[3].split('df: ')[1]
-        else:
+        if not self.is_valid_prediction(clean_sentence, sequence):
             return None
 
-        # Only consider prediction valid if drug name and dose appears in sentence
-        if drug_name in clean_sentence and drug_dose in clean_sentence:
-            # Get ontology term and cui
-            ontology_term, ontology_cui = '', ''
-            if simstring_searcher is not None:
-                ranked_matches = get_ranked_ontology_matches(
-                    clean_selected_term(drug_name)
-                )
+        return {'sentence': raw_sentence, 'attributes': self.parse_attributes(sequence)}
 
-                if len(ranked_matches) != 0:
-                    best_match = ranked_matches[0].split(' :: UMLS ')
-                    ontology_term = best_match[0]
-                    ontology_cui = best_match[1]
+    def is_valid_prediction(self, input_sequence, output_sequence):
+        drug_name = output_sequence[0].split('dn: ')[1]
+        drug_dose = output_sequence[1].split('dd: ')[1]
 
-            prediction = {}
-            prediction['sentence'] = raw_sentence
-            prediction['DrugName'] = drug_name
-            prediction['DrugDose'] = drug_dose
-            prediction['DoseUnit'] = drug_unit
-            prediction['Frequency'] = drug_frequency
-            prediction['CUIPhrase'] = ontology_term
-            prediction['CUI'] = ontology_cui
+        # Ignore suggestions where name / dose not in sentence
+        if len(output_sequence) != 4 or \
+           drug_name not in input_sequence or \
+           drug_dose not in input_sequence:
+            return False
+        return True
 
-            return prediction
+    def parse_attributes(self, output_sequence):
+        attributes = [
+            'DrugName: ' + output_sequence[0].split('dn: ')[1],
+            'DrugDose: ' + output_sequence[1].split('dd: ')[1],
+            'DoseUnit: ' + output_sequence[2].split('du: ')[1],
+            'Frequency: ' + output_sequence[3].split('df: ')[1]
+        ]
+
+        # Get ontology term and cui
+        ontology_term, ontology_cui = '', ''
+        if simstring_searcher is not None:
+            ranked_matches = get_ranked_ontology_matches(
+                clean_selected_term(output_sequence[0].split('dn: ')[1])
+            )
+
+            if len(ranked_matches) != 0:
+                ontology_match = ranked_matches[0].split(' :: UMLS ')
+                attributes.append('CUIPhrase: ' + ontology_match[0])
+                attributes.append('CUI: ' + ontology_match[1])
         
-        return None
+        return attributes
 
     def train(self, instance, label):
         pass

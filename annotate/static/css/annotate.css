@@ -12,10 +12,17 @@
   background: var(--background-inverse);
 }
 
+#highlighted {
+  background-color: rgb(79, 120, 255);
+  color: white;
+  font-weight: bold;
+}
+
 .dropdown {
   padding: 5px;
   border-radius: 3px;
   color: #1A1E24;
+  background-color: white;
   outline: none;
   border: none;
   box-shadow: 0px 0.25px #1A1E24;
@@ -100,8 +107,18 @@
   margin-top: 4%;
 }
 
-.annotation-attribute {
+.attribute {
   margin-top: 10px;
+}
+
+.suggestion-attribute:hover {
+  background-color: rgba(121, 121, 121, 0.308);
+  cursor: text;
+}
+
+.highlighted-suggestion {
+  background-color: yellow;
+  color: #1A1E24;
 }
 
 .config-value-row {
@@ -163,6 +180,10 @@ input[type=radio] {
   filter: brightness(105%);
 }
 
+.suggestion-content {
+  background-color: var(--background-secondary-alt);
+}
+
 .suggestion-button {
   font-size: 15px;
   width: 2.5vw;
@@ -196,8 +217,12 @@ input[type=radio] {
   filter: brightness(105%);
 }
 
-.edit-icon {
-  color: rgb(160, 160, 160);
+.accept-icon {
+  color: rgb(49, 196, 68);
+}
+
+.reject-icon {
+  color: rgb(255, 117, 117);
 }
 
 .delete-icon {

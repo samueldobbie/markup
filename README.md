@@ -16,7 +16,7 @@ The online version of Markup can be found <a href="https://www.getmarkup.com/">h
 
 #### Docker
 
-Will be pushed to Docker Hub soon.
+Run `docker run samueldobbie/markup` and visit <a href="http://127.0.0.1:8000/">http://127.0.0.1:8000/</a>.
 
 #### Manual Installation
 

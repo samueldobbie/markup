@@ -339,3 +339,6 @@ function storeFile(file, fileStorageName, lineBreakStorageName=null) {
 
     reader.readAsText(file);
 }
+
+// End session if cookies are disabled
+session.validateCookies();

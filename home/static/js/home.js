@@ -1,4 +1,7 @@
 function tryDemo() {
+    // End session if cookies are disabled
+    session.validateCookies();
+
     const cookie = request.getCookie('csrftoken');
 
     $.ajax({

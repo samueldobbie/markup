@@ -1,137 +1,11 @@
 $(document).ready(function () {
-    setupSession(isInitalSetup=true);
+    setupSession(isNewSession=true);
 });
 
-function setupSession(isInitalSetup) {
-    // Ensure session is valid or return to setup
+function setupSession(isNewSession) {
     validateSession();
-
-    // Setup session display
-    configureDisplay(isInitalSetup);
-
-    if (isInitalSetup) {
-        populateAnnotationList();
-
-        // Parse data from configuration file
-        var parsedConfigData = parseConfigurationData();
-        entityList = parsedConfigData[0];
-        var attributeSentences = parsedConfigData[1];
-
-        // Display entity configuration list
-        displayEntityConfigurations(entityList);
-
-        // Display attributes configuration list
-        var detailedConfigValues = displayAttributeConfigurations(entityList, attributeSentences);
-        var configArgs = detailedConfigValues[0];
-        var configVals = detailedConfigValues[1];
-
-        // Get all configuration elements for manipulation
-        var attributeCheckboxes = $('input[type=checkbox]');
-        var attributeRadiobuttons = $('input[type=radio]');
-        var attributeDropdowns = $('input[name=values]');
-
-        // Initialise all configurations boxes
-        toggleAttributeDisplay(attributeCheckboxes, 'checkbox', 'none');
-        toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
-
-        // Display correct attributes upon clicking an entity
-        $('input[type=radio]').click({
-            'configArgs': configArgs,
-            'configVals': configVals,
-            'attributeCheckboxes': attributeCheckboxes,
-            'attributeDropdowns': attributeDropdowns
-        }, displayDynamicAttributes);
-
-        // Update display of selected entity
-        $('input[type=radio]').click({
-            'attributeCheckboxes': attributeCheckboxes,
-            'attributeDropdowns': attributeDropdowns,
-            'attributeRadiobuttons': attributeRadiobuttons
-        }, updateSelectedEntity);
-
-        // Change colour of highlighted text
-        $('#file-data').mouseup(function () {
-            changeHighlightedTextColor();
-        });
-
-        // Display annotation data and adjust brightness in annotation panel
-        $('#annotation-data').mouseover(function (e) {
-            adjustAnnotationUponHover(e.target.id, 'annotation-data');
-        });
-
-        // Display annotation data and adjust brightness in file panel
-        $('#file-data').mouseover(function (e) {
-            adjustAnnotationUponHover(e.target.id, 'file-data');
-        });
-
-        // Enable navigation between opened files via dropdown selection
-        $('#switch-file-dropdown').change(function () {
-            localStorage.setItem('openDocId', $('option:selected', this).attr('documentId'));
-            setupSession(isInitialSetup=false);
-            switchSuggestionPanel();
-            getAnnotationSuggestions();
-        });
-        
-        // Move to next when multiple documents opened
-        $('#move-to-next-file').click(function () {
-            const openDocId = parseInt(localStorage.getItem('openDocId'));
-            const docCount = parseInt(localStorage.getItem('docCount'));
-            if (openDocId < docCount - 1) {
-                localStorage.setItem('openDocId', openDocId + 1);
-                setupSession(isInitialSetup=false);
-                switchSuggestionPanel();
-                getAnnotationSuggestions();
-            }
-        });
-
-        // Move to previous when multiple documents opened
-        $('#move-to-previous-file').click(function () {
-            const openDocId = parseInt(localStorage.getItem('openDocId'));
-            if (openDocId > 0) {
-                localStorage.setItem('openDocId', openDocId - 1);
-                setupSession(isInitialSetup=false);
-                switchSuggestionPanel();
-                getAnnotationSuggestions();
-            }
-        });
-
-        // Prevent highlighting of move-to-next-file arrow button on double click
-        $('#move-to-next-file').mousedown(function(e){ e.preventDefault(); });
-
-        // Prevent highlighting of move-to-previous-file arrow button on double click
-        $('#move-to-previous-file').mousedown(function(e){ e.preventDefault(); });
-
-        // Allow users to add an annotation
-        $('#add-annotation').click({
-            'attributeCheckboxes': attributeCheckboxes,
-            'attributeDropdowns': attributeDropdowns,
-            'attributeRadiobuttons': attributeRadiobuttons
-        }, addAnnotation);
-
-        // Suggest most relevant UMLS matches based on highlighted term 
-        $('#file-data').mouseup({'type': 'highlight'}, suggestCui);
-
-        // Suggest most relevant UMLS matches based on searched term
-        $('#ontology-search-input-field').on('input', {'type': 'search'}, suggestCui);
-
-        // Prompt user to save annotations before leaving page
-        $('a[name=nav-element]').click(function() {
-            $(window).bind('beforeunload', function(){
-                return 'You have unsaved changes, are you sure you want to leave?';
-            });
-        });
-
-        // Predict annotations for open document
-        getAnnotationSuggestions();
-    }
-    // Load existing annotations for open document
-    loadExistingAnnotations();
-
-    // Add blob link to export annotations
-    updateAnnotationFileURL();
-    
-    // Add events to annotation dropdowns
-    bindCollapsibleEvents();
+    populateSessionDisplay(isNewSession);
+    updateExportDocument();
 }
 
 function validateSession() {
@@ -142,71 +16,57 @@ function validateSession() {
         alert('You need to provide a valid config file. Read the docs for more info.');
         window.location = '/setup';
     }
+    // TODO further validation
 }
 
-function configureDisplay(isInitalSetup) {
-    // Enable multi-doc features
-    const openDocId = localStorage.getItem('openDocId');
-    const openMethod = localStorage.getItem('openMethod');
+function populateSessionDisplay(isNewSession) {
+    if (isNewSession) initializeSession();
+    updateOngoingSession();
+}
+
+function initializeSession() {
+    initializeIds();
+    parseAndStoreAnnotations();
+    setupScrollbars();
+    setupNavigationMenu();
+    setupConfigs();
+    suggestDocumentAnnotations();
+}
+
+function initializeIds() {
     const docCount = localStorage.getItem('docCount');
-
-    if (openMethod == 'multiple') {
-        $('#move-to-previous-file').show();
-        $('#move-to-next-file').show();
-        $('#switch-file').show();
-
-        // Populate nav dropdown
-        for (let i = 0; i < docCount; i++) {
-            $('<option/>', {
-                'documentId': i,
-                'text': localStorage.getItem('docName' + i)
-            }).appendTo('#switch-file-dropdown');
-        }
-
-        // Select active doc in nav dropdown
-        $('#switch-file-dropdown').prop('selectedIndex', openDocId);
-    }
-    // Update title and doc text
-    const docName = localStorage.getItem('docName' + openDocId);
-    const docText = localStorage.getItem('docText' + openDocId);
-
-    $('title')[0].innerText = docName + ' - Markup';
-    $('#file-data').text(docText);
-
-    // Construct scroll bar for each panel
-    if (isInitalSetup) {
-        new PerfectScrollbar(document.getElementById('config-data'));
-        new PerfectScrollbar(document.getElementById('file-data'));
-        new PerfectScrollbar(document.getElementById('annotation-data'));
+    for (let i = 0; i <= docCount; i++) {
+        entityIds.push(1);
+        attributeIds.push(1);
     }
 }
 
-function populateAnnotationList() {
+function parseAndStoreAnnotations() {
     const docCount = localStorage.getItem('docCount');
 
     // Store parsed annotations for each doc
     for (let docId = 0; docId <= docCount; docId++) {
-        annotationList.push(parseAnnotations(docId));
+        annotations.push(parseDocumentAnnotations(docId));
     }
 }
 
-function parseAnnotations(docId) {
+function parseDocumentAnnotations(docId) {
     const annText = localStorage.getItem('annotationText' + docId);
     const annSentences = annText != null ? annText.split('\n') : null;
 
     // Ensure a valid ann file exists
     if (annText == null || annText.trim() == '') return [];
 
-    // Parse annotations and populate list
+    // Parse annotations from ann text
     let parsedAnns = [];
     let currentAnn = [];
     for (let i = 0; i < annSentences.length; i++) {
-        if (annSentences[i][0] == 'T' && currentAnn.length != 0) {
+        if (annSentences[i][0] == ENTITY_TAG && currentAnn.length != 0) {
             parsedAnns.push(currentAnn);
             currentAnn = [];
         }
 
-        if (annSentences[i][0] == 'T' || annSentences[i][0] == 'A') {
+        if (annSentences[i][0] == ENTITY_TAG || annSentences[i][0] == ATTRIBUTE_TAG) {
             currentAnn.push([annSentences[i] + '\n']);
         }
     }
@@ -215,399 +75,248 @@ function parseAnnotations(docId) {
     return parsedAnns;
 }
 
+function setupScrollbars() {
+    // Add scroll bar to each panel
+    new PerfectScrollbar($('#config-data')[0]);
+    new PerfectScrollbar($('#file-data')[0]);
+    new PerfectScrollbar($('#annotation-data')[0]);
+}
 
-function parseConfigurationData() {
-    /*
-    Parse configuration data from specified config file
-    */
+function setupNavigationMenu() {
+    const openMethod = localStorage.getItem('openMethod');
+    const docCount = localStorage.getItem('docCount');
+
+    if (openMethod == 'multiple') {
+        // Show additional options in navbar
+        $('#move-to-previous-file').show();
+        $('#move-to-next-file').show();
+        $('#switch-file').show();
+
+        // Populate dropdown in navbar
+        for (let i = 0; i < docCount; i++) {
+            $('<option/>', {
+                'documentId': i,
+                'text': localStorage.getItem('docName' + i)
+            }).appendTo('#switch-file-dropdown');
+        }
+    }
+    bindNavigationEvents();
+}
+
+function bindNavigationEvents() {
+    const docCount = parseInt(localStorage.getItem('docCount'));
+
+    // Navigate between docs via dropdown
+    $('#switch-file-dropdown').change(function () {
+        const updatedId = $('option:selected', this).attr('documentId');
+        switchFile(updatedId);
+    });
+
+    // Navigate to next doc via arrow
+    $('#move-to-next-file').click(function () {
+        const openDocId = localStorage.getItem('openDocId');
+        const updatedId = parseInt(openDocId) + 1;
+
+        if (updatedId < docCount) switchFile(updatedId);
+    });
+
+    // Navigate to previous doc via arrow
+    $('#move-to-previous-file').click(function () {
+        const openDocId = localStorage.getItem('openDocId');
+        const updatedId = parseInt(openDocId) - 1;
+
+        if (updatedId >= 0) switchFile(updatedId);
+    });
+}
+
+function switchFile(updatedId) {
+    localStorage.setItem('openDocId', updatedId);
+    setupSession(isNewSession=false);
+    suggestDocumentAnnotations();
+}
+
+function setupConfigs() {
+    // Parse entity and attribute configs
+    const configs = parseConfigs();
+    entities = configs[0];
+    attributes = parseAttributeValues(configs[1]);
+
+    // Inject entities and attributes to config panel
+    injectEntities();
+    injectAttributes();
+
+    // Enable configs selection events
+    bindConfigEvents();
+}
+
+function parseConfigs() {
     const configText = localStorage.getItem('configText');
+    const configSents = configText.split('\n');
 
-    var configSentences = configText.split('\n');
-    var configValues = [];
-    var configKey = '';
+    let entities = [];
+    let isEntity = false;
+    let attributeSentences = [];
 
-    var entityList = [];
-    var isEntitySentence = false;
+    for (let i = 0; i < configSents.length; i++) {
+        const sent = configSents[i];
+        const sentSize = sent.length;
 
-    for (var i = 0; i < configSentences.length; i++) {
-        var configSentence = configSentences[i];
+        if (sent == '') continue;
 
-        if (configSentence == '') {
-            continue;
+        // Add to relevant config list
+        if (isEntity && sent[0] != '[' && !entities.includes(sent)) {
+            entities.push(sent);
+        } else if (sent[0] != '[') {
+            attributeSentences.push(sent);
         }
 
-        if (isEntitySentence && configSentence[0] != '[' && !entityList.includes(configSentence)) {
-            entityList.push(configSentence);
-        } else if (configSentence[0] != '[') {
-            configValues.push(configSentence);
-        }
-
-        // Check for list title (e.g. [entities], [attributes]) within sentence
-        if (configSentence.length >= 3 && configSentence[0] == '[' && configSentence[configSentence.length - 1] == ']') {
-            configKey = configSentence.slice(1, configSentence.length - 1);
-
-            // Check whether following lines contain entity data
-            if (configKey.toLowerCase() == 'entities') {
-                isEntitySentence = true;
-            } else if (isEntitySentence) {
-                isEntitySentence = false;
+        // Check for category (e.g. [entities])
+        if (sentSize >= 3 && sent[0] == '[' && sent[sentSize - 1] == ']') {
+            // Check for entity category
+            if (sent.slice(1, sentSize - 1).toLowerCase() == 'entities') {
+                isEntity = true;
+            } else if (isEntity) {
+                isEntity = false;
             }
-            continue;
         }
     }
-
-    return [entityList, configValues];
+    return [entities, attributeSentences];
 }
 
+function parseAttributeValues(attributeSentences) {
+    const attributes = [];
+    const globalAttributes = [];
 
-function parseAttributeData(attributeSentences) {
-    /*
-    Parse attribute arguments and values
-    from attribute sentences
-    */
+    for (let i = 0; i < attributeSentences.length; i++) {
+        // Parse data within attribute sentence
+        const sent = attributeSentences[i];
+        const name = sent.split('Arg:')[0].trim();
+        const entity = sent.split('Arg:')[1].split(',')[0].trim();
+        const values = sent.split('Value:')[1].trim().split('|');
 
-    /*
-    var attributeValues = [];
-    for (var i = 0; i < attributeSentences.length; i++) {
-        var attributeSentence = attributeSentences[i];
-        if (attributeSentence.trim() == '') {
+        // Produce array of global attributes
+        if (entity.toLowerCase() == '<entity>' ) {
+            globalAttributes.push([name, values]);
             continue;
         }
+        // Add new attribute
+        attributes.push([name, entity].concat(values));
 
-        var argumentComponents = attributeSentence.split('Arg:');
-        var attributeName = argumentComponents[0].trim();
-        var valueComponents = [];
-        if (argumentComponents.length > 1) {
-            valueComponents = argumentComponents[1].split('Value:');
+        // TODO re-introduce checkbox attribute parsing
+    }
+    // Add global attributes
+    return attributes.concat(parseGlobalAttributes(globalAttributes));
+}
+
+function parseGlobalAttributes(globalAttributes) {
+    // Add global attributes to each entity
+    const result = [];
+
+    for (let i = 0; i < entities.length; i++) {
+        for (let j = 0; j < globalAttributes.length; j++) {
+            const name = globalAttributes[j][0];
+            const entity = entities[i];
+            const values = globalAttributes[j][1];
+            result.push([name, entity].concat(values));
         }
+    }
+    return result;
+}
 
-        // Populate argument list
-        if (valueComponents.length > 0) {
-            var arguments = valueComponents[0].split(',');
-            for (var j = 0; j < arguments.length; j++) {
-                var argumentList = [];
-                argumentList.push(argsSplit[0].trim());
+function injectEntities() {
+    for (let i = 0; i < entities.length; i++) {
+        const name = entities[i];
 
-                if (valsSplit[0].split(',')[j].trim() != '') {
-                    argumentList.push(valsSplit[0].split(',')[j].trim());
-                }
+        // Construct input field
+        const row = $('<p/>', {'class': 'config-value-row'});
 
-                if (argumentList.length > 1) {
-                    configArgs.push(argumentList);
-                    document.getElementById('attribute-checkboxes').innerHTML += '<p style="margin:0; padding:0;"> <input type="checkbox" id="{{ val }}" name="{{ key }}" value="{{ val }}"> <label for="{{ val }}">{{ val }}</label> </p>';
-                }
-
-
-                var attributeValue = [];
-                // Enable use of global entities
-                if (arguments[j].toLowerCase().trim() == '<entity>') {
-                    attributeValue = [attributeName];
-                    for (var k = 0; k < entityList.length; k++) {
-                        attributeValue.push(entityList[k]);
-                    }
-                    break;
-                }
-                attributeValue.push(arguments[j].trim());
-            }
-            document.getElementById('attribute-checkboxes').innerHTML += '<p style="margin:0; padding:0;"> <input type="checkbox" id="{{ val }}" name="{{ key }}" value="{{ val }}"> <label for="{{ val }}">{{ val }}</label> </p>';
-            }
-        }
+        $('<input/>', {
+            'type': 'radio',
+            'id': name + '-radio',
+            'name': 'entities',
+            'value': name + '-radio'
+        }).appendTo(row);
         
-        // Populate the value list
-        if (valueComponents.length > 1) {
-            var values = valueComponents[1].split('|');
-            for (var j = 0; j < values.length; j++) {
-                attributeValue.push(values[i]);
+        $('<label/>', {
+            'colorIndex': i,
+            'class': 'config-label',
+            'for': name + '-radio',
+            'text': name,
+            'css': {
+                'background-color': colors[i]
             }
-        }
-
-        // Add attibute values to output list
-        if (attributeValue != []) {
-            attributeValues.push(attributeValue);
-        }
+        }).appendTo(row);
+        
+        // Add entity to config panel
+        $('#entities').append(row);
     }
-
-    return attributeValues;
-    */
+    $('#entities').append('<br>');
 }
 
+function injectAttributes() {
+    for (let i = 0; i < attributes.length; i++) {
+        const id = attributes[i][0] + attributes[i][1];
 
-function displayEntityConfigurations(entityList) {
-    /*
-    Display entity configuration list in side panel
-    */
-    for (var i = 0; i < entityList.length; i++) {
-        document.getElementById('entities').innerHTML += '<p class="config-value-row"><input type="radio" id="' + entityList[i] + '-radio" name="entities" value="' + entityList[i] + '-radio"><label colorIndex="' + i + '"style="background-color:' + colors[i] + ';" class="config-label" for="' + entityList[i] + '-radio">' + entityList[i] + '</label></p>';
-    }
-    document.getElementById('entities').innerHTML += '<br>';
-}
+        // Construct input field
+        const row = $('<p/>');
 
-
-function displayAttributeConfigurations(entityList, configValues) {
-    /*
-    Display attribute configuration list in side panel
-    */
-    var configArgs = [];
-    var configVals = [];
-    for (var i = 0; i < configValues.length; i++) {
-        var argsSplit = configValues[i].split('Arg:');
-        configValues[i] = argsSplit[0].trim();
-
-        var valsSplit = '';
-
-        if (argsSplit.length > 1) {
-            valsSplit = argsSplit[1].split('Value:');
-        }
-
-        if (valsSplit == 1) {
-            for (var j = 0; j < valsSplit[0].split(','); i++) {
-                var newArgs = [];
-                newArgs.push(argsSplit[0].trim());
-
-                if (valsSplit[0].split(',')[j].trim() != '') {
-                    newArgs.push(valsSplit[0].split(',')[j].trim());
-                }
-
-                if (newArgs.length > 1) {
-                    configArgs.push(newArgs);
-                    document.getElementById('attribute-checkboxes').innerHTML += '<p><input type="checkbox" id="{{ val }}" name="{{ key }}" value="{{ val }}"> <label for="{{ val }}">{{ val }}</label> </p>';
-                }
+        $('<input/>', {
+            'type': 'text',
+            'list': id,
+            'placeholder': attributes[i][0],
+            'attribute-for': attributes[i][1],
+            'name': 'values',
+            'class': 'dropdown input-field',
+            'css': {
+                'display': 'none'
             }
+        }).appendTo(row);
+
+        // Populate datalist with attribute options 
+        const datalist = $('<datalist/>', { 'id': id, });
+        for (let j = 2; j < attributes[i].length; j++) {
+            $('<option/>', {
+                'value': attributes[i][0] + ': ' + attributes[i][j],
+                'text': attributes[i][j]
+            }).appendTo(datalist);
         }
+        datalist.appendTo(row);
 
-        if (valsSplit.length == 2) {
-            var argsList = [];
-
-            for (var k = 0; k < valsSplit[0].split(',').length; k++) {
-                if (valsSplit[0].split(',')[k].toLowerCase().trim() == '<entity>') {
-                    // deal with global entities
-                    for (var p = 0; p < entityList.length; p++) {
-                        argsList.push(entityList[p]);
-                    }
-                    break;
-                }
-                if (valsSplit[0].split(',')[k].trim() != '') {
-                    argsList.push(valsSplit[0].split(',')[k].trim());
-                }
-            }
-
-            for (var q = 0; q < argsList.length; q++) {
-                var newVals = [];
-                newVals.push(argsList[q]);
-                newVals.push(argsSplit[0].trim());
-
-                for (var x = 0; x < valsSplit[1].split('|').length; x++) {
-                    if (valsSplit[1].split('|')[x].trim() != '') {
-                        newVals.push(valsSplit[1].split('|')[x].trim());
-                    }
-                }
-
-                if (newVals.length > 1) {
-                    configVals.push(newVals);
-                    var dropdownOptionHtml = '';
-                    for (var v = 2; v < newVals.length; v++) {
-                        dropdownOptionHtml += '<option value="' + newVals[1] + ': ' + newVals[v] + '">' + newVals[v] + '</option>';
-                    }
-                    document.getElementById('attribute-dropdowns').innerHTML += '<p><input type="text" list="' + newVals[1] + newVals[0] + '" placeholder="' + newVals[1] + '" name="values" class="dropdown input-field"><datalist id="' + newVals[1] + newVals[0] + '">' + dropdownOptionHtml + '</datalist></p>';
-                }
-            }
-        }
-    }
-    return [configArgs, configVals];
-}
-
-function toggleAttributeDisplay(vals, type, data) {
-    /*
-    Toggle display of specified attributes
-    */
-
-    for (var i = 0; i < vals.length; i++) {
-        if (type == 'checkbox') {
-            vals[i].style.display = data;
-            vals[i].labels[0].style.display = data;
-        } else if (type == 'dropdown') {
-            vals[i].style.display = data;
-            vals[i].value = '';
-        }
+        // Add attribute to config panel
+        row.appendTo('#attribute-dropdowns');        
     }
 }
 
+function bindConfigEvents() {
+    // Display relevant attributes for selected entity
+    $('input[type=radio]').click(displayAttributes);
 
-function toggleAttributeCheck(vals, data) {
-    /*
-    Toggle check-status of specified attributes
-    */
-    for (var i = 0; i < vals.length; i++) {
-        $('#' + vals[i].id).prop('checked', data);
-    }
+    // Show active entity
+    $('input[type=radio]').click(styleSelectedEntity);
 }
 
 
-function resetAttributeValues() {
-    /*
-    Reset all dropdown lists
-    to their default values
-    */
+function displayAttributes() {
+    // Get selected entity
+    const entity = $(this).context.id.substring(0, $(this).context.id.length - 6);
 
-    for (var i = 0; i < $('select').length; i++) {
-        var currentSelectId = $('select')[i].id;
-
-        if (currentSelectId == 'match-list') {
-            // Empty dropdown list
-            document.getElementById(currentSelectId).options.length = 0;
-
-            // Display default option
-            var defaultOption = document.createElement('option');
-            defaultOption.text = 'No match';
-            document.getElementById(currentSelectId).add(defaultOption);
-        }
-
-        if (currentSelectId != 'switch-file-dropdown') {
-            document.getElementById(currentSelectId).selectedIndex = 0;
-        }
-    }
+    // Show relevant attributes
+    $('input[name=values]').hide();
+    $('input[attribute-for="' + entity + '"').show();
+    // TODO add checkboxes
 }
 
-
-function populateAnnotationDisplay(entityValue, attributeValues, highlightStartIndex, highlightEndIndex, annotationIdentifier) {
-    /*
-    Select the span of text highlighted by
-    the user and display the selected annotation
-    */
-    setSelectionRange(document.getElementById('file-data'), highlightStartIndex, highlightEndIndex);
-    displayAnnotation(entityValue, attributeValues, annotationIdentifier);
-}
-
-
-function setSelectionRange(element, startIndex, endIndex) {
-    /*
-    Set the selection range to match the
-    span of text highlighted by the user
-    */
-
-    if (document.createRange && window.getSelection) {
-        var range = document.createRange();
-        range.selectNodeContents(element);
-
-        var textNodes = getTextNodesIn(element);
-
-        var foundStart = false;
-        var charCount = 0;
-        var endCharCount;
-        for (var i = 0; i < textNodes.length; i++) {
-            var textNode = textNodes[i];
-            endCharCount = charCount + textNode.length;
-
-            if (!foundStart && startIndex >= charCount && (startIndex < endCharCount)) {
-                range.setStart(textNode, startIndex - charCount);
-                foundStart = true;
-            }
-            if (foundStart && endIndex <= endCharCount) {
-                range.setEnd(textNode, endIndex - charCount);
-                break;
-            }
-            charCount = endCharCount;
-        }
-        var selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-    } else if (document.selection && document.body.createTextRange) {
-        var textRange = document.body.createTextRange();
-        textRange.moveToElementText(element);
-        textRange.collapse(true);
-        textRange.moveStart('character', startIndex);
-        textRange.moveEnd('character', endIndex);
-        textRange.select();
-    }
-}
-
-
-function getTextNodesIn(node) {
-    /*
-    Helper function for updating the selection range
-    */
-    var textNodes = [];
-    if (node.nodeType == 3) {
-        textNodes.push(node);
-    } else {
-        var children = node.childNodes;
-        for (var i = 0, len = children.length; i < len; ++i) {
-            textNodes.push.apply(textNodes, getTextNodesIn(children[i]));
-        }
-    }
-    return textNodes;
-}
-
-
-function displayAnnotation(entityValue, attributeValues, annotationIdentifier) {
-    /*
-    Set the current selection range to
-    display a chosen annotation class
-    */
-    var highlighted = window.getSelection().toString();
-
-    // Get highlight color based on selected entity
-    for (var i = 0; i < $('label').length; i++) {
-        if ($('label')[i].innerText == entityValue) {
-            highlightColor = colors[$('label')[i].getAttribute('colorIndex')];
-            break;
-        }
-    }
-
-    // Add annotation inline within the open document
-    document.getElementById('file-data').contentEditable = 'true';
-    document.execCommand('insertHTML', false, '<span class="annotation inline-annotation" id="' + annotationIdentifier + '-aid" style="background-color:' + highlightColor + '; color:black;">' + highlighted + '</span>');
-    document.getElementById('file-data').contentEditable = 'false';
-
-    // Keep track of offets for each annotation
-    offsetList.push([annotationIdentifier, entityValue, attributeValues, highlighted]);
-
-    // Construct annotation to be added to the annotation display panel
-    var annotationClass = 'class="annotation displayed-annotation collapsible" output-id="T' + entityId + '"';
-    var annotationId = 'id="' + annotationIdentifier + '"';
-    var annotationStyle = 'style="background-color:' + highlightColor + ';'
-    if (localStorage.getItem('theme') == 'dark') {
-        annotationStyle += 'color: #1A1E24;"';
-    } else {
-        annotationStyle += '"'
-    }
-
-    // Add a dropdown that shows the attribute values of an annotation upon click
-    var contentDiv = '<div for="annotation-' + annotationIdentifier + '" class="content"><p>';   
-    for (var i = 0; i < attributeValues.length; i++) {
-        contentDiv += '<p class="annotation-attribute" onClick="editAnnotation(this);">' + attributeValues[i] + '</p>';
-    }
-    // Add delete button
-    contentDiv += '<div class="annotation-option-container"><a annotation-id="' + annotationIdentifier + '" class="annotation-icon delete-icon" onClick="deleteAnnotation(this);"><i class="fas fa-trash"></i></a></div></p></div>';
-    
-    // Display the section title based on the annotation entity category
-    document.getElementById(entityValue + '-section').style.display = '';
-
-    // Inject constructed annotation into display panel 
-    document.getElementById(entityValue + '-section').innerHTML += '<p ' + annotationClass + ' ' + annotationId + ' ' + annotationStyle + '>' + highlighted + '</p>' + contentDiv;
-}
-
-
-function updateSelectedEntity(event) {
-    var attributeCheckboxes = event.data.attributeCheckboxes;
-    var attributeRadiobuttons = event.data.attributeRadiobuttons;
-    var attributeDropdowns = event.data.attributeDropdowns;
-
-    removeEntityStyling();
+function styleSelectedEntity() {
+    resetEntityStyle();
 
     if (activeEntity == $(this).val()) {
+        // Reset entity and attributes
         activeEntity = '';
-
-        // Deselect and remove hiding of all attributes
-        toggleAttributeCheck(attributeCheckboxes, false);
-        toggleAttributeCheck(attributeRadiobuttons, false);
-        toggleAttributeDisplay(attributeCheckboxes, 'checkbox', 'none');
-        toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
-        resetAttributeValues();
+        $('input[name=values]').val('');
+        $('input[name=values]').hide();
     } else {
-        activeEntity = $(this).val();
-
-        // Style selected entity
+        // Style active entity
+        activeEntity = $(this).val();    
         $(this).next().css({
             marginLeft: '5%',
             transition : 'margin 300ms'
@@ -615,244 +324,460 @@ function updateSelectedEntity(event) {
     }
 }
 
-
-function removeEntityStyling() {
-    // Remove styles from all entities
-    $('.config-label').each(function() {
-        $(this).css({
-            marginLeft: '0',
-            transition : 'margin 300ms'
-        });
+function resetEntityStyle() {
+    $('.config-label').css({
+        marginLeft: '0',
+        transition : 'margin 300ms'
     });
 }
 
-
-function displayDynamicAttributes(event) {
-    /*
-    Dynamically display attributes
-    based on the chosen entity
-    */
-    var configArgs = event.data.configArgs;
-    var configVals = event.data.configVals;
-    var attributeCheckboxes = event.data.attributeCheckboxes;
-    var attributeDropdowns = event.data.attributeDropdowns;
-
-    // Get selected radio button id
-    var selected = $(this).context.id.substring(0, $(this).context.id.length - 6);
-
-    // Deselect and remove hiding of all attributes
-    toggleAttributeCheck(attributeCheckboxes, false);
-    toggleAttributeDisplay(attributeCheckboxes, 'checkbox', '');
-    toggleAttributeDisplay(attributeDropdowns, 'dropdown', '');
-
-    // Determine which checkboxes should be displayed
-    var visibleCheckboxes = [];
-    for (var i = 0; i < configArgs.length; i++) {
-        if (configArgs[i][1] == selected) {
-            visibleCheckboxes.push(configArgs[i][0]);
-        }
-    }
-
-    // Determine which dropdowns should be displayed
-    var visibleDropdowns = [];
-    for (var i = 0; i < configVals.length; i++) {
-        if (configVals[i][0] == selected) {
-            visibleDropdowns.push(configVals[i][1] + configVals[i][0]);
-        }
-    }
-
-    // Hide all unwanted checkboxes
-    for (var i = 0; i < attributeCheckboxes.length; i++) {
-        if (!visibleCheckboxes.includes(attributeCheckboxes[i].id)) {
-            attributeCheckboxes[i].style.display = 'none';
-            attributeCheckboxes[i].labels[0].style.display = 'none';
-        }
-    }
-
-    // Hide all unwanted dropdowns
-    for (var i = 0; i < attributeDropdowns.length; i++) {
-        if (!visibleDropdowns.includes(attributeDropdowns[i].list.id)) {
-            attributeDropdowns[i].style.display = 'none';
-        }
-    }
+function updateOngoingSession() {
+    openNewDocument();
+    displayDocumentAnnotations();
+    bindAnnotationEvents();
 }
 
-
-function updateAnnotationFileURL() {
-    /*
-    Construct a blob with the most up-to-date
-    annotation list and map it to the save button
-    */
+function openNewDocument() {
     const openDocId = localStorage.getItem('openDocId');
-    var saveButton = document.getElementById('save-annotation-file');
-    var docName = localStorage.getItem('docName' + openDocId) + '.ann';
+    const docName = localStorage.getItem('docName' + openDocId);
+    const docText = localStorage.getItem('docText' + openDocId);
 
-    // Construct list to be output
-    var outputList = [];
-    var annotationText = '';
-    for (var i = 0; i < annotationList[openDocId].length; i++) {
-        if (annotationList[openDocId][i].length > 1) {
-            for (var j = 0; j < annotationList[openDocId][i].length; j++) {
-                outputList.push(annotationList[openDocId][i][j]);
-                annotationText += annotationList[openDocId][i][j];
+    // Update title, doc text and active nav item
+    $('title')[0].innerText = docName + ' - Markup';
+    $('#file-data').text(docText);
+    $('#switch-file-dropdown').prop('selectedIndex', openDocId);
+}
+
+function displayDocumentAnnotations() {
+    const openDocId = localStorage.getItem('openDocId');
+
+    resetAnnotationPanel();
+
+    // Parse and inject annotation data 
+    for (let i = 0; i < annotations[openDocId].length; i++) {
+        const annotationData = getAnnotationData(annotations[openDocId][i], i);
+        addAnnotationToDisplay(annotationData);
+    }
+    entityIds[openDocId]++;
+    attributeIds[openDocId]++;
+
+    window.getSelection().removeAllRanges();
+}
+
+function getAnnotationData(annotation, annotationIndex) {
+    const annotationData = {
+        'attributeValues': [],
+        'annotationIndex': annotationIndex
+    }
+
+    for (let i = 0; i < annotation.length; i++) {
+        const rowComponents = annotation[i][0].split('\t');
+        const rowData = rowComponents[1].split(' ');
+        const tag = rowComponents[0][0];
+        const tagId = parseInt(rowComponents[0][1]);
+
+        if (tag == ENTITY_TAG) {
+            addEntityData(rowData, tagId, annotationData);
+        } else if (tag == ATTRIBUTE_TAG) {
+            addAttributeData(rowData, tagId, annotationData);
+        }
+    }
+    return annotationData;
+}
+
+function addEntityData(entityData, tagId, annotationData) {
+    // Increase global entity id based on no. of entities
+    const openDocId = localStorage.getItem('openDocId');
+    entityIds[openDocId] = Math.max(entityIds[openDocId], tagId);
+
+    // Convert doc indicies (incl. linebreaks) to selection indicies
+    const indicies = trueToHighlightIndicies(
+        parseInt(entityData[1]),
+        parseInt(entityData[2])
+    );
+
+    // Include entity data
+    annotationData['entityValue'] = entityData[0];
+    annotationData['highlightStartIndex'] = indicies[0];
+    annotationData['highlightEndIndex'] = indicies[1];
+}
+
+function addAttributeData(attributeData, tagId, annotationData) {
+    // Increase global attribute id based on no. of attributes
+    const openDocId = localStorage.getItem('openDocId');
+    attributeIds[openDocId] = Math.max(attributeIds[openDocId], tagId);
+
+    // Include attribute data
+    annotationData['attributeValues'].push(
+        attributeData[0] + ': ' + attributeData[2]
+    );
+}
+
+function resetAnnotationPanel() {
+    // Empty annotation panel (excl. suggestions)
+    const suggestions = $('#annotation-suggestion-container').detach();
+    $('#annotation-data').empty().append(suggestions);
+    
+    // Add section titles to annotation panel
+    for (let i = 0; i < entities.length; i++) {
+        const id = entities[i] + '-section';
+
+        $('<div/>', {
+            'id': id,
+            'css': {
+                'display': 'none'
             }
-        } else {
-            outputList.push(annotationList[openDocId][i]);
-            annotationText += annotationList[openDocId][i];
-        }
+        }).appendTo('#annotation-data');
+
+        $('<p/>', {
+            'class': 'section-title',
+            'text': entities[i]
+        }).appendTo('#' + id);
     }
-    // Construct blob file
-    var blob = new Blob(outputList, {type: 'text/plain'});
 
-    // Release existing blob URL
-    window.URL.revokeObjectURL(saveButton.href);
-
-    // Map save button to most recent blob URL
-    saveButton.href = URL.createObjectURL(blob);
-    saveButton.download = docName;
-
-    // Store annotations locally to avoid loss upon refreshing
-    localStorage.setItem('annotationText' + openDocId, annotationText);
+    // Empty offsets
+    offsets.length = 0;
 }
 
+function addAnnotationToDisplay(annotationData) {
+    // Highlight text span within doc
+    selectAnnotationTextSpan(
+        annotationData['highlightStartIndex'],
+        annotationData['highlightEndIndex']
+    );
 
-function changeHighlightedTextColor() {
-    /*
-    Change colour of text highlighted by the user
+    // Inject annotation at selected text span
+    injectAnnotation(
+        annotationData['entityValue'],
+        annotationData['attributeValues'],
+        annotationData['annotationIndex']
+    );
+}
 
-    Context: This is done automatically, but to enable the user
-    to be able to provide input into attribute text fields without
-    losing their selection, this has to be performed manually
-    */
+function selectAnnotationTextSpan(startIndex, endIndex) {
+    if (document.createRange && window.getSelection) {
+        selectDocumentRange(startIndex, endIndex);
+    } else if (document.selection && document.body.createTextRange) {
+        selectTextRange(startIndex, endIndex);
+    }
+}
 
-    const openDocId = localStorage.getItem('openDocId');
+function selectDocumentRange(startIndex, endIndex) {
+    const range = getSelectionRange(startIndex, endIndex);
+    setSelectionRange(range);
+}
 
-    if (window.getSelection() == '') {
-        // Prevent annotations from disappearing from display upon highlighting over them
-        if (document.getElementById('highlighted') != null) {
-            // Ignore selection
-            $('#highlighted').replaceWith(function () { return this.innerHTML; });
+function getSelectionRange(startIndex, endIndex) {
+    const docHtml = $('#file-data')[0];
+    const range = document.createRange();
+    const textNodes = getTextNodes(docHtml);
 
-            // Reset document text to default
-            document.getElementById('file-data').innerText = localStorage.getItem('docText' + openDocId);
+    // Initialize range
+    range.selectNodeContents(docHtml);
 
-            // Repopulate all annotations and re-bind all events
-            loadExistingAnnotations();
-            bindCollapsibleEvents();
-        } else {
-            // Ignore selection
-            $('#highlighted').replaceWith(function () { return this.innerHTML; });
+    // Update start and end of range
+    let isStartOfSelection = false;
+    let startCharIndex = 0;
+    let endCharIndex = 0;
+    for (let i = 0; i < textNodes.length; i++) {
+        const textNode = textNodes[i];
+        
+        endCharIndex = startCharIndex + textNode.length;
+
+        // Set start of range
+        if (!isStartOfSelection && startIndex >= startCharIndex && startIndex < endCharIndex) {
+            range.setStart(textNode, startIndex - startCharIndex);
+            isStartOfSelection = true;
         }
+
+        // Set end of range
+        if (isStartOfSelection && endIndex <= endCharIndex) {
+            range.setEnd(textNode, endIndex - startCharIndex);
+            break;
+        }
+        startCharIndex = endCharIndex;
+    }
+    return range;
+}
+
+function getTextNodes(node) {
+    const nodes = [];
+
+    if (node.nodeType == Node.TEXT_NODE) {
+        nodes.push(node);
+        return nodes;
+    }
+
+    const childNodes = node.childNodes;
+    for (let i = 0; i < childNodes.length; i++) {
+        nodes.push.apply(nodes, getTextNodes(childNodes[i]));
+    }
+    return nodes;
+}
+
+function setSelectionRange(range) {
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+}
+
+function selectTextRange(startIndex, endIndex) {
+    const docHtml = $('#file-data')[0];
+    const range = document.body.createTextRange();
+    range.moveToElementText(docHtml);
+    range.collapse(true);
+    range.moveStart('character', startIndex);
+    range.moveEnd('character', endIndex);
+    range.select();
+}
+
+function injectAnnotation(entityValue, attributeValues, annotationIndex) {
+    const selection = window.getSelection().toString();
+    const entityColor = getEntityColor(entityValue);
+
+    // Display annotation at selection range
+    injectInlineAnnotation(annotationIndex, selection, entityColor);
+    injectPanelAnnotation(entityValue, attributeValues, annotationIndex, selection, entityColor, false);
+
+    // Keep track of offets for each annotation
+    offsets.push([annotationIndex, entityValue, attributeValues, selection]);
+}
+
+function getEntityColor(entity) {
+    const entityLabels = $('label');
+    for (let i = 0; i < entityLabels.length; i++) {
+        const entityLabel = entityLabels[i].innerText;
+
+        if (entityLabel == entity) {
+            const colorIndex = entityLabels[i].getAttribute('colorIndex');
+            return colors[colorIndex];
+        }
+    }
+}
+
+function injectInlineAnnotation(annotationIndex, selection, entityColor) {
+    // Construct inline annotation
+    const annotationHTML = $('<span/>', {
+        'class': 'annotation inline-annotation',
+        'id': annotationIndex + '-aid',
+        'text': selection,
+        'css': {
+            'background-color': entityColor,
+            'color': 'black'
+        }
+    }).prop('outerHTML');
+
+    // Add inline annotation
+    $('#file-data').attr('contenteditable', 'true');
+    document.execCommand('insertHTML', false, annotationHTML);
+    $('#file-data').attr('contenteditable', 'false');
+}
+
+function injectPanelAnnotation(entityValue, attributeValues, annotationIndex, selection, entityColor, isSuggestion) {
+    let sectionId = '#' + entityValue;
+
+    // Show section title
+    if (!isSuggestion) {
+        sectionId += '-section';
+        $(sectionId).show()
+    }
+
+    // Add annotation with annotation text
+    constructPanelAnnotation(annotationIndex, selection, attributeValues, entityColor, isSuggestion).appendTo(sectionId);
+
+    // Add dropdown with annotation values
+    constructContentContainer(annotationIndex, attributeValues, isSuggestion).appendTo(sectionId);
+}
+
+function constructPanelAnnotation(annotationIndex, selection, attributeValues, entityColor, isSuggestion) {
+    const annotation = $('<p/>', {
+        'class': 'annotation displayed-annotation collapsible',
+        'id': annotationIndex,
+        'text': selection,
+        'css': {
+            'background-color': entityColor,
+            'color': '#1A1E24'
+        }
+    });
+
+    if (isSuggestion) {
+        // Add attribute values to annotation
+        for (let i = 0; i < attributeValues.length; i++) {
+            const kv = attributeValues[i].split(': ');
+            $(annotation).attr(kv[0], kv[1]);
+        }
+        $(annotation).addClass('suggestion');
     } else {
-        if (document.getElementById('highlighted') != null) {
-            $('#highlighted').replaceWith(function () { return this.innerHTML; });
-        }
-
-        // Get selected text and index range
-        var documentElement = document.getElementById('file-data');
-        highlightText = window.getSelection().toString();
-        var highlightRange = window.getSelection().getRangeAt(0);
-
-        var preCaretRange = highlightRange.cloneRange();
-        preCaretRange.selectNodeContents(documentElement);
-        preCaretRange.setEnd(highlightRange.startContainer, highlightRange.startOffset);
-
-        // Get length of selected text and precaret (excluding newline characters)
-        highlightTextLength = highlightRange.toString().replace(/\n/g, '').length;
-        preCaretStringLength = preCaretRange.toString().replace(/\n/g, '').length;
-
-        // Color-highlight selected text
-        document.getElementById('file-data').contentEditable = 'true';
-        document.execCommand('insertHTML', false, '<span id="highlighted" style="background-color: rgb(79, 120, 255); color: white;">' + highlightText + '</span>');
-        document.getElementById('file-data').contentEditable = 'false';
+        const openDocId = localStorage.getItem('openDocId');
+        $(annotation).attr('output-id', ENTITY_TAG + entityIds[openDocId]);
     }
+
+    return annotation;
 }
 
+function constructContentContainer(annotationIndex, attributeValues, isSuggestion) {
+    const contentContainer = $('<div/>', {
+        'class': 'content',
+    });
+
+    if (isSuggestion) {
+        $(contentContainer).attr('for', annotationIndex);
+        $(contentContainer).addClass('suggestion-content');
+    } else {
+        $(contentContainer).attr('for', 'annotation-' + annotationIndex);
+    }
+
+    const attributeClass = isSuggestion ? 'suggestion-attribute' : 'annotation-attribute';
+    for (let i = 0; i < attributeValues.length; i++) {
+        $('<p/>', {
+            'class': 'attribute ' + attributeClass,
+            'text': attributeValues[i],
+            'onClick': 'editAnnotation(this)'
+        }).appendTo(contentContainer);
+    }
+
+    // Container for annotation options
+    const optionContainer = $('<div/>', {
+        'class': 'annotation-option-container',
+        'annotation-id': annotationIndex,
+
+    }).appendTo(contentContainer);
+    
+    // Create and add buttons
+    let buttonTypes = isSuggestion ? ['reject', 'accept'] : ['delete'];
+    for (let i = 0; i < buttonTypes.length; i++) {
+        constructButton(
+            buttonTypes[i],
+            annotationIndex
+        ).appendTo(optionContainer);
+    }
+
+    return contentContainer;
+}
+
+function constructButton(type, annotationIndex) {
+    // Create new button
+    const button = $('<a/>', {
+        'class': 'annotation-icon ' + type + '-icon',
+        'annotation-id': annotationIndex,
+        'onClick': type + 'Annotation(this)'
+    })
+
+    // Add icon to button
+    const icon = $('<i/>', {'class': 'fas'});
+    if (type == 'accept') {
+        $(icon).addClass(' fa-check');
+    } else {
+        $(icon).addClass(' fa-trash');
+    }
+    icon.appendTo(button);
+
+    return button;
+}
+
+function editAnnotation(element) {
+    // TODO
+}
+
+function deleteAnnotation(element) {
+    // Remove annotation and offset
+    const openDocId = localStorage.getItem('openDocId');
+    const annotationId = parseInt($(element).attr('annotation-id'));
+
+    // Finds correct annotation index and remove
+    for (let i = 0; i < offsets.length; i++) {
+        if (offsets[i][0] == annotationId) {
+            annotations[openDocId].splice(i, 1);
+            offsets.splice(i, 1);
+            break;
+        }
+    }
+    // Update session
+    setupSession(isNewSession=false);
+}
 
 function trueToHighlightIndicies(trueStartIndex, trueEndIndex) {
     /*
-    Convert the true indicies (those that include newline characters)
-    to highlight indicies (those that exclude newline characters). Calculation
-    can be performed for either LF and CRLF newline types for documents
-    created across various operating systems
+    Convert true indicies (incl. newlines) to highlight indicies
+    (excl. newlines) based on doc type (LF or CRLF)
     */
+    const docText = getNormalisedDocText();
+    return getHighlightIndicies(docText, trueStartIndex, trueEndIndex);
+}
 
+function getNormalisedDocText() {
+    /*
+    Return document text where newline chars have been replaced
+    by some number of regular chars based on the doc type (LF or CRLF)
+    */
     const openDocId = localStorage.getItem('openDocId');
+    const lineBreakType = localStorage.getItem('lineBreakType' + openDocId);
+    const lineBreakValue = (lineBreakType == 'windows') ? 2 : 1;
 
-    var lineBreakValue = 1;
-    if (localStorage.getItem('lineBreakType' + openDocId) == 'windows') {
-        lineBreakValue = 2;
-    }
+    let docText = '';
 
-    var documentNodes = document.getElementById('file-data').childNodes;
-    var docText = '';
-    for (var i = 0; i < documentNodes.length; i++) {
-        if (documentNodes[i].nodeType == 3) {
-            docText += documentNodes[i].textContent;
-        } else if ($(documentNodes[i]).is('span')) {
-            for (var j = 0; j < documentNodes[i].innerText.length; j++) {
-                if (documentNodes[i].innerText[j] == '\n') {
-                    for (var k = 0; k < lineBreakValue; k++) {
-                        docText += '*';
-                    }
+    for (let i = 0; i < $('#file-data').children().length; i++) {
+        const node = $('#file-data').children()[i];
+        const isSpan = $(node).is('span');
+
+        if (node.nodeType == Node.TEXT_NODE) {
+            docText += node.textContent;
+        } else if (!isSpan) {
+            docText += '_'.repeat(lineBreakValue);
+        } else {
+            for (let j = 0; j < node.innerText.length; j++) {
+                if (node.innerText[j] == '\n') {
+                    docText += '*'.repeat(lineBreakValue)
                 } else {
-                    docText += documentNodes[i].innerText[j];
+                    docText += node.innerText[j];
                 }
             }
-        } else {
-            for (var k = 0; k < lineBreakValue; k++) {
-                docText += '_';
-            }
         }
     }
+    return docText;
+}
 
-    var highlightStartIndex = trueStartIndex;
-    var highlightEndIndex = trueEndIndex;
-    for (var i = 0; i < trueEndIndex; i++) {
-        if (i <= trueStartIndex && (docText[i] == '_' || docText == '*')) {
+function getHighlightIndicies(docText, trueStartIndex, trueEndIndex) {
+    let highlightStartIndex = trueStartIndex;
+    let highlightEndIndex = trueEndIndex;
+
+    for (let i = 0; i < trueEndIndex; i++) {
+        if (i > trueStartIndex && docText[i] == '_') {
+            highlightEndIndex--;
+        } else if (i <= trueStartIndex && (docText[i] == '_' || docText == '*')) {
             highlightStartIndex--;
             highlightEndIndex--;
-        } else if (i > trueStartIndex && docText[i] == '_') {
-            highlightEndIndex--;
         }
     }
-
     return [highlightStartIndex, highlightEndIndex];
 }
 
 
-function highlightToTrueIndicies(preCaretStringLength, highlightTextLength) {
+function highlightToTrueIndicies(preSelectionLength, selectionLength) {
     /*
-    Convert the highlight indicies (those that exclude newline characters)
-    to true indicies (those that include newline characters). Calculation
-    can be performed for either LF and CRLF (Linux & Windows) newline types,
-    depending on the document type
+    Convert highlight indicies (excl. newlines) to true indicies
+    (incl. newlines) based on doc type (LF or CRLF)
     */
-
     const openDocId = localStorage.getItem('openDocId');
+    const lineBreakType = localStorage.getItem('lineBreakType' + openDocId);
+    const lineBreakValue = (lineBreakType == 'windows') ? 2 : 1;
+    const docText = $('#file-data').text();
 
-    var lineBreakValue = 1;
-    if (localStorage.getItem('lineBreakType' + openDocId) == 'windows') {
-        lineBreakValue = 2;
-    }
-
-    var docText = document.getElementById('file-data').innerText;
-
-    var trueStartIndex = 0;
-    var trueEndIndex;
-    for (var i = 0; i < docText.length; i++) {
-        if (preCaretStringLength == 0) {
+    let trueStartIndex = 0;
+    let trueEndIndex = 0;
+    for (let i = 0; i < docText.length; i++) {
+        if (preSelectionLength == 0) {
             while (docText[i] == '\n') {
                 trueStartIndex += lineBreakValue;
                 i++;
             }
 
             trueEndIndex = trueStartIndex;
-            while (highlightTextLength > 0) {
+            while (selectionLength > 0) {
                 if (docText[i] == '\n') {
                     trueEndIndex += lineBreakValue;
                 } else {
-                    highlightTextLength--;
+                    selectionLength--;
                     trueEndIndex++;
                 }
                 i++;
@@ -861,369 +786,51 @@ function highlightToTrueIndicies(preCaretStringLength, highlightTextLength) {
         } else if (docText[i] == '\n') {
             trueStartIndex += lineBreakValue;
         } else {
-            preCaretStringLength--;
+            preSelectionLength--;
             trueStartIndex++;
         }
     }
-
     return [trueStartIndex, trueEndIndex];
 }
 
+function bindAnnotationEvents() {
+    resetAnnotationEvents();
 
-function addAnnotation(event) {
-    const openDocId = localStorage.getItem('openDocId');
+    // Update colour of highlighted text
+    $('#file-data').mouseup(selectAnnotationText);
 
-    var attributeCheckboxes = event.data.attributeCheckboxes;
-    var attributeRadiobuttons = event.data.attributeRadiobuttons;
-    var attributeDropdowns = event.data.attributeDropdowns;
-
-    var trueIndicies = highlightToTrueIndicies(preCaretStringLength, highlightTextLength);
-    var trueStartIndex = trueIndicies[0];
-    var trueEndIndex = trueIndicies[1];
-
-    // Check whether selection is valid
-    if (!validateAnnotationSelection(highlightText, attributeRadiobuttons)) {
-        alert('Invalid annotation - have you highlighted a span of text and chosen an entity?');
-        return;
-    }
-
-    var annotation = [];
-    var attributeValues = [];
-    var attributeData = [];
-
-    // Construct formatted entity data
-    var entityValue = $('input[type=radio]:checked')[0].id.substring(0, $('input[type=radio]:checked')[0].id.length - 6);
-    entityData = 'T' + entityId + '\t' + entityValue + ' ' + trueStartIndex + ' ' + trueEndIndex + '\t' + underscoreString(highlightText) + '\n';
-    entityId++;
-
-    annotation.push([entityData]);
-
-    // Construct formatted attribute data from checkboxes
-    for (var i = 0; i < $('input[type=checkbox]:checked').length; i++) {
-        var checkedAttribute = underscoreString($('input[type=checkbox]:checked')[i].id);
-        attributeValues.push(checkedAttribute);
-        attributeData.push('A' + attributeId + '\t' + checkedAttribute + ' T' + (entityId - 1) + '\n');
-        attributeId++;
-    }
-
-    // Construct formatted attribute data from attribute dropdowns
-    for (var i = 0; i < attributeDropdowns.length; i++) {
-        if (attributeDropdowns[i].value != '') {
-            var attributeKeyValue = attributeDropdowns[i].value.split(': ');
-            if (attributeKeyValue.length == 1) {
-                attributeKeyValue = [attributeDropdowns[i].getAttribute('placeholder'), attributeKeyValue[0]];
-            }
-            var attributeKey = attributeKeyValue[0];
-            var attributeValue = underscoreString(attributeKeyValue[1]);
-            attributeValues.push(attributeKey + ': ', attributeValue + '\n');
-            attributeData.push('A' + attributeId + '\t' + attributeKey + ' T' + (entityId - 1) + ' ' + attributeValue + '\n');
-            attributeId++;
-        }
-    }
-
-    // Get chosen option(s) from ontology (if not default)
-    var matchList = document.getElementById('match-list');
-
-    var options = [
-        [matchList.options[matchList.selectedIndex].text, matchList.options[matchList.selectedIndex].title]
-    ];
-
-    for (var i = 0; i < options.length; i++) {
-        var optionWords = options[i][0].split(' ');
-        if (!((optionWords[optionWords.length - 2] == 'matches' && optionWords[optionWords.length - 1] == 'found') || options[i][0] == 'No match')) {
-            var optionText = options[i][0];
-            var optionCode = options[i][1].split(' ')[1];
-
-            var term = 'A' + attributeId + '\tCUIPhrase' + ' T' + (entityId - 1) + ' ' + underscoreString(optionText) + '\n';
-            attributeData.push(term);
-            attributeValues.push('CUIPhrase: ', optionText, '\n');
-            attributeId++;
-
-            var cui = 'A' + attributeId + '\tCUI' + ' T' + (entityId - 1) + ' ' + optionCode + '\n';
-            attributeData.push(cui);
-            attributeValues.push('CUI: ', optionCode, '\n');
-            attributeId++;
-        }
-    }
-
-    // Add attributes to annotation
-    for (var i = 0; i < attributeData.length; i++) {
-        annotation.push([attributeData[i]]);
-    }
-
-    // Add annotation to annotation list in order as it appears in the document
-    if (annotationList[openDocId].length == 0) {
-        annotationList[openDocId].push(annotation);
-    } else {
-        for (var i = 0; i < annotationList[openDocId].length; i++) {
-            if (trueStartIndex < parseInt(annotationList[openDocId][i][0][0].split(' ')[1])) {
-                annotationList[openDocId].splice(i, 0, annotation);
-                break;
-            } 
-            
-            if (i == (annotationList[openDocId].length - 1)) {
-                annotationList[openDocId].push(annotation);
-                break;
-            }
-        }
-    }
-
-    // Removes selection of newly-annotated text
-    window.getSelection().removeAllRanges();
-
-    // Reset all selections
-    toggleAttributeCheck(attributeCheckboxes, false);
-    toggleAttributeCheck(attributeRadiobuttons, false);
-    toggleAttributeDisplay(attributeCheckboxes, 'checkbox', 'none');
-    toggleAttributeDisplay(attributeDropdowns, 'dropdown', 'none');
-    resetAttributeValues();
-    removeEntityStyling();
-    activeEntity = '';
-
-    // Reset scroll of config section
-    document.getElementById('config-data').scrollTop = 0;
-
-    // Clear ontology search field
-    document.getElementById('ontology-search-input-field').value = '';
-
-    // Feed prescription sentences into active learner
-    if (entityValue == 'Prescription') {
-        teachActiveLearner(highlightText, 1);
-    }
-
-    setupSession(isInitialSetup=false);
-}
-
-
-function validateAnnotationSelection(highlighted, attributeRadiobuttons) {
-    var validAnnotation = false;
-    for (var i = 0; i < attributeRadiobuttons.length; i++) {
-        if (attributeRadiobuttons[i].checked) {
-            validAnnotation = true;
-            break;
-        }
-    }
-
-    if (validAnnotation && highlighted != null && highlighted.trim() != '') {
-        return true;
-    }
-    return false;
-}
-
-function underscoreString(string) {
-    string = string.split('<br>').join('-');
-    string = string.split(' ').join('-');
-    string = string.split('\n').join('-');
-    return string;
-}
-
-// Load annotations if user supplied existing annotation file
-function loadExistingAnnotations() {
-    const openDocId = localStorage.getItem('openDocId');
-
-    // Reset annotation display list
-    var save = $('#annotation-suggestion-container').detach();
-    $('#annotation-data').empty().append(save);
-
-    // Get open document text
-    document.getElementById('file-data').innerText = localStorage.getItem('docText' + openDocId);
-
-    // Add section titles to annotation panel
-    for (var i = 0; i < entityList.length; i++) {
-        document.getElementById('annotation-data').innerHTML += "<div id='" + entityList[i] + "-section' style='display:none;'><p class='section-title'>" + entityList[i] + "</p></div>";
-    }
-
-    // TO-DO: validate ann file annotations before trying to populate
-
-    // Reset offset list
-    offsetList = [];
-
-    // Parse annotation data and populate annotation display
-    var annotationIdentifier = 0;
-    for (var i = 0; i < annotationList[openDocId].length; i++) {
-        var attributeValues = [];
-        var entityValue = '';
-        var trueStartIndex = 0;
-        var trueEndIndex = 0;
-        var highlightStartIndex = 0;
-        var highlightEndIndex = 0;
-
-        for (var j = 0; j < annotationList[openDocId][i].length; j++) {
-            var annotationWords = annotationList[openDocId][i][j][0].split('\t');
-            var data = annotationWords[1].split(' ');
-
-            if (annotationWords[0][0] == 'T') {
-                var annotationId = parseInt(annotationWords[0].split('T')[1]);
-                if (annotationId > entityId) {
-                    entityId = annotationId
-                }
-                entityValue = data[0];
-
-                trueStartIndex = parseInt(data[1]);
-                trueEndIndex = parseInt(data[2]);
-
-                var highlightIndicies = trueToHighlightIndicies(trueStartIndex, trueEndIndex);
-                highlightStartIndex = highlightIndicies[0];
-                highlightEndIndex = highlightIndicies[1];
-            }
-            
-            if (annotationWords[0][0] == 'A') {
-                var annotationId = parseInt(annotationWords[0].split('A')[1]);
-                if (annotationId > attributeId) {
-                    attributeId = annotationId
-                }
-                attributeValues.push(data[0] + ': ' + data[2]);
-            }
-        }
-        populateAnnotationDisplay(entityValue, attributeValues, highlightStartIndex, highlightEndIndex, annotationIdentifier);
-        annotationIdentifier++;
-    }
-    entityId++;
-    attributeId++;
-
-    window.getSelection().removeAllRanges();
-}
-
-
-function deleteAnnotation(event) {
-    /*
-    Delete clicked annotation from
-    annotation and offset lists
-    */
-
-    const openDocId = localStorage.getItem('openDocId');
-
-    var targetAnnotationIdentifier = parseInt(event.getAttribute('annotation-id'));
-
-    // Finds correct annotation index based on offset list and removes annotation
-    for (var i = 0; i < offsetList.length; i++) {
-        if (offsetList[i][0] == targetAnnotationIdentifier) {
-            annotationList[openDocId].splice(i, 1);
-            offsetList.splice(i, 1);
-            break;
-        }
-    }
-    setupSession(isInitialSetup=false);
-}
-
-
-function adjustAnnotationUponHover(id, type) {
-    /*
-    Display information about annotation and
-    adjust brightness upon hover of both annotation-data
-    and file-data panels
-    */
-
-    // Reset annotations to original brightness
-    var annotations = $.merge($('.inline-annotation'), $('.displayed-annotation'));
-    for (var i = 0; i < annotations.length; i++) {
-        annotations[i].style.filter = 'brightness(100%)';
-    }
-
-    // Ignore hover over non-annotation elements
-    if (id == '' || id == type || id == 'highlighted' ||
-        (id.split('-').length > 1 && id.split('-')[1] != 'aid')) {
-        return;
-    }
-
-    var targetAnnotationIdentifier = id.split('-')[0];
-
-    // Increase brightness of inline and displayed target annotation
-    if (document.getElementById(targetAnnotationIdentifier) != null &&
-        document.getElementById(targetAnnotationIdentifier + '-aid') != null) {
-        document.getElementById(targetAnnotationIdentifier).style.filter = 'brightness(115%)';
-        document.getElementById(targetAnnotationIdentifier + '-aid').style.filter = 'brightness(115%)';
-    }
-
-    // Add hover information to target annotation
-    for (var i = 0; i < offsetList.length; i++) {
-        if (offsetList[i][0] == targetAnnotationIdentifier) {
-            var title = 'Entity: ' + offsetList[i][1] + '\n';
-            for (var j = 0; j < offsetList[i][2].length; j++) {
-                title += offsetList[i][2][j];
-            }
-            document.getElementById(id).title = title;
-            return;
-        }
-    }
-}
-
-
-function suggestCui(event) {
-    /*
-    Populate dropdown wthin relevant matches
-    from ontology based on specified text
-    */
-
-    var queryType = event.data.type;
-    var dropdown = document.getElementById('match-list');
-
-    // Get input text from appropiate source
-    var selectedTerm;
-    if (queryType == 'highlight') {
-        if (window.getSelection().anchorNode == null) {
-            return;
-        }
-        selectedTerm = window.getSelection().anchorNode.textContent;
-    } else if (queryType == 'search') {
-        selectedTerm = document.getElementById('ontology-search-input-field').value;
-    }
-
-    // Prevent mapping of long sentences
-    if (selectedTerm == null || selectedTerm.split(' ').length > 8) {
-        return;
-    }
-
-    $.ajax({
-        type: 'POST',
-        url: 'suggest-cui/',
-        async: false,
-        data: {
-            selectedTerm: selectedTerm
-        },
-        success: function (response) {
-            // Empty dropdown list
-            dropdown.options.length = 0;
-
-            var matches = JSON.parse(response);
-            if (matches.length > 0 && matches[0] != '') {
-                // Display number of matches in dropdown
-                var option = document.createElement('option');
-                option.text = matches.length + ' matches found';
-                dropdown.add(option);
-
-                // Add matches to dropdown
-                for (var i = 0; i < matches.length; i++) {
-                    option = document.createElement('option');
-                    option.text = matches[i].split(' :: ')[0];
-                    option.title = matches[i].split(' :: ')[1];
-                    dropdown.add(option);
-                }
-            } else {
-                // Display default option in dropdown
-                var option = document.createElement('option');
-                option.text = 'No match';
-                dropdown.add(option);
-            }
-        }
+    // Update active annotation in file panel
+    $('#file-data').mouseover(function (e) {
+        updateAnnotationOnHover(e.target.id, 'file-data');
     });
-}
 
+    // Update active annotation in annotation panel
+    $('#annotation-data').mouseover(function (e) {
+        updateAnnotationOnHover(e.target.id, 'annotation-data');
+    });
 
-function bindCollapsibleEvents() {
-    /*
-    Display collapsible upon clicking an annotation
-    in the annotation display panel, to show the
-    annotations' attributes
-    */
+    // Suggest ontology matches based on selected text 
+    $('#file-data').mouseup({
+        'type': 'highlight'
+    }, suggestOntologyMapping);
 
-    // Prevent mutliple bindings of same event
-    $('.collapsible').unbind('click');
+    // Suggest ontology matches based on search text
+    $('#ontology-search-input-field').on('input', {
+        'type': 'search'
+    }, suggestOntologyMapping);
+
+    // Prompt user to save annotations before exiting session
+    $('a[class=nav-item]').click(function() {
+        $(window).bind('beforeunload', function() {
+            return 'Changes you made may not be saved.';
+        });
+    });
 
     // Add event to collapsibles
     $('.collapsible').on('click', function() {
-        var collapsible = $(this);
-        var content = collapsible.next();
+        const collapsible = $(this);
+        const content = collapsible.next();
+
         collapsible.toggleClass('active');
         if (collapsible.hasClass('active') ) {
             content.slideDown(200);
@@ -1232,279 +839,563 @@ function bindCollapsibleEvents() {
         };
     });
 
-    showSuggestionInDocument();
+    $('.suggestion').mouseenter(function () {
+        // Restore original doc event
+        const currentHTML = $('#file-data').html();
+        $('.suggestion').mouseleave(function () {
+            $('#file-data').html(currentHTML);
+        });
+
+        // Highlight suggestion text in yellow
+        highlightSuggestionText($(this).text());
+    });
+
+    $('.suggestion-attribute').click(editSuggestion);
 }
 
-
-function getAnnotationSuggestions() {
+function highlightSuggestionText(suggestionText) {
     const openDocId = localStorage.getItem('openDocId');
+    const docText = localStorage.getItem('docText' + openDocId);
+    const updatedHTML = $('#file-data').text(docText).html();
+    const suggestionIndex = updatedHTML.indexOf(suggestionText);
 
-    // Reset suggestion quantity value and display loader
-    document.getElementById('annotation-suggestion-quantity-value').innerText = '';
-    document.getElementById('annotation-suggestion-quantity-loader').style.display = '';
+    // Highlight suggestion in html
+    if (suggestionIndex > -1) { 
+        $('#file-data').html(
+            updatedHTML.substring(0, suggestionIndex) +
+            '<span class="highlighted-suggestion">' + suggestionText + '</span>' +
+            updatedHTML.substring(suggestionIndex + suggestionText.length)
+        );
+    }
+}
 
-    // Get open document text and existing annotations
-    var docText = localStorage.getItem('docText' + openDocId);
-    var docAnnotations = [];
-    for (var i = 0; i < annotationList[openDocId].length; i++) {
-        docAnnotations.push(annotationList[openDocId][i][0][0].split('\t')[2].trim());
+function selectAnnotationText() {
+    // Change colour of text highlighted by the user
+    if (window.getSelection() == '') {
+        resetSelectedText();
+    } else {
+        updatedSelectedText();
+    }
+}
+
+function resetSelectedText() {
+    // Reset session
+    $('#highlighted').replaceWith(function () { return this.innerHTML; });            
+    if ($('#highlighted')[0] != null) {
+        setupSession(isNewSession=false);
+    }
+}
+
+function updatedSelectedText() {
+    // Get selected text and range
+    const selectionText = window.getSelection().toString();
+    const selectionRange = window.getSelection().getRangeAt(0);
+
+    // Get range of text before selection
+    const preSelectionRange = selectionRange.cloneRange();
+    preSelectionRange.selectNodeContents(document.getElementById('file-data'));
+    preSelectionRange.setEnd(selectionRange.startContainer, selectionRange.startOffset);
+
+    // Get length of selection and pre-text (excl. newline chars)
+    const selectionLength = selectionRange.toString().replace(/\n/g, '').length;
+    const preSelectionLength = preSelectionRange.toString().replace(/\n/g, '').length;
+
+    // Colour-highlight selected text
+    document.getElementById('file-data').contentEditable = 'true';
+    document.execCommand('insertHTML', false, '<span id="highlighted">' + selectionText + '</span>');
+    document.getElementById('file-data').contentEditable = 'false';
+
+    bindManualAnnotationEvent(
+        selectionText,
+        selectionLength,
+        preSelectionLength
+    );
+}
+
+function bindManualAnnotationEvent(selectionText, selectionLength, preSelectionLength) {
+    // Reset manual annotation event
+    $('#add-annotation').unbind();
+
+    // Enable adding of manual annotation to selection
+    $('#add-annotation').click({
+        'selectionText': selectionText,
+        'selectionLength': selectionLength,
+        'preSelectionLength': preSelectionLength
+    }, addManualAnnotation);
+}
+
+function addManualAnnotation(event) {
+    // Annotation-specific data
+    const selectionText = event.data.selectionText;
+    const selectionLength = event.data.selectionLength;
+    const preSelectionLength = event.data.preSelectionLength;
+
+    // Check whether selection is valid
+    if (isValidAnnotation(selectionText)) {
+        constructManualAnnotation(selectionText, selectionLength, preSelectionLength);
+        resetAnnotationSelections();
+        setupSession(isNewSession=false);
+    }
+}
+
+function isValidAnnotation(selectionText) {
+    // Check whether a valid span of text has been selected
+    let validSelection = selectionText != null && selectionText.trim() != '';
+
+    // Ensure an entity has been selected
+    let validEntity = false;
+    const entityRadiobuttons = $('input[name=entities]');
+    for (let i = 0; i < entityRadiobuttons.length; i++) {
+        if (entityRadiobuttons[i].checked) {
+            validEntity = true;
+            break;
+        }
+    }
+    // Display error messages
+    if (!validEntity) alert('You must select an entity.');
+    if (!validSelection) alert('You must highlight a span of text.');
+
+    return validEntity && validSelection;
+}
+
+function constructManualAnnotation(selectionText, selectionLength, preSelectionLength) {   
+    const annotation = [];
+
+    // Convert highlight indicies to CRLF / LF indicies
+    const indicies = highlightToTrueIndicies(preSelectionLength, selectionLength);
+    const startIndex = indicies[0];
+    const endIndex = indicies[1];
+
+    // Add formatted entity
+    const formattedEntity = getFormattedEntity(
+        selectionText,
+        startIndex,
+        endIndex
+    );
+    annotation.push([formattedEntity]);
+
+    // Add formatted attributes
+    const formattedAttributes = getFormattedAttributes();
+    for (let i = 0; i < formattedAttributes.length; i++) {
+        annotation.push([formattedAttributes[i]]);
     }
 
-    predictionAjaxRequest = $.ajax({
-        type: 'POST',
-        async: true,
-        url: 'suggest-annotations/',
-        data: { 
-            'docText': docText,
-            'docAnnotations': JSON.stringify(docAnnotations)
-        },
-        success: function (response) {
-            // Hide loader
-            document.getElementById('annotation-suggestion-quantity-loader').style.display = 'none';
+    // Add formatted annotation to global array
+    addFormattedAnnotation(annotation, startIndex);
 
-            // Parse suggestions
-            var suggestions = JSON.parse(response);
+    // TODO feedback manual annoation into models 
+    // updateSuggestionModels(entityValue, selectionText, 'positive');      
+}
 
-            // Hide no suggestion message if suggestion(s) exist
-            if (suggestions.length > 0) {
-                // Display number of suggestions
-                document.getElementById('annotation-suggestion-quantity-value').innerText = suggestions.length + ' annotation suggestions';
+function getFormattedEntity(selectionText, startIndex, endIndex) {
+    // Construct formatted entity
+    const openDocId = localStorage.getItem('openDocId');
+    const id = $('input[type=radio]:checked')[0].id;
+    const entity = id.substring(0, id.length - 6);
+    return `T${entityIds[openDocId]++}\t${entity} ${startIndex} ${endIndex}\t${normaliseText(selectionText)}\n`;
+}
 
-                // Get Prescription highlight color
-                var entityType = 'Prescription';
-                for (var i = 0; i < $('label').length; i++) {
-                    if ($('label')[i].innerText == entityType) {
-                        var highlightColor = colors[$('label')[i].getAttribute('colorIndex')];
-                        break;
-                    }
-                }
+function getFormattedAttributes() {
+    const result = [];
 
-                // Construct and display suggestions
-                for (var i = 0; i < suggestions.length; i++) {
-                    // Construct suggestion container
-                    var suggestionId = 'suggestion-' + i;
-                    var suggestionClass = 'class="annotation displayed-annotation collapsible suggestion"';
-                    var suggestionStyle = 'style="background-color:' + highlightColor + ';'
-                    if (localStorage.getItem('theme') == 'dark') {
-                        suggestionStyle += 'color: #1A1E24;"';
-                    } else {
-                        suggestionStyle += '"'
-                    }
+    // Construct attributes from checkboxes
+    const checkboxes = $('input[type=checkbox]:checked');
+    for (let i = 0; i < checkboxes.length; i++) {
+        const key = checkboxes[i].id;
+        result.push(formatAttribute('checkbox', key));
+    }
 
-                    // Populate collapsible with suggestion attributes
-                    var suggestionAttributes = '';
-                    var contentDiv = '<div for="' + suggestionId + '" class="content" style="background-color: #f1f1f1;"><p>';
-                    for (var key in suggestions[i]) {
-                        if (key != 'sentence' && suggestions[i][key]) {
-                            contentDiv += '<p class="annotation-attribute" onClick="editSuggestion(this);">' + key + ': ' + suggestions[i][key] + '</p>';
-                            suggestionAttributes += ' ' + key + '="' + suggestions[i][key] + '"';
-                        }
-                    }
-                    
-                    // Add accept and reject buttons to collapsible
-                    contentDiv += '<div class="suggestion-option-container"><a suggestion-id=' + suggestionId + ' onClick="rejectSuggestion(this);"><button class="main-button suggestion-button red-button"><i class="fas fa-times"></i></button></a>';
-                    contentDiv += '<a suggestion-id=' + suggestionId + ' onClick="acceptSuggestion(this);"><button class="main-button suggestion-button green-button"><i class="fas fa-check"></i></button></a></div></p></div>'
+    // Construct attributes from dropdowns
+    const attributeDropdowns = $('input[name=values]');
+    for (let i = 0; i < attributeDropdowns.length; i++) {
+        if (attributeDropdowns[i].value != '') {
+            const kv = getKeyValuePair(attributeDropdowns[i]);
+            result.push(formatAttribute('dropdown', kv[0], kv[1]));
+        }
+    }
 
-                    // Add suggestion to display
-                    document.getElementById('annotation-suggestion-list').innerHTML += '<p id=' + suggestionId + ' ' + suggestionClass + ' ' + suggestionStyle + ' ' + suggestionAttributes + '>' + suggestions[i]['sentence'] + '</p>' + contentDiv;
-                }
-            } else {
-                // Reset suggestions
-                document.getElementById('annotation-suggestion-quantity-value').innerText = 'No annotation suggestions';
-                document.getElementById('annotation-suggestion-list').innerText = '';
+    // Construct attributes from ontology mapping
+    const ontologyOption = $('#match-list')[0].options[$('#match-list')[0].selectedIndex];
+    if (isValidOntologyMapping(ontologyOption.text)) {
+        const ontologyCode = ontologyOption.title.split(' ')[1];
+        result.push(formatAttribute('ontology', 'CUIPhrase', ontologyOption.text));
+        result.push(formatAttribute('ontology', 'CUI', ontologyCode));
+    }
+
+    return result;
+}
+
+function formatAttribute(type, key, value=null) {
+    const openDocId = localStorage.getItem('openDocId');
+    if (type == 'checkbox') {
+        return `A${attributeIds[openDocId]++}\t${normaliseText(key)} T${entityIds[openDocId] - 1}\n`;
+    }
+    return `A${attributeIds[openDocId]++}\t${normaliseText(key)} T${entityIds[openDocId] - 1} ${normaliseText(value)}\n`;
+}
+
+function normaliseText(raw) {
+    // Replace spaces with hyphens
+    if (!raw) return null;
+    return raw.split(/<br>|\s|\n/).join('-');
+}
+
+function getKeyValuePair(dropdown) {
+    let pair = dropdown.value.split(': ');
+    if (pair.length == 1) {
+        pair = [dropdown.getAttribute('placeholder'), pair[0]];
+    }
+    return pair;
+}
+
+function isValidOntologyMapping(ontologyText) {
+    const words = ontologyText.split(' ');
+    return !((
+        words[words.length - 2] == 'matches' &&
+        words[words.length - 1] == 'found'
+    ) || ontologyText == 'No match');
+}
+
+function addFormattedAnnotation(annotation, startIndex) {
+    const openDocId = localStorage.getItem('openDocId');
+
+    if (annotations[openDocId].length == 0) {
+        annotations[openDocId].push(annotation);
+    } else {        
+        // Add annotation in order as it appears in doc
+        for (let i = 0; i < annotations[openDocId].length; i++) {
+            if (startIndex < parseInt(annotations[openDocId][i][0][0].split(' ')[1])) {
+                annotations[openDocId].splice(i, 0, annotation);
+                return;
+            }
+
+            if (i == annotations[openDocId].length - 1) {
+                annotations[openDocId].push(annotation);
+                return;
             }
         }
-    }).done(function () {
-        bindCollapsibleEvents();
+    }
+}
+
+function updateSuggestionModels(entityValue, selectionText, classification) {
+    const classLabel = classification == 'positive' ? 1 : 0;
+    if (entityValue.toLowerCase() == 'prescription') {
+        teachActiveLearner(selectionText, classLabel);
+    }
+    // TODO allow more than prescriptions to be added
+    // TODO update RNN
+}
+
+function resetAnnotationSelections() {
+    // Removes selection of newly-annotated text
+    window.getSelection().removeAllRanges();
+
+    // Reset all selections
+    $('input[name=values]').css('display', 'none');
+    $('input[name=values]').val('');
+    $('#config-data')[0].scrollTop = 0;
+    $('#match-list')[0].options.length = 1;
+    $('#match-list')[0].options[0].innerText = 'No match';
+    $('#ontology-search-input-field').val('');
+    removeEntityStyling();
+    activeEntity = '';
+}
+
+function suggestOntologyMapping(event) {
+    // Get relevant matches from defined ontology
+    const queryType = event.data.type;
+    const dropdown = $('#match-list')[0];
+    const inputText = getInputText(queryType);
+
+    // Ignore invalid inputs
+    if (inputText == '' || inputText.split(' ').length > 8) return;
+
+    displayOntologySuggestions(dropdown, inputText);
+}
+
+function getInputText(queryType) {
+    if (queryType == 'highlight') {
+        if (window.getSelection().anchorNode != null)
+            return window.getSelection().anchorNode.textContent.trim();
+    } else {
+        return $('#ontology-search-input-field').val().trim();
+    }
+    return '';
+}
+
+function displayOntologySuggestions(dropdown, inputText) {
+    $.ajax({
+        type: 'GET',
+        url: 'suggest-cui/',
+        async: false,
+        data: {inputText: inputText},
+        success: function (response) {
+            dropdown.options.length = 0;
+            populateOntologyDropdown(JSON.parse(response), dropdown);
+        }
     });
 }
 
+function populateOntologyDropdown(matches, dropdown) {
+    if (matches.length > 0 && matches[0] != '') {
+        // Add match count
+        const count = document.createElement('option');
+        count.text = matches.length + ' matches found';
+        dropdown.add(count);
 
-// Add annotation to annotation list upon acceptance of suggestion
-function acceptSuggestion(event) {
-    var suggestionId = event.getAttribute('suggestion-id');
+        // Add matches
+        for (let i = 0; i < matches.length; i++) {
+            const match = document.createElement('option');
+            match.text = matches[i].split(' :: ')[0];
+            match.title = matches[i].split(' :: ')[1];
+            dropdown.add(match);
+        }
+        return;
+    }
+    // Add default option
+    const option = document.createElement('option');
+    option.text = 'No match';
+    dropdown.add(option);
+}
 
-    // Get accepted annotation
-    var annotation = document.getElementById(suggestionId);
-    // var annotationText = annotation.innerText;
+function updateAnnotationOnHover(id, type) {
+    // Reset brightness of all annotations to 100%
+    resetAnnotationBrightness();
 
-    // Remove collapsible assocaited with accepted annotation
-    for (var i = 0; i < annotation.parentNode.childNodes.length; i++) {
-        if (annotation.parentNode.childNodes[i].getAttribute('for') == suggestionId) {
-            annotation.parentNode.removeChild(annotation.parentNode.childNodes[i]);
+    // Add emphasis to active annotation + display data
+    if (isAnnotationElement(id, type)) {
+        const annotationIndex = id.split('-')[0];
+        updateHoverBrightness(annotationIndex);
+        updateHoverData(id, annotationIndex);
+    }
+}
+
+function resetAnnotationBrightness() {
+    // Get all displayed annotations
+    const inline = $('.inline-annotation');
+    const panel = $('.displayed-annotation');
+    const elements = $.merge(inline, panel);
+
+    // Reset brightness to 100%
+    for (let i = 0; i < elements.length; i++) {
+        elements[i].style.filter = 'brightness(100%)';
+    }
+}
+
+function isAnnotationElement(id, type) {
+    // Check whether the hovered over element is an annotation
+    return !(
+        id == '' || id == type || id == 'highlighted' ||
+        (id.split('-').length > 1 && id.split('-')[1] != 'aid')
+    );
+}
+
+function updateHoverBrightness(annotationIndex) {
+    const id = '#' + annotationIndex;
+    if ($(id) != null && $(id + '-aid') != null) {
+        $(id).css('filter', 'brightness(115%)');
+        $(id + '-aid').css('filter', 'brightness(115%)');
+    }
+}
+
+function updateHoverData(id, annotationIndex) {
+    for (let i = 0; i < offsets.length; i++) {
+        if (offsets[i][0] == annotationIndex) {
+            let title = 'Entity: ' + offsets[i][1] + '\n';
+            for (let j = 0; j < offsets[i][2].length; j++) {
+                title += offsets[i][2][j];
+            }
+            document.getElementById(id).title = title;
+            return;
         }
     }
-    // Remove from suggestion list
-    annotation.parentNode.removeChild(annotation);
+}
 
-    // Select text to annotate
-    window.find(annotation.innerText);
-    changeHighlightedTextColor();
+function resetAnnotationEvents() {
+    $('#file-data').unbind();    
+    $('.collapsible').unbind();
+    $('#annotation-data').unbind();
+    $('#ontology-search-input-field').unbind();
+    $('a[name=nav-element]').unbind();
+    $('.suggestion-attribute').unbind();
+}
 
-    // Set Prescription entity
-    document.getElementById('Prescription-radio').click();
+function removeEntityStyling() {
+    $('.config-label').each(function() {
+        $(this).css({
+            marginLeft: '0',
+            transition : 'margin 300ms'
+        });
+    });
+}
 
-    // Populate Prescription attributes
-    var attributeDropdowns = $('input[name=values]');
-    for (var i = 0; i < attributeDropdowns.length; i++) {
-        if (attributeDropdowns[i].getAttribute('list') == 'DrugNamePrescription') {
-            attributeDropdowns[i].value = annotation.getAttribute('DrugName');
-        } else if (attributeDropdowns[i].getAttribute('list') == 'DrugDosePrescription') {
-            attributeDropdowns[i].value = annotation.getAttribute('DrugDose');
-        } else if (attributeDropdowns[i].getAttribute('list') == 'DoseUnitPrescription') {
-            attributeDropdowns[i].value = annotation.getAttribute('DoseUnit');
-        } else if (attributeDropdowns[i].getAttribute('list') == 'FrequencyPrescription') {
-            attributeDropdowns[i].value = annotation.getAttribute('Frequency');
+function suggestDocumentAnnotations() {
+    // Get open document text and existing annotations
+    const openDocId = localStorage.getItem('openDocId');
+    const docText = localStorage.getItem('docText' + openDocId);
+    const annotationTexts = getAnnotationTexts(openDocId);
+    
+    // Reset list and display loader
+    prepareSuggestionPanel();
+
+    $.ajax({
+        type: 'POST',
+        url: 'suggest-annotations/',
+        data: { 
+            'docText': docText,
+            'annotationTexts': JSON.stringify(annotationTexts)
+        }, success: function (response) {
+            // Ensure open doc is the same as when the suggestion service began
+            if (openDocId == localStorage.getItem('openDocId')) {
+                // Hide loader and add suggestions
+                $('#annotation-suggestion-quantity-loader').css('display', 'none');
+                addSuggestionsToDisplay(JSON.parse(response));
+            }
+        }
+    }).done(function () {
+        // Add events to suggestions 
+        bindAnnotationEvents();
+    });
+}
+
+function prepareSuggestionPanel() {
+    // Reset suggestion quantity value and display loader
+    $('#annotation-suggestion-list').text('');
+    $('#annotation-suggestion-quantity-value').text('');
+    $('#annotation-suggestion-quantity-loader').css('display', '');
+}
+
+function getAnnotationTexts(openDocId) {
+    let annotationTexts = [];
+    for (let i = 0; i < annotations[openDocId].length; i++) {
+        annotationTexts.push(
+            annotations[openDocId][i][0][0].split('\t')[2].trim()
+        );
+    }
+    return annotationTexts;
+}
+
+function addSuggestionsToDisplay(suggestions) {
+    // Display number of suggestions
+    setSuggestionCount(suggestions.length);
+
+    // Construct and display suggestions
+    const entityColor = getEntityColor('Prescription');
+    for (let i = 0; i < suggestions.length; i++) {
+        const target = 'annotation-suggestion-list';
+        const selection = suggestions[i]['sentence'];
+        const annotationId = 'suggestion-' + i;
+        const attributeValues = suggestions[i]['attributes'];
+        injectPanelAnnotation(target, attributeValues, annotationId, selection, entityColor, true);
+    }
+}
+
+function acceptAnnotation(element) {
+    // Get accepted suggestion
+    const suggestionId = $(element).parent().attr('annotation-id');
+    const suggestion = $('#' + suggestionId)[0];
+
+    // Prepare suggestion annotation
+    removeSuggestion(suggestion, suggestionId);
+    selectSuggestionText(suggestion.innerText);
+    selectSuggestionEntity();
+    selectSuggestionAttributes(suggestion);
+    selectSuggestionOntology(suggestion);
+    decrementSuggestionCount();
+
+    // Add suggestion
+    $('#add-annotation').click();
+
+    // Feedback into models
+    updateSuggestionModels('prescription', suggestion.innerText, 'positive');
+}
+
+function removeSuggestion(suggestion, suggestionId) {
+    // Remove collapsible from accepted suggestion
+    const childNodes = suggestion.parentNode.childNodes;
+    for (let i = 0; i < childNodes.length; i++) {
+        if (childNodes[i].getAttribute('for') == suggestionId) {
+            suggestion.parentNode.removeChild(childNodes[i]);
         }
     }
+    // Remove suggestion from list
+    suggestion.parentNode.removeChild(suggestion);
+}
 
+function selectSuggestionText(suggestionText) {
+    window.find(suggestionText);
+    selectAnnotationText();
+}
+
+function selectSuggestionEntity() {
+    $('#Prescription-radio').click();
+    // TODO should be able to predict / select any entity type
+}
+
+function selectSuggestionAttributes(suggestion) {
+    const dropdowns = $('input[name=values]');
+    for (let i = 0; i < dropdowns.length; i++) {
+        const attributeType = dropdowns[i].getAttribute('list');
+        const attributeName = attributeType.slice(0, attributeType.length - 12);
+        
+        if (attributeType.indexOf('Prescription') > -1) {
+            dropdowns[i].value = suggestion.getAttribute(attributeName);
+        }
+    }
+}
+
+function selectSuggestionOntology(suggestion) {
     // Populate ontology dropdown with best matches
-    $('#ontology-search-input-field').val(annotation.getAttribute('CUIPhrase')).trigger('input');
+    $('#ontology-search-input-field').val(suggestion.getAttribute('CUIPhrase')).trigger('input');
 
     // Select best match from ontology dropdown
     if (document.getElementById('match-list').length > 1) {
         document.getElementById('match-list').selectedIndex = 1;
     }
-
-    // Add annotation
-    document.getElementById('add-annotation').click();
-
-    // Update count of annotations in suggestion panel
-    updateSuggestionCount();
-    
-    // Train active learner
-    // teachActiveLearner(annotationText, 1);
 }
 
-
-function editAnnotation(element) {
-    /*
-    const name = $(element).text().split(': ')[0].trim();
-    const value = $(element).text().split(': ')[1].trim();
+function editSuggestion() {
+    const name = $(this).text().split(': ')[0].trim();
+    const value = $(this).text().split(': ')[1].trim();
     const updatedValue = prompt('Updated value (' + name + ')', value);
 
-    if (updatedValue) {
-        $(element).text(name + ': ' + updatedValue);
+    if (updatedValue && updatedValue.trim() != '') {
+        $(this).text(name + ': ' + updatedValue);
     }
 
-    const forId = $(element).parent().attr('for').split('-')[1];
-    const targetId = $('#' + forId).attr('output-id');
-    for (let i = 0; i < annotationList[openDocId].length; i++) {
-        const annotation = annotationList[openDocId][i];
-        const annotationId = annotation[0][0].split('\t')[0];
-        const annotationName = annotation[0][0].split('\t')[1].split(' ')[0];
-
-        if (annotationId == targetId && annotationName == name) {
-            for (let j = 1; j < annotation.length; j++) {
-                let components = annotation[j][0].split('\t');
-                if (name == components[1].split(' ')[0]) {
-                    let subComponents = components[1].split(' ');
-                    subComponents[2] = updatedValue + '\n';
-                    components[1] = subComponents.join(' ');
-                }
-                annotationList[openDocId][i][j] = [components.join('\t')];
-            }
-            updateAnnotationFileURL();
-            break;
-        }
-    }
-    */
-}
-
-function showSuggestionInDocument() {
-    const openDocId = localStorage.getItem('openDocId');
-
-    var currentHTML;
-
-    $('.suggestion').mouseenter(function () {
-        // Hide annotations
-        currentHTML = $('#file-data').html();
-        $('#file-data').text(
-            localStorage.getItem('docText' + openDocId)
-        );
-        let updatedHTML = $('#file-data').html();
-
-        // Get location of suggestion
-        let suggestionText = $(this).text();
-        let index = updatedHTML.indexOf(suggestionText);
-
-        if (index > -1) { 
-            // Construct updated html with highlighted suggestion
-            updatedHTML = (
-                updatedHTML.substring(0, index) +
-                    '<span style="background-color: yellow;">' +
-                    updatedHTML.substring(index, index + suggestionText.length) +
-                    '</span>' +
-                    updatedHTML.substring(index + suggestionText.length)
-            );
-            // Update document
-            $('#file-data').html(updatedHTML);
-        }
-    });
-
-    $('.suggestion').mouseleave(function () {
-        $('#file-data').html(currentHTML);
-    });
-}
-
-
-function editSuggestion(element) {
-    const name = $(element).text().split(': ')[0].trim();
-    const value = $(element).text().split(': ')[1].trim();
-    const updatedValue = prompt('Updated value (' + name + ')', value);
-
-    if (updatedValue) {
-        $(element).text(name + ': ' + updatedValue);
-    }
-
-    const forId = $(element).parent().attr('for');
+    const forId = $(this).parent().attr('for');
     $('#' + forId).attr(name, updatedValue);
 }
 
+function rejectAnnotation(element) {
+    // Get rejected suggestion
+    const suggestionId = $(element).parent().attr('annotation-id');
+    const suggestion = $('#' + suggestionId)[0];;
 
-function rejectSuggestion(element) {
-    var suggestionId = element.getAttribute('suggestion-id');
-
-    // Get rejected annotation
-    var annotation = document.getElementById(suggestionId);
-
-    // Train active learner
-    teachActiveLearner(annotation.innerText, 0);
+    removeSuggestion(suggestion, suggestionId);
+    decrementSuggestionCount();
     
-    // Remove collapsible assocaited with rejected annotation
-    for (var i = 0; i < annotation.parentNode.childNodes.length; i++) {
-        if (annotation.parentNode.childNodes[i].getAttribute('for') == suggestionId) {
-            annotation.parentNode.removeChild(annotation.parentNode.childNodes[i]);
-        }
-    }
-    // Remove rejected annotation
-    annotation.parentNode.removeChild(annotation);
-
-    // Update count of annotations in suggestion panel
-    updateSuggestionCount();
+    // TODO Feedback into models 
+    updateSuggestionModels('prescription', suggestion.innerText, 'negative');
 }
 
+function decrementSuggestionCount() {
+    const quantity = $('#annotation-suggestion-quantity-value').text().split(' ')[0];
+    setSuggestionCount(quantity - 1);
+}
 
-function updateSuggestionCount() {
-    /*
-    Update the count of annotations in
-    suggestion panel upon accepting or 
-    rejecting a suggestion
-    */
-
-    var quantity = document.getElementById('annotation-suggestion-quantity-value').innerText.split(' ')[0];
-    if (quantity - 1 > 0) {
-        if (quantity - 1 == 1) {
-            document.getElementById('annotation-suggestion-quantity-value').innerText = '1 annotation suggestion';
+function setSuggestionCount(quantity) {
+    const quantityElement = $('#annotation-suggestion-quantity-value');
+    if (quantity > 0) {
+        if (quantity == 1) {
+            quantityElement.text('1 annotation suggestion');
         } else {
-            document.getElementById('annotation-suggestion-quantity-value').innerText = quantity - 1 + ' annotation suggestions';
+            quantityElement.text(quantity + ' annotation suggestions');
         }
     } else {
-        document.getElementById('annotation-suggestion-quantity-value').innerText = 'No annotation suggestions';
-        resetSuggestionCollapsible();
+        quantityElement.text('No annotation suggestions');
+        closeSuggestionPanel();
     }
 }
-
 
 function teachActiveLearner(sentence, label) {
     $.ajax({
@@ -1517,40 +1408,64 @@ function teachActiveLearner(sentence, label) {
     });
 }
 
-
-function switchSuggestionPanel() {
-    // Remove suggestions from list
-    document.getElementById('annotation-suggestion-list').innerText = '';
-
-    // Close suggestion collapsible
-    resetSuggestionCollapsible();
-
-    // Abort any ongoing annotation predictions
-    predictionAjaxRequest.abort();
-}
-
-
-function resetSuggestionCollapsible() {
-    /*
-    Close suggestion collapsible if open
-    */
-    var collapsible = $('#annotation-suggestion-quantity');
-    var content = collapsible.next();
+function closeSuggestionPanel() {
+    const collapsible = $('#annotation-suggestion-quantity');
+    const content = collapsible.next();
     collapsible.toggleClass('active');
     content.slideUp(200);
 }
 
-var activeEntity;
-var predictionAjaxRequest;
-var annotationList = [];
-var entityList = [];
-var offsetList = [];
-var entityId = 1;
-var attributeId = 1;
-var highlightText, highlightTextLength, preCaretStringLength;
-var colors = [
-    '#7B68EE', '#FFD700', '#FFA500', '#DC143C', '#FFC0CB', '#00BFFF', '#FFA07A',
-    '#C71585', '#32CD32', '#48D1CC', '#FF6347', '#8FE3B4', '#FF69B4', '#008B8B',
-    '#FF0066', '#0088FF', '#44FF00', '#FF8080', '#E6DAAC', '#FFF0F5', '#FFFACD',
-    '#E6E6FA', '#B22222', '#4169E1', '#C0C0C0', 
-];
+function updateExportDocument() {
+    const output = getAnnotationOutput();
+    storeAnnotationsLocally(output);
+    updateExportUrl(output);
+}
+
+function storeAnnotationsLocally(output) {
+    const openDocId = localStorage.getItem('openDocId');
+    localStorage.setItem('annotationText' + openDocId, output.join(''));
+}
+
+function getAnnotationOutput() {
+    const openDocId = localStorage.getItem('openDocId');
+    const output = [];
+    for (let i = 0; i < annotations[openDocId].length; i++) {
+        if (annotations[openDocId][i].length > 1) {
+            for (let j = 0; j < annotations[openDocId][i].length; j++) {
+                output.push(annotations[openDocId][i][j]);
+            }
+        } else {
+            output.push(annotations[openDocId][i]);
+        }
+    }
+    return output;
+}
+
+function updateExportUrl(output) {
+    const openDocId = localStorage.getItem('openDocId');
+    const docName = localStorage.getItem('docName' + openDocId) + '.ann';
+    const exportButton = document.getElementById('save-annotation-file');
+
+    // Release existing blob url
+    window.URL.revokeObjectURL(exportButton.href);
+
+    // Construct blob file and map to export button
+    const blob = new Blob(output, {type: 'text/plain'});
+    exportButton.href = URL.createObjectURL(blob);
+    exportButton.download = docName;
+}
+
+let entityIds = [];
+let attributeIds = [];
+let annotations = [];
+let offsets = [];
+let entities = [];
+let attributes = [];
+let activeEntity = '';
+let colors = getColors(entities.length);
+
+const ENTITY_TAG = 'T';
+const ATTRIBUTE_TAG = 'A';
+
+// End session if cookies are disabled
+session.validateCookies();
