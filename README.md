@@ -10,7 +10,7 @@ A full-feature version of Markup is available both via website and local install
 
 ### Online
 
-The online version of Markup can be found <a href="https://www.getmarkup.com/">here</a>.
+The online version of Markup can be found <a href="https://www.getmarkup.com/">here</a> (down temporarily).
 
 ### Local Server
 
@@ -24,7 +24,7 @@ Run `docker run samueldobbie/markup` and visit <a href="http://127.0.0.1:8000/">
 
 2. Run `python setup.py` using 64-bit Python3.
 
-3. Visit <a href="http://127.0.0.1:8000/">http://127.0.0.1:8000/</a> and start annotating!
+3. Visit <a href="http://127.0.0.1:8000/">http://127.0.0.1:8000/</a>.
 
 For futher use, the local server can be started directly by running `python manage.py runserver`.
 
