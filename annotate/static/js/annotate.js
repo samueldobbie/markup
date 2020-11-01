@@ -905,14 +905,14 @@ function updatedSelectedText() {
     document.execCommand('insertHTML', false, '<span id="highlighted">' + selectionText + '</span>');
     document.getElementById('file-data').contentEditable = 'false';
 
-    addManualAnnotationEvent(
+    bindManualAnnotationEvent(
         selectionText,
         selectionLength,
         preSelectionLength
     );
 }
 
-function addManualAnnotationEvent(selectionText, selectionLength, preSelectionLength) {
+function bindManualAnnotationEvent(selectionText, selectionLength, preSelectionLength) {
     // Reset manual annotation event
     $('#add-annotation').unbind();
 
@@ -1092,8 +1092,10 @@ function resetAnnotationSelections() {
     // Reset all selections
     $('input[name=values]').css('display', 'none');
     $('input[name=values]').val('');
-    $('#ontology-search-input-field').val('');
     $('#config-data')[0].scrollTop = 0;
+    $('#match-list')[0].options.length = 1;
+    $('#match-list')[0].options[0].innerText = 'No match';
+    $('#ontology-search-input-field').val('');
     removeEntityStyling();
     activeEntity = '';
 }
