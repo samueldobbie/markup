@@ -768,14 +768,14 @@ function highlightToTrueIndicies(preSelectionLength, selectionLength) {
     for (let i = 0; i < docText.length; i++) {
         if (preSelectionLength == 0) {
             while (docText[i] == '\n') {
-                trueStartIndex += lineBreakValue;
+                trueStartIndex++;
                 i++;
             }
 
             trueEndIndex = trueStartIndex;
             while (selectionLength > 0) {
                 if (docText[i] == '\n') {
-                    trueEndIndex += lineBreakValue;
+                    trueEndIndex++;
                 } else {
                     selectionLength--;
                     trueEndIndex++;
@@ -784,7 +784,7 @@ function highlightToTrueIndicies(preSelectionLength, selectionLength) {
             }
             break;
         } else if (docText[i] == '\n') {
-            trueStartIndex += lineBreakValue;
+            trueStartIndex++;
         } else {
             preSelectionLength--;
             trueStartIndex++;
