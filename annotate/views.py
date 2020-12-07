@@ -524,14 +524,17 @@ class Seq2Seq:
 
         return {'sentence': raw_sentence, 'attributes': self.parse_attributes(sequence)}
 
-    def is_valid_prediction(self, input_sequence, output_sequence):
-        drug_name = output_sequence[0].split('dn: ')[1]
-        drug_dose = output_sequence[1].split('dd: ')[1]
+    def is_valid_prediction(self, in_seq, out_seq):
+        if len(out_seq[0].split('dn: ')) <= 1 or len(out_seq[1].split('dd: ')) <= 1:
+            return False
+    
+        drug_name = out_seq[0].split('dn: ')[1]
+        drug_dose = out_seq[1].split('dd: ')[1]
 
         # Ignore suggestions where name / dose not in sentence
-        if len(output_sequence) != 4 or \
-           drug_name not in input_sequence or \
-           drug_dose not in input_sequence:
+        if len(out_seq) != 4 or \
+           drug_name not in in_seq or \
+           drug_dose not in in_seq:
             return False
         return True
 
