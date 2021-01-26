@@ -40,3 +40,23 @@
     border-radius: 1px;
     padding: 0.25px 3px;
 }
+
+.main-button {
+    border-radius: 3px;
+    color: #1A1E24;
+    padding: 5px;
+    margin-top: 5px;
+    outline: none;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0px 0.25px #1A1E24;
+}
+
+.green-button {
+    background-color: #33FFB5;
+}
+
+.option-button-small {
+    min-width: 0;
+}

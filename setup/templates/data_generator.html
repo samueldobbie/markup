@@ -37,6 +37,98 @@
                 </div>
                 <div id="variable-list" class="output-list"></div>
             </div>
+        
+            <!-- <div class="option-container">
+                <p class="option-headline option-item">
+                    UMLS Query
+                    <span class="training-tooltip" title="Select from the drop down menus the critera for your search of the UMLS database.">
+                        <i class="far fa-question-circle"></i>
+                    </span>
+                </p>
+                <div>Search for a String or a Code
+                    <span class="training-tooltip" title="Strings are case insensitive. Codes could be CUIs, ICD10, ICD9, Read Codes or SNOMED CT codes.">
+                        <i class="far fa-question-circle"></i>
+                </div>
+                <div class="option-item">
+                    <select id="Method" class="option-dropdown">
+                        <option value = "String"> String </option>
+                        <option value = "CUI"> CUI </option>
+                        <option value = "CODE"> Other Code </option>
+                    </select>
+                    <input id="variable-string-name" class="option-input-field" style="resize: vertical;" type="text" placeholder="Term to search on">
+                    <input id="variable-CUI-value" class="option-input-field" style="resize: vertical; display: none;" type="text" placeholder="CUI to search for">
+                    <input id="variable-code-value" class="option-input-field" style="resize: vertical; display: none;" type="text" placeholder="Code to search for">
+                    </div>
+                <div> Choose the relationship of the search
+                    <span class="training-tooltip" title="Relationships from the MRREL UMLS table. See documentation for more details.">
+                        <i class="far fa-question-circle"></i>
+                </div>
+                <div class="option-item">
+                    <select id="relationship" class="option-dropdown">
+                        <option value = "exact"> Exact </option>
+                        <option value = "PAR"> Parent </option>
+                        <option value = "CHD"> Child </option>
+                        <option value = "SIB"> Sibling </option>
+                    </select>
+                </div>
+                <div class="option-item">
+                        <label id="submit-query" class="option-button option-button-small"> Submit Query</label>
+                        <select id="displayMethod" class="option-dropdown">
+                            <option value = "Unique"> Unique </option>
+                            <option value = "All"> All </option>
+                        </select>
+                </div>
+                <div id="no-results" style="display: none">
+                    No Results from your query. Please try again.
+                </div>
+                <div class="table-unique" style="display: none" id="table-unique">
+                    <table style="width:100%", border="2", id="umls-display-table", class='display-table'>
+                        <col style="width:100%">
+                        <col style="width:20%">
+                        <tbody>
+                            <tr>
+                                <th>String</th>
+                                <th>CUI</th>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div> Add the Strings as a Variable
+                        <span class="training-tooltip" title="Will add the unique strings as a variable">
+                            <i class="far fa-question-circle"></i>
+                    </div>
+                    <div class="option-item">
+                        <input id="variable-name-unique" class="option-input-field" type="text" placeholder="Name (e.g. dose unit)"></input>
+                       <label id="add-to-variables-unique" class="option-button option-button-small">+ Variable</label>
+                       <label id="clear-table-unique" class="option-button option-button-small"> Clear Table</label>
+                    </div>
+                </div>
+                <div class="table-all" style="display: none", id="table-all">
+                    <table style="width:100%", border="2", id="umls-display-table-all", class='display-table'>
+                        <col style="width:100%">
+                        <col style="width:20%">
+                        <col style="width:20%">
+                        <col style="width:20%">
+                        <tbody>
+                            <tr>
+                                <th>String</th>
+                                <th>CUI</th>
+                                <th>SAB</th>
+                                <th>CODE</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div> Add the Strings as a Variable
+                        <span class="training-tooltip" title="Will add the unique strings as a variable">
+                            <i class="far fa-question-circle"></i>
+                    </div>
+                    <div class="option-item">
+                        <input id="variable-name-all" class="option-input-field" type="text" placeholder="Name (e.g. dose unit)"></input>
+                        <label id="add-to-variables-all" class="option-button option-button-small">+ Variable</label>
+                        <label id="clear-table-all" class="option-button option-button-small"> Clear Table</label>
+                    </div>
+                </div>
+            </div> -->
 
             <div class="option-container">
                 <p class="option-headline option-item">

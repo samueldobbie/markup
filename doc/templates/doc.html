@@ -22,8 +22,9 @@
         </p>
 
         <h3 class="doc-headline">
-            Single Document
+            Single Document <button class="main-button green-button" id="show-hide-single-doc">GIF - Show/Hide</button>
         </h3>
+        <img src="{% static 'SelectSingleDocument.gif' %}" alt="Select Single Document Gif" style="width: 92%; margin: 2%; display: none;" id = "singleGIF">
         <p class="doc-line">
             <b>Required</b>
         </p>
@@ -31,8 +32,9 @@
             <span class="doc-field">Document to annotate</span> - The document you intend to annotate (must have .txt file extension).
         </p>
         <p class="doc-line">
-            <span class="doc-field">Configuration file</span> - Defines all entities and attributes available during annotation. Select an existing configuration file (that has the .conf file extension and is formatted as shown <a class="doc-link" href="http://brat.nlplab.org/configuration.html" target="_blank">here</a>), or create a new one using the <a class="doc-link" href="{% url 'config_creator' %}" target="_blank">in-built config creator</a>.
+            <span class="doc-field">Configuration file</span> - Defines all entities and attributes available during annotation. Select an existing configuration file (that has the .conf file extension and is formatted as shown <a class="doc-link" href="http://brat.nlplab.org/configuration.html" target="_blank">here</a>), or create a new one using the <a class="doc-link" href="{% url 'config_creator' %}" target="_blank">in-built config creator</a>. <button class="main-button green-button" id="show-hide-conf-creator">GIF - Show/Hide</button>
         </p>
+        <img src="{% static 'ConfigCreator.gif' %}" alt="Config Creator Gif" style="width: 92%; margin: 2%; display: none;" id = "confCreatorGIF">
         <p class="doc-line">
             <b>Optional</b>
         </p>
@@ -54,11 +56,12 @@
                 <p>Sodium Valproate <span style="margin-left: 50px;">RANDOM30921</span></p>
                 <p>...</p>
             </div>
-        </span>        
+        </span>
         
         <h3 class="doc-headline">
-            Multiple Documents
+            Multiple Documents <button class="main-button green-button" id="show-hide-mutliple-docs">GIF - Show/Hide</button>
         </h3>
+        <img src="{% static 'SelectMultipleDocuments.gif' %}" alt="Select Multiple Documents Gif" style="width: 92%; margin: 2%; display: none;" id = "multpleDocsGIF">
         <p class="doc-line">
             Opening multiple documents streamlines the annotation process by enabling the navigation, annotation, and exportation of any number of documents during a single session.  
         </p>
@@ -85,8 +88,9 @@
         </p>
 
         <h2 class="doc-headline">
-            Annotation
+            Annotation <button class="main-button green-button" id="show-hide-annotation">GIF - Show/Hide</button>
         </h2>
+        <img src="{% static 'Annotation.gif' %}" alt="Annotating a document Gif" style="width: 92%; margin: 2%; display: none;" id="annotation-gif">
         <p class="doc-line">
             To add an annotation, you must:
             
@@ -110,10 +114,22 @@
         <p class="doc-line">
             Markup allows for unlimited annotation of a single region, thus enabling the capture of complex data.
         </p>
-
         <h2 class="doc-headline">
-            Predictive Annotation Suggestions
+            Data Generation <button class="main-button green-button" id="show-hide-data-gen">GIF - Show/Hide</button>
         </h2>
+        <img src="{% static 'DataGenerator.gif' %}" alt="Generating Data Gif" style="width: 92%; margin: 2%; display: none;" id = "dataGenGIF">
+        <p class="doc-line">
+            <span class="doc-field">Data Generator</span> - Option to create data for machine learning purposes.  <a class="doc-link" href="{% url 'data_generator' %}" target="_blank"> Link here</a>.
+        </p>
+            <ul class="doc-line doc-list">
+                <li><span class="doc-field">Variables</span> - Create variables for the data you wish to generate. Variables can be text values or numeric.</li>
+                <li><span class="doc-field">UMLS Query</span> - After enering a vaid UMLS login, users a capable of searching a UMLS database for terms that can be used as a variable. Terms are first displayed and then can be added as a variable after review. Search UMLS for terms, CUIs or other codes and select the appropriate relationship for the query. Results can be displayed to show only unique terms and CUIs or to also show the source and code from the source.</li>
+                <li><span class="doc-field">Sequence Templates</span> - With the created variables, create templates for the data. Templates can then be exported as a text document.</li>
+            </ul>
+        <h2 class="doc-headline">
+            Predictive Annotation Suggestions <button class="main-button green-button" id="show-hide-predict">GIF - Show/Hide</button>
+        </h2>
+        <img src="{% static 'Prediction.gif' %}" alt="Predicting annotations Gif" style="width: 92%; margin: 2%; display: none;" id = "predictGIF">
         <p class="doc-line">
             Markup functionality includes a novel system to predict and suggest complex annotation using Active and Sequence-to-Sequence learning models.
         </p>

@@ -12,3 +12,4 @@ secretkey.txt
 *.sqlite3
 *.ipynb_checkpoints
 *.zip
+*.sqlite
