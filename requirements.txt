@@ -1,5 +1,5 @@
 tensorflow==2.3.1
-Django==3.1.2
+Django==3.1.6
 Keras==2.4.3
 modAL==0.3.6
 requests==2.24.0
