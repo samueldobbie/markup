@@ -154,23 +154,23 @@ def differentFeatures (sameeverything, original):
     return differentFeatures
 
 
-def differenceDic(dicA, dicB):
-    '''
-    Gets annotations that have same number of features but different feature names or values
-    '''
-    differenceDic = {}
-    difference = {}
-    for annNumber, PreannDic in dicA.items(): 
-        annName1, annStart1, annEnd1, annString1, annDic1 = SortAnnDictionary(PreannDic)
-        for annNumber2, PreannDic2 in dicB.items():
-            annName2, annStart2, annEnd2, annString2, annDic2 = SortAnnDictionary(PreannDic2)
-            if annName1 == annName2: 
-                if (annStart1 >= annStart2 and annStart1 <= annEnd2) or (annStart2 >= annStart1 and annStart2 <= annEnd1): #start 1 between start2 and end 2 or vice versa
-                    diff = DeepDiff(annDic1, annDic2) ## gets any differences
-                    if len(diff) != 0: ## if the output is longer than 0 then must be a difference
-                        differenceDic[annNumber] = PreannDic # gets the dictionary of the difference
-                        difference[annNumber] = diff ## Tells you what the difference is
-    return differenceDic, difference
+# def differenceDic(dicA, dicB):
+#     '''
+#     Gets annotations that have same number of features but different feature names or values
+#     '''
+#     differenceDic = {}
+#     difference = {}
+#     for annNumber, PreannDic in dicA.items(): 
+#         annName1, annStart1, annEnd1, annString1, annDic1 = SortAnnDictionary(PreannDic)
+#         for annNumber2, PreannDic2 in dicB.items():
+#             annName2, annStart2, annEnd2, annString2, annDic2 = SortAnnDictionary(PreannDic2)
+#             if annName1 == annName2: 
+#                 if (annStart1 >= annStart2 and annStart1 <= annEnd2) or (annStart2 >= annStart1 and annStart2 <= annEnd1): #start 1 between start2 and end 2 or vice versa
+#                     diff = DeepDiff(annDic1, annDic2) ## gets any differences
+#                     if len(diff) != 0: ## if the output is longer than 0 then must be a difference
+#                         differenceDic[annNumber] = PreannDic # gets the dictionary of the difference
+#                         difference[annNumber] = diff ## Tells you what the difference is
+#     return differenceDic, difference
 
 ## this will be used to look at only different annotations in markup
 def dicToAnnFile(dic):
@@ -216,6 +216,45 @@ def f1Score(precision, recall):
         f1Score1 = (2 * precision * recall)/(precision + recall)
     return round(f1Score1,4)
 
+
+def changeDicKeys(dic, str):
+    '''
+    Input a dictionary and a string - this will add the string to each of the dictionaries keys
+    For when needed to combine the dictionaries to create a unique set
+    '''
+    keys = []
+    dic2 = {}
+    for x in dic.keys():
+        keys.append(x)
+    for key in keys:
+        dic2[key + str] = dic.pop(key)
+    return dic2
+
+
+def getPe(dicA, dicB, dicC):
+    '''
+    From the towards data science article. Calculates Pe for Cohen's Kappa
+    '''
+    Pe = 0
+    for annNumber, PreannDic in dicA.items(): ## Get all the items in the Uniq (All) Annotation Dictionary 
+        annName1, annStart1, annEnd1, annString1, annDic1 = SortAnnDictionary(PreannDic)
+        cnt1 = 0
+        cnt2 = 0
+        for annNumber2, PreannDic2 in dicB.items(): ## Get alll items in Letter 1
+            annName2, annStart2, annEnd2, annString2, annDic2 = SortAnnDictionary(PreannDic2)
+            if annName1 == annName2: 
+                if (annStart1 >= annStart2 and annStart1 <= annEnd2) or (annStart2 >= annStart1 and annStart2 <= annEnd1): #start 1 between start2 and end 2 or vice versa
+                    if annDic1 == annDic2:## If the dictionaries are idential then its a match
+                        cnt1 += 1 ## If the item from the unique set is also in letter 1 add to the count
+        for annNumber3, PreannDic3 in dicC.items(): ## Get alll items in Letter 1
+            annName3, annStart3, annEnd3, annString3, annDic3 = SortAnnDictionary(PreannDic3)
+            if annName1 == annName3: 
+                if (annStart1 >= annStart3 and annStart1 <= annEnd3) or (annStart3 >= annStart1 and annStart3 <= annEnd1): #start 1 between start2 and end 2 or vice versa
+                    if annDic1 == annDic3:## If the dictionaries are idential then its a match
+                        cnt2 += 1 ## If the item from the unique set is also in letter 1 add to the count
+        count = (cnt1/len(dicB)) * (cnt2/len(dicC)) ## Same sum that is done in the article 
+        Pe = Pe + count ## Add to Pe (called E in article)
+    return Pe
 
 
 def runEverything(request):
@@ -274,17 +313,56 @@ def runEverything(request):
         TP = len(sameEverything1)
     else:
         TP = len(sameEverything2)
-    ## TP = len(sameEverything1)## True Positive = number of annotations that are in both i.e length of sameEverything1
 
 
     FP = len(letterDic2) - TP ## False Positives = number of annotaions that are only in second set i.e. length of second set - length of TP
     FN = len(letterDic) - TP ## False Negatives = number of annotaions that are only in first set i.e. length of first set - length of TP
 
 
-    precision1 = precision(TP, FP)
-    recall1 = recall(TP, FN)
+    if len(letterDic) > 0 and len(letterDic2) > 0: ##
+        precision1 = precision(TP, FP)
+        recall1 = recall(TP, FN)
+    else:
+        precision1 = 0
+        recall1 = 0
+
     f1Score1 = f1Score(precision1, recall1)
-    results = [precision1, recall1, f1Score1]
+
+    ## Change keys of dictionaries so can be added to a total set
+    differentAnnotations = changeDicKeys(differentAnnotations, "a")
+    differentAnnotations2 = changeDicKeys(differentAnnotations2, "b")
+
+    ## Create the all annots dictionary
+    AllAnnots = {}
+    AllAnnots.update(sameEverything1)
+    AllAnnots.update(differentAnnotations)
+    AllAnnots.update(differentAnnotations2)
+
+
+    ## Cohen's Kappa Stuff
+    ## Po in Towards Data Science is number of times A is Equal to B over length of A (or number of true positives over length of A)
+    if len(letterDic) > 0:
+        Po = TP/len(letterDic)
+    else:
+        Po = 0
+    
+    ## Pe calculated - Letter 2 is null then Pe1 = N/A
+    if len(letterDic2) > 0 and len(letterDic) > 0:
+        Pe1 = getPe(AllAnnots, letterDic, letterDic2)
+    else:
+        Pe1 = 'N/A'
+    
+
+    ## Cohen's Kappa calculation
+    ## Pe1 - Po = 0, and therefore cant devide by 0 - this happens if you have one annotation that matched and one of the .ann files has an extra annotation 
+    if Pe1 == Po:
+        CohensKappa = 'N/A'
+    elif Pe1 == 'N/A':
+        CohensKappa = 'N/A'
+    else:
+        CohensKappa = round((Po-Pe1)/(1-Pe1),4)
+
+    results = [precision1, recall1, f1Score1, CohensKappa]
     # return precision1, recall1, f1Score1
     return HttpResponse(json.dumps(results))
 
