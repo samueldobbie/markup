@@ -70,7 +70,8 @@ const session = {
 
     clearLocalStorage() {
         // Clear all non-theme storage items
-        if (window.location.href.indexOf('annotate') == -1) {
+        // Huw EDIT TO ADD COMPARE ANNOTATION PAGE similar to when going from setup to annotate
+        if (window.location.href.indexOf('annotate') == -1 && window.location.href.indexOf('iaa') == -1) {
             const displayMode = localStorage.getItem('theme');
             localStorage.clear();
             if (displayMode) {
