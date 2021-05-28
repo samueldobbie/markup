@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    {% load static %}
+    <title>Documentation - Markup</title>
+    <link href="{% static 'css/third-party/simpletooltip.min.css' %}" rel="stylesheet" media="screen" />
+    <link href="{% static 'css/compare.css' %}" rel="stylesheet" />
+    <script src="{% static 'js/compare.js' %}"></script>
+    <script src="{% static 'js/third-party/simpletooltip.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="setup-panel">
+            <div class="option-container option-file-container" complete="false" id="config-file-opener-container">
+                <p class="option-headline option-item">
+                    <span style="color: red;">* </span>
+                    Select Configuration File
+                    <span class="setup-tooltip" title="The configuration file that defines available entities and attributes (must be .conf file).">
+                        <i class="far fa-question-circle"></i>
+                    </span>
+                </p>
+                <div class="option-item">
+                    <label for="config-file-opener" class="option-button option-button-small">Select</label>
+                    <input id="config-file-opener" type="file" accept=".conf" style="display: none;">
+                </div>
+            </div>
+            <div id="folder-selection-container-1">
+                <div class="option-container option-folder-container-1" complete="false" id="folder-file-opener-container-1">
+                    <p class="option-headline option-item-1">
+                        <span style="color: red;">* </span>
+                        Select First Annotations
+                        <span class="setup-tooltip" title="The folder containing the configuration file, documents to annotate, and existing annotations (if applicable). See documentation for required folder structure.">
+                            <i class="far fa-question-circle"></i>
+                        </span>
+                    </p>
+                    <div class="option-item">
+                        <label for="folder-file-opener-1" class="option-button option-button-small">Select</label>
+                        <input id="folder-file-opener-1" style="display: none;" type="file" webkitdirectory mozdirectory multiple>
+                        <span id="folder-file-name-1"></span>
+                    </div>
+                </div>
+            </div>
+            <div id="folder-selection-container-2">
+                <div class="option-container option-folder-container-2" complete="false" id="folder-file-opener-container-2">
+                    <p class="option-headline option-item-2">
+                        <span style="color: red;">* </span>
+                        Select Second Annotations
+                        <span class="setup-tooltip" title="The folder containing the configuration file, documents to annotate, and existing annotations (if applicable). See documentation for required folder structure.">
+                            <i class="far fa-question-circle"></i>
+                        </span>
+                    </p>
+                    <div class="option-item">
+                        <label for="folder-file-opener-2" class="option-button option-button-small">Select</label>
+                        <input id="folder-file-opener-2" style="display: none;" type="file" webkitdirectory mozdirectory multiple>
+                        <span id="folder-file-name-2"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="completed-option-container">
+                <button id="start-comparing" class="option-button">Compare</button>
+                <!-- <a href="{% url 'iaa' %}" style="text-decoration: none;"><label class="option-button option-button-small">Compare</label></a> -->
+             </div>
+        </div>
+    </div>
+{% endblock %}
