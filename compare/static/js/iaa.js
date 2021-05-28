@@ -401,11 +401,11 @@ function IAA() {
         $('#precision').empty()
         $('#recall').empty()
         $('#f1Score').empty()
-        $('#cohensKappa').empty()
+        // $('#cohensKappa').empty()
         $('#precision').append('<div id = "precision-score">Precision = N/A <div/>');
         $('#recall').append('<div id = "recall-score">Recall = N/A <div/>');
         $('#f1Score').append('<div id = "f1Score-score">F1-Score = N/A <div/>');
-        $('#cohensKappa').append('<div id = "CohensKappa-score">Cohen\'s Kappa = N/A <div/>');
+        // $('#cohensKappa').append('<div id = "CohensKappa-score">Cohen\'s Kappa = N/A <div/>');
     } else {
         $.ajax({
             type: 'POST',
@@ -433,11 +433,11 @@ function addIAAtoDisplay(results) {
     $('#precision').empty()
     $('#recall').empty()
     $('#f1Score').empty()
-    $('#cohensKappa').empty()
+    // $('#cohensKappa').empty()
     $('#precision').append('<div id = "precision-score">Precision = ' + precision +'<div/>');
     $('#recall').append('<div id = "recall-score">Recall = ' + recall +'<div/>');
     $('#f1Score').append('<div id = "f1Score-score">F1-Score = ' + f1Score + '<div/>');
-    $('#cohensKappa').append('<div id = "CohensKappa-score">Cohen\'s Kappa = ' + cohensKappa + '<div/>');
+    // $('#cohensKappa').append('<div id = "CohensKappa-score">Cohen\'s Kappa = ' + cohensKappa + '<div/>');
     
 }
 
