@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    {% load static %}
+    <title>Documentation - Markup</title>
+    <link href="{% static 'css/third-party/simpletooltip.min.css' %}" rel="stylesheet" media="screen" />
+    <link href="{% static 'css/iaa.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/third-party/perfect-scrollbar.css' %}" rel="stylesheet" />
+    <script src="{% static 'js/iaa.js' %}"></script>
+    <script src="{% static 'js/third-party/simpletooltip.min.js' %}"></script>
+    <script src="{% static 'js/third-party/perfect-scrollbar.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div id="config-data" class="item item-1 standard-text unselectable" style="display: none;">
+        <div id="config-data-options">
+            <div id="entities"></div>
+        
+            <div id="attributes">
+                <div id="attribute-checkboxes"></div>
+                <div id="attribute-dropdowns"></div>
+            </div>
+
+            <div id="settings">
+                <br>
+                <select id="match-list" class="dropdown">
+                    <option>No match</option>
+                </select>
+                <br>
+                <input id="ontology-search-input-field" class="input-field" placeholder="Search ontology"/>
+                <br><br>
+                <button id="add-annotation" class="main-button green-button">+ Annotation</button>
+                <a id="save-annotation-file"><button id="add-annotation" class="main-button gray-button">Export</button></a>
+            </div>
+        </div>
+    </div>
+
+    <div id="file-data-1" class="item item-2 standard-text" style="max-width: 39.5%; padding-right: 0px;"></div>
+        
+    <div id="file-data-2" class="item item-2 standard-text" style="max-width: 39.5%; padding-right: 0px;"></div>
+
+    <div id="annotation-data" class="item item-1 standard-text unselectable">
+        <div id="IAA" class="IAA" style="text-align: center;width: 100%;">
+
+            <div id="precision"></div>
+    
+            <div id="recall"></div>
+            
+            <div id="f1Score"></div>
+        </div>  
+        <!-- <div id="annotation-data-file1" class="item item-1 standard-text unselectable">Annotator 1</div> -->
+
+        <!-- <div id="annotation-data-file2" class="item item-1 standard-text unselectable">Annotator 2</div> -->
+
+    </div>
+</div>
+{% endblock %}
