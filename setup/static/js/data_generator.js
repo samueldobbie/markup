@@ -20,13 +20,52 @@ $(document).ready(function () {
         $('#config-entity').append('<option value = "" selected="selected" disabled="disabled"> Entities </option>'); //Add default value of 'Entities'
         $("#config-feature option").remove();//delete past features from old conf file if there
         $('#config-feature').append('<option value = "" selected="selected" disabled="disabled"> Features </option>');//Add default value of 'Features'
-        $('#config-entity-2').show();//Show the second Entities drop down
-        $('#config-feature-2').hide();//Hide second features (for when loading different conf file)
+        // $('#config-entity-2').show();//Show the second Entities drop down
+        // $('#config-feature-2').hide();//Hide second features (for when loading different conf file)
         $("#config-entity-2 option").remove();//delete past entities from old conf file if there
         $('#config-entity-2').append('<option value = "" selected="selected" disabled="disabled"> Entities </option>'); //Add default value of 'Entities'
         $("#config-feature-2 option").remove();//delete past features from old conf file if there
         $('#config-feature-2').append('<option value = "" selected="selected" disabled="disabled"> Features </option>');//Add default value of 'Features'
 
+    });
+
+    $('#variables-to-add-dropdown').change(function() {
+        if ($(this).val() == 'placeholder') {
+            $('#config-option-items2').css('display', 'none');
+            $('#other-option-items').css('display', 'none');
+            $('#config-entity-2').css('display', 'none');
+            $('#config-feature-2').css('display', 'none');
+            $('#add-conf-to-sequence').css('display', 'none');
+            $('#add-to-input').css('display', 'none');
+            $('#add-to-target').css('display', 'none');
+            $('#add-other-to-sequence').css('display', 'none');
+            $('#add-to-input-other').css('display', 'none');
+            $('#add-to-target-other').css('display', 'none');
+        } else if ($(this).val() == 'other') {
+            $('#config-option-items2').css('display', 'none');
+            $('#config-entity-2').css('display', 'none');
+            $('#config-feature-2').css('display', 'none');
+            $('#other-option-items').css('display', 'block');
+            $('#other-variable').css('display', 'block');
+            $('#add-conf-to-sequence').css('display', 'none');
+            $('#add-to-input').css('display', 'none');
+            $('#add-to-target').css('display', 'none');
+            $('#add-other-to-sequence').css('display', 'block');
+            $('#add-to-input-other').show();
+            $('#add-to-target-other').show();
+        } else {
+            $('#config-option-items2').css('display', 'block');
+            $('#config-entity-2').css('display', 'block');
+            $('#config-feature-2').css('display', 'block');
+            $('#other-option-items').css('display', 'none');
+            $('#other-variable').css('display', 'none');
+            $('#add-conf-to-sequence').css('display', 'block');
+            $('#add-to-input').show();
+            $('#add-to-target').show();
+            $('#add-other-to-sequence').css('display', 'none');
+            $('#add-to-input-other').css('display', 'none');
+            $('#add-to-target-other').css('display', 'none');
+        }
     });
 
     $('#config-entity').click(function() {
@@ -86,26 +125,34 @@ $(document).ready(function () {
     $('#config-entity-2').click(function() {
         if (document.getElementById("config-entity-2").value == "") {//If empty i.e first time opening
             $("#config-entity-2 option").remove();// clear them when clicking
-            const configs = parseConfigs();//get entities and attributes from config
-            entities = configs[0];//get entitises 
-            attributes = parseAttributeValues(configs[1]); //get attributes
-            for (let i = 0; i < entities.length; i++) {//adding in the entities to the drop down
-                value = entities[i]
-                newEntity = "<option value = " + value + "> " + value + " </option>"
-                $('#config-entity-2').append(newEntity);
-                attributesSave = [];//Creating localStorage for entities with each of its features 
-                for (let j = 0; j < attributes.length; j++) {
-                    attributeEntity = attributes[j][1];
-                    attribute = attributes[j][0];
-                    if (attributeEntity == value) {
-                        attributesSave.push(attribute);
+            if ("configText" in localStorage) {
+                const configs = parseConfigs();//get entities and attributes from config
+                entities = configs[0];//get entitises 
+                attributes = parseAttributeValues(configs[1]); //get attributes
+                for (let i = 0; i < entities.length; i++) {//adding in the entities to the drop down
+                    value = entities[i]
+                    newEntity = "<option value = " + value + "> " + value + " </option>"
+                    $('#config-entity-2').append(newEntity);
+                    attributesSave = [];//Creating localStorage for entities with each of its features 
+                    for (let j = 0; j < attributes.length; j++) {
+                        attributeEntity = attributes[j][1];
+                        attribute = attributes[j][0];
+                        if (attributeEntity == value) {
+                            attributesSave.push(attribute);
+                        };
                     };
+                    localStorage.setItem(value, attributesSave);
                 };
-                localStorage.setItem(value, attributesSave);
-            };
-            $('#config-feature-2').show();//just show the features and remove any old values
-            $("#config-feature-2 option").remove();
-            $('#config-feature-2').append('<option value = "" selected="selected" disabled="disabled"> Features </option>');//Add default value of 'Features'
+                $('#config-feature-2').show();//just show the features and remove any old values
+                $("#config-feature-2 option").remove();
+                $('#config-feature-2').append('<option value = "" selected="selected" disabled="disabled"> Features </option>');//Add default value of 'Features'
+            } else {
+                $('#config-feature-2').hide();//just show the features and remove any old values
+                $("#config-feature-2 option").remove();
+                $('#config-feature-2').append('<option value = "" selected="selected" disabled="disabled"> Features </option>');//Add default value of 'Features'
+                $('#config-entity-2').append('<option value = "no-Conf" selected="selected" disabled="disabled"> No Config File Loaded </option>');
+                $('#config-feature-2').append('<option value = "no-Conf" disabled="disabled"> No Config File Loaded </option>');//Add default value of 'Features'
+            }
         } else {
             $('#config-feature-2').show();//just show the features and remove any old values
             $("#config-feature-2 option").remove();
@@ -125,10 +172,12 @@ $(document).ready(function () {
                 $('#config-feature-2').append(newEntity);
                 };                
             $('#config-feature-2').show();
+            $('#add-conf-to-sequence').show();
             $('#add-to-input').show();
             $('#add-to-target').show();
         } else {
             $('#config-feature-2').show();//just show the features and remove any old values if its already been populated
+            $('#add-conf-to-sequence').show();
             $('#add-to-input').show();
             $('#add-to-target').show();
         }
@@ -143,6 +192,18 @@ $(document).ready(function () {
     $('#add-to-target').click(function() {
         value = document.getElementById('template-target').value;
         feature = document.getElementById('config-feature-2').value;
+        document.getElementById('template-target').value = value + feature + " :${" + feature + "};";
+    });
+
+    $('#add-to-input-other').click(function() {
+        value = document.getElementById('template-input').value;
+        feature = document.getElementById('other-variable').value;
+        document.getElementById('template-input').value = value + "${" + feature + "}";
+    });
+
+    $('#add-to-target-other').click(function() {
+        value = document.getElementById('template-target').value;
+        feature = document.getElementById('other-variable').value;
         document.getElementById('template-target').value = value + feature + " :${" + feature + "};";
     });
 
@@ -195,6 +256,14 @@ $(document).ready(function () {
         $('#variable-list').append(
             form.constructElement(variable.name, 'variable')
         );
+
+        // Add to dropdown
+
+        let variableToAdd = document.getElementById('variable-name').value;
+        newVariable = "<option value = " + variableToAdd + " id = dropdown-" + variableToAdd +"> " + variableToAdd + " </option>";
+        $('#other-variable').append(newVariable);
+        //$('#other-variable').css('display', 'block');
+
 
         // Add variable to existing and output lists
         form.existingVariables.push(variable.name);
@@ -373,7 +442,7 @@ $(document).ready(function () {
 
         // Clear input fields and enable deletion
         form.clearVariableFields();
-        form.bindEvents();
+        //form.bindEvents();
         UMLS.clearUMLSUniqueTable();
         
     });
@@ -406,7 +475,7 @@ $(document).ready(function () {
 
         // Clear input fields and enable deletion
         form.clearVariableFields();
-        form.bindEvents();
+        //form.bindEvents();
         UMLS.clearUMLSAllTable();
         
     });
@@ -908,20 +977,47 @@ const form = {
 
     bindEvents() {
         // Enable deletion of added elements
-        $('.added-element').click(function () {
+        // ONE CLICK RUNS TWICE?? FIX WITH .stopPropagation();?
+        // One click runs as many times as you have variab  s
+        // two variables = 2 runs
+        // Three variables = 3 runs
+        // but values of text and type remain the variable you clicked
+        // FIXED WITH if existing Variables incluced text
+        $('.added-element').click(function (e) {
             const text = $(this).text();
             const type = $(this).attr('type');
-    
+
             // Remove from output list
             if (type == 'variable') {
+                // NOT HIDING ANYMORE IF ITS GOT NO VALUES IN IT
+                // Remove from dropdown if still a variable (so only runs once)
+                // if (form.existingVariables.includes(text)) { 
+                //     form.removeFromDropDown(text);
+                // }
                 form.variables.splice(form.existingVariables.indexOf(text), 1);
                 form.existingVariables.splice(form.existingVariables.indexOf(text), 1);
+                form.removeFromDropDown(text);
             } else {
                 form.templates.splice(form.templates.indexOf(text), 1);
             }
             // Remove from display list
             $(this).remove();
         });
+    },
+
+    removeFromDropDown(text) {
+        // if ($('#other-variable option').length > 2) {
+        //     $('#other-variable option[value='+ text +']').remove();
+        // } else {
+        //     $('#other-variable option[value='+ text +']').remove();
+        //     $('#other-variable option[value="placeholder"]').remove();
+        //     $('#other-variable').append('<option value = "placeholder" selected="selected" disabled="disabled"> Other Variables </option>');
+        //     $('#other-variable').css('display', 'none');
+        // }
+        // NOT HIDING ANYMORE IF ITS GOT NO VALUES IN IT - SO JUST DELETING IS FINE
+        $('#other-variable option[value='+ text +']').remove();
+        $('#other-variable option[value="placeholder"]').remove();
+        $('#other-variable').append('<option value = "placeholder" selected="selected" disabled="disabled"> Other Variables </option>');
     },
 
     updateExportUrl() {

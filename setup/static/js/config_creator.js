@@ -33,7 +33,8 @@ function addEntity() {
                 'background-color': colors.pop()
             }
         }).appendTo('#entity-list');
-        
+        // TODO add to drop down
+        addToEntityDropDown();
         updateExportUrl();
         bindEvents();
     }
@@ -78,6 +79,12 @@ function addAttribute() {
     }
 
     resetInputForms('attribute');
+}
+
+function addToEntityDropDown() {
+    let entityToAdd = document.getElementById('entity-name').value;
+    newEntity = "<option value = " + entityToAdd + " id = dropdown-" + entityToAdd +"> " + entityToAdd + " </option>";
+    $('#attribute-relation').append(newEntity);
 }
 
 function updateExportUrl() {
@@ -145,6 +152,8 @@ function removeEntity(element, elementText) {
             break;
         }
     }
+    // remove entity from drop down
+    removeFromDropDown(elementText);
     // Remove attributes that relate to selected entity
     removeRelatedAttributes(elementText);
 
@@ -152,6 +161,16 @@ function removeEntity(element, elementText) {
     $('span[attribute-for=' + elementText + ']').each(function () {
         $(this).remove();
     });
+}
+
+function removeFromDropDown(elementText) {
+    let elementText2 = elementText.split('\n')[0];
+    let elementToRemove = '#attribute-relation option[value='+ elementText2 +']';
+    // Removing the placeholder then re-adding refreshes it as the default value after deleting
+    // Before, if selected a option then deleted - it became a blank box
+    $('#attribute-relation option[value="placeholder"]').remove();
+    $(elementToRemove).remove();
+    $('#attribute-relation').append('<option disabled hidden selected value="placeholder">Related entity (e.g. Seizure)</option>');
 }
 
 function removeAttribute(elementText) {

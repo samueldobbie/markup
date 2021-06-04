@@ -167,10 +167,14 @@
                         <i class="far fa-question-circle"></i>
                     </span>
                 </p>
-                <!-- <label for="config-file-opener" class="option-button option-button-small" id='config-file'>Select A Config File</label>
-                <input id="config-file-opener" type="file" accept=".conf" style="display: none;"></input>
-                <div></div> -->
-                <div class="config-option-items" style="padding-top: 5px;" id="config-option-items-2">
+                <div class="variables-to-add-dropdown" style="padding-top: 5px; display: block;" id="config-option-items-2">
+                    <select id="variables-to-add-dropdown" class="option-dropdown option-item">
+                        <option value = "placeholder" selected="selected" disabled="disabled">Select Variable</option>
+                        <option value="config">From Configuration File</option>
+                        <option value="other">Added Personally</option>
+                    </select>
+                </div>
+                <div class="config-option-items2" style="padding-top: 5px; display: block;" id="config-option-items-2">
                     <select id="config-entity-2" class="option-dropdown" style="display: none;">
                         <option value = "" selected="selected" disabled="disabled"> Entities </option>
                     </select>
@@ -178,9 +182,18 @@
                         <option value = "" selected="selected" disabled="disabled"> Features </option>
                     </select>
                 </div>
-                <div class="add-conf-to-sequence" style="padding-top: 5px;" id="add-conf-to-sequence">    
-                    <label id="add-to-input" class="option-button option-button-small" style="display: none;"> Add Feature to Input</label>
-                    <label id="add-to-target" class="option-button option-button-small" style="display: none;"> Add Feature to Target</label>
+                <div class="add-conf-to-sequence" style="padding-top: 5px; display: none;" id="add-conf-to-sequence">    
+                    <label id="add-to-input" class="option-button option-button-small" style="display: none;"> Add to Input</label>
+                    <label id="add-to-target" class="option-button option-button-small" style="display: none;"> Add to Target</label>
+                </div>
+                <div class="other-option-items" style="padding-top: 5px; display: block;" id="other-option-items-2">
+                    <select id="other-variable" class="option-dropdown" style="display: none;">
+                        <option value = "placeholder" selected="selected" disabled="disabled"> Select Variables </option>
+                    </select>
+                </div>
+                <div class="add-other-to-sequence" style="padding-top: 5px; display: none;" id="add-other-to-sequence">    
+                    <label id="add-to-input-other" class="option-button option-button-small" style="display: none;"> Add to Input</label>
+                    <label id="add-to-target-other" class="option-button option-button-small" style="display: none;"> Add to Target</label>
                 </div>
                 <div class="option-item">
                     <textarea id="template-input" class="option-input-field" style="resize: vertical;" placeholder="Input sequence (e.g. She is taking ${drug dose} ${dose unit} of ${drug name}.)"></textarea>
