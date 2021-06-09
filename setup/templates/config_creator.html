@@ -37,8 +37,17 @@
                 <div class="option-item">
                     <input id="attribute-name" class="option-input-field" type="text" placeholder="Attribute name (e.g. SeizureFrequency)">
                 </div>
-                <div class="option-item">
-                    <input id="attribute-relation" class="option-input-field" type="text" placeholder="Related entity (e.g. Seizure)">
+                <!-- <div class="option-item"> 
+                    <input id="attribute-relation2" class="option-input-field" type="text" placeholder="Related entity (e.g. Seizure)">
+                </div> -->
+                <div class="option-item"> 
+                    <!-- Change a bit here to create a dropdown with values added from entities -->
+                    <select id="attribute-relation" class="option-dropdown">
+                        <!-- <optgroup label="Related entity (e.g. Seizure)"> -->
+                        <option disabled hidden selected value="placeholder">Related entity (e.g. Seizure)</option>
+                        <!-- </optgroup> -->
+                        <!-- TODO - MAKE THIS SLIGHTY FADED LIKE THE PLACEHOLDERS -->
+                    </select>
                 </div>
                 <div class="option-item">
                     <input id="attribute-dropdown" class="option-input-field" type="text" placeholder="Dropdown values (e.g. Daily, Weekly, Monthly)">

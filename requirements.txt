@@ -5,3 +5,4 @@ modAL==0.3.6
 requests==2.24.0
 simstring-pure==1.0.0
 StringDist==1.0.9
+deepdiff==5.5.0

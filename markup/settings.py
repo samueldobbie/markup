@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "doc",
     "home",
     "setup",
+    "compare",
 ]
 
 MIDDLEWARE = [
