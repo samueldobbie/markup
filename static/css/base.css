@@ -25,9 +25,9 @@ html {
 }
 
 html[data-theme='dark'] {
-    --background-primary: #2b2a2a;
-    --background-secondary: rgb(70, 70, 70);
-    --background-secondary-alt: rgb(80, 80, 80);
+    --background-primary: #181818;
+    --background-secondary: rgb(39, 39, 39);
+    --background-secondary-alt: rgb(59, 59, 59);
     --background-inverse: #f5f5f5;
     --color-primary: rgb(228, 228, 228);
 }
@@ -67,14 +67,53 @@ nav {
     display: block;
     color: var(--color-primary);
     font-size: 13px;
-    line-height: 10vh;
     margin-left: 2%;
+    margin-top: 3%;
+}
+
+.nav-item-github {
+    margin-top: 2.5%;
+    text-transform: none;
+}
+
+.nav-item-github:hover {
+    transform: scale(1.05)
 }
 
 .nav-item-arrow {
     font-size: 20px;
     color: #33FFB5;
     text-shadow: 0px 1px 1px #1A1E24;
+}
+  
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.nav-dropdown-content {
+    margin-top: 12.5px;
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+  
+.nav-dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+  
+.nav-dropdown-content a:hover {
+    background-color: #ddd;
+}
+  
+.nav-dropdown-visible {
+    display: block;
 }
 
 .option-button {

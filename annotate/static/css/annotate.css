@@ -30,6 +30,7 @@
 
 .container {
   display: flex;
+  padding: 1.5% 3.5%;
 }
 
 .item {
@@ -242,4 +243,21 @@ input[type=radio] {
   padding-bottom: 5%;
   text-align: center;
   font-weight: bold;
+  margin-top: 0;
+}
+
+.navigation-panel {
+  text-align: center;
+  margin-bottom: 5%;
+}
+
+.nav-item-arrow {
+  margin: 5px;
+  cursor: pointer;
+}
+
+#switch-file-dropdown {
+  width: 40%;
+  font-size: 16px;
+  margin: 22px;
 }

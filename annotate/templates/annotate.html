@@ -34,7 +34,17 @@
             </div>
         </div>
 
-        <div id="file-data" class="item item-2 standard-text"></div>
+        <div id="file-data-container" class="item item-2 unselectable">
+            <div class="navigation-panel">
+                <span id="move-to-first-file" class="nav-item-arrow" style="display: none;"><a><<</a></span>
+                <span id="move-to-previous-file" class="nav-item-arrow" style="display: none;"><a><</a></span>
+                <span id="switch-file" style="display: none;"><a><select id="switch-file-dropdown" class="dropdown"></select></a></span>
+                <span id="move-to-next-file" class="nav-item-arrow" style="display: none;"><a>></a></span>
+                <span id="move-to-last-file" class="nav-item-arrow" style="display: none;"><a>>></a></span>
+            </div>
+
+            <div id="file-data" class="standard-text"></div>
+        </div>
 
         <div id="annotation-data" class="item item-1 standard-text unselectable">
             <div id="annotation-suggestion-container">

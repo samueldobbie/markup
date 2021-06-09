@@ -78,7 +78,7 @@ function parseDocumentAnnotations(docId) {
 function setupScrollbars() {
     // Add scroll bar to each panel
     new PerfectScrollbar($('#config-data')[0]);
-    new PerfectScrollbar($('#file-data')[0]);
+    new PerfectScrollbar($('#file-data-container')[0]);
     new PerfectScrollbar($('#annotation-data')[0]);
 }
 
@@ -88,8 +88,10 @@ function setupNavigationMenu() {
 
     if (openMethod == 'multiple') {
         // Show additional options in navbar
+        $('#move-to-first-file').show();
         $('#move-to-previous-file').show();
         $('#move-to-next-file').show();
+        $('#move-to-last-file').show();
         $('#switch-file').show();
 
         // Populate dropdown in navbar
