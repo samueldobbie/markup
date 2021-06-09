@@ -1,5 +1,8 @@
 $(document).ready(function () {
     setupSession(isNewSession=true);
+    $('#RunIAAAll').click(function () {
+        runAllIAA();
+    });
 });
 
 function setupSession(isNewSession) {
@@ -425,11 +428,40 @@ function IAA() {
     }
 }
 
+function runAllIAA() {
+    let numberofDocs = parseInt(localStorage.getItem('docCount'));
+    ann1 = [];
+    ann2 = [];
+    for (let i = 0; i < numberofDocs; i++) {
+        ann1[i] = localStorage.getItem('firstannotationText' + i)
+        ann2[i] = localStorage.getItem('secondannotationText' + i)
+    }
+    console.log(ann1);
+    $.ajax({
+        type: 'POST',
+        url: 'run-IAA-all/',
+        data: {
+                'annFiles1': ann1,
+                'annFiles2': ann2,
+        }, success: function(response) {
+            let results = [];
+            results = JSON.parse(response);
+
+            if (results.length != 0) {
+                console.log(results);
+                averageF1 = results[1];
+                $('#AllCorpus').empty();// This also removes the button to run the command (which is many kind-of neat)
+                $('#AllCorpus').append('<div id = "averageF1" style = "padding-top: 5px">Whole Corpus F1-score = ' + averageF1 +'<div/>');
+            }
+        }
+    });
+}
+
 function addIAAtoDisplay(results) {
     let precision = results[0];
     let recall = results[1];
     let f1Score = results[2];
-    let cohensKappa = results[3];
+    //let cohensKappa = results[3];
     $('#precision').empty()
     $('#recall').empty()
     $('#f1Score').empty()
@@ -568,10 +600,13 @@ function addAttributeData(attributeData, tagId, annotationData) {
 
 function resetAnnotationPanel() {
     // Empty annotation panel (excl. suggestions)
+    const IAAAll = $('#AllCorpus').detach();
     const suggestions = $('#IAA').detach();
+    //const IAAAll = $('#AllCorpus').detach();
     // $('#annotation-data-file1').empty().append(suggestions);
     // $('#annotation-data-file2').empty().append(suggestions);
-    $('#annotation-data').empty().append(suggestions);
+    $('#annotation-data').empty().append(IAAAll);
+    $('#annotation-data').append(suggestions);
     // Add section titles to annotation panel - dont need here
     //const annotator1 = '<div id = "annotations-1">Annotator 1<div/>'
     // $('#annotation-data-file1').append(annotator1);

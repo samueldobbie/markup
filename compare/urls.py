@@ -6,4 +6,5 @@ urlpatterns = [
     path('', views.compare, name='compare'),
     path('iaa/', views.inter_annotator_agreement, name='iaa'),
     path('iaa/run-IAA/', views.runEverything, name='run-IAA'),
+    path('iaa/run-IAA-all/', views.runEverything2, name='run-IAA'),
 ]
