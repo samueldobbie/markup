@@ -299,9 +299,9 @@ const inputParser = {
     },
     
     getNumericValues() {
-        const low = parseInt($('#numerical-range-low').val());
-        const high = parseInt($('#numerical-range-high').val());
-        const step = parseInt($('#numerical-range-step').val());
+        const low = parseFloat($('#numerical-range-low').val());
+        const high = parseFloat($('#numerical-range-high').val());
+        const step = parseFloat($('#numerical-range-step').val());
 
         // Check that all numerical fields have been populated
         if (isNaN(low) || isNaN(high) || isNaN(step)) {
