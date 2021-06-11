@@ -1,23 +1,20 @@
+from django.http import HttpResponse
 from django.shortcuts import render
 import sqlite3
-from django.http import HttpResponse
-import os
 import json
-import urllib.request
-import requests
+import os
 
 def setup(request):
     return render(request, 'setup.html', {})
 
-
 def config_creator(request):
     return render(request, 'config_creator.html', {})
-
 
 def data_generator(request):
     return render(request, 'data_generator.html', {})
 
-
+def umls_auth(request):
+    return render(request, 'umls_auth.html', {})
 
 PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 umls_path = PATH + '/data/UMLS/'
@@ -34,8 +31,6 @@ umls_path = PATH + '/data/UMLS/'
 #     inPut1 = inPut + "ghi"
 #     results = [inPut1, Method1, Relationship1]
 #     return HttpResponse(json.dumps(results)) 
-
-
 
 def search_term_exact(inPut):
     ''' 
@@ -328,8 +323,6 @@ def search_code_Relationship(inPut, Relationship):
 #     finally:
 #         if (umls):
 #             umls.close()
-
-
 
 def search_umls(request):
     '''

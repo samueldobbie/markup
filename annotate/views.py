@@ -37,12 +37,14 @@ def setup_umls(request):
     '''
     global umls_database, umls_mappings
 
+    ticket = request.GET['ticket']
+    service = request.GET['service']
+    validation_url = "https://uts-ws.nlm.nih.gov/rest/isValidServiceValidate?ticket=" + ticket + "&service=" + service
+
     # Authenticate UMLS account and get UMLS download link
-    data = {
-        'umls-username': request.POST['umls-username'],
-        'umls-password': request.POST['umls-password']
-    }
+    data = { 'validation-url': validation_url }
     response = requests.post('https://9wgxw45k93.execute-api.eu-west-2.amazonaws.com/markup-get-umls-if-valid', json=data)
+
     download_link = response.text
     valid_user = download_link != ''
 
@@ -61,7 +63,6 @@ def setup_umls(request):
         setup_preloaded_ontology('umls')
 
     return HttpResponse(valid_user)
-
 
 def setup_demo(request):
     '''

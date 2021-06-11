@@ -54,7 +54,7 @@
                     <div class="option-item">
                         <label for="config-file-opener" class="option-button option-button-small">Select</label>
                         <input id="config-file-opener" type="file" accept=".conf" style="display: none;">
-                        <span>or</span>
+                        <span style="padding: 0 5px;">or</span>
                         <a href="{% url 'config_creator' %}" style="text-decoration: none;"><label class="option-button option-button-small">Create</label></a>
                         <span id="config-file-name"></span>
                     </div>
@@ -86,7 +86,7 @@
                         <div class="option-item">
                             <label for="training-file-opener" class="option-button option-button-small">Select</label>
                             <input id="training-file-opener" type="file" accept=".txt" style="display: none;">
-                            <span>or</span>
+                            <span style="padding: 0 5px;">or</span>
                             <a href="{% url 'data_generator' %}" style="text-decoration: none;"><label class="option-button option-button-small">Create</label></a>
                             <span id="training-file-name"></span>
                         </div>
@@ -105,11 +105,17 @@
                             </div>
 
                             <div id="file-ontology-options">
+                                <p style="margin: 15px 0px; display: none;" id="file-ontology-failure">
+                                    <span style="color: red">
+                                        Failed to authenticate with UMLS. You can apply for access <a href="https://www.nlm.nih.gov/research/umls/index.html" target="_blank">here</a>.
+                                    </span>
+                                </p>
+
                                 <select id="ontology-file-dropdown" class="option-dropdown">
                                     <option value="default">Choose pre-loaded</option>
-                                    <option value="umls">UMLS</option>
+                                    <option value="umls">UMLS (requires auth)</option>
                                 </select>
-                                <span>or</span>
+                                <span style="padding: 0 5px;">or</span>
                                 <label for="ontology-file-opener" class="option-button option-button-small">Custom</label>
                                 <input id="ontology-file-opener" type="file" accept=".txt" style="display: none;">
                                 <span id="ontology-file-name"></span>
@@ -132,7 +138,7 @@
                 <div class="option-container" id="expand-file-options" style="box-shadow: none;"><span id="expand-file-message" class="expand-message">+ Advanced options</span></div>
         
                 <div class="completed-option-container">
-                    <button id="start-annotating-file" class="option-button">Start annotating!</button>
+                    <button id="start-annotating-file" class="option-button">Start Session</button>
                     <span id="ontology-wait-message-file" class="ontology-wait-message" style="display: none;">Please wait - setting up large ontologies can take a few minutes.</span>
                 </div>
             </div>
@@ -164,7 +170,7 @@
                         <div class="option-item">
                             <label for="training-file-opener" class="option-button option-button-small">Select</label>
                             <input id="training-file-opener" type="file" accept=".txt" style="display: none;">
-                            <span>or</span>
+                            <span style="padding: 0 5px;">or</span>
                             <a href="{% url 'data_generator' %}" style="text-decoration: none;"><label class="option-button option-button-small">Create</label></a>
                             <span id="training-file-name"></span>
                         </div>
@@ -178,6 +184,12 @@
                             </span>
                         </p>
                         <div class="option-item">
+                            <p style="margin: 15px 0px; display: none;" id="folder-ontology-failure">
+                                <span style="color: red">
+                                    Failed to authenticate with UMLS. You can apply for access <a href="https://www.nlm.nih.gov/research/umls/index.html" target="_blank">here</a>.
+                                </span>
+                            </p>
+
                             <div id="folder-ontology-loader" style="display: none;">
                                 <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
                             </div>
@@ -185,9 +197,9 @@
                             <div id="folder-ontology-options">
                                 <select id="ontology-folder-dropdown" class="option-dropdown">
                                     <option value="default">Choose pre-loaded</option>
-                                    <option value="umls">UMLS</option>
+                                    <option value="umls">UMLS (requires auth)</option>
                                 </select>
-                                <span>or</span>
+                                <span style="padding: 0 5px;">or</span>
                                 <label for="ontology-folder-opener" class="option-button option-button-small">Custom</label>
                                 <input id="ontology-folder-opener" type="file" accept=".txt" style="display: none;">
                                 <span id="ontology-folder-name"></span>
@@ -199,7 +211,7 @@
                 <div class="option-container" id="expand-folder-options" style="box-shadow: none;"><span id="expand-folder-message" class="expand-message">+ Advanced options</span></div>
         
                 <div class="completed-option-container">
-                    <button id="start-annotating-folder" class="option-button">Start annotating!</button>
+                    <button id="start-annotating-folder" class="option-button">Start Session</button>
                     <span id="ontology-wait-message-folder" class="ontology-wait-message" style="display: none;">Please wait - setting up large ontologies can take a few minutes.</span>
                 </div>
             </div>

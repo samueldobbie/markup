@@ -165,6 +165,9 @@ function authoriseUser() {
     $('#umls-verification-form-container').hide();
     $('#setup-type-container').show();
 
+    $("#file-ontology-failure").hide()
+    $("#folder-ontology-failure").hide()
+
     // Update ontology component
     const type = $('#setup-type-dropdown').val() == 'single' ? 'file' : 'folder';
     $('#' + type + '-selection-container').show();
@@ -172,13 +175,13 @@ function authoriseUser() {
 }
 
 function denyUser() {
-    // Show error message
-    $('#umls-verification-form-container').css({'border': '1px solid red'});
-    $('#umls-verification-form-invalid-credentials').show();
+    $("#file-ontology-failure").show()
+    $("#folder-ontology-failure").show()
+    $("#ontology-file-dropdown").val("default")
+    $("#ontology-folder-dropdown").val("default")
 }
 
 function getFormData(form) {
-    // Serialize form data
     return form.serializeArray().reduce(
         function(object, item) {
             object[item.name] = item.value;
@@ -198,10 +201,34 @@ function useExistingOntology(type) {
     const ontology = $('#ontology-' + type + '-dropdown').val();
 
     if (ontology != 'default') {
+        let hasValidated = localStorage.getItem("hasValidated")
+
+        if (hasValidated != "true") {
+            const service = window.location.origin + "/setup/umls-auth"
+            const authUrl = `https://uts.nlm.nih.gov/uts/login?service=${service}`
+            const popup = window.open(authUrl, "", "width=500, height=700")
+
+            const timer = setInterval(() => {
+                if (popup.closed) {
+                    const hasValidated = localStorage.getItem("hasValidated")
+                    
+                    console.log(hasValidated)
+                    
+                    if (hasValidated == "true") {
+                        authoriseUser()
+                    } else {
+                        denyUser()
+                    }
+                    
+                    clearInterval(timer)
+                }
+            }, 1000)
+        }
+
         // Hide components and show authentication form
-        $('#setup-type-container').hide();
-        $('#' + type + '-selection-container').hide();
-        $('#' + ontology + '-verification-form-container').show();
+        // $('#setup-type-container').hide();
+        // $('#' + type + '-selection-container').hide();
+        // $('#' + ontology + '-verification-form-container').show();
     } else if (!$('#ontology-' + type + '-opener').val()) {
         resetCompleteComponent('ontology-' + type + '-opener-container');
     }

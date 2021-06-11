@@ -63,6 +63,7 @@
 #file-data {
   line-height: 1.5em;
   white-space: pre-wrap;
+  font-size: 18px;
 }
 
 #annotation-data {
@@ -123,7 +124,7 @@
 }
 
 .config-value-row {
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .config-label {
@@ -135,6 +136,9 @@
   text-align: center;
   border: none;
   box-shadow: 0px 0.25px #1A1E24;
+  min-width: 50%;
+  display: inline-block;
+  min-width: 50%;
 }
 
 .config-label:hover {
@@ -259,5 +263,10 @@ input[type=radio] {
 #switch-file-dropdown {
   width: 40%;
   font-size: 16px;
-  margin: 22px;
+  margin: 0 22px;
+}
+
+#empty-attributes {
+  margin-left: 5%;
+  color: rgb(184, 184, 184);
 }

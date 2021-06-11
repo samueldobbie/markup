@@ -108,13 +108,22 @@ function setupNavigationMenu() {
 function bindNavigationEvents() {
     const docCount = parseInt(localStorage.getItem('docCount'));
 
-    // Navigate between docs via dropdown
+    $('#move-to-first-file').click(function () {
+        switchFile(0);
+    });
+
+    $('#move-to-previous-file').click(function () {
+        const openDocId = localStorage.getItem('openDocId');
+        const updatedId = parseInt(openDocId) - 1;
+
+        if (updatedId >= 0) switchFile(updatedId);
+    });
+
     $('#switch-file-dropdown').change(function () {
         const updatedId = $('option:selected', this).attr('documentId');
         switchFile(updatedId);
     });
 
-    // Navigate to next doc via arrow
     $('#move-to-next-file').click(function () {
         const openDocId = localStorage.getItem('openDocId');
         const updatedId = parseInt(openDocId) + 1;
@@ -122,12 +131,8 @@ function bindNavigationEvents() {
         if (updatedId < docCount) switchFile(updatedId);
     });
 
-    // Navigate to previous doc via arrow
-    $('#move-to-previous-file').click(function () {
-        const openDocId = localStorage.getItem('openDocId');
-        const updatedId = parseInt(openDocId) - 1;
-
-        if (updatedId >= 0) switchFile(updatedId);
+    $('#move-to-last-file').click(function () {
+        switchFile(docCount - 1);
     });
 }
 
@@ -316,6 +321,8 @@ function styleSelectedEntity() {
         activeEntity = '';
         $('input[name=values]').val('');
         $('input[name=values]').hide();
+
+        document.getElementById("empty-attributes").style.display = ""
     } else {
         // Style active entity
         activeEntity = $(this).val();    
@@ -323,6 +330,8 @@ function styleSelectedEntity() {
             marginLeft: '5%',
             transition : 'margin 300ms'
         });
+
+        document.getElementById("empty-attributes").style.display = "none"
     }
 }
 
