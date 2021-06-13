@@ -16,7 +16,7 @@ The online version of Markup can be found <a href="https://www.getmarkup.com/">h
 
 #### Docker
 
-Run `docker run -d -p 80:8000 samueldobbie/markup` and visit <a href="http://127.0.0.1/">http://127.0.0.1/</a>.
+Run `docker run -d -p 8000:8000 samueldobbie/markup` and visit <a href="http://localhost:8000">http://localhost:8000</a>.
 
 #### Manual Installation
 
@@ -24,9 +24,9 @@ Run `docker run -d -p 80:8000 samueldobbie/markup` and visit <a href="http://127
 
 2. Run `python setup.py` using 64-bit Python3.
 
-3. Visit <a href="http://127.0.0.1/">http://127.0.0.1/</a>.
+3. Visit <a href="http://localhost:8000">http://localhost:8000</a>.
 
-For futher sessions, the local server can be started directly by running `python manage.py runserver 0.0.0.0:80`.
+For futher sessions, the local server can be started directly by running `python manage.py runserver localhost:8000`.
 
 ## Documentation
 
