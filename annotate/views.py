@@ -16,8 +16,8 @@ from simstring.searcher import Searcher
 from simstring.feature_extractor.character_ngram import (
     CharacterNgramFeatureExtractor
 )
-from keras.models import Model, load_model
-from keras.layers import Input
+from tensorflow.keras.models import Model, load_model
+from tensorflow.keras.layers import Input
 
 from modAL.models import ActiveLearner
 from modAL.uncertainty import uncertainty_sampling

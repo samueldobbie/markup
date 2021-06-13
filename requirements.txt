@@ -1,6 +1,5 @@
 tensorflow==2.5.0
 Django==3.1.12
-Keras==2.4.3
 modAL==0.3.6
 requests==2.24.0
 simstring-pure==1.0.0
