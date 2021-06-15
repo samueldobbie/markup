@@ -41,6 +41,22 @@
     padding: 0.25px 3px;
 }
 
+.doc-gif-toggle {
+    font-size: 12.5px;
+}
+
+.doc-gif-toggle:hover {
+    background-color: #24e69f;
+}
+
+.doc-gif {
+    width: 90%;
+    display: none;
+    box-shadow: 0px 0px 6px 1px rgb(219, 219, 219);
+    border-radius: 5px;
+    padding: 10px;
+}
+
 .main-button {
     border-radius: 3px;
     color: #1A1E24;

@@ -11,159 +11,206 @@
     <div class="doc-container">
         <h1 class="doc-headline">Documentation</h1>
         <p class="doc-line">
-            Markup is an online annotation tool that can be used to transform unstructured documents into structured <a class="doc-link" href="http://brat.nlplab.org/standoff.html" target="_blank">standoff format</a> for NLP and ML tasks, such as named-entity recognition. Markup learns as you annotate in order to predict and suggest complex annotations. Markup also provides integrated access to existing and custom ontologies, enabling the prediction and suggestion of ontology mappings based on the text you're annotating.
+            Markup is an online annotation tool that can be used to transform unstructured documents into
+            structured <a class="doc-link" href="http://brat.nlplab.org/standoff.html" target="_blank">standoff
+            format</a> for NLP and ML tasks, such as named-entity recognition. Markup learns as you annotate
+            in order to predict and suggest complex annotations. Markup also provides integrated access to
+            existing and custom ontologies, enabling the prediction and suggestion of ontology mappings based
+            on the text you're annotating.
         </p>
 
-        <h2 class="doc-headline">
-            Setup
-        </h2>
-        <p class="doc-line">
-            <span class="doc-field">Quantity</span> - The number of documents you intend to annotate (defaults to <span class="doc-field">single</span>).
-        </p>
+        <div>
+            <h2 class="doc-headline">
+                Setup
+            </h2>
+            <p class="doc-line">
+                <span class="doc-field">Quantity</span> - The number of documents you intend to annotate (defaults to <span class="doc-field">single</span>).
+            </p>
 
-        <h3 class="doc-headline">
-            Single Document <button class="main-button green-button" id="show-hide-single-doc">GIF - Show/Hide</button>
-        </h3>
-        <img src="{% static 'SelectSingleDocument.gif' %}" alt="Select Single Document Gif" style="width: 92%; margin: 2%; display: none;" id = "singleGIF">
-        <p class="doc-line">
-            <b>Required</b>
-        </p>
-        <p class="doc-line">
-            <span class="doc-field">Document to annotate</span> - The document you intend to annotate (must have .txt file extension).
-        </p>
-        <p class="doc-line">
-            <span class="doc-field">Configuration file</span> - Defines all entities and attributes available during annotation. Select an existing configuration file (that has the .conf file extension and is formatted as shown <a class="doc-link" href="http://brat.nlplab.org/configuration.html" target="_blank">here</a>), or create a new one using the <a class="doc-link" href="{% url 'config_creator' %}" target="_blank">in-built config creator</a>. <button class="main-button green-button" id="show-hide-conf-creator">GIF - Show/Hide</button>
-        </p>
-        <img src="{% static 'ConfigCreator.gif' %}" alt="Config Creator Gif" style="width: 92%; margin: 2%; display: none;" id = "confCreatorGIF">
-        <p class="doc-line">
-            <b>Optional</b>
-        </p>
-        <p class="doc-line">
-            <span class="doc-field">Existing annotations</span> - A file containing existing annotations for the document you intend to annotate.
-            The annotation file must have the .ann file extension and be in <a class="doc-link" href="http://brat.nlplab.org/standoff.html" target="_blank">standoff format</a>.
-        </p>
-        <p class="doc-line">
-            <span class="doc-field">Ontology</span> - A dictionary of terms, codes, and related data to be accessed during annotation.
-            <ul class="doc-line doc-list">
-                <li><span class="doc-field">Pre-loaded</span> - Markup offers pre-loaded ontologies that can be used. Certain pre-loaded ontologies require external permissions (e.g. the Unified Medical Language System), for which you will need to login to authorise access.</li>
-                <li><span class="doc-field">Custom</span> - You can provide a custom ontology by providing a text document, where each line is of the form [TERM][TAB][CODE], as shown below.</li>
-            </ul>
-        </p>
-        <span class="doc-line">
-            <div class="doc-example">
-                <p>Focal Seizure <span style="margin-left: 50px;">RANDOM01938</span></p>
-                <p>Epilepsy <span style="margin-left: 50px;">RANDOM43904</span></p>
-                <p>Sodium Valproate <span style="margin-left: 50px;">RANDOM30921</span></p>
-                <p>...</p>
+            <div>
+                <h3 class="doc-headline">
+                    Single Document <span class="main-button green-button doc-gif-toggle" id="show-hide-single-doc">Show GIF</span>
+                </h3>
+                <p class="doc-line">
+                    <img src="{% static 'gif/SingleDocSetup.gif' %}" alt="Select Single Document GIF" class="doc-gif" id="singleGif">
+                </p>
+
+                <p class="doc-line">
+                    <b>Required</b>
+                </p>
+                <p class="doc-line">
+                    <span class="doc-field">Document to annotate</span> - The document you intend to annotate (must be .txt file).
+                </p>
+                <p class="doc-line">
+                    <span class="doc-field">Configurations</span> - Defines all entities and attributes available
+                    during annotation. Select an existing configuration file (must be .conf file that is formatted
+                    as shown <a class="doc-link" href="http://brat.nlplab.org/configuration.html" target="_blank">here</a>),
+                    or create a new one using the <a class="doc-link" href="{% url 'config_creator' %}" target="_blank">in-built
+                    config creator</a>.
+                </p>
+                <p class="doc-line">
+                    <b>Optional</b>
+                </p>
+                <p class="doc-line">
+                    <span class="doc-field">Existing annotations</span> - A file containing existing annotations for the document you intend to annotate
+                    (must be .ann file in <a class="doc-link" href="http://brat.nlplab.org/standoff.html" target="_blank">standoff format</a>).
+                </p>
+                <p class="doc-line">
+                    <span class="doc-field">Ontology</span> - A dictionary of terms, codes, and related data to be accessed during annotation.
+                    <ul class="doc-line doc-list">
+                        <li><span class="doc-field">Pre-loaded</span> - Markup offers pre-loaded ontologies that can be used. Certain pre-loaded ontologies require external permissions (e.g. the Unified Medical Language System), for which you will need to login to authorise access.</li>
+                        <li><span class="doc-field">Custom</span> - You can provide a custom ontology by providing a text file, where each line is of the form [TERM][TAB][CODE], as shown below.</li>
+                    </ul>
+                </p>
+                <span class="doc-line">
+                    <div class="doc-example">
+                        <p>Focal Seizure <span style="margin-left: 50px;">RANDOM01938</span></p>
+                        <p>Epilepsy <span style="margin-left: 50px;">RANDOM43904</span></p>
+                        <p>Sodium Valproate <span style="margin-left: 50px;">RANDOM30921</span></p>
+                        <p>...</p>
+                    </div>
+                </span>
             </div>
-        </span>
-        
-        <h3 class="doc-headline">
-            Multiple Documents <button class="main-button green-button" id="show-hide-mutliple-docs">GIF - Show/Hide</button>
-        </h3>
-        <img src="{% static 'SelectMultipleDocuments.gif' %}" alt="Select Multiple Documents Gif" style="width: 92%; margin: 2%; display: none;" id = "multpleDocsGIF">
-        <p class="doc-line">
-            Opening multiple documents streamlines the annotation process by enabling the navigation, annotation, and exportation of any number of documents during a single session.  
-        </p>
-        <p class="doc-line">
-            <b>Required</b>
-        </p>
-        <p class="doc-line">
-            <span class="doc-field">Folder to annotate</span> - The folder containing the documents you wish to annotate. The folder must contain:
-            <ul class="doc-line doc-list">
-                <li>The documents you wish to annotate (must have .txt file extension).</li>
-                <li>A configuration file which defines all entities and attributes available during annotation. Select an existing configuration file (that has the .conf file extension and is formatted as shown <a class="doc-link" href="http://brat.nlplab.org/configuration.html" target="_blank">here</a>), or create a new one using the <a class="doc-link" href="{% url 'config_creator' %}" target="_blank">in-built config creator</a>.</li>
-                <li>Any existing annotation files you wish to use (must have .ann file extension). The name of each annotation file must match the name of its corresponding text document (e.g. annotations for <span class="doc-field">some-random-file.txt</span> must be stored in <span class="doc-field">some-random-file.ann</span>).</li>
-            </ul>
-        </p>
-        <p class="doc-line">
-            <b>Optional</b>
-        </p>
-        <p class="doc-line">
-            <span class="doc-field">Ontology</span> - A dictionary of terms, codes, and related data to be accessed during annotation.
-            <ul class="doc-line doc-list">
-                <li><span class="doc-field">Pre-loaded</span> - Markup offers pre-loaded ontologies that can be used. Certain pre-loaded ontologies require external permissions (e.g. the Unified Medical Language System), for which you will need to login to authorise access.</li>
-                <li><span class="doc-field">Custom</span> - You can provide a custom ontology by providing a text document, where each line is of the form [TERM][TAB][CODE], as shown above.</li>
-            </ul>
-        </p>
 
-        <h2 class="doc-headline">
-            Annotation <button class="main-button green-button" id="show-hide-annotation">GIF - Show/Hide</button>
-        </h2>
-        <img src="{% static 'Annotation.gif' %}" alt="Annotating a document Gif" style="width: 92%; margin: 2%; display: none;" id="annotation-gif">
-        <p class="doc-line">
-            To add an annotation, you must:
-            
-            <ul class="doc-line doc-list">
-                <li>Highlight the desired span of text within the open document.</li>
-                <li>Select a desired entity.</li>
-                <li>Populate or select a value from the available attributes, which have been dynamically displayed based on the chosen entity.</li>
-                <li>Select an ontology term to map to. Markup automatically suggests ontology mappings based on the text you're annotating, although a direct search of the ontology can be performed via Markup if necessary.</li>
-                <li>Add the annotation by pressing the <span class="doc-field">+ Annotation</span> button</li>
-            </ul>
-        </p>
-        <p class="doc-line">
-            Upon adding an annotation, it will displayed both within the document text and on the annotation panel. Within the annotation panel, annotations will be grouped by their entity, and ordered based on the appearance within the document text.
-        </p>
-        <p class="doc-line">
-            Hovering over an annotation in either the document panel or annotation panel will highlight the annotation in both panels, and will display a tooltip containing information about the annotation (e.g. attributes).
-        </p>
-        <p class="doc-line">
-            Clicking an annotation within the annotation panel will display a dropdown that contains all information (e.g. attributes) that correspond with the annotation, along with options for editing and deleting the annotation. 
-        </p>
-        <p class="doc-line">
-            Markup allows for unlimited annotation of a single region, thus enabling the capture of complex data.
-        </p>
-        <h2 class="doc-headline">
-            Data Generation <button class="main-button green-button" id="show-hide-data-gen">GIF - Show/Hide</button>
-        </h2>
-        <img src="{% static 'DataGenerator.gif' %}" alt="Generating Data Gif" style="width: 92%; margin: 2%; display: none;" id = "dataGenGIF">
-        <p class="doc-line">
-            <span class="doc-field">Data Generator</span> - Option to create data for machine learning purposes.  <a class="doc-link" href="{% url 'data_generator' %}" target="_blank"> Link here</a>.
-        </p>
+            <div>
+                <h3 class="doc-headline">
+                    Multiple Documents <span class="main-button green-button doc-gif-toggle" id="show-hide-mutliple-docs">Show GIF</span>
+                </h3>
+                <p class="doc-line">
+                    <img src="{% static 'gif/MultipleDocSetup.gif' %}" alt="Select Multiple Documents GIF" class="doc-gif" id="multpleDocsGif">
+                </p>
+                <p class="doc-line">
+                    Opening multiple documents streamlines the annotation process by enabling the navigation, annotation, and exportation of any number of documents during a single session.  
+                </p>
+                <p class="doc-line">
+                    <b>Required</b>
+                </p>
+                <p class="doc-line">
+                    <span class="doc-field">Folder to annotate</span> - The folder containing the documents you wish to annotate. The folder must contain:
+                    <ul class="doc-line doc-list">
+                        <li>The documents you wish to annotate (must be .txt file).</li>
+                        <li>A configuration file which defines all entities and attributes available during annotation. Select an existing configuration file (must be .conf file which is formatted as shown <a class="doc-link" href="http://brat.nlplab.org/configuration.html" target="_blank">here</a>), or create a new one using the <a class="doc-link" href="{% url 'config_creator' %}" target="_blank">in-built config creator</a>.</li>
+                        <li>Any existing annotation files you wish to use (must be .ann file). The name of each annotation file must match the name of its corresponding text document (e.g. annotations for <span class="doc-field">some-random-file.txt</span> must be stored in <span class="doc-field">some-random-file.ann</span>).</li>
+                    </ul>
+                </p>
+                <p class="doc-line">
+                    <b>Optional</b>
+                </p>
+                <p class="doc-line">
+                    <span class="doc-field">Ontology</span> - A dictionary of terms, codes, and related data to be accessed during annotation.
+                    <ul class="doc-line doc-list">
+                        <li><span class="doc-field">Pre-loaded</span> - Markup offers pre-loaded ontologies that can be used. Certain pre-loaded ontologies require external permissions (e.g. the Unified Medical Language System), for which you will need to login to authorise access.</li>
+                        <li><span class="doc-field">Custom</span> - You can provide a custom ontology by providing a text file, where each line is of the form [TERM][TAB][CODE], as shown above.</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+
+        <div>
+            <h2 class="doc-headline">
+                Annotation <span class="main-button green-button doc-gif-toggle" id="show-hide-annotation">Show GIF</span>
+            </h2>
+            <p class="doc-line">
+                <img src="{% static 'gif/Annotation.gif' %}" alt="Annotating a document GIF" class="doc-gif" id="annotation-gif">
+            </p>
+            <p class="doc-line">
+                To add an annotation, you must:
+                
+                <ul class="doc-line doc-list">
+                    <li>Highlight the desired span of text within the open document.</li>
+                    <li>Select a desired entity.</li>
+                    <li>Populate or select a value from the available attributes, which have been dynamically displayed based on the chosen entity.</li>
+                    <li>Select an ontology term to map to. Markup automatically suggests ontology mappings based on the text you're annotating, although a direct search of the ontology can be performed via Markup if necessary.</li>
+                    <li>Add the annotation by pressing the <span class="doc-field">+ Annotation</span> button</li>
+                </ul>
+            </p>
+            <p class="doc-line">
+                Upon adding an annotation, it will displayed both within the document text and on the annotation panel. Within the annotation panel, annotations will be grouped by their entity, and ordered based on the appearance within the document text.
+            </p>
+            <p class="doc-line">
+                Hovering over an annotation in either the document panel or annotation panel will highlight the annotation in both panels, and will display a tooltip containing information about the annotation (e.g. attributes).
+            </p>
+            <p class="doc-line">
+                Clicking an annotation within the annotation panel will display a dropdown that contains all information (e.g. attributes) that correspond with the annotation, along with options for editing and deleting the annotation. 
+            </p>
+            <p class="doc-line">
+                Markup allows for unlimited annotation of a single region, thus enabling the capture of complex data.
+            </p>
+        </div>
+
+        <div>
+            <h2 class="doc-headline">
+                Config Creator <span class="main-button green-button doc-gif-toggle" id="show-hide-conf-creator">Show GIF</span>
+            </h2>
+            <p class="doc-line">
+                <img src="{% static 'gif/ConfigCreator.gif' %}" alt="Config Creator GIF" class="doc-gif" id="confCreatorGif">
+            </p>
+            <p class="doc-line">
+                Markup offers an <a class="doc-link" href="{% url 'config_creator' %}" target="_blank">in-built config creator</a> that makes it easier to generate config files by visualising the relationships between entities and attributes.
+            </p>
+        </div>
+
+        <div>
+            <h2 class="doc-headline">
+                Data Generation <span class="main-button green-button doc-gif-toggle" id="show-hide-data-gen">Show GIF</span>
+            </h2>
+            <p class="doc-line">
+                <img src="{% static 'gif/DataGenerator.gif' %}" alt="Generating Data GIF" class="doc-gif" id="dataGenGif">
+            </p>
+            <p class="doc-line">
+                Markup offers an  <a class="doc-link" href="{% url 'data_generator' %}" target="_blank">in-built data generator</a> for producing structured, synthetic data. This data can be used to train the annotation prediction model.  
+            </p>
             <ul class="doc-line doc-list">
                 <li><span class="doc-field">Variables</span> - Create variables for the data you wish to generate. Variables can be text values or numeric.</li>
-                <li><span class="doc-field">UMLS Query</span> - After enering a vaid UMLS login, users a capable of searching a UMLS database for terms that can be used as a variable. Terms are first displayed and then can be added as a variable after review. Search UMLS for terms, CUIs or other codes and select the appropriate relationship for the query. Results can be displayed to show only unique terms and CUIs or to also show the source and code from the source.</li>
+                <li><span class="doc-field">UMLS Query</span> - Upon UMLS authentication, users can directly query a UMLS database for values to be used within the synthetic data. Terms are first displayed and then can be added as a variable after review. Search UMLS for terms, CUIs or other codes and select the appropriate relationship for the query. Results can be displayed to show only unique terms and CUIs or to also show the source and code from the source.</li>
                 <li><span class="doc-field">Sequence Templates</span> - With the created variables, create templates for the data. Templates can then be exported as a text document.</li>
             </ul>
-        <h2 class="doc-headline">
-            Predictive Annotation Suggestions <button class="main-button green-button" id="show-hide-predict">GIF - Show/Hide</button>
-        </h2>
-        <img src="{% static 'Prediction.gif' %}" alt="Predicting annotations Gif" style="width: 92%; margin: 2%; display: none;" id = "predictGIF">
-        <p class="doc-line">
-            Markup functionality includes a novel system to predict and suggest complex annotation using Active and Sequence-to-Sequence learning models.
-        </p>
-        <p class="doc-line">
-            Upon opening or switching to a document, Markup will predict all annotations and display them in a collapsible drop-down within the annotation panel. Each annotation will be grouped and coloured based on its entity category, and ordered based on its appearance within the document text.
-        </p>
-        <p class="doc-line">
-            Each annotation suggestion will consist of:
-            <ul class="doc-line doc-list">
-                <li>A span of text within the open document that will be annotated.</li>
-                <li>An entity category.</li>
-                <li>Populated attributes.</li>
-            </ul>
-        </p>
-        <p class="doc-line">
-            Selecting an annotation suggestion will give the user the opportunity to review all details related to the annotation (e.g. attribute values) before accepting, editing or rejecting it, where:
-            <ul class="doc-line doc-list">
-                <li>Accepting will add the annotation to the document.</li>
-                <li>Editing will enable the user to add, adjust, and remove attribute values prior to adding the annotation.</li>
-                <li>Rejecting will remove the annotation from the suggestion list.</li>
-            </ul>
-        </p>
-        <p class="doc-line">
-            The response to a suggestion from a user will feedback into the prediction models to improve future predictions. Model adjustments will only be made to the model local to the user, and thus will have no impact on predictions for other users. 
-        </p>
+        </div>
 
-        <h2 class="doc-headline">
-            Export
-        </h2>
-        <p class="doc-line">
-            After completing the annotation process, the user can export all anontations by selecting the <span class="doc-field">Export</span> button in the configuraton panel. Exporting the annotations will produce an annotation file, with the .ann file extension, that contains all added annotations in <a class="doc-link" href="http://brat.nlplab.org/standoff.html" target="_blank">standoff format</a>.
-        </p>
-        <p class="doc-line">
-            Browsers recommend by default that annotations be saved to the local <span class="doc-field">Download</span> folder. When annotating large quantities of documents, it can be useful to update this default location, which can be done on various browsers, as shown in the following guides: <a class="doc-link" href="https://www.howtogeek.com/231002/how-to-change-the-chrome-download-folder-location/" target="_blank">Chrome</a>, <a class="doc-link" href="https://www.howtogeek.com/260271/how-to-change-the-firefox-download-folder-location/" target="_blank">Firefox</a>, <a class="doc-link" href="https://ccm.net/faq/10003-opera-change-the-default-folder-for-your-downloads" target="_blank">Opera</a>, <a class="doc-link" href="https://osxdaily.com/2018/07/01/change-safari-download-location-mac/" target="_blank">Safari</a>.
-        </p>
+        <div>
+            <h2 class="doc-headline">
+                Predictive Annotation Suggestions <span class="main-button green-button doc-gif-toggle" id="show-hide-predict">Show GIF</span>
+            </h2>
+            <p class="doc-line">
+                <img src="{% static 'gif/AnnotationPrediction.gif' %}" alt="Predicting annotations GIF" class="doc-gif" id="predictGif">
+            </p>
+            <p class="doc-line">
+                Markup functionality includes a novel system to predict and suggest complex annotation using Active and Sequence-to-Sequence learning models.
+            </p>
+            <p class="doc-line">
+                Upon opening or switching to a document, Markup will predict all annotations and display them in a collapsible drop-down within the annotation panel. Each annotation will be grouped and coloured based on its entity category, and ordered based on its appearance within the document text.
+            </p>
+            <p class="doc-line">
+                Each annotation suggestion will consist of:
+                <ul class="doc-line doc-list">
+                    <li>A span of text within the open document that will be annotated.</li>
+                    <li>An entity category.</li>
+                    <li>Populated attributes.</li>
+                </ul>
+            </p>
+            <p class="doc-line">
+                Selecting an annotation suggestion will give the user the opportunity to review all details related to the annotation (e.g. attribute values) before accepting, editing or rejecting it, where:
+                <ul class="doc-line doc-list">
+                    <li>Accepting will add the annotation to the document.</li>
+                    <li>Editing will enable the user to add, adjust, and remove attribute values prior to adding the annotation.</li>
+                    <li>Rejecting will remove the annotation from the suggestion list.</li>
+                </ul>
+            </p>
+            <p class="doc-line">
+                The response to a suggestion from a user will feedback into the prediction models to improve future predictions. Model adjustments will only be made to the model local to the user, and thus will have no impact on predictions for other users. 
+            </p>
+        </div>
+
+        <div>
+            <h2 class="doc-headline">
+                Export
+            </h2>
+            <p class="doc-line">
+                After completing the annotation process, the user can export all anontations by selecting the <span class="doc-field">Export</span> button in the configuraton panel. Exporting the annotations will produce an annotation file, with the .ann file extension, that contains all added annotations in <a class="doc-link" href="http://brat.nlplab.org/standoff.html" target="_blank">standoff format</a>.
+            </p>
+            <p class="doc-line">
+                Browsers recommend by default that annotations be saved to the local <span class="doc-field">Download</span> folder. When annotating large quantities of documents, it can be useful to update this default location, which can be done on various browsers, as shown in the following guides: <a class="doc-link" href="https://www.howtogeek.com/231002/how-to-change-the-chrome-download-folder-location/" target="_blank">Chrome</a>, <a class="doc-link" href="https://www.howtogeek.com/260271/how-to-change-the-firefox-download-folder-location/" target="_blank">Firefox</a>, <a class="doc-link" href="https://ccm.net/faq/10003-opera-change-the-default-folder-for-your-downloads" target="_blank">Opera</a>, <a class="doc-link" href="https://osxdaily.com/2018/07/01/change-safari-download-location-mac/" target="_blank">Safari</a>.
+            </p>
+        </div>
     </div>
 {% endblock %}

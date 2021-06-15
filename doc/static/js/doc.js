@@ -1,25 +1,38 @@
-$(document).ready(function () {
-    $('#show-hide-single-doc').click(function(){
-        $('#singleGIF').toggle();
-    });
+$(document).ready(() => {
+    $('#show-hide-single-doc').click(() => {
+        $('#singleGif').toggle()
+    })
 
-    $('#show-hide-conf-creator').click(function(){
-        $('#confCreatorGIF').toggle();
-    });
+    $('#show-hide-conf-creator').click(() => {
+        $('#confCreatorGif').toggle()
+    })
 
-    $('#show-hide-mutliple-docs').click(function(){
-        $('#multpleDocsGIF').toggle();
-    });
+    $('#show-hide-mutliple-docs').click(() => {
+        $('#multpleDocsGif').toggle()
+    })
 
-    $('#show-hide-annotation').click(function(){
-        $('#annotation-gif').toggle();
-    });
+    $('#show-hide-annotation').click(() => {
+        $('#annotation-gif').toggle()
+    })
 
-    $('#show-hide-data-gen').click(function(){
-        $('#dataGenGIF').toggle();
-    });
+    $('#show-hide-data-gen').click(() => {
+        $('#dataGenGif').toggle()
+    })
 
-    $('#show-hide-predict').click(function(){
-        $('#predictGIF').toggle();
-    });
-});
+    $('#show-hide-predict').click(() => {
+        $('#predictGif').toggle()
+    })
+
+    $('.doc-gif-toggle').click(function() {
+        const el = $(this)[0]
+
+        if (el.innerText == SHOW_TEXT) {
+            el.innerText = HIDE_TEXT
+        } else {
+            el.innerText = SHOW_TEXT
+        }
+    })
+})
+
+const SHOW_TEXT = "Show GIF"
+const HIDE_TEXT = "Hide GIF"

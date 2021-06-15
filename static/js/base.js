@@ -70,7 +70,10 @@ const session = {
 
     clearLocalStorage() {
         // Clear all non-theme storage items
-        if (window.location.href.indexOf('annotate') == -1) {
+        if (
+            window.location.href.indexOf('annotate') == -1 &&
+            window.location.href.indexOf('umls-auth') == -1
+        ) {
             const displayMode = localStorage.getItem('theme');
             localStorage.clear();
             if (displayMode) {

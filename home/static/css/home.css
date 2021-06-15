@@ -29,9 +29,10 @@
     font-size: 18px;
     cursor: pointer;
     text-decoration: underline;
+    font-weight: bold;
 }
 
-#try-demo:hover {
+.try-demo:hover {
     text-decoration: none;
 }
 
