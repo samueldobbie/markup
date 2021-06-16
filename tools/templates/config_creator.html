@@ -20,7 +20,7 @@
                     </span>
                 </p>
                 <div class="option-item">
-                    <input id="entity-name" class="option-input-field" type="text" placeholder="Entity name (e.g. Seizure)">
+                    <input id="entity-name" class="option-field" type="text" placeholder="Entity name (e.g. Seizure)">
                 </div>
                 <div class="option-item">
                     <label id="add-entity" class="option-button option-button-small">+ Entity</label>
@@ -35,13 +35,15 @@
                     </span>
                 </p>
                 <div class="option-item">
-                    <input id="attribute-name" class="option-input-field" type="text" placeholder="Attribute name (e.g. SeizureFrequency)">
+                    <input id="attribute-name" class="option-field" type="text" placeholder="Attribute name (e.g. SeizureFrequency)">
+                </div>
+                <div class="option-item"> 
+                    <select id="attribute-relation" class="option-field default-option">
+                        <option value="default" selected>Related entity (e.g. Seizure)</option>
+                    </select>
                 </div>
                 <div class="option-item">
-                    <input id="attribute-relation" class="option-input-field" type="text" placeholder="Related entity (e.g. Seizure)">
-                </div>
-                <div class="option-item">
-                    <input id="attribute-dropdown" class="option-input-field" type="text" placeholder="Dropdown values (e.g. Daily, Weekly, Monthly)">
+                    <input id="attribute-dropdown" class="option-field" type="text" placeholder="Dropdown values (e.g. Daily, Weekly, Monthly)">
                 </div>
                 <div class="option-item">
                     <label id="add-attribute" class="option-button option-button-small">+ Attribute</label>
@@ -57,13 +59,13 @@
                 </p>
                 <span id="empty-container-message">Nothing added yet.</span>
                 <div id="output-list-container" style="display: none;">
-                    <div id="entity-list" class="option-column"><span style="font-weight: normal; text-transform: uppercase;">Added Entities</span></div>
-                    <div id="attribute-list" class="option-column"><span style="font-weight: normal; text-transform: uppercase;">Added Attributes</span></div>
+                    <div id="entity-list" class="option-column"><span style="font-weight: normal; text-transform: uppercase;">Entities</span></div>
+                    <div id="attribute-list" class="option-column"><span style="font-weight: normal; text-transform: uppercase;">Attributes</span></div>
                 </div>
             </div>
 
             <div class="completed-option-container" style="margin-bottom: 2.5%;">
-                <a id="save-configuration-file" class="option-button" style="text-decoration: none;">Export Config File</a>
+                <a id="save-configuration-file" class="option-button" style="text-decoration: none;">Export Configs</a>
             </div>
         </div>
     </div>
