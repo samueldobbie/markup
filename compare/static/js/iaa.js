@@ -3,6 +3,11 @@ $(document).ready(function () {
     $('#RunIAAAll').click(function () {
         runAllIAA();
     });
+    $('#RunIAAAll2').click(function () {
+        runIAAEntities();
+        // var myWindow = window.open("", "myWindow"); 
+        // myWindow.document.write("<p>This is 'myWindow'</p>");
+    });
 });
 
 function setupSession(isNewSession) {
@@ -19,7 +24,7 @@ function validateSession() {
     // Validate config file
     if (configText == null || configText.trim() == '') {
         alert('You need to provide a valid config file. Read the docs for more info.');
-        window.location = '/setup';
+        window.location = '/compare';
     }
     // TODO further validation
     // Vaidate that text one and text two is there
@@ -436,7 +441,7 @@ function runAllIAA() {
         ann1[i] = localStorage.getItem('firstannotationText' + i)
         ann2[i] = localStorage.getItem('secondannotationText' + i)
     }
-    console.log(ann1);
+    //console.log(ann1);
     $.ajax({
         type: 'POST',
         url: 'run-IAA-all/',
@@ -448,10 +453,41 @@ function runAllIAA() {
             results = JSON.parse(response);
 
             if (results.length != 0) {
-                console.log(results);
+                //console.log(results);
                 averageF1 = results[1];
                 $('#AllCorpus').empty();// This also removes the button to run the command (which is many kind-of neat)
                 $('#AllCorpus').append('<div id = "averageF1" style = "padding-top: 5px">Whole Corpus F1-score = ' + averageF1 +'<div/>');
+            }
+        }
+    });
+}
+
+function runIAAEntities() {
+    //let docID = localStorage.getItem('openDocId');
+    let numberofDocs = parseInt(localStorage.getItem('docCount'));
+    ann1 = [];
+    ann2 = [];
+    names = []
+    for (let i = 0; i < numberofDocs; i++) {
+        ann1[i] = localStorage.getItem('firstannotationText' + i)
+        ann2[i] = localStorage.getItem('secondannotationText' + i)
+        names[i] = localStorage.getItem('firstdocName' + i)
+    }
+    $.ajax({
+        type: 'POST',
+        url: 'run-IAA-entities/',
+        data: {
+                'annFiles1': ann1,
+                'annFiles2': ann2,
+                'letterNames': names,
+        }, success: function(response) {
+            let results = [];
+            results = JSON.parse(response);
+
+            if (results.length != 0) {
+                console.log(results);
+                var myWindow = window.open("", "myWindow"); 
+                myWindow.document.write(results);            
             }
         }
     });
@@ -601,11 +637,13 @@ function addAttributeData(attributeData, tagId, annotationData) {
 function resetAnnotationPanel() {
     // Empty annotation panel (excl. suggestions)
     const IAAAll = $('#AllCorpus').detach();
+    const IAAAll2 = $('#AllCorpus2').detach();
     const suggestions = $('#IAA').detach();
     //const IAAAll = $('#AllCorpus').detach();
     // $('#annotation-data-file1').empty().append(suggestions);
     // $('#annotation-data-file2').empty().append(suggestions);
-    $('#annotation-data').empty().append(IAAAll);
+    $('#annotation-data').empty().append(IAAAll2);
+    $('#annotation-data').append(IAAAll);
     $('#annotation-data').append(suggestions);
     // Add section titles to annotation panel - dont need here
     //const annotator1 = '<div id = "annotations-1">Annotator 1<div/>'
