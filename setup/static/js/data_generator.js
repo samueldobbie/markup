@@ -421,7 +421,7 @@ $(document).ready(function () {
         }; 
 
         if (variable.type == 'UMLS') {
-            variable.values = inputParser.getTablesValue(table);
+            variable.values = inputParser.getTablesValue(Unique_results2);
         } else {
             variable.values = inputParser.getNumericValues();
         }
@@ -439,6 +439,9 @@ $(document).ready(function () {
         // Add variable to existing and output lists
         form.existingVariables.push(variable.name);
         form.variables.push(variable);
+
+        newVariable = "<option value = " + variable.name + " id = dropdown-" + variable.name +"> " + variable.name + " </option>";
+        $('#other-variable').append(newVariable);
 
         // Clear input fields and enable deletion
         form.clearVariableFields();
@@ -454,7 +457,7 @@ $(document).ready(function () {
         }; 
 
         if (variable.type == 'UMLS') {
-            variable.values = inputParser.getTablesValue(table);
+            variable.values = inputParser.getTablesValue(results2);
         } else {
             variable.values = inputParser.getNumericValues();
         }
@@ -472,6 +475,9 @@ $(document).ready(function () {
         // Add variable to existing and output lists
         form.existingVariables.push(variable.name);
         form.variables.push(variable);
+
+        newVariable = "<option value = " + variable.name + " id = dropdown-" + variable.name +"> " + variable.name + " </option>";
+        $('#other-variable').append(newVariable);
 
         // Clear input fields and enable deletion
         form.clearVariableFields();
