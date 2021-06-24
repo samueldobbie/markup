@@ -17,7 +17,7 @@ def annFiletoArray(annFile):
     '''
     Splits ann file into array with each annotation having one value in the array
     '''
-    array = re.split('(T[0-9]{1,3}\t)', annFile) # Split on T2 TAB for start of annotations - and keep what spliting on 
+    array = re.split('(T[0-9]{1,4}\t)', annFile) # Split on T2 TAB for start of annotations - and keep what spliting on 
     array.pop(0) # Spilt right at start so first is blank therefore remove
     array = [ x+y for x,y in zip(array[0::2], array[1::2]) ] #join every two elements together (spliting separates them so this repairs that)
     return array
