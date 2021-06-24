@@ -12,6 +12,11 @@ def compare(request):
 def inter_annotator_agreement(request):
     return render(request, 'inter_annotator_agreement.html', {})
 
+## REMOVE CUIPHRASE AS A COMPARISON - FOR WHEN COMPARING TO GATE ANNOTATIONS
+## way to get all the possible attributes (similar to how getting all entities is done)
+## get the user to select which ones they want or dont want then
+## send that info to a request to remove the ones that they dont want for the comparison
+## write functions for all the aboves
 
 def annFiletoArray(annFile):
     '''
@@ -208,6 +213,68 @@ def f1Score(precision, recall):
     return round(f1Score1,4)
 
 
+def getSameEverything(letterDic, letterDic2):
+    '''
+    Run to get sameEverything output. Input = dictionaries of letters
+    '''
+    ## Get annotations the match with eachother (match = same name + overlap)
+    matchedDic1 = annotations_match(letterDic, letterDic2)
+    matchedDic2 = annotations_match(letterDic2, letterDic)
+
+    ## Annotations with same number of features
+    sameNumberofFeatues1 = sameNumFeatures(matchedDic1, matchedDic2)
+    sameNumberofFeatues2 = sameNumFeatures(matchedDic2, matchedDic1)
+
+    ## Annotations that are identical
+    sameEverything1 = sameEverything(sameNumberofFeatues1, sameNumberofFeatues2)
+    sameEverything2 = sameEverything(sameNumberofFeatues2, sameNumberofFeatues1)
+
+    return sameEverything1, sameEverything2
+
+
+def getDifferentAnnotations(letterDic, letterDic2):
+    '''
+    Run to get differentAnnotations output. Input = dictionaries of letters
+    '''
+    ## Get annotations the match with eachother (match = same name + overlap)
+    matchedDic1 = annotations_match(letterDic, letterDic2)
+    matchedDic2 = annotations_match(letterDic2, letterDic)
+
+    ## Annotations with no match
+    unmatchedDic1 = unmatched_annotations(matchedDic1, letterDic)
+    unmatchedDic2 = unmatched_annotations(matchedDic2, letterDic2)
+
+    ## Annotations with same number of features
+    sameNumberofFeatues1 = sameNumFeatures(matchedDic1, matchedDic2)
+    sameNumberofFeatues2 = sameNumFeatures(matchedDic2, matchedDic1)
+
+    ## Annotations with different number of features, therefore, not a match.
+    differentNumberoffeatures1 = differentNumFeatures(matchedDic1, sameNumberofFeatues1)
+    differentNumberoffeatures2 = differentNumFeatures(matchedDic2, sameNumberofFeatues2)
+
+    ## Annotations that are identical
+    sameEverything1 = sameEverything(sameNumberofFeatues1, sameNumberofFeatues2)
+    sameEverything2 = sameEverything(sameNumberofFeatues2, sameNumberofFeatues1)
+
+    ## Annotations that have different features or values for the features, therefore, not a match.
+    differentFeatures1 = differentFeatures(sameNumberofFeatues1, sameEverything1)
+    differentFeatures2 = differentFeatures(sameNumberofFeatues2, sameEverything2)
+
+    ## All the annotations that are different 
+    differentAnnotations = {}
+    differentAnnotations.update(unmatchedDic1) #add unmatchedDic = not same name and overlapping
+    differentAnnotations.update(differentNumberoffeatures1) ## diferent number of features 
+    differentAnnotations.update(differentFeatures1) ## features are different in someway (name or value)
+
+    ## All the annotaitons that are different
+    differentAnnotations2 = {}
+    differentAnnotations2.update(unmatchedDic2)
+    differentAnnotations2.update(differentNumberoffeatures2)
+    differentAnnotations2.update(differentFeatures2)
+
+    return differentAnnotations, differentAnnotations2
+
+
 def get_annotations(Dic1, Dic2):
     '''
     Get the annotation names of the annotations in the letter. 
@@ -244,19 +311,6 @@ def annotation_unique_dictionaries (annotations, Dic1, Dic2):
     return Let1Dic, Let2Dic
 
 
-def get_f1score_per_annotation(annotationSet, let1dic, let2dic):
-    for annotation in annotationSet:
-        annotation2 = let1dic.get(annotation)
-        annotation3 = let2dic.get(annotation)
-        print(annotation)
-        #print(annotation2)
-        #print(annotation3)
-        ## print(annotation2, "\n",annotation3)
-        results, TP, FN, FP  = runEverything123(annotation2, annotation3)
-        print(results)
-        print(TP, FN, FP)
-
-
 def runAll(annFile1, annFile2):
     '''
     Run all the functions to create the output
@@ -270,41 +324,7 @@ def runAll(annFile1, annFile2):
     letterDic = dicAnnotations(annFiletoArray(annFile1))
     letterDic2 = dicAnnotations(annFiletoArray(annFile2))
 
-    ## Get annotations the match with eachother (match = same name + overlap)
-    matchedDic1 = annotations_match(letterDic, letterDic2)
-    matchedDic2 = annotations_match(letterDic2, letterDic)
-
-    ## Annotations with no match
-    unmatchedDic1 = unmatched_annotations(matchedDic1, letterDic)
-    unmatchedDic2 = unmatched_annotations(matchedDic2, letterDic2)
-
-    ## Annotations with same number of features
-    sameNumberofFeatues1 = sameNumFeatures(matchedDic1, matchedDic2)
-    sameNumberofFeatues2 = sameNumFeatures(matchedDic2, matchedDic1)
-
-    ## Annotations with different number of features, therefore, not a match.
-    differentNumberoffeatures1 = differentNumFeatures(matchedDic1, sameNumberofFeatues1)
-    differentNumberoffeatures2 = differentNumFeatures(matchedDic2, sameNumberofFeatues2)
-
-    ## Annotations that are identical
-    sameEverything1 = sameEverything(sameNumberofFeatues1, sameNumberofFeatues2)
-    sameEverything2 = sameEverything(sameNumberofFeatues2, sameNumberofFeatues1)
-
-    ## Annotations that have different features or values for the features, therefore, not a match.
-    differentFeatures1 = differentFeatures(sameNumberofFeatues1, sameEverything1)
-    differentFeatures2 = differentFeatures(sameNumberofFeatues2, sameEverything2)
-
-    ## All the annotations that are different 
-    differentAnnotations = {}
-    differentAnnotations.update(unmatchedDic1) #add unmatchedDic = not same name and overlapping
-    differentAnnotations.update(differentNumberoffeatures1) ## diferent number of features 
-    differentAnnotations.update(differentFeatures1) ## features are different in someway (name or value)
-
-    ## All the annotaitons that are different
-    differentAnnotations2 = {}
-    differentAnnotations2.update(unmatchedDic2)
-    differentAnnotations2.update(differentNumberoffeatures2)
-    differentAnnotations2.update(differentFeatures2)
+    sameEverything1, sameEverything2 = getSameEverything(letterDic,letterDic2)
 
     if len(sameEverything1) == len(sameEverything2):
         TP = len(sameEverything1)
@@ -339,41 +359,7 @@ def runAll2(letterDic, letterDic2):
     Output is the precision, recall and f1Score for one letter that is run
     Different input than runAll()
     '''
-    ## Get annotations the match with eachother (match = same name + overlap)
-    matchedDic1 = annotations_match(letterDic, letterDic2)
-    matchedDic2 = annotations_match(letterDic2, letterDic)
-
-    ## Annotations with no match
-    unmatchedDic1 = unmatched_annotations(matchedDic1, letterDic)
-    unmatchedDic2 = unmatched_annotations(matchedDic2, letterDic2)
-
-    ## Annotations with same number of features
-    sameNumberofFeatues1 = sameNumFeatures(matchedDic1, matchedDic2)
-    sameNumberofFeatues2 = sameNumFeatures(matchedDic2, matchedDic1)
-
-    ## Annotations with different number of features, therefore, not a match.
-    differentNumberoffeatures1 = differentNumFeatures(matchedDic1, sameNumberofFeatues1)
-    differentNumberoffeatures2 = differentNumFeatures(matchedDic2, sameNumberofFeatues2)
-
-    ## Annotations that are identical
-    sameEverything1 = sameEverything(sameNumberofFeatues1, sameNumberofFeatues2)
-    sameEverything2 = sameEverything(sameNumberofFeatues2, sameNumberofFeatues1)
-
-    ## Annotations that have different features or values for the features, therefore, not a match.
-    differentFeatures1 = differentFeatures(sameNumberofFeatues1, sameEverything1)
-    differentFeatures2 = differentFeatures(sameNumberofFeatues2, sameEverything2)
-
-    ## All the annotations that are different 
-    differentAnnotations = {}
-    differentAnnotations.update(unmatchedDic1) #add unmatchedDic = not same name and overlapping
-    differentAnnotations.update(differentNumberoffeatures1) ## diferent number of features 
-    differentAnnotations.update(differentFeatures1) ## features are different in someway (name or value)
-
-    ## All the annotaitons that are different
-    differentAnnotations2 = {}
-    differentAnnotations2.update(unmatchedDic2)
-    differentAnnotations2.update(differentNumberoffeatures2)
-    differentAnnotations2.update(differentFeatures2)
+    sameEverything1, sameEverything2 = getSameEverything(letterDic,letterDic2)
 
     if len(sameEverything1) == len(sameEverything2):
         TP = len(sameEverything1)
@@ -439,100 +425,10 @@ def runEverything2(request):
     return HttpResponse(json.dumps(output))
 
 
-def get_results_each_letter(request):
-    '''
-    Run all the functions to get f1score, precision + recall for each letter in the corpus
-    '''
-    annFiles1 = request.POST.getlist('annFiles1[]')
-    annFiles2 = request.POST.getlist('annFiles2[]')
-
-    overall = {}
-
-    for index, x in enumerate(annFiles1):
-        annf1 = x
-        annf2 = annFiles2[index]
-        if (annf1 == "" or annf2 == ""):
-            overall[index] = "N/A"
-        else :
-            results123 = runAll(annf1, annf2)
-            overall[index] = results123
-
-    return HttpResponse(json.dumps(overall)) 
-
-
-def get_f1score_per_annotation(request):
-
-    annFile1 = request.POST['ann1']
-    annFile2 = request.POST['ann2']
-
-    annFile1 = annFile1.replace('\r\n', '\n') 
-    annFile2 = annFile2.replace('\r\n', '\n')
-    
-    ## Create the original dictionary from .ann file
-    letterDic = dicAnnotations(annFiletoArray(annFile1))
-    letterDic2 = dicAnnotations(annFiletoArray(annFile2))
-
-    annotationSet = get_annotations(letterDic, letterDic2)
-
-    Let1Dic, Let2Dic = annotation_unique_dictionaries(annotationSet, letterDic, letterDic2)
-
-    output = {}
-
-    for annotation in annotationSet:
-        annotation2 = let1dic.get(annotation)
-        annotation3 = let2dic.get(annotation)
-        print(annotation)
-        #print(annotation2)
-        #print(annotation3)
-        ## print(annotation2, "\n",annotation3)
-        results = runAll2(annotation2, annotation3)
-        output[annotation] = results
-    return HttpResponse(json.dumps(output))
-
-
-def get_f1score_per_annotationCorpus(request):
-
-    annFiles1 = request.POST.getlist('annFiles1[]')
-    annFiles2 = request.POST.getlist('annFiles2[]')
-    LetterNames = request.POST.getlist('letterNames[]')
-
-    overallF1perAnnotation = {}
-
-    for index, x in enumerate(annFiles1):
-        annf1 = x
-        annf2 = annFiles2[index]
-        if (annf1 == "" or annf2 == ""):
-            overallF1perAnnotation[index] = "N/A"
-        else :
-            annf1 = annf1.replace('\r\n', '\n') 
-            annf2 = annf2.replace('\r\n', '\n')
-            
-            ## Create the original dictionary from .ann file
-            letterDic = dicAnnotations(annFiletoArray(annf1))
-            letterDic2 = dicAnnotations(annFiletoArray(annf2))
-
-            annotationSet = get_annotations(letterDic, letterDic2)
-
-            let1Dic, let2Dic = annotation_unique_dictionaries(annotationSet, letterDic, letterDic2)
-
-            output = {}
-
-            for annotation in annotationSet:
-                annotation2 = let1Dic.get(annotation)
-                annotation3 = let2Dic.get(annotation)
-                results = runAll2(annotation2, annotation3)
-                output[annotation] = results
-
-            overallF1perAnnotation[index] = output
-
-    ## Convert Results into HTML table format
-    ## Do in the for loop I think - so can get table with names of the letter 
-    ## and then all the appropriate features (alphabetical order?)
-
-    return HttpResponse(json.dumps(overallF1perAnnotation))
-
-
 def get_f1score_per_annotationCorpusHTML(request):
+    '''
+    Creates the HTML tables that show f1scores for each entity, whole corpus and per letter
+    '''
 
     annFiles1 = request.POST.getlist('annFiles1[]')
     annFiles2 = request.POST.getlist('annFiles2[]')
@@ -625,3 +521,31 @@ def get_f1score_per_annotationCorpusHTML(request):
 
     html = html + htmlTable2 + htmlTable1
     return HttpResponse(json.dumps(html))
+
+
+def getDiffAnnfile(request):
+    '''
+    Create .ann files that only contain the difference between the two files
+    '''
+    annFile1 = request.POST['ann1']
+    annFile2 = request.POST['ann2']
+
+    ## Can't work out why some are windows end and others aren't, this is a easy fix
+    annFile1 = annFile1.replace('\r\n', '\n') 
+    annFile2 = annFile2.replace('\r\n', '\n')
+    
+    ## Create the original dictionary from .ann file
+    letterDic = dicAnnotations(annFiletoArray(annFile1))
+    letterDic2 = dicAnnotations(annFiletoArray(annFile2))
+
+
+    differentAnnotations, differentAnnotations2 = getDifferentAnnotations(letterDic, letterDic2)
+
+    diffAnn1 = dicToAnnFile(differentAnnotations)
+    diffAnn2 = dicToAnnFile(differentAnnotations2)
+
+    results = [diffAnn1, diffAnn2]
+
+    return HttpResponse(json.dumps(results))
+
+

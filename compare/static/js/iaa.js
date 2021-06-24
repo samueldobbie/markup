@@ -5,8 +5,15 @@ $(document).ready(function () {
     });
     $('#RunIAAAll2').click(function () {
         runIAAEntities();
-        // var myWindow = window.open("", "myWindow"); 
-        // myWindow.document.write("<p>This is 'myWindow'</p>");
+    });
+    $('#ViewDifferenceOnly').click(function () {
+        ViewDifferenceOnly();
+    });
+
+    $('#ViewAllAnnotations').click(function () {
+        setupSession(isNewSession=false);
+        $('#ViewDifferenceOnly').show()
+        $('#ViewAllAnnotations').hide()
     });
 });
 
@@ -192,6 +199,8 @@ function bindNavigationEvents() {
 function switchFile(updatedId) {
     localStorage.setItem('openDocId', updatedId);
     setupSession(isNewSession=false);
+    $('#ViewDifferenceOnly').show()
+    $('#ViewAllAnnotations').hide()
     //suggestDocumentAnnotations();
 }
 
@@ -493,6 +502,92 @@ function runIAAEntities() {
     });
 }
 
+function ViewDifferenceOnly() {
+    let docID = localStorage.getItem('openDocId');
+    let variable = {
+        'ann1': localStorage.getItem('firstannotationText' + docID),
+        'ann2': localStorage.getItem('secondannotationText' + docID),
+    };
+
+    $.ajax({
+        type: 'POST',
+        url: 'view-Difference-Only/',
+        data: {
+            'ann1': variable.ann1,
+            'ann2': variable.ann2,
+        }, success: function(response) {
+            let results = [];
+            results = JSON.parse(response);
+
+            if (results.length != 0) {
+                anndiff1 = results[0]
+                anndiff2 = results[1]
+
+                parsedDiffAnns1 = parseDiffAnnotations(anndiff1)
+                parsedDiffAnns2 = parseDiffAnnotations(anndiff2)
+
+                // reset annotation panel
+                openNewDocument();
+                resetAnnotationPanel();
+
+                // Add annotations
+                for (let i = 0; i < parsedDiffAnns1.length; i++) {
+                    const annotationData1 = getAnnotationData1(parsedDiffAnns1[i], i);
+                    addAnnotationToDisplay1(annotationData1);
+                }
+                for (let i = 0; i < parsedDiffAnns2.length; i++) {
+                    const annotationData1 = getAnnotationData2(parsedDiffAnns2[i], i);
+                    addAnnotationToDisplay2(annotationData1);
+                }
+
+                $('.collapsible').on('click', function() {
+                    const collapsible = $(this);
+                    const content = collapsible.next();
+            
+                    collapsible.toggleClass('active');
+                    if (collapsible.hasClass('active') ) {
+                        content.slideDown(200);
+                    } else {
+                        content.slideUp(200);
+                    };
+                });
+
+
+                // So they can edit - decided that they shouldn't be able to do this
+                //$('.annotation-attribute').click(editAnnotation);
+
+                // add button to return to original
+                $('#ViewDifferenceOnly').hide()
+                $('#ViewAllAnnotations').show()
+            }
+        }
+    });
+}
+
+function parseDiffAnnotations(annText) {
+    const annSentences = annText != null ? annText.split('\n') : null;
+
+    // Ensure a valid ann file exists
+    if (annText == null || annText.trim() == '') return [];
+
+    // Parse annotations from ann text
+    let parsedDiffAnns1 = [];
+    let currentDiffAnn1 = [];
+    for (let i = 0; i < annSentences.length; i++) {
+        if (annSentences[i][0] == ENTITY_TAG && currentDiffAnn1.length != 0) {
+            parsedDiffAnns1.push(currentDiffAnn1);
+            currentDiffAnn1 = [];
+        }
+
+        if (annSentences[i][0] == ENTITY_TAG || annSentences[i][0] == ATTRIBUTE_TAG) {
+            currentDiffAnn1.push([annSentences[i] + '\n']);
+        }
+    }
+    parsedDiffAnns1.push(currentDiffAnn1);
+
+    return parsedDiffAnns1;
+}
+
 function addIAAtoDisplay(results) {
     let precision = results[0];
     let recall = results[1];
@@ -524,7 +619,6 @@ function openNewDocument() {
 }
 
 
-//double this - DONE NEED TO SEPARATE INTO TWO HOWEVER
 function displayDocumentAnnotations() {
     const openDocId = localStorage.getItem('openDocId');
 
@@ -638,11 +732,13 @@ function resetAnnotationPanel() {
     // Empty annotation panel (excl. suggestions)
     const IAAAll = $('#AllCorpus').detach();
     const IAAAll2 = $('#AllCorpus2').detach();
+    const ViewDifferenceOnlyButton = $('#ViewDifferenceOnlyButton').detach();
     const suggestions = $('#IAA').detach();
     //const IAAAll = $('#AllCorpus').detach();
     // $('#annotation-data-file1').empty().append(suggestions);
     // $('#annotation-data-file2').empty().append(suggestions);
     $('#annotation-data').empty().append(IAAAll2);
+    $('#annotation-data').append(ViewDifferenceOnlyButton);
     $('#annotation-data').append(IAAAll);
     $('#annotation-data').append(suggestions);
     // Add section titles to annotation panel - dont need here
@@ -698,7 +794,8 @@ function resetAnnotationPanel() {
     // }
 
     // Empty offsets
-    offsets.length = 0;
+    offsets1.length = 0;
+    offsets2.length = 0;
 }
 //adds to text
 //need to get annotationData1 from first file and annotationData2 from second
@@ -886,7 +983,7 @@ function injectAnnotation1(entityValue, attributeValues, annotationIndex) {
     injectPanelAnnotation1(entityValue, attributeValues, annotationIndex, selection, entityColor, false);
 
     // Keep track of offets for each annotation
-    offsets.push([annotationIndex, entityValue, attributeValues, selection]);
+    offsets1.push([annotationIndex, entityValue, attributeValues, selection]);
 }
 
 function injectAnnotation2(entityValue, attributeValues, annotationIndex) {
@@ -899,7 +996,7 @@ function injectAnnotation2(entityValue, attributeValues, annotationIndex) {
     injectPanelAnnotation2(entityValue, attributeValues, annotationIndex, selection, entityColor, false);
 
     // Keep track of offets for each annotation
-    offsets.push([annotationIndex, entityValue, attributeValues, selection]);
+    offsets2.push([annotationIndex, entityValue, attributeValues, selection]);
 }
 
 
@@ -1058,12 +1155,12 @@ function constructContentContainer(annotationIndex, attributeValues, isSuggestio
         $('<p/>', {
             'class': 'attribute ' + attributeClass,
             'text': attributeValues[i]
-            //'onClick': 'editAnnotation(this)' // No editing availible, code commented out, wouldn't want to be able to change just compare
+            //'onClick': 'editAnnotation()' // No editing availible, code commented out, wouldn't want to be able to change just compare
         }).appendTo(contentContainer);
     }
 
     // COMMENTED OUT - DONT WANT TO BE ABLE TO EDIT(DELETE) ANNOTATIONS IN THIS VIEW
-    // Container for annotation options
+    //Container for annotation options
     // const optionContainer = $('<div/>', {
     //     'class': 'annotation-option-container',
     //     'annotation-id': annotationIndex,
@@ -1101,9 +1198,18 @@ function constructButton(type, annotationIndex) {
 
     return button;
 }
+// THIS WORK BUT DECIDED THEY SHOULDN'T BE ABLE TO USE IT
+// function editAnnotation() {
+//     const name = $(this).text().split(': ')[0].trim();
+//     const value = $(this).text().split(': ')[1].trim();
+//     const updatedValue = prompt('Updated value (' + name + ')', value);
 
-// function editAnnotation(element) {
-//     // TODO
+//     if (updatedValue && updatedValue.trim() != '') {
+//         $(this).text(name + ': ' + updatedValue);
+//     }
+
+//     const forId = $(this).parent().attr('for');
+//     $('#' + forId).attr(name, updatedValue);
 // }
 
 // function deleteAnnotation(element) {
@@ -1316,6 +1422,8 @@ function bindAnnotationEvents() {
             content.slideUp(200);
         };
     });
+
+
 
 //     // $('.suggestion').mouseenter(function () {
 //     //     // Restore original doc event
@@ -1696,17 +1804,33 @@ function updateHoverBrightness2(annotationIndex) {
 }
 
 function updateHoverData(id, annotationIndex) {
-    for (let i = 0; i < offsets.length; i++) {
-        if (offsets[i][0] == annotationIndex) {
-            let title = 'Entity: ' + offsets[i][1] + '\n';
-            for (let j = 0; j < offsets[i][2].length; j++) {
-                title += offsets[i][2][j];
+    if (id.split("-")[0] == 'first') {
+        for (let i = 0; i < offsets1.length; i++) {
+            if (offsets1[i][0] == annotationIndex) {
+                let title = 'Entity: ' + offsets1[i][1] + '\n';
+                for (let j = 0; j < offsets1[i][2].length; j++) {
+                    title += offsets1[i][2][j];
+                }
+                document.getElementById(id).title = title;
+                return;
             }
-            document.getElementById(id).title = title;
-            return;
+        }
+    }
+    else {
+        for (let i = 0; i < offsets2.length; i++) {
+            if (offsets2[i][0] == annotationIndex) {
+                let title = 'Entity: ' + offsets2[i][1] + '\n';
+                for (let j = 0; j < offsets2[i][2].length; j++) {
+                    title += offsets2[i][2][j];
+                }
+                document.getElementById(id).title = title;
+                return;
+            }
         }
     }
 }
+
+
 
 // function resetAnnotationEvents() {
 //     $('#file-data').unbind();    
@@ -1957,7 +2081,8 @@ let entityIds = [];
 let attributeIds = [];
 let annotations1 = [];
 let annotations2 = []
-let offsets = [];
+let offsets1 = [];
+let offsets2 = [];
 let entities = [];
 let attributes = [];
 let activeEntity = '';
