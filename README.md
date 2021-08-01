@@ -4,6 +4,8 @@
 
 Markup is an online annotation tool that can be used to transform unstructured documents into structured formats for NLP and ML tasks, such as named-entity recognition. Markup learns as you annotate in order to predict and suggest complex annotations. Markup also provides integrated access to existing and custom ontologies, enabling the prediction and suggestion of ontology mappings based on the text you're annotating.
 
+Please find the open access publication for Markup in Frontiers in Digital Health <a href="https://www.frontiersin.org/articles/10.3389/fdgth.2021.598916/full">here</a>
+
 ## Usage
 
 A full-feature version of Markup is available both via website and local installation.
