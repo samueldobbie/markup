@@ -1,16 +1,34 @@
-![](demo.gif)
-
-## What is Markup?
+# What is Markup?
 
 Markup is an online annotation tool that can be used to transform unstructured documents into structured formats for NLP and ML tasks, such as named-entity recognition. Markup learns as you annotate in order to predict and suggest complex annotations. Markup also provides integrated access to existing and custom ontologies, enabling the prediction and suggestion of ontology mappings based on the text you're annotating.
 
+# Markup 2.0
+
+## Note
+
+Due to time commitments, I'm solely focused on this version (not yet open-source). It's currently available at [https://markup-dev-e0b29.web.app](https://markup-dev-e0b29.web.app), but please treat the accounts and annotation sessions you create on Markup 2.0 as ephemeral until there has been a stable release.
+
+## Screenshot
+
+![](https://markup-dev-e0b29.web.app/static/media/dark-demo.f8db25cd.png)
+
+# Markup 1.0
+
+## Note
+
+This version is still available at [https://www.getmarkup.com/](https://www.getmarkup.com/), although I'm no longer maintaining it and will be replacing it with Markup 2.0 when a stable version is ready.
+
+## GIF
+
+![](demo.gif)
+
 ## Usage
 
-A full-feature version of Markup is available both via website and local installation.
+A full-feature version of Markup 1.0 is available both via website and local installation.
 
 ### Online
 
-The online version of Markup can be found <a href="https://www.getmarkup.com/">here</a>.
+The online version of Markup 1.0 can be found <a href="https://www.getmarkup.com/">here</a>.
 
 ### Local Server
 
@@ -30,7 +48,7 @@ For futher sessions, the local server can be started directly by running `python
 
 ## Documentation
 
-Documentation to help with setting up and using Markup can be found <a href="https://www.getmarkup.com/doc">here</a>.
+Documentation to help with setting up and using Markup 1.0 can be found <a href="https://www.getmarkup.com/doc">here</a>.
 
 ## Features
 
@@ -54,4 +72,4 @@ Documentation to help with setting up and using Markup can be found <a href="htt
 
 ## Known Bugs / Issues
 - Annotations may be offset when annotating across newlines in CRLF (Windows) text documents. The offset is purely visual; the exported indicies will be correct.
-- When using the website version of Markup, certain features may freeze while annotations are being predicted.
+- When using the website version of Markup 1.0, certain features may freeze while annotations are being predicted.
