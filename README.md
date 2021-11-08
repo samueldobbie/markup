@@ -6,29 +6,25 @@ Markup is an online annotation tool that can be used to transform unstructured d
 
 ## Note
 
-Due to time commitments, I'm solely focused on this version (not yet open-source). It's currently available at [https://markup-dev-e0b29.web.app](https://markup-dev-e0b29.web.app), but please treat the accounts and annotation sessions you create on Markup 2.0 as ephemeral until there has been a stable release.
+Due to other time commitments, I'm solely focused on Markup 2.0 (not yet open-source) which has a stable, hosted instance available at [https://getmarkup.com/](https://getmarkup.com/).
 
-## Screenshot
+## Demo
 
-![](https://markup-dev-e0b29.web.app/static/media/dark-demo.f8db25cd.png)
+![](https://i.imgur.com/bXtFWY1.png)
 
 # Markup 1.0
 
 ## Note
 
-This version is still available at [https://www.getmarkup.com/](https://www.getmarkup.com/), although I'm no longer maintaining it and will be replacing it with Markup 2.0 when a stable version is ready.
+The hosted instance for Markup 1.0 has been replaced by Markup 2.0.
 
-## GIF
+## Demo
 
 ![](demo.gif)
 
 ## Usage
 
 A full-feature version of Markup 1.0 is available both via website and local installation.
-
-### Online
-
-The online version of Markup 1.0 can be found <a href="https://www.getmarkup.com/">here</a>.
 
 ### Local Server
 
@@ -45,10 +41,6 @@ Run `docker run -d -p 8000:8000 samueldobbie/markup` and visit <a href="http://l
 3. Visit <a href="http://localhost:8000">http://localhost:8000</a>.
 
 For futher sessions, the local server can be started directly by running `python manage.py runserver localhost:8000`.
-
-## Documentation
-
-Documentation to help with setting up and using Markup 1.0 can be found <a href="https://www.getmarkup.com/doc">here</a>.
 
 ## Features
 
