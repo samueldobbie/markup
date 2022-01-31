@@ -1,5 +1,5 @@
 tensorflow==2.5.2
-Django==3.1.13
+Django==3.1.14
 modAL==0.3.6
 requests==2.24.0
 simstring-pure==1.0.0
