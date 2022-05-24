@@ -1,4 +1,4 @@
-tensorflow==2.5.2
+tensorflow==2.6.4
 Django==3.1.14
 modAL==0.3.6
 requests==2.24.0
