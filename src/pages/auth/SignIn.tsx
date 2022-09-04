@@ -1,4 +1,4 @@
-import { Grid, TextField, Typography } from "@mui/material"
+import { Checkbox, FormControlLabel, FormGroup, Grid, TextField, Typography } from "@mui/material"
 import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
 import AuthBox from "./components/AuthBox"
@@ -7,6 +7,7 @@ import { signInWithEmailAndPassword } from "firebase/auth"
 import { auth } from "constants/Firebase"
 import { Internal } from "constants/Page"
 import { moveToPage } from "utils/Location"
+import { textFieldStyles } from "./TextFieldStyles"
 
 interface Form {
   email: string
@@ -47,6 +48,7 @@ function SignIn(): JSX.Element {
           autoComplete="email"
           error={!!errors.email}
           helperText={errors.email && errors.email.message}
+          sx={textFieldStyles}
           {...register("email", {
             required: "You must enter an email",
             pattern: {
@@ -66,10 +68,18 @@ function SignIn(): JSX.Element {
           autoComplete="new-password"
           error={!!errors.password}
           helperText={errors.password && errors.password.message}
+          sx={textFieldStyles}
           {...register("password", {
             required: "You must enter a password",
           })}
         />
+
+        <FormGroup>
+          <FormControlLabel
+            control={<Checkbox />}
+            label="Remember me"
+          />
+        </FormGroup>
 
         <SubmitButton
           loading={isSubmitting}

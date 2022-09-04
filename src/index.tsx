@@ -6,8 +6,8 @@ import { CssBaseline } from "@mui/material"
 import PageRoutes from "components/routes/PageRoutes"
 import Nav from "components/nav/Nav"
 import { HelmetProvider } from "react-helmet-async"
-import "./index.css"
 import { AuthProvider } from "context/providers/AuthProvider"
+import "./index.css"
 
 function App(): JSX.Element {
   return (

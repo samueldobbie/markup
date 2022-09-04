@@ -30,8 +30,8 @@ function NavBar(props: Props) {
 
   const buttonStyles = {
     color: "text.primary",
-    fontSize: "1.02rem",
-    mr: 1,
+    fontSize: "0.875rem",
+    fontWeight: 500,
   }
 
   const iconButtonStyles = {

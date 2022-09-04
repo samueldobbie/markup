@@ -2,6 +2,7 @@ import { Internal } from "constants/Page"
 import ForgotPassword from "pages/auth/ForgotPassword"
 import SignIn from "pages/auth/SignIn"
 import SignUp from "pages/auth/SignUp"
+import Dashboard from "pages/dashboard/Dashboard"
 import Home from "pages/home/Home"
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 import PrivateRoute from "./PrivateRoute"
@@ -60,7 +61,7 @@ function PageRoutes(): JSX.Element {
           path={Internal.dashboard.path}
           element={
             <PrivateRoute title={Internal.dashboard.title}>
-              <ForgotPassword />
+              <Dashboard />
             </PrivateRoute>
           }
         />

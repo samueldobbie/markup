@@ -6,6 +6,7 @@ import SubmitButton from "components/button/SubmitButton"
 import { auth } from "constants/Firebase"
 import { sendPasswordResetEmail } from "firebase/auth"
 import { Internal } from "constants/Page"
+import { textFieldStyles } from "./TextFieldStyles"
 
 interface Form {
   email: string
@@ -49,6 +50,7 @@ function ForgotPassword(): JSX.Element {
           autoComplete="email"
           error={!!errors.email}
           helperText={errors.email && errors.email.message}
+          sx={textFieldStyles}
           {...register("email", {
             required: "You must enter an email",
             pattern: {

@@ -7,6 +7,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth"
 import { auth } from "constants/Firebase"
 import { Internal } from "constants/Page"
 import { moveToPage } from "utils/Location"
+import { textFieldStyles } from "./TextFieldStyles"
 
 interface Form {
   email: string
@@ -52,6 +53,7 @@ function SignUp(): JSX.Element {
           autoComplete="email"
           error={!!errors.email}
           helperText={errors.email && errors.email.message}
+          sx={textFieldStyles}
           {...register("email", {
             required: "You must enter an email",
             pattern: {
@@ -71,6 +73,7 @@ function SignUp(): JSX.Element {
           autoComplete="new-password"
           error={!!errors.password}
           helperText={errors.password && errors.password.message}
+          sx={textFieldStyles}
           {...register("password", {
             required: "You must enter a password",
           })}
@@ -86,6 +89,7 @@ function SignUp(): JSX.Element {
           autoComplete="off"
           error={!!errors.passwordConfirmation}
           helperText={errors.passwordConfirmation && errors.passwordConfirmation.message}
+          sx={textFieldStyles}
           {...register("passwordConfirmation", {
             required: "You must confirm your password",
           })}
