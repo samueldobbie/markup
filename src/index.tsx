@@ -7,18 +7,21 @@ import PageRoutes from "components/routes/PageRoutes"
 import Nav from "components/nav/Nav"
 import { HelmetProvider } from "react-helmet-async"
 import "./index.css"
+import { AuthProvider } from "context/providers/AuthProvider"
 
 function App(): JSX.Element {
   return (
     <React.StrictMode>
       <RecoilRoot>
-        <HelmetProvider>
+        <AuthProvider>
           <MarkupThemeProvider>
-            <CssBaseline />
-            <Nav />
-            <PageRoutes />
+            <HelmetProvider>
+              <CssBaseline />
+              <Nav />
+              <PageRoutes />
+            </HelmetProvider>
           </MarkupThemeProvider>
-        </HelmetProvider>
+        </AuthProvider>
       </RecoilRoot>
     </React.StrictMode>
   )

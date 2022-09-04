@@ -6,6 +6,7 @@ import SubmitButton from "components/button/SubmitButton"
 import { signInWithEmailAndPassword } from "firebase/auth"
 import { auth } from "constants/Firebase"
 import { Internal } from "constants/Page"
+import { moveToPage } from "utils/Location"
 
 interface Form {
   email: string
@@ -22,9 +23,9 @@ function SignIn(): JSX.Element {
     },
   } = useForm<Form>()
 
-  const onSubmit = (data: Form) => {
+  const onSubmit = async (data: Form) => {
     return signInWithEmailAndPassword(auth, data.email, data.password)
-      // .then(() => moveToPage(Page.Client.Dashboard.path))
+      .then(() => moveToPage(Internal.dashboard.path))
       // .catch((error) => showErrorToast(error.message))
   }
 

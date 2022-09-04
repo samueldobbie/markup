@@ -6,6 +6,7 @@ import SubmitButton from "components/button/SubmitButton"
 import { createUserWithEmailAndPassword } from "firebase/auth"
 import { auth } from "constants/Firebase"
 import { Internal } from "constants/Page"
+import { moveToPage } from "utils/Location"
 
 interface Form {
   email: string
@@ -26,7 +27,7 @@ function SignUp(): JSX.Element {
   const onSubmit = (data: Form) => {
     if (data.password === data.passwordConfirmation) {
       return createUserWithEmailAndPassword(auth, data.email, data.password)
-        // .then(() => moveToPage(Page.Client.Dashboard.path))
+        .then(() => moveToPage(Internal.dashboard.path))
         // .catch((error) => showErrorToast(error.message))
     } else {
       // showErrorToast("The confirmation password doesn't match")
