@@ -65,3 +65,8 @@ For futher sessions, the local server can be started directly by running `python
 ## Known Bugs / Issues
 - Annotations may be offset when annotating across newlines in CRLF (Windows) text documents. The offset is purely visual; the exported indicies will be correct.
 - When using the website version of Markup 1.0, certain features may freeze while annotations are being predicted.
+
+## Misc.
+
+Please find an open access publication for Markup in 'Frontiers in Digital Health' <a href="https://www.frontiersin.org/articles/10.3389/fdgth.2021.598916/full">here</a>
+
