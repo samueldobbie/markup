@@ -16,20 +16,20 @@ function MarkupThemeProvider({ children }: any): JSX.Element {
 }
 
 function buildTheme(themeMode: string): Theme {
-  const common = getCommonConfigs()
+  const typography = getTypographyConfigs()
   const components = getComponentConfigs()
-  const palette = themeMode == ThemeMode.Light
-    ? getLightPalette()
-    : getDarkPalette()
+  const palette = themeMode === ThemeMode.Dark
+    ? getDarkPalette()
+    : getLightPalette()
 
   return createTheme({
-    ...common,
+    ...typography,
     ...components,
     ...palette,
   })
 }
 
-function getCommonConfigs(): any {
+function getTypographyConfigs(): any {
   return {
     typography: {
       fontFamily: "Inter, sans-serif",

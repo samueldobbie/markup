@@ -2,7 +2,6 @@ import Page from "constants/Page"
 import { Divider, Drawer, Link, List, ListItem, ListItemText } from "@mui/material"
 import { userState } from "context/store/Auth"
 import { themeModeSelector } from "context/store/Theme"
-// import { Link } from "react-router-dom"
 import { useRecoilValue, useSetRecoilState } from "recoil"
 import RepoButton from "./RepoButton"
 

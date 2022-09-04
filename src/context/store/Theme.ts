@@ -6,8 +6,8 @@ const { persistAtom } = recoilPersist()
 
 const themeModeState = atom({
   key: "themeModeState",
-  default: ThemeMode.Light,
-  effects_UNSTABLE: [persistAtom],
+  default: ThemeMode.Dark,
+  effects: [persistAtom],
 })
 
 const themeModeSelector = selector({
@@ -16,12 +16,12 @@ const themeModeSelector = selector({
   set: ({ get, set }) => {
     const currentValue = get(themeModeState)
 
-    const updatedThemeMode = currentValue == ThemeMode.Light
-      ? ThemeMode.Dark
-      : ThemeMode.Light
+    const updatedThemeMode = currentValue === ThemeMode.Dark
+      ? ThemeMode.Light
+      : ThemeMode.Dark
 
     set(themeModeState, updatedThemeMode)
   }
 })
 
-export { themeModeSelector, themeModeState }
+export { themeModeState, themeModeSelector }

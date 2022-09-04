@@ -8,7 +8,6 @@ import { AppBar, Button, Container, Divider, Hidden, IconButton, Link, Menu, Men
 import { userState } from "context/store/Auth"
 import { themeModeSelector, themeModeState } from "context/store/Theme"
 import { useState } from "react"
-// import { Link } from "react-router-dom"
 import { useRecoilValue, useSetRecoilState } from "recoil"
 import NavLogo from "./NavLogo"
 import RepoButton from "./RepoButton"

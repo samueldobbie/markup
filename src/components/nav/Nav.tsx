@@ -19,7 +19,7 @@ function Nav() {
   const handleLogout = () => {
     auth
       .signOut()
-      // .then(() => location.reload())
+      .then(() => window.location.reload())
       // .catch(() => showErrorToast("Failed to logout"))
   }
 
