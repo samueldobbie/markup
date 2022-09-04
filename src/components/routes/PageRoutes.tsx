@@ -1,9 +1,10 @@
-import Page from "constants/Page"
+import { Internal } from "constants/Page"
 import ForgotPassword from "pages/auth/ForgotPassword"
 import SignIn from "pages/auth/SignIn"
 import SignUp from "pages/auth/SignUp"
 import Home from "pages/home/Home"
 import { BrowserRouter, Route, Routes } from "react-router-dom"
+import PrivateRoute from "./PrivateRoute"
 import PublicRoute from "./PublicRoute"
 
 function PageRoutes(): JSX.Element {
@@ -11,22 +12,20 @@ function PageRoutes(): JSX.Element {
     <BrowserRouter>
       <Routes>
         <Route
-          path={Page.home.path}
+          path={Internal.home.path}
           element={
-            <PublicRoute
-              title={Page.home.title}
-            >
+            <PublicRoute title={Internal.home.title}>
               <Home />
             </PublicRoute>
           }
         />
 
         <Route
-          path={Page.auth.signUp.path}
+          path={Internal.auth.signUp.path}
           element={
             <PublicRoute
               mustBeSignedOut
-              title={Page.auth.signUp.title}
+              title={Internal.auth.signUp.title}
             >
               <SignUp />
             </PublicRoute>
@@ -34,11 +33,11 @@ function PageRoutes(): JSX.Element {
         />
 
         <Route
-          path={Page.auth.signIn.path}
+          path={Internal.auth.signIn.path}
           element={
             <PublicRoute
               mustBeSignedOut
-              title={Page.auth.signIn.title}
+              title={Internal.auth.signIn.title}
             >
               <SignIn />
             </PublicRoute>
@@ -46,14 +45,23 @@ function PageRoutes(): JSX.Element {
         />
 
         <Route
-          path={Page.auth.forgotPassword.path}
+          path={Internal.auth.forgotPassword.path}
           element={
             <PublicRoute
               mustBeSignedOut
-              title={Page.auth.forgotPassword.title}
+              title={Internal.auth.forgotPassword.title}
             >
               <ForgotPassword />
             </PublicRoute>
+          }
+        />
+
+        <Route
+          path={Internal.dashboard.path}
+          element={
+            <PrivateRoute title={Internal.dashboard.title}>
+              <ForgotPassword />
+            </PrivateRoute>
           }
         />
       </Routes>

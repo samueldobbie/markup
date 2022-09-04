@@ -4,7 +4,7 @@ import { Box, Link } from "@mui/material"
 import { themeModeState } from "context/store/Theme"
 import ThemeMode from "constants/Theme"
 import { useRecoilValue } from "recoil"
-import Page from "constants/Page"
+import { Internal } from "constants/Page"
 
 function NavLogo(): JSX.Element {
   const themeMode = useRecoilValue(themeModeState)
@@ -24,11 +24,11 @@ function NavLogo(): JSX.Element {
 
   return (
     <Box sx={boxStyles}>
-      <Link href={Page.dashboard.path}>
+      <Link href={Internal.home.path}>
         <img
           src={logoImage}
           style={imageStyles}
-          alt="home"
+          alt="Markup Logo"
         />
       </Link>
     </Box>

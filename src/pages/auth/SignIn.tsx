@@ -5,7 +5,7 @@ import AuthBox from "./components/AuthBox"
 import SubmitButton from "components/button/SubmitButton"
 import { signInWithEmailAndPassword } from "firebase/auth"
 import { auth } from "constants/Firebase"
-import Page from "constants/Page"
+import { Internal } from "constants/Page"
 
 interface Form {
   email: string
@@ -79,7 +79,7 @@ function SignIn(): JSX.Element {
       <Grid container>
         <Grid item xs>
           <Link
-            to={Page.auth.forgotPassword.path}
+            to={Internal.auth.forgotPassword.path}
             style={{ textDecoration: "none" }}
           >
             <Typography color="primary">
@@ -90,7 +90,7 @@ function SignIn(): JSX.Element {
 
         <Grid item>
           <Link
-            to={Page.auth.signUp.path}
+            to={Internal.auth.signUp.path}
             style={{ textDecoration: "none" }}
           >
             <Typography color="primary">

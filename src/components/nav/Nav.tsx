@@ -1,6 +1,5 @@
-// import { openTab } from "@commons/utils/Location"
-// import { showErrorToast } from "@components/toast/Toast"
 import { auth } from "constants/Firebase"
+import { External } from "constants/Page"
 import { useState } from "react"
 import NavBar from "./NavBar"
 import NavDrawer from "./NavDrawer"
@@ -13,7 +12,7 @@ function Nav() {
   }
 
   const openDocs = () => {
-    // openTab(Page.docs.path)
+    window.open(External.docs.url)
   }
 
   const handleLogout = () => {

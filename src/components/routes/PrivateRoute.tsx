@@ -12,7 +12,7 @@ function PrivateRoute(props: Props): JSX.Element {
   const { title, children } = props
   const user = useRecoilValue(userState)
 
-  if (user) {
+  if (user == null) {
     return <Navigate to="/auth/sign-in" replace />
   }
 

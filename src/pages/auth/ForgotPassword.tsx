@@ -5,7 +5,7 @@ import AuthBox from "./components/AuthBox"
 import SubmitButton from "components/button/SubmitButton"
 import { auth } from "constants/Firebase"
 import { sendPasswordResetEmail } from "firebase/auth"
-import Page from "constants/Page"
+import { Internal } from "constants/Page"
 
 interface Form {
   email: string
@@ -31,10 +31,13 @@ function ForgotPassword(): JSX.Element {
   return (
     <AuthBox>
       <Typography gutterBottom variant="h5">
-        Forgot password
+        Forgotten password
       </Typography>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        style={{ width: "100%" }}
+      >
         <TextField
           autoFocus
           fullWidth
@@ -71,7 +74,7 @@ function ForgotPassword(): JSX.Element {
           </Typography>
 
           <Link
-            to={Page.auth.signIn.path}
+            to={Internal.auth.signIn.path}
             style={{ textDecoration: "none" }}
           >
             <Typography

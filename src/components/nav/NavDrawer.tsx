@@ -1,4 +1,4 @@
-import Page from "constants/Page"
+import { Internal } from "constants/Page"
 import { Divider, Drawer, Link, List, ListItem, ListItemText } from "@mui/material"
 import { userState } from "context/store/Auth"
 import { themeModeSelector } from "context/store/Theme"
@@ -29,7 +29,7 @@ function NavDrawer(props: Props): JSX.Element {
         <ListItem
           button
           component={Link}
-          href={Page.dashboard.path}
+          href={Internal.auth.signIn.path}
         >
           <ListItemText>
             Sign In
@@ -39,7 +39,7 @@ function NavDrawer(props: Props): JSX.Element {
         <ListItem
           button
           component={Link}
-          href={Page.dashboard.path}
+          href={Internal.auth.signUp.path}
         >
           <ListItemText>
             Sign Up
@@ -55,7 +55,7 @@ function NavDrawer(props: Props): JSX.Element {
         <ListItem
           button
           component={Link}
-          href={Page.dashboard.path}
+          href={Internal.dashboard.path}
         >
           <ListItemText>
             Dashboard
@@ -65,7 +65,7 @@ function NavDrawer(props: Props): JSX.Element {
         <ListItem
           button
           component={Link}
-          href={Page.dashboard.path}
+          href={Internal.settings.path}
         >
           <ListItemText>
             Settings

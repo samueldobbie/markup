@@ -5,7 +5,7 @@ import AuthBox from "./components/AuthBox"
 import SubmitButton from "components/button/SubmitButton"
 import { createUserWithEmailAndPassword } from "firebase/auth"
 import { auth } from "constants/Firebase"
-import Page from "constants/Page"
+import { Internal } from "constants/Page"
 
 interface Form {
   email: string
@@ -108,7 +108,7 @@ function SignUp(): JSX.Element {
         </Typography>
 
         <Link
-          to={Page.auth.signIn.path}
+          to={Internal.auth.signIn.path}
           style={{ textDecoration: "none" }}
         >
           <Typography

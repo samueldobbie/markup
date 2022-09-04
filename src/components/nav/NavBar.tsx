@@ -1,4 +1,4 @@
-import Page from "constants/Page"
+import { Internal } from "constants/Page"
 import ThemeMode from "constants/Theme"
 import ExpandMoreTwoToneIcon from "@mui/icons-material/ExpandMoreTwoTone"
 import MenuTwoToneIcon from "@mui/icons-material/MenuTwoTone"
@@ -76,14 +76,14 @@ function NavBar(props: Props) {
         >
           <MenuItem
             component={Link}
-            href={Page.dashboard.path}
+            href={Internal.dashboard.path}
           >
             Dashboard
           </MenuItem>
 
           <MenuItem
             component={Link}
-            href={Page.dashboard.path}
+            href={Internal.settings.path}
           >
             Settings
           </MenuItem>
@@ -103,7 +103,7 @@ function NavBar(props: Props) {
       <>
         <Button
           component={Link}
-          href={Page.dashboard.path}
+          href={Internal.auth.signIn.path}
           sx={buttonStyles}
         >
           Sign In
@@ -111,7 +111,7 @@ function NavBar(props: Props) {
 
         <Button
           component={Link}
-          href={Page.dashboard.path}
+          href={Internal.auth.signUp.path}
           sx={buttonStyles}
         >
           Sign Up

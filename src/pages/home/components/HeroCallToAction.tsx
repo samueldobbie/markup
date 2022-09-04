@@ -1,5 +1,5 @@
 import { Button } from "@mui/material"
-import Page from "constants/Page"
+import { Internal } from "constants/Page"
 import { userState } from "context/store/Auth"
 import { Link } from "react-router-dom"
 import { useRecoilValue } from "recoil"
@@ -8,12 +8,17 @@ function HeroCallToAction() {
   const user = useRecoilValue(userState)
   
   const primaryButtonText = user
-    ? "Go to dashboard"
-    : "Get started"
+    ? "Visit dashboard"
+    : "Start annotating"
 
-  const styles = {
+  const coreButtonStyles = {
     fontWeight: "bold",
     fontSize: 20,
+  }
+
+  const primaryButtonStyles = {
+    ...coreButtonStyles,
+    mr: 2,
   }
 
   return (
@@ -23,11 +28,8 @@ function HeroCallToAction() {
         size="large"
         color="primary"
         component={Link}
-        to={Page.auth.signUp.path}
-        sx={{
-          ...styles,
-          mr: 2,
-        }}
+        to={Internal.auth.signUp.path}
+        sx={primaryButtonStyles}
       >
         {primaryButtonText}
       </Button>
@@ -37,8 +39,8 @@ function HeroCallToAction() {
         size="large"
         color="primary"
         component={Link}
-        to={"demoooo"}
-        sx={styles}
+        to={Internal.session.demo.path}
+        sx={coreButtonStyles}
       >
         Try demo
       </Button>
