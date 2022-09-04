@@ -2043,6 +2043,13 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
+"@jy95/material-ui-image@^4.0.7":
+  version "4.0.7"
+  resolved "https://registry.yarnpkg.com/@jy95/material-ui-image/-/material-ui-image-4.0.7.tgz#31493132bd41c52ae9dbc22251c9da13772818c3"
+  integrity sha512-cASu648NonkLSpA/mBXhZM3LcEiV6Q70ZvyyWUXKJn3Odrng774oUSfu6q4vJ1oUZdiDJKXpBTDS1lGJVX3BtA==
+  dependencies:
+    prop-types "^15.5.8"
+
 "@leichtgewicht/ip-codec@^2.0.1":
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.4.tgz#b2ac626d6cb9c8718ab459166d4bb405b8ffa78b"
@@ -7981,7 +7988,7 @@ prompts@^2.0.1, prompts@^2.4.2:
     kleur "^3.0.3"
     sisteransi "^1.0.5"
 
-prop-types@^15.6.2, prop-types@^15.7.2, prop-types@^15.8.1:
+prop-types@^15.5.8, prop-types@^15.6.2, prop-types@^15.7.2, prop-types@^15.8.1:
   version "15.8.1"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==

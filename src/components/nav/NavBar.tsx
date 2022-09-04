@@ -14,12 +14,12 @@ import RepoButton from "./RepoButton"
 
 interface Props {
   toggleDrawer: () => void
-  handleDocs: () => void
+  openDocs: () => void
   handleLogout: () => void
 }
 
 function NavBar(props: Props) {
-  const { toggleDrawer, handleDocs, handleLogout } = props
+  const { toggleDrawer, openDocs, handleLogout } = props
   
   const [anchor, setAnchor] = useState(null)
   
@@ -143,7 +143,7 @@ function NavBar(props: Props) {
 
           <Hidden smDown>
             <Button
-              onClick={handleDocs}
+              onClick={openDocs}
               sx={buttonStyles}
             >
               Docs

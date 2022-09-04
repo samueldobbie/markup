@@ -12,7 +12,7 @@ function Nav() {
     setDrawer(!drawer)
   }
 
-  const handleDocs = () => {
+  const openDocs = () => {
     // openTab(Page.docs.path)
   }
 
@@ -24,20 +24,20 @@ function Nav() {
   }
 
   return (
-    <>
+    <nav>
       <NavBar
         toggleDrawer={toggleDrawer}
-        handleDocs={handleDocs}
+        openDocs={openDocs}
         handleLogout={handleLogout}
       />
 
       <NavDrawer
         drawer={drawer}
         toggleDrawer={toggleDrawer}
-        handleDocs={handleDocs}
+        openDocs={openDocs}
         handleLogout={handleLogout}
       />
-    </>
+    </nav>
   )
 }
 

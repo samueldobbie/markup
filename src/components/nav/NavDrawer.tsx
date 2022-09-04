@@ -8,7 +8,7 @@ import RepoButton from "./RepoButton"
 interface Props {
   drawer: boolean
   toggleDrawer: () => void
-  handleDocs: () => void
+  openDocs: () => void
   handleLogout: () => void
 }
 
@@ -16,7 +16,7 @@ function NavDrawer(props: Props): JSX.Element {
   const {
     drawer,
     toggleDrawer,
-    handleDocs,
+    openDocs,
     handleLogout,
   } = props
 
@@ -93,7 +93,7 @@ function NavDrawer(props: Props): JSX.Element {
       onClose={toggleDrawer}
     >
       <List sx={{ width: 250 }}>
-        <ListItem button onClick={handleDocs}>
+        <ListItem button onClick={openDocs}>
           <ListItemText>
             Docs
           </ListItemText>
