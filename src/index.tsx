@@ -11,11 +11,10 @@ import "./index.css"
 function App(): JSX.Element {
   return (
     <React.StrictMode>
-      <CssBaseline />
-
       <RecoilRoot>
         <HelmetProvider>
           <MarkupThemeProvider>
+            <CssBaseline />
             <Nav />
             <PageRoutes />
           </MarkupThemeProvider>

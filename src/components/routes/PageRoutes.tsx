@@ -1,5 +1,7 @@
-import Nav from "components/nav/Nav"
 import Page from "constants/Page"
+import ForgotPassword from "pages/auth/ForgotPassword"
+import SignIn from "pages/auth/SignIn"
+import SignUp from "pages/auth/SignUp"
 import Home from "pages/home/Home"
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 import PublicRoute from "./PublicRoute"
@@ -26,7 +28,7 @@ function PageRoutes(): JSX.Element {
               mustBeSignedOut
               title={Page.auth.signUp.title}
             >
-              <Nav />
+              <SignUp />
             </PublicRoute>
           }
         />
@@ -38,7 +40,7 @@ function PageRoutes(): JSX.Element {
               mustBeSignedOut
               title={Page.auth.signIn.title}
             >
-              <Nav />
+              <SignIn />
             </PublicRoute>
           }
         />
@@ -50,7 +52,7 @@ function PageRoutes(): JSX.Element {
               mustBeSignedOut
               title={Page.auth.forgotPassword.title}
             >
-              <Nav />
+              <ForgotPassword />
             </PublicRoute>
           }
         />
