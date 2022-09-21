@@ -11,19 +11,19 @@ function AccountOverview(): JSX.Element {
     <Card sx={{ userSelect: "none" }}>
       <CardContent>
         <Box>
+        <Typography
+            onClick={() => setShowTutorial(false)}
+            sx={{
+              opacity: 0.7,
+              cursor: "pointer",
+              float: "right",
+            }}
+          >
+            (hide message)
+          </Typography>
+
           <Typography paragraph variant="h6">
             Welcome to Markup!
-
-            <Typography
-              onClick={() => setShowTutorial(false)}
-              sx={{
-                opacity: 0.7,
-                cursor: "pointer",
-                float: "right",
-              }}
-            >
-              (hide message)
-            </Typography>
           </Typography>
 
           <Typography paragraph>
