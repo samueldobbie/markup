@@ -1,13 +1,11 @@
 enum Path {
   Home = "/",
+  Docs = "/docs",
   SignUp = "/sign-up",
   SignIn = "/sign-in",
   ForgotPassword = "/forgot-password",
-  SetupProfile = "/start",
-  Match = "/match",
-  Inbox = "/inbox",
+  Dashboard = "/dashboard",
   Contact = "/contact",
-  Docs = "/docs",
   NotFound = "*",
 }
 
