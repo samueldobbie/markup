@@ -1,179 +1,205 @@
-import { Internal } from "constants/Page"
-import ThemeMode from "constants/Theme"
-import ExpandMoreTwoToneIcon from "@mui/icons-material/ExpandMoreTwoTone"
-import MenuTwoToneIcon from "@mui/icons-material/MenuTwoTone"
-import NightsStayTwoToneIcon from "@mui/icons-material/NightsStayTwoTone"
-import WbSunnyTwoToneIcon from "@mui/icons-material/WbSunnyTwoTone"
-import { AppBar, Button, Container, Divider, Hidden, IconButton, Link, Menu, MenuItem, Toolbar } from "@mui/material"
-import { userState } from "context/store/Auth"
-import { themeModeSelector, themeModeState } from "context/store/Theme"
-import { useState } from "react"
-import { useRecoilValue, useSetRecoilState } from "recoil"
-import NavLogo from "./NavLogo"
-import RepoButton from "./RepoButton"
+import { createStyles, Header, Container, Group, Burger, Paper, Transition, Switch, useMantineTheme, useMantineColorScheme, Image, Center, Menu, Divider } from "@mantine/core"
+import { useDisclosure } from "@mantine/hooks"
+import { Link } from "react-router-dom"
+import { IconSun, IconMoonStars, IconChevronDown } from "@tabler/icons"
+import { useAuth } from "providers/AuthProvider"
+import { auth } from "utils/Firebase"
+import { Path } from "utils/Path"
+import GitHubButton from "react-github-btn"
 
-interface Props {
-  toggleDrawer: () => void
-  openDocs: () => void
-  handleLogout: () => void
-}
+const HEADER_HEIGHT = 60
 
-function NavBar(props: Props) {
-  const { toggleDrawer, openDocs, handleLogout } = props
-  
-  const [anchor, setAnchor] = useState(null)
-  
-  const open = Boolean(anchor)
-  const user = useRecoilValue(userState)
-  const themeMode = useRecoilValue(themeModeState)
-  const themeModeToggle = useSetRecoilState(themeModeSelector)
+const useStyles = createStyles((theme) => ({
+  root: {
+    position: "relative",
+    zIndex: 1,
+    backgroundColor: "#0080FF",
+  },
+  dropdown: {
+    position: "absolute",
+    top: HEADER_HEIGHT,
+    left: 0,
+    right: 0,
+    zIndex: 0,
+    borderTopRightRadius: 0,
+    borderTopLeftRadius: 0,
+    borderTopWidth: 0,
+    overflow: "hidden",
 
-  const buttonStyles = {
-    color: "text.primary",
-    fontSize: "0.875rem",
-    fontWeight: 500,
-  }
-
-  const iconButtonStyles = {
-    color: "text.primary",
-    opacity: 0.6,
-  }
-
-  const repoButtonStyles = {
-    color: "transparent",
-    backgroundColor: "transparent",
-    marginTop: 1,
-    ml: 2,
-    cursor: "default",
-    "&:hover": {
-      backgroundColor: "transparent",
+    [theme.fn.largerThan("sm")]: {
+      display: "none",
     },
-  }
+  },
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    height: "100%",
+  },
+  burger: {
+    [theme.fn.largerThan("sm")]: {
+      display: "none",
+    },
+  },
+  navItems: {
+    [theme.fn.smallerThan("sm")]: {
+      display: "none",
+    },
+  },
+  navItem: {
+    display: "block",
+    lineHeight: 1,
+    padding: "8px 12px",
+    borderRadius: theme.radius.sm,
+    textDecoration: "none",
+    // color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.colors.gray[7],
+    color: "white",
+    fontSize: theme.fontSizes.sm,
+    // fontWeight: 500,
+    fontWeight: "bold",
 
-  const handleDropdownClick = (event: any) => {
-    setAnchor(event.currentTarget)
-  }
+    [theme.fn.smallerThan("sm")]: {
+      borderRadius: 0,
+      padding: theme.spacing.md,
+    },
+  },
+  navItemHover: {
+    "&:hover": {
+      backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0],
+      color: theme.fn.variant({ variant: "light", color: theme.primaryColor }).color,
+    },
+  },
+}))
 
-  const handleClose = () => {
-    setAnchor(null)
-  }
+function Navbar() {
+  const theme = useMantineTheme()
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme()
+  const { classes, cx } = useStyles()
+  const { user } = useAuth()
+  const [opened, { toggle, close }] = useDisclosure(false)
 
-  const signedInButtons = () => {
-    return (
-      <>
-        <Button
-          onClick={handleDropdownClick}
-          sx={buttonStyles}
-        >
-          Account <ExpandMoreTwoToneIcon />
-        </Button>
+  const logo = theme.colorScheme === "dark"
+    ? "https://i.imgur.com/XNjFxxn.png"
+    : "https://i.imgur.com/9Q9lBeF.png"
 
-        <Menu
-          open={open}
-          anchorEl={anchor}
-          onClose={handleClose}
-          onClick={handleClose}
-        >
-          <MenuItem
-            component={Link}
-            href={Internal.dashboard.path}
+  const navbarItems = (
+    <>
+      {user === null &&
+        <>
+          <Link
+            to={Path.Docs}
+            className={cx(classes.navItem, classes.navItemHover)}
+            onClick={() => close()}
           >
-            Dashboard
-          </MenuItem>
+            Docs
+          </Link>
 
-          <MenuItem
-            component={Link}
-            href={Internal.settings.path}
+          <Link
+            to={Path.SignIn}
+            className={cx(classes.navItem, classes.navItemHover)}
+            onClick={() => close()}
           >
-            Settings
-          </MenuItem>
+            Sign In
+          </Link>
 
-          <Divider />
+          <Link
+            to={Path.SignUp}
+            className={cx(classes.navItem, classes.navItemHover)}
+            onClick={() => close()}
+          >
+            Sign Up
+          </Link>
+        </>
+      }
 
-          <MenuItem onClick={handleLogout}>
-            Log Out
-          </MenuItem>
-        </Menu>
-      </>
-    )
-  }
+      {user !== null &&
+        <>
+          <Link
+            to={Path.Docs}
+            className={cx(classes.navItem, classes.navItemHover)}
+            onClick={() => close()}
+          >
+            Docs
+          </Link>
 
-  const signedOutButtons = () => {
-    return (
-      <>
-        <Button
-          component={Link}
-          href={Internal.auth.signIn.path}
-          sx={buttonStyles}
+
+          <Menu width={200} shadow="md">
+            <Menu.Target>
+              <a
+                href="/"
+                className={cx(classes.navItem, classes.navItemHover)}
+                onClick={(event) => event.preventDefault()}
+              >
+                <Center>
+                  <span>Account</span>
+                  <IconChevronDown size={16} stroke={2} />
+                </Center>
+              </a>
+            </Menu.Target>
+
+            <Menu.Dropdown>
+              <Menu.Item component="a" href="/dashboard">
+                Dashboard
+              </Menu.Item>
+
+              <Menu.Item component="a" href="/dashboard">
+                Settings
+              </Menu.Item>
+
+              <Divider />
+
+              <Menu.Item onClick={async () => await auth.signOut()}>
+                Logout
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        </>
+      }
+
+      <Switch
+        checked={colorScheme === 'dark'}
+        onChange={() => toggleColorScheme()}
+        size="lg"
+        onLabel={<IconSun color={theme.white} size={20} stroke={1.5} />}
+        offLabel={<IconMoonStars color={theme.colors.gray[6]} size={20} stroke={1.5} />}
+        className={cx(classes.navItem)}
+      />
+
+      <Group className={cx(classes.navItem)}>
+        <GitHubButton
+          href="https://github.com/samueldobbie/markup"
+          data-size="large"
+          data-show-count="true"
         >
-          Sign In
-        </Button>
-
-        <Button
-          component={Link}
-          href={Internal.auth.signUp.path}
-          sx={buttonStyles}
-        >
-          Sign Up
-        </Button>
-      </>
-    )
-  }
+          Star
+        </GitHubButton>
+      </Group>
+    </>
+  )
 
   return (
-    <AppBar
-      position="static"
-      color="transparent"
-      elevation={0}
-    >
-      <Container disableGutters>
-        <Toolbar>
-          <NavLogo />
+    <Header height={HEADER_HEIGHT} mb={50} className={classes.root}>
+      <Container className={classes.header}>
+        <Link to={Path.Home} style={{ textDecoration: "none" }}>
+          <Image src={logo} height={22} />
+        </Link>
 
-          <div style={{ flexGrow: 1 }} />
+        <Group spacing={5} className={classes.navItems}>
+          {navbarItems}
+        </Group>
 
-          <Hidden smUp>
-            <IconButton
-              onClick={toggleDrawer}
-              sx={iconButtonStyles}
-            >
-              <MenuTwoToneIcon />
-            </IconButton>
-          </Hidden>
+        <Burger opened={opened} onClick={toggle} className={classes.burger} size="sm" />
 
-          <Hidden smDown>
-            <Button
-              onClick={openDocs}
-              sx={buttonStyles}
-            >
-              Docs
-            </Button>
-
-            {
-              user
-                ? signedInButtons()
-                : signedOutButtons()
-            }
-
-            <IconButton
-              onClick={themeModeToggle}
-              sx={iconButtonStyles}
-            >
-              {
-                themeMode === ThemeMode.Light
-                  ? <NightsStayTwoToneIcon />
-                  : <WbSunnyTwoToneIcon />
-              }
-            </IconButton>
-
-            <Button sx={repoButtonStyles}>
-              <RepoButton />
-            </Button>
-          </Hidden>
-        </Toolbar>
+        <Transition transition="pop-top-right" duration={200} mounted={opened}>
+          {(styles) => (
+            <Paper className={classes.dropdown} withBorder style={styles}>
+              {navbarItems}
+            </Paper>
+          )}
+        </Transition>
       </Container>
-    </AppBar>
+    </Header>
   )
 }
 
-export default NavBar
+export default Navbar
