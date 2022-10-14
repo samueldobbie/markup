@@ -1,72 +1,37 @@
-import { Internal } from "constants/Page"
 import ForgotPassword from "pages/auth/ForgotPassword"
 import SignIn from "pages/auth/SignIn"
 import SignUp from "pages/auth/SignUp"
-import Dashboard from "pages/dashboard/Dashboard"
-import Home from "pages/home/Home"
-import { BrowserRouter, Route, Routes } from "react-router-dom"
-import PrivateRoute from "./PrivateRoute"
-import PublicRoute from "./PublicRoute"
+import { Route, Routes } from "react-router-dom"
+import UnprotectedRoute from "./UnprotectedRoute"
+import { Path } from "utils/Path"
+import Home2 from "pages/home/Home"
+import NotFound from "pages/error/NotFound"
 
 function PageRoutes(): JSX.Element {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path={Internal.home.path}
-          element={
-            <PublicRoute title={Internal.home.title}>
-              <Home />
-            </PublicRoute>
-          }
-        />
+    <Routes>
+      <Route path={Path.Home} element={<Home2 />} />
 
-        <Route
-          path={Internal.auth.signUp.path}
-          element={
-            <PublicRoute
-              mustBeSignedOut
-              title={Internal.auth.signUp.title}
-            >
-              <SignUp />
-            </PublicRoute>
-          }
-        />
+      <Route path={Path.SignUp} element={
+        <UnprotectedRoute>
+          <SignUp />
+        </UnprotectedRoute>
+      } />
 
-        <Route
-          path={Internal.auth.signIn.path}
-          element={
-            <PublicRoute
-              mustBeSignedOut
-              title={Internal.auth.signIn.title}
-            >
-              <SignIn />
-            </PublicRoute>
-          }
-        />
+      <Route path={Path.SignIn} element={
+        <UnprotectedRoute>
+          <SignIn />
+        </UnprotectedRoute>
+      } />
 
-        <Route
-          path={Internal.auth.forgotPassword.path}
-          element={
-            <PublicRoute
-              mustBeSignedOut
-              title={Internal.auth.forgotPassword.title}
-            >
-              <ForgotPassword />
-            </PublicRoute>
-          }
-        />
+      <Route path={Path.ForgotPassword} element={
+        <UnprotectedRoute>
+          <ForgotPassword />
+        </UnprotectedRoute>
+      } />
 
-        <Route
-          path={Internal.dashboard.path}
-          element={
-            <PrivateRoute title={Internal.dashboard.title}>
-              <Dashboard />
-            </PrivateRoute>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+      <Route path={Path.NotFound} element={<NotFound />} />
+    </Routes>
   )
 }
 
