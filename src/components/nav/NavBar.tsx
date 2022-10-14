@@ -1,4 +1,4 @@
-import { createStyles, Header, Container, Group, Burger, Paper, Transition, Switch, useMantineTheme, useMantineColorScheme, Image, Center, Menu, Divider } from "@mantine/core"
+import { createStyles, Header, Container, Group, Burger, Paper, Transition, Switch, useMantineTheme, useMantineColorScheme, Image, Center, Menu, Divider, Anchor } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import { Link } from "react-router-dom"
 import { IconSun, IconMoonStars, IconChevronDown } from "@tabler/icons"
@@ -59,6 +59,10 @@ const useStyles = createStyles((theme) => ({
       borderRadius: 0,
       padding: theme.spacing.md,
     },
+
+    "&:focus, &:hover, &:visited, &:link, &:active": {
+      textDecoration: "none",
+    }
   },
   navItemHover: {
     "&:hover": {
@@ -68,7 +72,7 @@ const useStyles = createStyles((theme) => ({
   },
 }))
 
-function Navbar() {
+function Navbar(): JSX.Element {
   const theme = useMantineTheme()
   const { colorScheme, toggleColorScheme } = useMantineColorScheme()
   const { classes, cx } = useStyles()
@@ -79,17 +83,23 @@ function Navbar() {
     ? "https://i.imgur.com/XNjFxxn.png"
     : "https://i.imgur.com/9Q9lBeF.png"
 
+  const docNavItem = (
+    <Anchor
+      href="https://www.notion.so/Markup-Docs-91e9c5cfc6dc416fbcf2241d7c84e6c7"
+      className={cx(classes.navItem, classes.navItemHover)}
+      onClick={() => close()}
+      target="_blank"
+      sx={{ textDecoration: "none" }}
+    >
+      Docs
+    </Anchor>
+  )
+
   const navbarItems = (
     <>
       {user === null &&
         <>
-          <Link
-            to={Path.Docs}
-            className={cx(classes.navItem, classes.navItemHover)}
-            onClick={() => close()}
-          >
-            Docs
-          </Link>
+          {docNavItem}
 
           <Link
             to={Path.SignIn}
@@ -111,14 +121,7 @@ function Navbar() {
 
       {user !== null &&
         <>
-          <Link
-            to={Path.Docs}
-            className={cx(classes.navItem, classes.navItemHover)}
-            onClick={() => close()}
-          >
-            Docs
-          </Link>
-
+          {docNavItem}
 
           <Menu width={200} shadow="md">
             <Menu.Target>
