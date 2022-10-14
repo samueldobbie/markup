@@ -1,4 +1,4 @@
-import { Internal } from "utils/Page"
+import { Internal } from "assets/Page"
 import { useAuth } from "providers/AuthProvider"
 import { Navigate } from "react-router-dom"
 
