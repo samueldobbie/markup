@@ -13,7 +13,6 @@ const useStyles = createStyles((theme) => ({
   root: {
     position: "relative",
     zIndex: 1,
-    backgroundColor: "#0080FF",
   },
   dropdown: {
     position: "absolute",
@@ -52,10 +51,8 @@ const useStyles = createStyles((theme) => ({
     padding: "8px 12px",
     borderRadius: theme.radius.sm,
     textDecoration: "none",
-    // color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.colors.gray[7],
-    color: "white",
+    color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.colors.gray[7],
     fontSize: theme.fontSizes.sm,
-    // fontWeight: 500,
     fontWeight: "bold",
 
     [theme.fn.smallerThan("sm")]: {
