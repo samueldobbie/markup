@@ -1,32 +1,68 @@
 import React from "react"
 import ReactDOM from "react-dom/client"
-import { RecoilRoot } from "recoil"
-import { MarkupThemeProvider } from "context/providers/ThemeProvider"
-import { CssBaseline } from "@mui/material"
+import { RecoilRoot, useRecoilState } from "recoil"
+import { AuthProvider } from "providers/AuthProvider"
+import { ColorScheme, ColorSchemeProvider, MantineProvider } from "@mantine/core"
+import { themeState } from "store/Theme"
+import { BrowserRouter } from "react-router-dom"
+import Navbar from "components/nav/Navbar"
 import PageRoutes from "components/routes/PageRoutes"
-import Nav from "components/nav/Nav"
-import { HelmetProvider } from "react-helmet-async"
-import { AuthProvider } from "context/providers/AuthProvider"
-import "./index.css"
 
 function App(): JSX.Element {
+  const [colorScheme, setColorScheme] = useRecoilState(themeState)
+
+  const toggleColorScheme = (value?: ColorScheme) => {
+    setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"))
+  }
+
   return (
-    <React.StrictMode>
-      <RecoilRoot>
+    <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
+      <MantineProvider
+        withGlobalStyles
+        withNormalizeCSS
+        theme={{
+          colorScheme,
+          primaryColor: "brand",
+          colors: {
+            "brand": [
+              "#F1F1F9",
+              "#D0D1F1",
+              "#AAACF2",
+              "#7B7FFF",
+              "#6F72E9",
+              "#676AD2",
+              "#6164BC",
+              "#5C5EA7",
+              "#5C5D90",
+              "#5A5B7D"
+            ]
+          },
+          primaryShade: {
+            light: 4,
+            dark: 4,
+          }
+          // white: "#E8E8E8", 
+          // black: "#1e212a",
+        }}
+      >
         <AuthProvider>
-          <MarkupThemeProvider>
-            <HelmetProvider>
-              <CssBaseline />
-              <Nav />
-              <PageRoutes />
-            </HelmetProvider>
-          </MarkupThemeProvider>
+          <BrowserRouter>
+            <Navbar />
+            <PageRoutes />
+          </BrowserRouter>
         </AuthProvider>
-      </RecoilRoot>
-    </React.StrictMode>
+      </MantineProvider>
+    </ColorSchemeProvider>
   )
 }
 
-const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement)
+const container = document.getElementById("root") as HTMLElement
+const root = ReactDOM.createRoot(container)
 
-root.render(<App />)
+root.render(
+  <React.StrictMode>
+    <RecoilRoot>
+      <App />
+    </RecoilRoot>
+  </React.StrictMode>
+)
