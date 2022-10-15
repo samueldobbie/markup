@@ -138,11 +138,15 @@ function Navbar(): JSX.Element {
             </Menu.Target>
 
             <Menu.Dropdown>
-              <Menu.Item component="a" href="/dashboard">
+              <Menu.Item component="a" href={Path.Dashboard}>
                 Dashboard
               </Menu.Item>
 
-              <Menu.Item component="a" href="/dashboard">
+              <Menu.Item component="a" href={Path.Contact}>
+                Help
+              </Menu.Item>
+
+              <Menu.Item component="a" href={Path.Settings}>
                 Settings
               </Menu.Item>
 

@@ -1,4 +1,5 @@
 import { createStyles, Title, Text, Button, Container, Image, useMantineTheme } from "@mantine/core"
+import { Path } from "utils/Path"
 import Dots from "./Dots"
 import SocialProof from "./SocialProof"
 
@@ -119,11 +120,18 @@ function Home(): JSX.Element {
           </Container>
 
           <div className={classes.controls}>
-            <Button className={classes.control} size="lg" variant="default" color="gray">
-              Try demo
+            <Button
+              className={classes.control}
+              size="lg"
+              variant="default"
+              color="gray"
+              component="a"
+              href={Path.Demo}
+            >
+               Try demo
             </Button>
 
-            <Button className={classes.control} size="lg">
+            <Button className={classes.control} size="lg" component="a" href={Path.SignUp}>
               Get started
             </Button>
           </div>

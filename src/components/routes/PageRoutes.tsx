@@ -4,13 +4,14 @@ import SignUp from "pages/auth/SignUp"
 import { Route, Routes } from "react-router-dom"
 import UnprotectedRoute from "./UnprotectedRoute"
 import { Path } from "utils/Path"
-import Home2 from "pages/home/Home"
+import Home from "pages/home/Home"
 import NotFound from "pages/error/NotFound"
+import Contact from "pages/support/Contact"
 
 function PageRoutes(): JSX.Element {
   return (
     <Routes>
-      <Route path={Path.Home} element={<Home2 />} />
+      <Route path={Path.Home} element={<Home />} />
 
       <Route path={Path.SignUp} element={
         <UnprotectedRoute>
@@ -29,6 +30,8 @@ function PageRoutes(): JSX.Element {
           <ForgotPassword />
         </UnprotectedRoute>
       } />
+
+      <Route path={Path.Contact} element={<Contact />} />
 
       <Route path={Path.NotFound} element={<NotFound />} />
     </Routes>
