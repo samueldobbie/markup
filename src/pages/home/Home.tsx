@@ -1,5 +1,6 @@
 import { createStyles, Title, Text, Button, Container, Image, useMantineTheme } from "@mantine/core"
 import Dots from "./Dots"
+import SocialProof from "./SocialProof"
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -89,48 +90,54 @@ const useStyles = createStyles((theme) => ({
 
 function Home(): JSX.Element {
   const { classes } = useStyles()
-  
+
   const theme = useMantineTheme()
   const demoImage = theme.colorScheme === "dark"
     ? "https://i.imgur.com/uqnXoX0.png"
     : "https://i.imgur.com/BmqM0yT.png"
 
   return (
-    <Container className={classes.wrapper} size={1400}>
-      <Dots className={classes.dots} style={{ left: 60, top: 0 }} />
-      <Dots className={classes.dots} style={{ left: 0, top: 140 }} />
-      <Dots className={classes.dots} style={{ right: 0, top: 60 }} />
+    <>
+      <Container className={classes.wrapper} size={1400}>
+        <Dots className={classes.dots} style={{ left: 60, top: 0 }} />
+        <Dots className={classes.dots} style={{ left: 0, top: 140 }} />
+        <Dots className={classes.dots} style={{ right: 0, top: 60 }} />
 
-      <div className={classes.inner}>
-        <Title className={classes.title}>
-          Turn text into{" "}
-          <Text component="span" className={classes.highlight} inherit>
-            structured data
-          </Text>,<br/>without the hassle.
-        </Title>
+        <div className={classes.inner}>
+          <Title className={classes.title}>
+            Turn text into{" "}
+            <Text component="span" className={classes.highlight} inherit>
+              structured data
+            </Text>,<br />without the hassle.
+          </Title>
 
-        <Container p={20} size={600}>
-          <Text size="lg" color="dimmed" className={classes.description}>
-            Markup is an annotation tool that enables you to rapidly build
-            datasets from free-text for NLP and ML. Powered by GPT-3.
-          </Text>
-        </Container>
+          <Container p={20} size={600}>
+            <Text size="lg" color="dimmed" className={classes.description}>
+              Markup is an annotation tool that enables you to rapidly build
+              datasets from free-text for NLP and ML. Powered by GPT-3.
+            </Text>
+          </Container>
 
-        <div className={classes.controls}>
-          <Button className={classes.control} size="lg" variant="default" color="gray">
-            Try demo
-          </Button>
+          <div className={classes.controls}>
+            <Button className={classes.control} size="lg" variant="default" color="gray">
+              Try demo
+            </Button>
 
-          <Button className={classes.control} size="lg">
-            Get started
-          </Button>
+            <Button className={classes.control} size="lg">
+              Get started
+            </Button>
+          </div>
         </div>
-      </div>
 
-      <div style={{ marginTop: 175 }}>
-        <Image src={demoImage} radius={5} />
-      </div>
-    </Container>
+        <div style={{ marginTop: 150 }}>
+          <Image src={demoImage} radius={5} />
+        </div>
+
+        <div style={{ marginTop: 80 }}>
+          <SocialProof />
+        </div>
+      </Container>
+    </>
   )
 }
 
