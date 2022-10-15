@@ -142,12 +142,12 @@ function Navbar(): JSX.Element {
                 Dashboard
               </Menu.Item>
 
-              <Menu.Item component="a" href={Path.Contact}>
-                Help
-              </Menu.Item>
-
               <Menu.Item component="a" href={Path.Settings}>
                 Settings
+              </Menu.Item>
+
+              <Menu.Item component="a" href={Path.Contact}>
+                Help
               </Menu.Item>
 
               <Divider />

@@ -7,6 +7,8 @@ import { Path } from "utils/Path"
 import Home from "pages/home/Home"
 import NotFound from "pages/error/NotFound"
 import Contact from "pages/support/Contact"
+import Dashboard from "pages/dashboard/Dashboard"
+import ProtectedRoute from "./ProtectedRoute"
 
 function PageRoutes(): JSX.Element {
   return (
@@ -29,6 +31,12 @@ function PageRoutes(): JSX.Element {
         <UnprotectedRoute>
           <ForgotPassword />
         </UnprotectedRoute>
+      } />
+
+      <Route path={Path.Dashboard} element={
+        <ProtectedRoute>
+          <Dashboard />
+        </ProtectedRoute>
       } />
 
       <Route path={Path.Contact} element={<Contact />} />
