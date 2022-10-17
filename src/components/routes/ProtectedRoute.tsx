@@ -1,12 +1,12 @@
-import { Internal } from "assets/Page"
 import { useAuth } from "providers/AuthProvider"
 import { Navigate } from "react-router-dom"
+import { Path } from "utils/Path"
 
 function ProtectedRoute({ children }: any): JSX.Element {
   const { user } = useAuth()
 
   if (user === null) {
-    return <Navigate to={Internal.auth.signIn.path} replace />
+    return <Navigate to={Path.SignIn} replace />
   }
 
   return (
