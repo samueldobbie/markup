@@ -2,9 +2,9 @@ import { createStyles, Card, Text, Container, Grid, Checkbox, Anchor, ActionIcon
 import { IconEdit, IconFile, IconPlayerPlay, IconTrash } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useState } from "react"
-import { useMantineTheme } from '@mantine/core';
-import { IconUpload, IconX } from '@tabler/icons';
-import { Dropzone } from '@mantine/dropzone';
+import { useMantineTheme } from "@mantine/core"
+import { IconUpload, IconX } from "@tabler/icons"
+import { Dropzone } from "@mantine/dropzone"
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -85,9 +85,9 @@ function Dashboard() {
   ]
 
   const elements = [
-    { ontologyName: 'UMLS', name: 'Carbon' },
-    { ontologyName: 'ICD-10', name: 'Nitrogen' },
-    { ontologyName: 'SNOMED', name: 'Yttrium' },
+    { ontologyName: "UMLS", name: "Carbon" },
+    { ontologyName: "ICD-10", name: "Nitrogen" },
+    { ontologyName: "SNOMED", name: "Yttrium" },
   ]
 
   const rows = elements.map((element) => (
@@ -280,18 +280,18 @@ function Dashboard() {
             </Text>
 
             <Dropzone
-              onDrop={(files) => console.log('accepted files', files)}
-              onReject={(files) => console.log('rejected files', files)}
+              onDrop={(files) => console.log("accepted files", files)}
+              onReject={(files) => console.log("rejected files", files)}
               maxSize={3 * 1024 ** 2}
-              accept={[".txt"]}
+              accept={["text/plain", "text/markdown"]}
               multiple={false}
             >
-              <Group position="center" spacing="xl" style={{ minHeight: 220, pointerEvents: 'none' }}>
+              <Group position="center" spacing="xl" style={{ minHeight: 220, pointerEvents: "none" }}>
                 <Dropzone.Accept>
                   <IconUpload
                     size={50}
                     stroke={1.5}
-                    color={theme.colors[theme.primaryColor][theme.colorScheme === 'dark' ? 4 : 6]}
+                    color={theme.colors[theme.primaryColor][theme.colorScheme === "dark" ? 4 : 6]}
                   />
                 </Dropzone.Accept>
 
@@ -299,7 +299,7 @@ function Dashboard() {
                   <IconX
                     size={50}
                     stroke={1.5}
-                    color={theme.colors.red[theme.colorScheme === 'dark' ? 4 : 6]}
+                    color={theme.colors.red[theme.colorScheme === "dark" ? 4 : 6]}
                   />
                 </Dropzone.Reject>
 

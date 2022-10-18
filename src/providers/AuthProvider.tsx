@@ -1,6 +1,6 @@
-import { auth } from "utils/Firebase"
-import { User } from "firebase/auth"
 import React, { useContext, useState, useEffect } from "react"
+import { User } from "@supabase/supabase-js"
+import { supabase } from "utils/Supabase"
 
 interface IAuthContext {
   user: User | null
@@ -13,13 +13,15 @@ export function AuthProvider({ children }: any) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const unsubscribe = auth
-      .onAuthStateChanged((user) => {
-        setUser(user)
-        setLoading(false)
-      })
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
 
-    return unsubscribe
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
   }, [])
 
   return (

@@ -3,9 +3,9 @@ import { useDisclosure } from "@mantine/hooks"
 import { Link } from "react-router-dom"
 import { IconSun, IconMoonStars, IconChevronDown } from "@tabler/icons"
 import { useAuth } from "providers/AuthProvider"
-import { auth } from "utils/Firebase"
 import { Path } from "utils/Path"
 import GitHubButton from "react-github-btn"
+import { supabase } from "utils/Supabase"
 
 const HEADER_HEIGHT = 60
 
@@ -152,7 +152,7 @@ function Navbar(): JSX.Element {
 
               <Divider />
 
-              <Menu.Item onClick={async () => await auth.signOut()}>
+              <Menu.Item onClick={async () => await supabase.auth.signOut()}>
                 Logout
               </Menu.Item>
             </Menu.Dropdown>

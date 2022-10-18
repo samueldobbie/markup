@@ -29,3 +29,6 @@ yarn-error.log*
 
 # Misc.
 TODO.md
+
+# Supabase
+supabase/

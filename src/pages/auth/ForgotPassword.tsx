@@ -1,9 +1,8 @@
 import { createStyles, Paper, Title, Text, TextInput, Button, Container, Group, Anchor, Center, Box } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { IconArrowLeft } from "@tabler/icons"
-import { sendPasswordResetEmail } from "firebase/auth"
-import { auth } from "utils/Firebase"
 import { Path } from "utils/Path"
+import { supabase } from "utils/Supabase"
 
 interface ForgotPasswordForm {
   email: string
@@ -42,9 +41,11 @@ function ForgotPassword() {
   const handleForgotPassword = async (submitted: ForgotPasswordForm) => {
     const { email } = submitted
 
-    sendPasswordResetEmail(auth, email)
-      // .then(() => showSuccessToast("Reset instructions have been sent to your email."))
-      // .catch((error) => showErrorToast(error.message))
+    const { error } = await supabase.auth.resetPasswordForEmail(email)
+
+    if (error) {
+      alert(error)
+    }
   }
 
   return (

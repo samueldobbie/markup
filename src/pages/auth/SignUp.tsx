@@ -1,9 +1,8 @@
 import { TextInput, PasswordInput, Anchor, Paper, Title, Text, Container, Button } from "@mantine/core"
 import { useForm } from "@mantine/form"
-import { createUserWithEmailAndPassword } from "firebase/auth"
-import { auth } from "utils/Firebase"
 import { moveToPage } from "utils/Location"
 import { Path } from "utils/Path"
+import { supabase } from "utils/Supabase"
 
 interface SignUpForm {
   email: string
@@ -32,9 +31,13 @@ function SignUp(): JSX.Element {
       return
     }
 
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(() => moveToPage(Path.Dashboard))
-    // .catch((error) => showErrorToast(error.message))
+    const { error } = await supabase.auth.signUp({ email, password })
+
+    if (error) {
+      alert(error)
+    }
+
+    moveToPage(Path.Dashboard)
   }
 
   return (
