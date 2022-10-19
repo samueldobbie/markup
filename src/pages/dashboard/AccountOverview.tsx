@@ -46,6 +46,7 @@ function AccountOverview({ tutorialProgress, completeTutorialStep }: Props) {
       </Text>
 
       <Checkbox
+        readOnly
         checked={tutorialProgress.readDocs}
         label={
           <>
@@ -65,12 +66,14 @@ function AccountOverview({ tutorialProgress, completeTutorialStep }: Props) {
 
       <Checkbox
         mt={15}
+        readOnly
         checked={tutorialProgress.createSession}
         label="Create an annotation session"
       />
 
       <Checkbox
         mt={15}
+        readOnly
         checked={tutorialProgress.exploreOntologies}
         label="Explore existing ontologies"
       />

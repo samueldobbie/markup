@@ -57,4 +57,22 @@ async function getSessions(): Promise<Session[]> {
   return sessionData ?? []
 }
 
-export const database = { addSession, getSessions }
+async function deleteSession(sessionId: number): Promise<boolean> {
+  const { error } = await supabase
+    .from("annotation_sessions")
+    .delete()
+    .eq("id", sessionId)
+
+  if (error) {
+    console.error(error)
+    return true
+  }
+
+  return false
+}
+
+export const database = {
+  addSession,
+  getSessions,
+  deleteSession,
+}

@@ -4,6 +4,7 @@ import { IconTrash, IconEdit, IconPlayerPlay } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import { database, Session } from "utils/Database"
+import { moveToPage } from "utils/Location"
 import { ModalProps } from "./Interfaces"
 
 interface Props {
@@ -30,7 +31,7 @@ function SessionTable({ completeTutorialStep }: Props) {
         columns={[
           {
             accessor: "name",
-            title: <Text size={16}>Annotation Sessions</Text>,
+            title: <Text size={16}>Sessions</Text>,
           },
           {
             accessor: "actions",
@@ -45,15 +46,24 @@ function SessionTable({ completeTutorialStep }: Props) {
             render: (session) => (
               <Group spacing={4} position="right" noWrap>
                 <ActionIcon color="red">
-                  <IconTrash size={16} />
+                  <IconTrash
+                    size={16}
+                    onClick={() => database.deleteSession(session.id)}
+                  />
                 </ActionIcon>
 
                 <ActionIcon color="blue">
-                  <IconEdit size={16} />
+                  <IconEdit
+                    size={16}
+                    onClick={() => moveToPage(session.id.toString())}
+                  />
                 </ActionIcon>
 
                 <ActionIcon color="green">
-                  <IconPlayerPlay size={16} />
+                  <IconPlayerPlay
+                    onClick={() => moveToPage(session.id.toString())}
+                    size={16}
+                  />
                 </ActionIcon>
               </Group>
             ),
