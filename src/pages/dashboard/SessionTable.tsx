@@ -26,7 +26,9 @@ function SessionTable({ completeTutorialStep }: Props) {
       <DataTable
         withBorder
         highlightOnHover
+        emptyState="Create a session to start annotating"
         borderRadius="md"
+        sx={{ minHeight: "500px" }}
         records={sessions}
         columns={[
           {
@@ -38,7 +40,7 @@ function SessionTable({ completeTutorialStep }: Props) {
             title: (
               <Group spacing={4} position="right" noWrap>
                 <Button variant="outline" onClick={() => setOpenedModal(true)}>
-                  Create Session
+                  Create session
                 </Button>
               </Group>
             ),

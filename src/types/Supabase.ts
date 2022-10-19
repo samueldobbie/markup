@@ -12,6 +12,102 @@ export interface paths {
       };
     };
   };
+  "/ontology": {
+    get: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.ontology.id"];
+          created_at?: parameters["rowFilter.ontology.created_at"];
+          name?: parameters["rowFilter.ontology.name"];
+          views?: parameters["rowFilter.ontology.views"];
+          /** Filtering Columns */
+          select?: parameters["select"];
+          /** Ordering */
+          order?: parameters["order"];
+          /** Limiting and Pagination */
+          offset?: parameters["offset"];
+          /** Limiting and Pagination */
+          limit?: parameters["limit"];
+        };
+        header: {
+          /** Limiting and Pagination */
+          Range?: parameters["range"];
+          /** Limiting and Pagination */
+          "Range-Unit"?: parameters["rangeUnit"];
+          /** Preference */
+          Prefer?: parameters["preferCount"];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["ontology"][];
+        };
+        /** Partial Content */
+        206: unknown;
+      };
+    };
+    post: {
+      parameters: {
+        body: {
+          /** ontology */
+          ontology?: definitions["ontology"];
+        };
+        query: {
+          /** Filtering Columns */
+          select?: parameters["select"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** Created */
+        201: unknown;
+      };
+    };
+    delete: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.ontology.id"];
+          created_at?: parameters["rowFilter.ontology.created_at"];
+          name?: parameters["rowFilter.ontology.name"];
+          views?: parameters["rowFilter.ontology.views"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+    patch: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.ontology.id"];
+          created_at?: parameters["rowFilter.ontology.created_at"];
+          name?: parameters["rowFilter.ontology.name"];
+          views?: parameters["rowFilter.ontology.views"];
+        };
+        body: {
+          /** ontology */
+          ontology?: definitions["ontology"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+  };
   "/annotation_session_access": {
     get: {
       parameters: {
@@ -99,6 +195,105 @@ export interface paths {
         body: {
           /** annotation_session_access */
           annotation_session_access?: definitions["annotation_session_access"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+  };
+  "/ontology_access": {
+    get: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.ontology_access.id"];
+          created_at?: parameters["rowFilter.ontology_access.created_at"];
+          user_id?: parameters["rowFilter.ontology_access.user_id"];
+          ontology_id?: parameters["rowFilter.ontology_access.ontology_id"];
+          role?: parameters["rowFilter.ontology_access.role"];
+          /** Filtering Columns */
+          select?: parameters["select"];
+          /** Ordering */
+          order?: parameters["order"];
+          /** Limiting and Pagination */
+          offset?: parameters["offset"];
+          /** Limiting and Pagination */
+          limit?: parameters["limit"];
+        };
+        header: {
+          /** Limiting and Pagination */
+          Range?: parameters["range"];
+          /** Limiting and Pagination */
+          "Range-Unit"?: parameters["rangeUnit"];
+          /** Preference */
+          Prefer?: parameters["preferCount"];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["ontology_access"][];
+        };
+        /** Partial Content */
+        206: unknown;
+      };
+    };
+    post: {
+      parameters: {
+        body: {
+          /** ontology_access */
+          ontology_access?: definitions["ontology_access"];
+        };
+        query: {
+          /** Filtering Columns */
+          select?: parameters["select"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** Created */
+        201: unknown;
+      };
+    };
+    delete: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.ontology_access.id"];
+          created_at?: parameters["rowFilter.ontology_access.created_at"];
+          user_id?: parameters["rowFilter.ontology_access.user_id"];
+          ontology_id?: parameters["rowFilter.ontology_access.ontology_id"];
+          role?: parameters["rowFilter.ontology_access.role"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+    patch: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.ontology_access.id"];
+          created_at?: parameters["rowFilter.ontology_access.created_at"];
+          user_id?: parameters["rowFilter.ontology_access.user_id"];
+          ontology_id?: parameters["rowFilter.ontology_access.ontology_id"];
+          role?: parameters["rowFilter.ontology_access.role"];
+        };
+        body: {
+          /** ontology_access */
+          ontology_access?: definitions["ontology_access"];
         };
         header: {
           /** Preference */
@@ -210,6 +405,26 @@ export interface paths {
 }
 
 export interface definitions {
+  ontology: {
+    /**
+     * Format: integer
+     * @description Note:
+     * This is a Primary Key.<pk/>
+     */
+    id: number;
+    /**
+     * Format: timestamp without time zone
+     * @default now()
+     */
+    created_at: string;
+    /** Format: character varying */
+    name: string;
+    /**
+     * Format: integer
+     * @default 0
+     */
+    views: number;
+  };
   annotation_session_access: {
     /**
      * Format: integer
@@ -226,6 +441,25 @@ export interface definitions {
     user_id: string;
     /** Format: character varying */
     session_id: string;
+    /** Format: character varying */
+    role: string;
+  };
+  ontology_access: {
+    /**
+     * Format: integer
+     * @description Note:
+     * This is a Primary Key.<pk/>
+     */
+    id: number;
+    /**
+     * Format: timestamp without time zone
+     * @default now()
+     */
+    created_at: string;
+    /** Format: character varying */
+    user_id: string;
+    /** Format: character varying */
+    ontology_id: string;
     /** Format: character varying */
     role: string;
   };
@@ -284,6 +518,16 @@ export interface parameters {
   offset: string;
   /** @description Limiting and Pagination */
   limit: string;
+  /** @description ontology */
+  "body.ontology": definitions["ontology"];
+  /** Format: integer */
+  "rowFilter.ontology.id": string;
+  /** Format: timestamp without time zone */
+  "rowFilter.ontology.created_at": string;
+  /** Format: character varying */
+  "rowFilter.ontology.name": string;
+  /** Format: integer */
+  "rowFilter.ontology.views": string;
   /** @description annotation_session_access */
   "body.annotation_session_access": definitions["annotation_session_access"];
   /** Format: integer */
@@ -296,6 +540,18 @@ export interface parameters {
   "rowFilter.annotation_session_access.session_id": string;
   /** Format: character varying */
   "rowFilter.annotation_session_access.role": string;
+  /** @description ontology_access */
+  "body.ontology_access": definitions["ontology_access"];
+  /** Format: integer */
+  "rowFilter.ontology_access.id": string;
+  /** Format: timestamp without time zone */
+  "rowFilter.ontology_access.created_at": string;
+  /** Format: character varying */
+  "rowFilter.ontology_access.user_id": string;
+  /** Format: character varying */
+  "rowFilter.ontology_access.ontology_id": string;
+  /** Format: character varying */
+  "rowFilter.ontology_access.role": string;
   /** @description annotation_sessions */
   "body.annotation_sessions": definitions["annotation_sessions"];
   /** Format: integer */

@@ -1,8 +1,11 @@
-import { definitions } from "types/Supabase";
-import { supabase } from "./Supabase";
+import { definitions } from "types/Supabase"
+import { supabase } from "./Supabase"
 
 export type Session = definitions["annotation_sessions"]
 export type SessionAccess = definitions["annotation_session_access"]
+
+export type Ontology = definitions["ontology"]
+export type OntologyAccess = definitions["ontology_access"]
 
 async function addSession(name: string): Promise<boolean> {
   console.log(name)
@@ -71,8 +74,24 @@ async function deleteSession(sessionId: number): Promise<boolean> {
   return false
 }
 
+async function addOntology(): Promise<boolean> {
+  return false
+}
+
+async function getOntologies(): Promise<Ontology[]> {
+  return []
+}
+
+async function deleteOntology(): Promise<boolean> {
+  return false
+}
+
 export const database = {
   addSession,
   getSessions,
   deleteSession,
+
+  addOntology,
+  getOntologies,
+  deleteOntology,
 }

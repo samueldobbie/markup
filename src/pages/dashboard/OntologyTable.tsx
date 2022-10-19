@@ -1,8 +1,9 @@
-import { Group, Button, ActionIcon, Grid, Modal, Table, TextInput, useMantineTheme, Text } from "@mantine/core"
+import { Group, Button, ActionIcon, Grid, Modal, TextInput, useMantineTheme, Text } from "@mantine/core"
 import { Dropzone } from "@mantine/dropzone"
-import { IconTrash, IconEdit, IconPlayerPlay, IconFile, IconUpload, IconX } from "@tabler/icons"
+import { IconTrash, IconEdit, IconFile, IconUpload, IconX } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { database, Ontology } from "utils/Database"
 import { ModalProps } from "./Interfaces"
 
 interface Props {
@@ -13,56 +14,23 @@ function OntologyTable({ completeTutorialStep }: Props) {
   const [openExploreModal, setOpenExploreModal] = useState(false)
   const [openImportModal, setOpenImportModal] = useState(false)
 
-  const records = [
-    {
-      "id": "ab1e3aa6-3116-4e0d-a33d-9262aac86747",
-      "name": "Pfeffer and Sons",
-    },
-    {
-      "id": "6c2c52f1-e197-4892-ae8e-5b5e42c226cb",
-      "name": "Hettinger, Willms and Connelly",
-    },
-    {
-      "id": "9a2e51e0-5bbe-49af-a748-546509792e28",
-      "name": "Champlin - Spencer",
-    },
-    {
-      "id": "41e6105b-1115-4414-aaa6-ace1944ab3f2",
-      "name": "Zulauf, McLaughlin and Jaskolski",
-    },
-    {
-      "id": "dcc6476c-2b6c-4acd-955f-32a0337b5832",
-      "name": "Shanahan - Turcotte",
-    },
-    {
-      "id": "ccdbb85d-2175-4865-a69c-a76557216364",
-      "name": "Gutkowski Inc",
-    },
-    {
-      "id": "19df3e35-1577-48a7-9e2f-f79c4f6c36ef",
-      "name": "Stark Inc",
-    },
-    {
-      "id": "5e50f063-6620-491c-904c-fe8e40488802",
-      "name": "Schmidt and Sons",
-    },
-    {
-      "id": "a46de859-251b-42f6-a6c4-1642beba6b56",
-      "name": "Mohr - Raynor",
-    },
-    {
-      "id": "06f55c10-2481-4b5d-9a70-d8845f5e1381",
-      "name": "Tromp, Runolfsson and Bahringer",
-    }
-  ]
+  const [ontologies, setOntologies] = useState<Ontology[]>([])
+
+  useEffect(() => {
+    database
+      .getOntologies()
+      .then(setOntologies)
+  }, [])
 
   return (
     <>
       <DataTable
         withBorder
         highlightOnHover
+        emptyState="Import an ontology or explore existing ones"
         borderRadius="md"
-        records={records}
+        sx={{ minHeight: "500px" }}
+        records={ontologies}
         columns={[
           { accessor: "name", title: <Text size={16}>Ontology</Text> },
           {
@@ -79,18 +47,17 @@ function OntologyTable({ completeTutorialStep }: Props) {
               </Group>
             ),
             textAlignment: "right",
-            render: (company) => (
+            render: (ontology) => (
               <Group spacing={4} position="right" noWrap>
                 <ActionIcon color="red">
-                  <IconTrash size={16} />
+                  <IconTrash
+                    size={16}
+                    onClick={() => database.deleteOntology()}
+                  />
                 </ActionIcon>
 
                 <ActionIcon color="blue">
                   <IconEdit size={16} />
-                </ActionIcon>
-
-                <ActionIcon color="green">
-                  <IconPlayerPlay size={16} />
                 </ActionIcon>
               </Group>
             ),
@@ -112,34 +79,15 @@ function OntologyTable({ completeTutorialStep }: Props) {
 }
 
 function ExploreOntologiesModal({ openedModal, setOpenedModal }: ModalProps) {
-  const elements = [
-    { ontologyName: "UMLS", name: "Carbon" },
-    { ontologyName: "ICD-10", name: "Nitrogen" },
-    { ontologyName: "SNOMED", name: "Yttrium" },
-  ]
-
-  const rows = elements.map((element) => (
-    <tr key={element.name}>
-      <td>{element.ontologyName}</td>
-      <td><Button compact variant="subtle">Use</Button></td>
-    </tr>
-  ))
-
   return (
     <Modal
       opened={openedModal}
       onClose={() => setOpenedModal(false)}
       title="Explore existing ontologies"
     >
-      <Table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>{rows}</tbody>
-      </Table>
+      <Text>
+        I'll be adding existing ontologies (e.g. UMLS) soon
+      </Text>
     </Modal>
   )
 }
@@ -210,7 +158,7 @@ function ImportOntologyModal({ openedModal, setOpenedModal }: ModalProps) {
         </Grid.Col>
 
         <Grid.Col>
-          <Button>
+          <Button onClick={() => database.addOntology()}>
             Import
           </Button>
         </Grid.Col>
