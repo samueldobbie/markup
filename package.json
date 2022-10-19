@@ -28,6 +28,7 @@
     "@types/react": "^18.0.18",
     "firebase": "^9.9.4",
     "mantine-datatable": "^1.7.7",
+    "openapi-typescript": "^5.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-github-btn": "^1.4.0",
@@ -43,7 +44,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "generateTypes": "openapi-typescript http://localhost:54321/rest/v1/?apikey=$SUPABASE_KEY_DEV --output src/types/Supabase.ts"
   },
   "eslintConfig": {
     "extends": [
