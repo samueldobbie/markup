@@ -41,7 +41,7 @@ function AccountOverview({ tutorialProgress, completeTutorialStep }: Props) {
       </Text>
 
       <Text size="md" color="dimmed" mt={10} mb="xl">
-        You"re currently on the dashboard where you can manage your annotation
+        You're currently on the dashboard where you can manage your annotation
         sessions and ontologies. Complete the steps below to get familiar with Markup.
       </Text>
 
@@ -58,8 +58,8 @@ function AccountOverview({ tutorialProgress, completeTutorialStep }: Props) {
                 textDecoration: "underline",
               }}
             >
-              Get Started
-            </Anchor> guide (~2 mins)
+              Quick Start
+            </Anchor> guide (~3 mins)
           </>
         } />
 
