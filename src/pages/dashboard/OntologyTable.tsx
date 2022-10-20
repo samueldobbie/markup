@@ -12,7 +12,7 @@ interface Props {
 
 function OntologyTable({ completeTutorialStep }: Props) {
   const [openExploreModal, setOpenExploreModal] = useState(false)
-  const [openImportModal, setOpenImportModal] = useState(false)
+  const [openUploadModal, setOpenUploadModal] = useState(false)
 
   const [ontologies, setOntologies] = useState<Ontology[]>([])
 
@@ -27,7 +27,7 @@ function OntologyTable({ completeTutorialStep }: Props) {
       <DataTable
         withBorder
         highlightOnHover
-        emptyState="Import an ontology or explore existing ones"
+        emptyState="Upload an ontology or explore existing ones"
         borderRadius="md"
         sx={{ minHeight: "500px" }}
         records={ontologies}
@@ -41,8 +41,8 @@ function OntologyTable({ completeTutorialStep }: Props) {
                   Explore
                 </Button>
 
-                <Button variant="outline" onClick={() => setOpenImportModal(true)}>
-                  Import Ontology
+                <Button variant="light" onClick={() => setOpenUploadModal(true)}>
+                  Upload ontology
                 </Button>
               </Group>
             ),
@@ -70,9 +70,9 @@ function OntologyTable({ completeTutorialStep }: Props) {
         setOpenedModal={setOpenExploreModal}
       />
 
-      <ImportOntologyModal
-        openedModal={openImportModal}
-        setOpenedModal={setOpenImportModal}
+      <UploadOntologyModal
+        openedModal={openUploadModal}
+        setOpenedModal={setOpenUploadModal}
       />
     </>
   )
@@ -92,14 +92,14 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal }: ModalProps) {
   )
 }
 
-function ImportOntologyModal({ openedModal, setOpenedModal }: ModalProps) {
+function UploadOntologyModal({ openedModal, setOpenedModal }: ModalProps) {
   const theme = useMantineTheme()
 
   return (
     <Modal
       opened={openedModal}
       onClose={() => setOpenedModal(false)}
-      title="Import an ontology"
+      title="Upload an ontology"
     >
       <Grid>
         <Grid.Col>
@@ -159,7 +159,7 @@ function ImportOntologyModal({ openedModal, setOpenedModal }: ModalProps) {
 
         <Grid.Col>
           <Button onClick={() => database.addOntology()}>
-            Import
+            Upload
           </Button>
         </Grid.Col>
       </Grid>

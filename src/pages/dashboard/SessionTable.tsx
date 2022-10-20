@@ -39,7 +39,7 @@ function SessionTable({ completeTutorialStep }: Props) {
             accessor: "actions",
             title: (
               <Group spacing={4} position="right" noWrap>
-                <Button variant="outline" onClick={() => setOpenedModal(true)}>
+                <Button variant="light" onClick={() => setOpenedModal(true)}>
                   Create session
                 </Button>
               </Group>

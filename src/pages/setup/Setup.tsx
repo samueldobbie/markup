@@ -48,11 +48,11 @@ function Setup() {
             </Grid.Col>
 
             <Grid.Col xs={12} md={7}>
-              <Ontology session={session} />
+              <Documents session={session} />
             </Grid.Col>
 
             <Grid.Col xs={12} md={5}>
-              <Documents session={session} />
+              <Ontology session={session} />
             </Grid.Col>
           </Grid>
         }
