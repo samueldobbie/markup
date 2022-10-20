@@ -7,48 +7,51 @@ export type SessionAccess = definitions["annotation_session_access"]
 export type Ontology = definitions["ontology"]
 export type OntologyAccess = definitions["ontology_access"]
 
-async function addSession(name: string): Promise<boolean> {
-  console.log(name)
-
+async function addSession(name: string): Promise<Session[]> {
   const user = await supabase.auth.getUser()
   const userId = user.data.user?.id ?? ""
 
-  const { data, error } = await supabase
+  const { data: session, error } = await supabase
     .from("annotation_sessions")
     .insert({ name })
     .select()
 
   if (error) {
     console.error(error)
-    return true
+    return []
   }
 
   const { error: accessError } = await supabase
     .from("annotation_session_access")
     .insert({
       user_id: userId,
-      session_id: data[0].id,
+      session_id: session[0].id,
       role: "owner",
     })
 
   if (accessError) {
     console.error(accessError)
-    return true
+    return []
   }
 
-  return false
+  return session
 }
 
-async function getSessions(): Promise<Session[]> {
+async function getSessions(sessionIds: number[] = []): Promise<Session[]> {
   const user = await supabase.auth.getUser()
   const userId = user.data.user?.id ?? ""
 
-  const { data: accessData, error: accessError } = await supabase
+  if (sessionIds.length === 0) {
+    const { data: accessData, error: accessError } = await supabase
     .from("annotation_session_access")
     .select("session_id")
     .eq("user_id", userId)
 
-  const sessionIds: number[] = accessData.map((i: any) => parseInt(i.session_id))
+    accessData.forEach((access: SessionAccess) => {
+      const sessionId = parseInt(access.session_id)
+      sessionIds.push(sessionId)
+    })
+  }
 
   const { data: sessionData, error: sessionError } = await supabase
     .from("annotation_sessions")

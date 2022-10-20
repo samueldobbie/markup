@@ -6,6 +6,7 @@ enum Path {
   SignIn = "/sign-in",
   ForgotPassword = "/forgot-password",
   Dashboard = "/dashboard",
+  Setup = "/setup/:id",
   Contact = "/contact",
   Settings = "/settings",
   NotFound = "*",
