@@ -57,13 +57,13 @@ function SessionTable({ completeTutorialStep }: Props) {
                 <ActionIcon color="blue">
                   <IconEdit
                     size={16}
-                    onClick={() => moveToPage(session.id.toString())}
+                    onClick={() => moveToPage(`/setup/${session.id.toString()}`)}
                   />
                 </ActionIcon>
 
                 <ActionIcon color="green">
                   <IconPlayerPlay
-                    onClick={() => moveToPage(session.id.toString())}
+                    onClick={() => moveToPage(`/setup/${session.id.toString()}`)}
                     size={16}
                   />
                 </ActionIcon>
@@ -94,11 +94,14 @@ function CreateSessionModal({ openedModal, setOpenedModal }: ModalProps) {
 
   const handleCreateSession = async (form: CreateSessionForm) => {
     const { name } = form
-    const error = await database.addSession(name)
+    const sessions = await database.addSession(name)
 
-    if (error) {
+    if (sessions.length === 0) {
       alert("Failed to create session")
+      return
     }
+
+    moveToPage(`/setup/${sessions[0].id.toString()}`)
   }
 
   return (
