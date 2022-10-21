@@ -34,7 +34,7 @@ function Ontology({ session }: SectionProps) {
               <ActionIcon color="red">
                 <IconTrash
                   size={16}
-                  onClick={() => database.deleteOntology()}
+                  onClick={() => database.deleteOntology(1)}
                 />
               </ActionIcon>
 
