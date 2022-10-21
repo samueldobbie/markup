@@ -402,6 +402,105 @@ export interface paths {
       };
     };
   };
+  "/config": {
+    get: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.config.id"];
+          session_id?: parameters["rowFilter.config.session_id"];
+          created_at?: parameters["rowFilter.config.created_at"];
+          name?: parameters["rowFilter.config.name"];
+          content?: parameters["rowFilter.config.content"];
+          /** Filtering Columns */
+          select?: parameters["select"];
+          /** Ordering */
+          order?: parameters["order"];
+          /** Limiting and Pagination */
+          offset?: parameters["offset"];
+          /** Limiting and Pagination */
+          limit?: parameters["limit"];
+        };
+        header: {
+          /** Limiting and Pagination */
+          Range?: parameters["range"];
+          /** Limiting and Pagination */
+          "Range-Unit"?: parameters["rangeUnit"];
+          /** Preference */
+          Prefer?: parameters["preferCount"];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["config"][];
+        };
+        /** Partial Content */
+        206: unknown;
+      };
+    };
+    post: {
+      parameters: {
+        body: {
+          /** config */
+          config?: definitions["config"];
+        };
+        query: {
+          /** Filtering Columns */
+          select?: parameters["select"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** Created */
+        201: unknown;
+      };
+    };
+    delete: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.config.id"];
+          session_id?: parameters["rowFilter.config.session_id"];
+          created_at?: parameters["rowFilter.config.created_at"];
+          name?: parameters["rowFilter.config.name"];
+          content?: parameters["rowFilter.config.content"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+    patch: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.config.id"];
+          session_id?: parameters["rowFilter.config.session_id"];
+          created_at?: parameters["rowFilter.config.created_at"];
+          name?: parameters["rowFilter.config.name"];
+          content?: parameters["rowFilter.config.content"];
+        };
+        body: {
+          /** config */
+          config?: definitions["config"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+  };
   "/document": {
     get: {
       parameters: {
@@ -585,6 +684,25 @@ export interface definitions {
      */
     views: number;
   };
+  config: {
+    /**
+     * Format: integer
+     * @description Note:
+     * This is a Primary Key.<pk/>
+     */
+    id: number;
+    /** Format: character varying */
+    session_id: string;
+    /**
+     * Format: timestamp without time zone
+     * @default now()
+     */
+    created_at: string;
+    /** Format: character varying */
+    name: string;
+    /** Format: character varying */
+    content: string;
+  };
   document: {
     /**
      * Format: integer
@@ -688,6 +806,18 @@ export interface parameters {
   "rowFilter.annotation_sessions.name": string;
   /** Format: integer */
   "rowFilter.annotation_sessions.views": string;
+  /** @description config */
+  "body.config": definitions["config"];
+  /** Format: integer */
+  "rowFilter.config.id": string;
+  /** Format: character varying */
+  "rowFilter.config.session_id": string;
+  /** Format: timestamp without time zone */
+  "rowFilter.config.created_at": string;
+  /** Format: character varying */
+  "rowFilter.config.name": string;
+  /** Format: character varying */
+  "rowFilter.config.content": string;
   /** @description document */
   "body.document": definitions["document"];
   /** Format: integer */
