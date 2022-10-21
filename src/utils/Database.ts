@@ -7,6 +7,8 @@ export type SessionAccess = definitions["annotation_session_access"]
 export type Ontology = definitions["ontology"]
 export type OntologyAccess = definitions["ontology_access"]
 
+export type Document = definitions["document"]
+
 async function addSession(name: string): Promise<Session[]> {
   const user = await supabase.auth.getUser()
   const userId = user.data.user?.id ?? ""
@@ -43,9 +45,9 @@ async function getSessions(sessionIds: number[] = []): Promise<Session[]> {
 
   if (sessionIds.length === 0) {
     const { data: accessData, error: accessError } = await supabase
-    .from("annotation_session_access")
-    .select("session_id")
-    .eq("user_id", userId)
+      .from("annotation_session_access")
+      .select("session_id")
+      .eq("user_id", userId)
 
     accessData.forEach((access: SessionAccess) => {
       const sessionId = parseInt(access.session_id)
@@ -85,7 +87,55 @@ async function getOntologies(): Promise<Ontology[]> {
   return []
 }
 
-async function deleteOntology(): Promise<boolean> {
+async function deleteOntology(ontologyId: number): Promise<boolean> {
+  return false
+}
+
+export interface RawDocument {
+  session_id: number
+  name: string
+  content: string
+}
+
+async function addDocuments(rawDocuments: RawDocument[]): Promise<Document[]> {
+  const { data: documents, error } = await supabase
+    .from("document")
+    .insert(rawDocuments)
+    .select()
+
+  if (error) {
+    console.error(error)
+    return []
+  }
+
+  return documents
+}
+
+async function getDocuments(sessionId: number): Promise<Document[]> {
+  const { data: documents, error } = await supabase
+    .from("document")
+    .select("name", "views")
+    .eq("session_id", sessionId)
+
+  if (error) {
+    console.error(error)
+    return []
+  }
+
+  return documents
+}
+
+async function deleteDocument(documentId: number): Promise<boolean> {
+  const { error } = await supabase
+    .from("document")
+    .delete()
+    .eq("id", documentId)
+
+  if (error) {
+    console.error(error)
+    return true
+  }
+
   return false
 }
 
@@ -97,4 +147,8 @@ export const database = {
   addOntology,
   getOntologies,
   deleteOntology,
+
+  addDocuments,
+  getDocuments,
+  deleteDocument,
 }
