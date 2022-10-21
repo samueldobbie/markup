@@ -402,6 +402,108 @@ export interface paths {
       };
     };
   };
+  "/document": {
+    get: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.document.id"];
+          session_id?: parameters["rowFilter.document.session_id"];
+          created_at?: parameters["rowFilter.document.created_at"];
+          name?: parameters["rowFilter.document.name"];
+          content?: parameters["rowFilter.document.content"];
+          views?: parameters["rowFilter.document.views"];
+          /** Filtering Columns */
+          select?: parameters["select"];
+          /** Ordering */
+          order?: parameters["order"];
+          /** Limiting and Pagination */
+          offset?: parameters["offset"];
+          /** Limiting and Pagination */
+          limit?: parameters["limit"];
+        };
+        header: {
+          /** Limiting and Pagination */
+          Range?: parameters["range"];
+          /** Limiting and Pagination */
+          "Range-Unit"?: parameters["rangeUnit"];
+          /** Preference */
+          Prefer?: parameters["preferCount"];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["document"][];
+        };
+        /** Partial Content */
+        206: unknown;
+      };
+    };
+    post: {
+      parameters: {
+        body: {
+          /** document */
+          document?: definitions["document"];
+        };
+        query: {
+          /** Filtering Columns */
+          select?: parameters["select"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** Created */
+        201: unknown;
+      };
+    };
+    delete: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.document.id"];
+          session_id?: parameters["rowFilter.document.session_id"];
+          created_at?: parameters["rowFilter.document.created_at"];
+          name?: parameters["rowFilter.document.name"];
+          content?: parameters["rowFilter.document.content"];
+          views?: parameters["rowFilter.document.views"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+    patch: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.document.id"];
+          session_id?: parameters["rowFilter.document.session_id"];
+          created_at?: parameters["rowFilter.document.created_at"];
+          name?: parameters["rowFilter.document.name"];
+          content?: parameters["rowFilter.document.content"];
+          views?: parameters["rowFilter.document.views"];
+        };
+        body: {
+          /** document */
+          document?: definitions["document"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+  };
 }
 
 export interface definitions {
@@ -477,6 +579,30 @@ export interface definitions {
     created_at: string;
     /** Format: character varying */
     name: string;
+    /**
+     * Format: integer
+     * @default 0
+     */
+    views: number;
+  };
+  document: {
+    /**
+     * Format: integer
+     * @description Note:
+     * This is a Primary Key.<pk/>
+     */
+    id: number;
+    /** Format: character varying */
+    session_id: string;
+    /**
+     * Format: timestamp without time zone
+     * @default now()
+     */
+    created_at: string;
+    /** Format: character varying */
+    name: string;
+    /** Format: text */
+    content: string;
     /**
      * Format: integer
      * @default 0
@@ -562,6 +688,20 @@ export interface parameters {
   "rowFilter.annotation_sessions.name": string;
   /** Format: integer */
   "rowFilter.annotation_sessions.views": string;
+  /** @description document */
+  "body.document": definitions["document"];
+  /** Format: integer */
+  "rowFilter.document.id": string;
+  /** Format: character varying */
+  "rowFilter.document.session_id": string;
+  /** Format: timestamp without time zone */
+  "rowFilter.document.created_at": string;
+  /** Format: character varying */
+  "rowFilter.document.name": string;
+  /** Format: text */
+  "rowFilter.document.content": string;
+  /** Format: integer */
+  "rowFilter.document.views": string;
 }
 
 export interface operations {}
