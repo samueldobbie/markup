@@ -9,6 +9,8 @@ export type OntologyAccess = definitions["ontology_access"]
 
 export type Document = definitions["document"]
 
+export type Config = definitions["config"]
+
 async function addSession(name: string): Promise<Session[]> {
   const user = await supabase.auth.getUser()
   const userId = user.data.user?.id ?? ""
@@ -91,13 +93,23 @@ async function deleteOntology(ontologyId: number): Promise<boolean> {
   return false
 }
 
-export interface RawDocument {
+interface RawDocument {
   session_id: number
   name: string
   content: string
 }
 
-async function addDocuments(rawDocuments: RawDocument[]): Promise<Document[]> {
+async function addDocuments(sessionId: number, files: File[]): Promise<Document[]> {
+  const rawDocuments = [] as RawDocument[]
+
+  for (const file of files) {
+    rawDocuments.push({
+      session_id: sessionId,
+      name: file.name,
+      content: await file.text(),
+    })
+  }
+
   const { data: documents, error } = await supabase
     .from("document")
     .insert(rawDocuments)
@@ -114,7 +126,7 @@ async function addDocuments(rawDocuments: RawDocument[]): Promise<Document[]> {
 async function getDocuments(sessionId: number): Promise<Document[]> {
   const { data: documents, error } = await supabase
     .from("document")
-    .select("name", "views")
+    .select()
     .eq("session_id", sessionId)
 
   if (error) {
@@ -139,6 +151,52 @@ async function deleteDocument(documentId: number): Promise<boolean> {
   return false
 }
 
+async function addConfig(sessionId: number, file: File): Promise<Config> {
+  const { data: cofig, error } = await supabase
+    .from("config")
+    .insert({
+      session_id: sessionId,
+      name: file.name,
+      content: await file.text(),
+    })
+    .select()
+
+  if (error) {
+    console.error(error)
+    // return []
+  }
+
+  return cofig[0]
+}
+
+async function getConfig(sessionId: number): Promise<Config> {
+  const { data: config, error } = await supabase
+    .from("config")
+    .select("name")
+    .eq("session_id", sessionId)
+
+  if (error) {
+    console.error(error)
+    // return undefined
+  }
+
+  return config[0]
+}
+
+async function deleteConfig(configId: number): Promise<boolean> {
+  const { error } = await supabase
+    .from("config")
+    .delete()
+    .eq("id", configId)
+
+  if (error) {
+    console.error(error)
+    return true
+  }
+
+  return false
+}
+
 export const database = {
   addSession,
   getSessions,
@@ -151,4 +209,8 @@ export const database = {
   addDocuments,
   getDocuments,
   deleteDocument,
+
+  addConfig,
+  getConfig,
+  deleteConfig,
 }
