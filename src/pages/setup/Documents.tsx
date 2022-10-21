@@ -1,8 +1,8 @@
-import { Group, Button, ActionIcon, Text, FileInput, FileButton } from "@mantine/core"
+import { Group, Button, ActionIcon, Text, FileButton } from "@mantine/core"
 import { IconTrash } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
-import { database, Document, RawDocument } from "utils/Database"
+import { database, Document } from "utils/Database"
 import { SectionProps } from "./Interfaces"
 
 function Documents({ session }: SectionProps) {
@@ -19,20 +19,8 @@ function Documents({ session }: SectionProps) {
     if (files.length === 0) return
 
     const func = async () => {
-      const rawDocuments = [] as RawDocument[]
-
-      for (const file of files) {
-        rawDocuments.push({
-          session_id: session.id,
-          name: file.name,
-          content: await file.text(),
-        })
-      }
-
-      console.log(rawDocuments)
-
       database
-        .addDocuments(rawDocuments)
+        .addDocuments(session.id, files)
         .then(insertedDocuments => {
           setFiles([])
           setDocuments([...documents, ...insertedDocuments])
@@ -72,10 +60,7 @@ function Documents({ session }: SectionProps) {
               <ActionIcon color="red">
                 <IconTrash
                   size={16}
-                  onClick={() => {
-                    console.log(document)
-                    database.deleteDocument(document.id)
-                  }}
+                  onClick={() => database.deleteDocument(document.id)}
                 />
               </ActionIcon>
             </Group>

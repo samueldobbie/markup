@@ -4,10 +4,10 @@ import { moveToPage } from "utils/Location"
 import { Path } from "utils/Path"
 import { useEffect, useState } from "react"
 import { database, Session } from "utils/Database"
-import Config from "./Config"
 import Documents from "./Documents"
 import Ontology from "./Ontology"
 import Header from "./Header"
+import Configs from "./Config"
 
 function Setup() {
   const { id } = useParams()
@@ -44,7 +44,7 @@ function Setup() {
             </Grid.Col>
 
             <Grid.Col xs={12} md={5}>
-              <Config session={session} />
+              <Configs session={session} />
             </Grid.Col>
 
             <Grid.Col xs={12} md={7}>
