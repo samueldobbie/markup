@@ -7,6 +7,7 @@ import { themeState } from "store/Theme"
 import { BrowserRouter } from "react-router-dom"
 import Navbar from "components/nav/Navbar"
 import PageRoutes from "components/routes/PageRoutes"
+import { ModalsProvider } from "@mantine/modals"
 
 function App(): JSX.Element {
   const [colorScheme, setColorScheme] = useRecoilState(themeState)
@@ -45,14 +46,16 @@ function App(): JSX.Element {
           // black: "#1e212a",
         }}
       >
-        <AuthProvider>
-          <BrowserRouter>
-            <Navbar />
-            <PageRoutes />
-          </BrowserRouter>
-        </AuthProvider>
+        <ModalsProvider>
+          <AuthProvider>
+            <BrowserRouter>
+              <Navbar />
+              <PageRoutes />
+            </BrowserRouter>
+          </AuthProvider>
+        </ModalsProvider>
       </MantineProvider>
-    </ColorSchemeProvider>
+    </ColorSchemeProvider >
   )
 }
 
