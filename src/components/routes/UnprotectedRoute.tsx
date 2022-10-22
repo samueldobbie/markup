@@ -1,8 +1,11 @@
+import { useDocumentTitle } from "@mantine/hooks"
 import { useAuth } from "providers/AuthProvider"
 import { Navigate } from "react-router-dom"
 import { Path } from "utils/Path"
 
-function UnprotectedRoute({ children }: any): JSX.Element {
+function UnprotectedRoute({ children, title }: any): JSX.Element {
+  useDocumentTitle(title)
+
   const { user } = useAuth()
 
   if (user) {
