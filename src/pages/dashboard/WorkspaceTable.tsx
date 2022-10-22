@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import { database, Workspace } from "pages/database/Database"
 import { moveToPage } from "utils/Location"
 import { ModalProps } from "./Interfaces"
+import { toAnnotateUrl, toSetupUrl } from "utils/Path"
 
 interface Props {
   completeTutorialStep: (v: string) => void
@@ -50,20 +51,25 @@ function WorkspaceTable({ completeTutorialStep }: Props) {
                 <ActionIcon color="red">
                   <IconTrash
                     size={16}
-                    onClick={() => database.deleteWorkspace(workspace.id)}
+                    onClick={() => {
+                      database
+                        .deleteWorkspace(workspace.id)
+                        .then(() => setWorkspaces(workspaces.filter(i => i.id !== workspace.id)))
+                        .catch(alert)
+                    }}
                   />
                 </ActionIcon>
 
                 <ActionIcon color="blue">
                   <IconEdit
                     size={16}
-                    onClick={() => moveToPage(`/setup/${workspace.id}`)}
+                    onClick={() => moveToPage(toSetupUrl(workspace.id))}
                   />
                 </ActionIcon>
 
                 <ActionIcon color="green">
                   <IconPlayerPlay
-                    onClick={() => moveToPage(`/setup/${workspace.id}`)}
+                    onClick={() => moveToPage(toAnnotateUrl(workspace.id))}
                     size={16}
                   />
                 </ActionIcon>
@@ -101,7 +107,7 @@ function CreateWorkspaceModal({ openedModal, setOpenedModal }: ModalProps) {
       return
     }
 
-    moveToPage(`/setup/${workspaces[0].id}`)
+    moveToPage(toSetupUrl(workspaces[0].id))
   }
 
   return (

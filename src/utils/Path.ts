@@ -6,10 +6,19 @@ enum Path {
   SignIn = "/sign-in",
   ForgotPassword = "/forgot-password",
   Dashboard = "/dashboard",
-  Setup = "/setup/:id",
+  Setup = "/workspace/setup/:id",
+  Annotate = "/workspace/annotate/:id",
   Contact = "/contact",
   Settings = "/settings",
   NotFound = "*",
 }
 
-export { Path }
+function toSetupUrl(id: string) {
+  return Path.Setup.replace(":id", id)
+}
+
+function toAnnotateUrl(id: string) {
+  return Path.Annotate.replace(":id", id)
+}
+
+export { Path, toSetupUrl, toAnnotateUrl }

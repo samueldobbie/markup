@@ -13,13 +13,13 @@ async function addWorkspace(name: string): Promise<Workspace[]> {
   const user = await supabase.auth.getUser()
   const userId = user.data.user?.id ?? ""
 
-  const { data: session, error } = await supabase
+  const { data: workspace, error: workspaceError } = await supabase
     .from("workspace")
     .insert({ name })
     .select()
 
-  if (error) {
-    console.error(error)
+  if (workspaceError) {
+    console.error(workspaceError)
     return []
   }
 
@@ -27,7 +27,7 @@ async function addWorkspace(name: string): Promise<Workspace[]> {
     .from("workspace_access")
     .insert({
       user_id: userId,
-      session_id: session[0].id,
+      workspace_id: workspace[0].id,
       role: "owner",
     })
 
@@ -36,7 +36,7 @@ async function addWorkspace(name: string): Promise<Workspace[]> {
     return []
   }
 
-  return session
+  return workspace
 }
 
 async function getWorkspaces(workspaceIds: string[] = []): Promise<Workspace[]> {
@@ -46,7 +46,7 @@ async function getWorkspaces(workspaceIds: string[] = []): Promise<Workspace[]> 
   if (workspaceIds.length === 0) {
     const { data: workspaceAccessData, error: workspaceAccessError } = await supabase
       .from("workspace_access")
-      .select("session_id")
+      .select("workspace_id")
       .eq("user_id", userId)
 
     workspaceAccessData.forEach((access: WorkspaceAccess) => {
@@ -64,11 +64,11 @@ async function getWorkspaces(workspaceIds: string[] = []): Promise<Workspace[]> 
   return workspaceData ?? []
 }
 
-async function deleteWorkspace(sessionId: string): Promise<boolean> {
+async function deleteWorkspace(workspaceId: string): Promise<boolean> {
   const { error } = await supabase
     .from("workspace")
     .delete()
-    .eq("id", sessionId)
+    .eq("id", workspaceId)
 
   if (error) {
     console.error(error)
@@ -78,19 +78,19 @@ async function deleteWorkspace(sessionId: string): Promise<boolean> {
   return false
 }
 
-async function addWorkspaceDocuments(sessionId: string, files: File[]): Promise<WorkspaceDocument[]> {
+async function addWorkspaceDocuments(workspaceId: string, files: File[]): Promise<WorkspaceDocument[]> {
   const rawDocuments = [] as RawWorkspaceDocument[]
 
   for (const file of files) {
     rawDocuments.push({
-      workspace_id: sessionId,
+      workspace_id: workspaceId,
       name: file.name,
       content: await file.text(),
     })
   }
 
   const { data: documents, error } = await supabase
-    .from("document")
+    .from("workspace_document")
     .insert(rawDocuments)
     .select()
 
@@ -102,11 +102,11 @@ async function addWorkspaceDocuments(sessionId: string, files: File[]): Promise<
   return documents
 }
 
-async function getWorkspaceDocuments(sessionId: string): Promise<WorkspaceDocument[]> {
+async function getWorkspaceDocuments(workspaceId: string): Promise<WorkspaceDocument[]> {
   const { data: documents, error } = await supabase
-    .from("document")
+    .from("workspace_document")
     .select()
-    .eq("session_id", sessionId)
+    .eq("workspace_id", workspaceId)
 
   if (error) {
     console.error(error)
@@ -118,7 +118,7 @@ async function getWorkspaceDocuments(sessionId: string): Promise<WorkspaceDocume
 
 async function deleteWorkspaceDocument(documentId: string): Promise<boolean> {
   const { error } = await supabase
-    .from("document")
+    .from("workspace_document")
     .delete()
     .eq("id", documentId)
 
@@ -130,11 +130,11 @@ async function deleteWorkspaceDocument(documentId: string): Promise<boolean> {
   return false
 }
 
-async function addWorkspaceConfig(sessionId: string, file: File): Promise<WorkspaceConfig> {
+async function addWorkspaceConfig(workspaceId: string, file: File): Promise<WorkspaceConfig> {
   const { data: cofig, error } = await supabase
-    .from("config")
+    .from("workspace_config")
     .insert({
-      session_id: sessionId,
+      workspace_id: workspaceId,
       name: file.name,
       content: await file.text(),
     })
@@ -148,23 +148,23 @@ async function addWorkspaceConfig(sessionId: string, file: File): Promise<Worksp
   return cofig[0]
 }
 
-async function getWorkspaceConfig(sessionId: string): Promise<WorkspaceConfig> {
+async function getWorkspaceConfig(workspaceId: string): Promise<WorkspaceConfig[]> {
   const { data: config, error } = await supabase
-    .from("config")
+    .from("workspace_config")
     .select("name")
-    .eq("session_id", sessionId)
+    .eq("workspace_id", workspaceId)
 
   if (error) {
     console.error(error)
     // return undefined
   }
 
-  return config[0]
+  return config
 }
 
 async function deleteWorkspaceConfig(configId: string): Promise<boolean> {
   const { error } = await supabase
-    .from("config")
+    .from("workspace_config")
     .delete()
     .eq("id", configId)
 

@@ -7,7 +7,7 @@ import { SectionProps } from "./Interfaces"
 
 function Configs({ workspace }: SectionProps) {
   const [file, setFile] = useState<File | null>(null)
-  const [config, setConfig] = useState<WorkspaceConfig>()
+  const [config, setConfig] = useState<WorkspaceConfig[]>([])
 
   useEffect(() => {
     database
@@ -23,7 +23,7 @@ function Configs({ workspace }: SectionProps) {
         .addWorkspaceConfig(workspace.id, file)
         .then(insertedConfig => {
           setFile(null)
-          setConfig(insertedConfig)
+          setConfig([insertedConfig])
         })
     }
 
@@ -37,9 +37,12 @@ function Configs({ workspace }: SectionProps) {
       emptyState="Upload or create a config"
       borderRadius="md"
       sx={{ minHeight: "500px" }}
-      records={[config]}
+      records={config}
       columns={[
-        { accessor: "name", title: <Text size={16}>Config</Text> },
+        {
+          accessor: "name",
+          title: <Text size={16}>Config</Text>,
+        },
         {
           accessor: "actions",
           title: (
@@ -69,7 +72,7 @@ function Configs({ workspace }: SectionProps) {
                   onClick={() => {
                     if (config) {
                       database.deleteWorkspaceConfig(config.id)
-                      setConfig(undefined)
+                      setConfig([])
                     }
                   }}
                 />

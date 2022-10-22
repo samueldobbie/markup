@@ -52,7 +52,12 @@ function OntologyTable({ completeTutorialStep }: Props) {
                 <ActionIcon color="red">
                   <IconTrash
                     size={16}
-                    onClick={() => database.deleteOntology(ontology.id)}
+                    onClick={() => {
+                      database
+                        .deleteOntology(ontology.id)
+                        .then(() => setOntologies(ontologies.filter(i => i.id !== ontology.id)))
+                        .catch(alert)
+                    }}
                   />
                 </ActionIcon>
 

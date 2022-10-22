@@ -60,7 +60,12 @@ function Documents({ workspace }: SectionProps) {
               <ActionIcon color="red">
                 <IconTrash
                   size={16}
-                  onClick={() => database.deleteWorkspaceDocument(document.id)}
+                  onClick={() => {
+                    database
+                      .deleteWorkspaceDocument(document.id)
+                      .then(() => setDocuments(documents.filter(i => i.id !== document.id)))
+                      .catch(alert)
+                  }}
                 />
               </ActionIcon>
             </Group>
