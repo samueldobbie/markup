@@ -1,4 +1,5 @@
 import { createStyles, Title, Text, Button, Container, Image, useMantineTheme } from "@mantine/core"
+import { useAuth } from "providers"
 import { Path } from "utils/Path"
 import Dots from "./Dots"
 import SocialProof from "./SocialProof"
@@ -92,6 +93,11 @@ const useStyles = createStyles((theme) => ({
 function Home(): JSX.Element {
   const { classes } = useStyles()
 
+  const { user } = useAuth()
+
+  const primaryButtonLink = user === null ? Path.SignUp : Path.Dashboard
+  const primaryButtonText = user === null ? "Get started" : "Go to dashboard"
+
   const theme = useMantineTheme()
   const demoImage = theme.colorScheme === "dark"
     ? "https://i.imgur.com/uqnXoX0.png"
@@ -131,8 +137,13 @@ function Home(): JSX.Element {
                Try demo
             </Button>
 
-            <Button className={classes.control} size="lg" component="a" href={Path.SignUp}>
-              Get started
+            <Button
+              className={classes.control}
+              size="lg"
+              component="a"
+              href={primaryButtonLink}
+            >
+              {primaryButtonText}
             </Button>
           </div>
         </div>
