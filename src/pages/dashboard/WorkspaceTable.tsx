@@ -1,12 +1,13 @@
 import { Group, Button, ActionIcon, Text, Grid, Modal, TextInput } from "@mantine/core"
 import { useForm } from "@mantine/form"
-import { IconTrash, IconEdit, IconPlayerPlay } from "@tabler/icons"
+import { IconPlayerPlay, IconSettings, IconTrashX } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import { database, Workspace } from "pages/database/Database"
 import { moveToPage } from "utils/Location"
 import { ModalProps } from "./Interfaces"
 import { toAnnotateUrl, toSetupUrl } from "utils/Path"
+import { openConfirmModal } from "@mantine/modals"
 
 interface Props {
   completeTutorialStep: (v: string) => void
@@ -15,6 +16,23 @@ interface Props {
 function WorkspaceTable({ completeTutorialStep }: Props) {
   const [openedModal, setOpenedModal] = useState(false)
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
+
+  const openConfirmDelete = (workspace: Workspace) => openConfirmModal({
+    title: <>Are you sure you want to delete the '{workspace.name}' workspace?</>,
+    children: (
+      <Text size="sm" color="dimmed">
+        All data associated with this workspace will be
+        irreversible deleted for all collaborators.
+      </Text>
+    ),
+    labels: { confirm: "Delete", cancel: "Cancel" },
+    onConfirm: () => {
+      database
+        .deleteWorkspace(workspace.id)
+        .then(() => setWorkspaces(workspaces.filter(i => i.id !== workspace.id)))
+        .catch(alert)
+    },
+  })
 
   useEffect(() => {
     database
@@ -29,7 +47,7 @@ function WorkspaceTable({ completeTutorialStep }: Props) {
         highlightOnHover
         emptyState="Create a workspace to start annotating"
         borderRadius="md"
-        sx={{ minHeight: "500px" }}
+        sx={{ minHeight: "400px" }}
         records={workspaces}
         columns={[
           {
@@ -39,35 +57,28 @@ function WorkspaceTable({ completeTutorialStep }: Props) {
           {
             accessor: "actions",
             title: (
-              <Group spacing={4} position="right" noWrap>
-                <Button variant="light" onClick={() => setOpenedModal(true)}>
-                  Create workspace
-                </Button>
-              </Group>
+              <Button variant="light" onClick={() => setOpenedModal(true)}>
+                Create workspace
+              </Button>
             ),
             textAlignment: "right",
             render: (workspace) => (
-              <Group spacing={4} position="right" noWrap>
-                <ActionIcon color="red">
-                  <IconTrash
-                    size={16}
-                    onClick={() => {
-                      database
-                        .deleteWorkspace(workspace.id)
-                        .then(() => setWorkspaces(workspaces.filter(i => i.id !== workspace.id)))
-                        .catch(alert)
-                    }}
-                  />
-                </ActionIcon>
-
-                <ActionIcon color="blue">
-                  <IconEdit
+              <Group spacing={8} position="right" noWrap>
+                <ActionIcon color="gray" variant="light">
+                  <IconSettings
                     size={16}
                     onClick={() => moveToPage(toSetupUrl(workspace.id))}
                   />
                 </ActionIcon>
 
-                <ActionIcon color="green">
+                <ActionIcon color="red" variant="light">
+                  <IconTrashX
+                    size={16}
+                    onClick={() => openConfirmDelete(workspace)}
+                  />
+                </ActionIcon>
+
+                <ActionIcon color="green" variant="light">
                   <IconPlayerPlay
                     onClick={() => moveToPage(toAnnotateUrl(workspace.id))}
                     size={16}

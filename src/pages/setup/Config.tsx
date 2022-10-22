@@ -66,7 +66,7 @@ function Configs({ workspace }: SectionProps) {
           textAlignment: "right",
           render: (config) => (
             <Group spacing={4} position="right" noWrap>
-              <ActionIcon color="red">
+                <ActionIcon color="red" variant="light">
                 <IconTrash
                   size={16}
                   onClick={() => {

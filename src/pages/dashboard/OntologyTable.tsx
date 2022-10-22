@@ -5,6 +5,7 @@ import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import { database, Ontology } from "pages/database/Database"
 import { ModalProps } from "./Interfaces"
+import { openConfirmModal } from "@mantine/modals"
 
 interface Props {
   completeTutorialStep: (v: string) => void
@@ -13,8 +14,24 @@ interface Props {
 function OntologyTable({ completeTutorialStep }: Props) {
   const [openExploreModal, setOpenExploreModal] = useState(false)
   const [openUploadModal, setOpenUploadModal] = useState(false)
-
   const [ontologies, setOntologies] = useState<Ontology[]>([])
+
+  const openConfirmDelete = (ontology: Ontology) => openConfirmModal({
+    title: <>Are you sure you want to delete the '{ontology.name}' ontology?</>,
+    children: (
+      <Text size="sm" color="dimmed">
+        All data associated with this ontology will be
+        irreversible deleted for all collaborators.
+      </Text>
+    ),
+    labels: { confirm: "Delete", cancel: "Cancel" },
+    onConfirm: () => {
+      database
+        .deleteOntology(ontology.id)
+        .then(() => setOntologies(ontologies.filter(i => i.id !== ontology.id)))
+        .catch(alert)
+    },
+  })
 
   useEffect(() => {
     database
@@ -29,7 +46,7 @@ function OntologyTable({ completeTutorialStep }: Props) {
         highlightOnHover
         emptyState="Upload an ontology or explore existing ones"
         borderRadius="md"
-        sx={{ minHeight: "500px" }}
+        sx={{ minHeight: "400px" }}
         records={ontologies}
         columns={[
           { accessor: "name", title: <Text size={16}>Ontology</Text> },
@@ -49,19 +66,14 @@ function OntologyTable({ completeTutorialStep }: Props) {
             textAlignment: "right",
             render: (ontology) => (
               <Group spacing={4} position="right" noWrap>
-                <ActionIcon color="red">
+                <ActionIcon>
                   <IconTrash
                     size={16}
-                    onClick={() => {
-                      database
-                        .deleteOntology(ontology.id)
-                        .then(() => setOntologies(ontologies.filter(i => i.id !== ontology.id)))
-                        .catch(alert)
-                    }}
+                    onClick={() => openConfirmDelete(ontology)}
                   />
                 </ActionIcon>
 
-                <ActionIcon color="blue">
+                <ActionIcon>
                   <IconEdit size={16} />
                 </ActionIcon>
               </Group>
