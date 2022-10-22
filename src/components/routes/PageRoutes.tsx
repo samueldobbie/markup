@@ -11,6 +11,7 @@ import Dashboard from "pages/dashboard/Dashboard"
 import ProtectedRoute from "./ProtectedRoute"
 import Setup from "pages/setup/Setup"
 import DefaultRoute from "./DefaultRoute"
+import Annotate from "pages/annotate/Annotate"
 
 function PageRoutes(): JSX.Element {
   return (
@@ -46,8 +47,14 @@ function PageRoutes(): JSX.Element {
       } />
 
       <Route path={Path.Setup} element={
-        <ProtectedRoute title="Workspace Setup - Markup">
+        <ProtectedRoute title="Setup Workspace - Markup">
           <Setup />
+        </ProtectedRoute>
+      } />
+
+      <Route path={Path.Annotate} element={
+        <ProtectedRoute title="Annotate Workspace - Markup">
+          <Annotate />
         </ProtectedRoute>
       } />
 
