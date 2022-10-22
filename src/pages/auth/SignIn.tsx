@@ -68,7 +68,7 @@ function SignIn(): JSX.Element {
 
           <Group position="apart" mt="md">
             <Checkbox label="Remember me" />
-            <Anchor<"a"> href={Path.ForgotPassword} size="sm">
+            <Anchor href={Path.ForgotPassword} size="sm">
               Forgot password?
             </Anchor>
           </Group>

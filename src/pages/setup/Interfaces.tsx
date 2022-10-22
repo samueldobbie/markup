@@ -1,7 +1,7 @@
-import { Session } from "utils/Database"
+import { Workspace } from "pages/database/Database"
 
 interface SectionProps {
-  session: Session
+  workspace: Workspace
 }
 
 export type { SectionProps }

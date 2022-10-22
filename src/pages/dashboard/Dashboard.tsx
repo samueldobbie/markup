@@ -2,18 +2,20 @@ import { Container, Grid } from "@mantine/core"
 import { useState } from "react"
 import AccountOverview from "./AccountOverview"
 import OntologyTable from "./OntologyTable"
-import SessionTable from "./SessionTable"
+import WorkspaceTable from "./WorkspaceTable"
 
 export interface TutorialProgress {
   readDocs: boolean,
-  createSession: boolean,
+  createWorkspace: boolean,
+  setupWorkspace: boolean,
   exploreOntologies: boolean,
 }
 
 function Dashboard() {
   const [tutorialProgress, setTutorialProgress] = useState<TutorialProgress>({
     readDocs: false,
-    createSession: false,
+    createWorkspace: false,
+    setupWorkspace: false,
     exploreOntologies: false,
   })
 
@@ -36,7 +38,7 @@ function Dashboard() {
           </Grid.Col>
 
           <Grid.Col xs={12} md={6}>
-            <SessionTable completeTutorialStep={completeTutorialStep} />
+            <WorkspaceTable completeTutorialStep={completeTutorialStep} />
           </Grid.Col>
 
           <Grid.Col xs={12} md={6}>

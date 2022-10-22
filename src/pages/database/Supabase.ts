@@ -12,6 +12,300 @@ export interface paths {
       };
     };
   };
+  "/workspace_access": {
+    get: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.workspace_access.id"];
+          created_at?: parameters["rowFilter.workspace_access.created_at"];
+          user_id?: parameters["rowFilter.workspace_access.user_id"];
+          workspace_id?: parameters["rowFilter.workspace_access.workspace_id"];
+          role?: parameters["rowFilter.workspace_access.role"];
+          /** Filtering Columns */
+          select?: parameters["select"];
+          /** Ordering */
+          order?: parameters["order"];
+          /** Limiting and Pagination */
+          offset?: parameters["offset"];
+          /** Limiting and Pagination */
+          limit?: parameters["limit"];
+        };
+        header: {
+          /** Limiting and Pagination */
+          Range?: parameters["range"];
+          /** Limiting and Pagination */
+          "Range-Unit"?: parameters["rangeUnit"];
+          /** Preference */
+          Prefer?: parameters["preferCount"];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["workspace_access"][];
+        };
+        /** Partial Content */
+        206: unknown;
+      };
+    };
+    post: {
+      parameters: {
+        body: {
+          /** workspace_access */
+          workspace_access?: definitions["workspace_access"];
+        };
+        query: {
+          /** Filtering Columns */
+          select?: parameters["select"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** Created */
+        201: unknown;
+      };
+    };
+    delete: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.workspace_access.id"];
+          created_at?: parameters["rowFilter.workspace_access.created_at"];
+          user_id?: parameters["rowFilter.workspace_access.user_id"];
+          workspace_id?: parameters["rowFilter.workspace_access.workspace_id"];
+          role?: parameters["rowFilter.workspace_access.role"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+    patch: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.workspace_access.id"];
+          created_at?: parameters["rowFilter.workspace_access.created_at"];
+          user_id?: parameters["rowFilter.workspace_access.user_id"];
+          workspace_id?: parameters["rowFilter.workspace_access.workspace_id"];
+          role?: parameters["rowFilter.workspace_access.role"];
+        };
+        body: {
+          /** workspace_access */
+          workspace_access?: definitions["workspace_access"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+  };
+  "/workspace_config": {
+    get: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.workspace_config.id"];
+          created_at?: parameters["rowFilter.workspace_config.created_at"];
+          workspace_id?: parameters["rowFilter.workspace_config.workspace_id"];
+          name?: parameters["rowFilter.workspace_config.name"];
+          content?: parameters["rowFilter.workspace_config.content"];
+          /** Filtering Columns */
+          select?: parameters["select"];
+          /** Ordering */
+          order?: parameters["order"];
+          /** Limiting and Pagination */
+          offset?: parameters["offset"];
+          /** Limiting and Pagination */
+          limit?: parameters["limit"];
+        };
+        header: {
+          /** Limiting and Pagination */
+          Range?: parameters["range"];
+          /** Limiting and Pagination */
+          "Range-Unit"?: parameters["rangeUnit"];
+          /** Preference */
+          Prefer?: parameters["preferCount"];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["workspace_config"][];
+        };
+        /** Partial Content */
+        206: unknown;
+      };
+    };
+    post: {
+      parameters: {
+        body: {
+          /** workspace_config */
+          workspace_config?: definitions["workspace_config"];
+        };
+        query: {
+          /** Filtering Columns */
+          select?: parameters["select"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** Created */
+        201: unknown;
+      };
+    };
+    delete: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.workspace_config.id"];
+          created_at?: parameters["rowFilter.workspace_config.created_at"];
+          workspace_id?: parameters["rowFilter.workspace_config.workspace_id"];
+          name?: parameters["rowFilter.workspace_config.name"];
+          content?: parameters["rowFilter.workspace_config.content"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+    patch: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.workspace_config.id"];
+          created_at?: parameters["rowFilter.workspace_config.created_at"];
+          workspace_id?: parameters["rowFilter.workspace_config.workspace_id"];
+          name?: parameters["rowFilter.workspace_config.name"];
+          content?: parameters["rowFilter.workspace_config.content"];
+        };
+        body: {
+          /** workspace_config */
+          workspace_config?: definitions["workspace_config"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+  };
+  "/workspace": {
+    get: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.workspace.id"];
+          created_at?: parameters["rowFilter.workspace.created_at"];
+          name?: parameters["rowFilter.workspace.name"];
+          views?: parameters["rowFilter.workspace.views"];
+          /** Filtering Columns */
+          select?: parameters["select"];
+          /** Ordering */
+          order?: parameters["order"];
+          /** Limiting and Pagination */
+          offset?: parameters["offset"];
+          /** Limiting and Pagination */
+          limit?: parameters["limit"];
+        };
+        header: {
+          /** Limiting and Pagination */
+          Range?: parameters["range"];
+          /** Limiting and Pagination */
+          "Range-Unit"?: parameters["rangeUnit"];
+          /** Preference */
+          Prefer?: parameters["preferCount"];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["workspace"][];
+        };
+        /** Partial Content */
+        206: unknown;
+      };
+    };
+    post: {
+      parameters: {
+        body: {
+          /** workspace */
+          workspace?: definitions["workspace"];
+        };
+        query: {
+          /** Filtering Columns */
+          select?: parameters["select"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** Created */
+        201: unknown;
+      };
+    };
+    delete: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.workspace.id"];
+          created_at?: parameters["rowFilter.workspace.created_at"];
+          name?: parameters["rowFilter.workspace.name"];
+          views?: parameters["rowFilter.workspace.views"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+    patch: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.workspace.id"];
+          created_at?: parameters["rowFilter.workspace.created_at"];
+          name?: parameters["rowFilter.workspace.name"];
+          views?: parameters["rowFilter.workspace.views"];
+        };
+        body: {
+          /** workspace */
+          workspace?: definitions["workspace"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+  };
   "/ontology": {
     get: {
       parameters: {
@@ -19,7 +313,6 @@ export interface paths {
           id?: parameters["rowFilter.ontology.id"];
           created_at?: parameters["rowFilter.ontology.created_at"];
           name?: parameters["rowFilter.ontology.name"];
-          views?: parameters["rowFilter.ontology.views"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -73,7 +366,6 @@ export interface paths {
           id?: parameters["rowFilter.ontology.id"];
           created_at?: parameters["rowFilter.ontology.created_at"];
           name?: parameters["rowFilter.ontology.name"];
-          views?: parameters["rowFilter.ontology.views"];
         };
         header: {
           /** Preference */
@@ -91,7 +383,6 @@ export interface paths {
           id?: parameters["rowFilter.ontology.id"];
           created_at?: parameters["rowFilter.ontology.created_at"];
           name?: parameters["rowFilter.ontology.name"];
-          views?: parameters["rowFilter.ontology.views"];
         };
         body: {
           /** ontology */
@@ -108,15 +399,15 @@ export interface paths {
       };
     };
   };
-  "/annotation_session_access": {
+  "/workspace_document": {
     get: {
       parameters: {
         query: {
-          id?: parameters["rowFilter.annotation_session_access.id"];
-          created_at?: parameters["rowFilter.annotation_session_access.created_at"];
-          user_id?: parameters["rowFilter.annotation_session_access.user_id"];
-          session_id?: parameters["rowFilter.annotation_session_access.session_id"];
-          role?: parameters["rowFilter.annotation_session_access.role"];
+          id?: parameters["rowFilter.workspace_document.id"];
+          created_at?: parameters["rowFilter.workspace_document.created_at"];
+          workspace_id?: parameters["rowFilter.workspace_document.workspace_id"];
+          name?: parameters["rowFilter.workspace_document.name"];
+          content?: parameters["rowFilter.workspace_document.content"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -138,7 +429,7 @@ export interface paths {
       responses: {
         /** OK */
         200: {
-          schema: definitions["annotation_session_access"][];
+          schema: definitions["workspace_document"][];
         };
         /** Partial Content */
         206: unknown;
@@ -147,8 +438,8 @@ export interface paths {
     post: {
       parameters: {
         body: {
-          /** annotation_session_access */
-          annotation_session_access?: definitions["annotation_session_access"];
+          /** workspace_document */
+          workspace_document?: definitions["workspace_document"];
         };
         query: {
           /** Filtering Columns */
@@ -167,11 +458,11 @@ export interface paths {
     delete: {
       parameters: {
         query: {
-          id?: parameters["rowFilter.annotation_session_access.id"];
-          created_at?: parameters["rowFilter.annotation_session_access.created_at"];
-          user_id?: parameters["rowFilter.annotation_session_access.user_id"];
-          session_id?: parameters["rowFilter.annotation_session_access.session_id"];
-          role?: parameters["rowFilter.annotation_session_access.role"];
+          id?: parameters["rowFilter.workspace_document.id"];
+          created_at?: parameters["rowFilter.workspace_document.created_at"];
+          workspace_id?: parameters["rowFilter.workspace_document.workspace_id"];
+          name?: parameters["rowFilter.workspace_document.name"];
+          content?: parameters["rowFilter.workspace_document.content"];
         };
         header: {
           /** Preference */
@@ -186,15 +477,15 @@ export interface paths {
     patch: {
       parameters: {
         query: {
-          id?: parameters["rowFilter.annotation_session_access.id"];
-          created_at?: parameters["rowFilter.annotation_session_access.created_at"];
-          user_id?: parameters["rowFilter.annotation_session_access.user_id"];
-          session_id?: parameters["rowFilter.annotation_session_access.session_id"];
-          role?: parameters["rowFilter.annotation_session_access.role"];
+          id?: parameters["rowFilter.workspace_document.id"];
+          created_at?: parameters["rowFilter.workspace_document.created_at"];
+          workspace_id?: parameters["rowFilter.workspace_document.workspace_id"];
+          name?: parameters["rowFilter.workspace_document.name"];
+          content?: parameters["rowFilter.workspace_document.content"];
         };
         body: {
-          /** annotation_session_access */
-          annotation_session_access?: definitions["annotation_session_access"];
+          /** workspace_document */
+          workspace_document?: definitions["workspace_document"];
         };
         header: {
           /** Preference */
@@ -306,426 +597,125 @@ export interface paths {
       };
     };
   };
-  "/annotation_sessions": {
-    get: {
-      parameters: {
-        query: {
-          id?: parameters["rowFilter.annotation_sessions.id"];
-          created_at?: parameters["rowFilter.annotation_sessions.created_at"];
-          name?: parameters["rowFilter.annotation_sessions.name"];
-          views?: parameters["rowFilter.annotation_sessions.views"];
-          /** Filtering Columns */
-          select?: parameters["select"];
-          /** Ordering */
-          order?: parameters["order"];
-          /** Limiting and Pagination */
-          offset?: parameters["offset"];
-          /** Limiting and Pagination */
-          limit?: parameters["limit"];
-        };
-        header: {
-          /** Limiting and Pagination */
-          Range?: parameters["range"];
-          /** Limiting and Pagination */
-          "Range-Unit"?: parameters["rangeUnit"];
-          /** Preference */
-          Prefer?: parameters["preferCount"];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          schema: definitions["annotation_sessions"][];
-        };
-        /** Partial Content */
-        206: unknown;
-      };
-    };
-    post: {
-      parameters: {
-        body: {
-          /** annotation_sessions */
-          annotation_sessions?: definitions["annotation_sessions"];
-        };
-        query: {
-          /** Filtering Columns */
-          select?: parameters["select"];
-        };
-        header: {
-          /** Preference */
-          Prefer?: parameters["preferReturn"];
-        };
-      };
-      responses: {
-        /** Created */
-        201: unknown;
-      };
-    };
-    delete: {
-      parameters: {
-        query: {
-          id?: parameters["rowFilter.annotation_sessions.id"];
-          created_at?: parameters["rowFilter.annotation_sessions.created_at"];
-          name?: parameters["rowFilter.annotation_sessions.name"];
-          views?: parameters["rowFilter.annotation_sessions.views"];
-        };
-        header: {
-          /** Preference */
-          Prefer?: parameters["preferReturn"];
-        };
-      };
-      responses: {
-        /** No Content */
-        204: never;
-      };
-    };
-    patch: {
-      parameters: {
-        query: {
-          id?: parameters["rowFilter.annotation_sessions.id"];
-          created_at?: parameters["rowFilter.annotation_sessions.created_at"];
-          name?: parameters["rowFilter.annotation_sessions.name"];
-          views?: parameters["rowFilter.annotation_sessions.views"];
-        };
-        body: {
-          /** annotation_sessions */
-          annotation_sessions?: definitions["annotation_sessions"];
-        };
-        header: {
-          /** Preference */
-          Prefer?: parameters["preferReturn"];
-        };
-      };
-      responses: {
-        /** No Content */
-        204: never;
-      };
-    };
-  };
-  "/config": {
-    get: {
-      parameters: {
-        query: {
-          id?: parameters["rowFilter.config.id"];
-          session_id?: parameters["rowFilter.config.session_id"];
-          created_at?: parameters["rowFilter.config.created_at"];
-          name?: parameters["rowFilter.config.name"];
-          content?: parameters["rowFilter.config.content"];
-          /** Filtering Columns */
-          select?: parameters["select"];
-          /** Ordering */
-          order?: parameters["order"];
-          /** Limiting and Pagination */
-          offset?: parameters["offset"];
-          /** Limiting and Pagination */
-          limit?: parameters["limit"];
-        };
-        header: {
-          /** Limiting and Pagination */
-          Range?: parameters["range"];
-          /** Limiting and Pagination */
-          "Range-Unit"?: parameters["rangeUnit"];
-          /** Preference */
-          Prefer?: parameters["preferCount"];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          schema: definitions["config"][];
-        };
-        /** Partial Content */
-        206: unknown;
-      };
-    };
-    post: {
-      parameters: {
-        body: {
-          /** config */
-          config?: definitions["config"];
-        };
-        query: {
-          /** Filtering Columns */
-          select?: parameters["select"];
-        };
-        header: {
-          /** Preference */
-          Prefer?: parameters["preferReturn"];
-        };
-      };
-      responses: {
-        /** Created */
-        201: unknown;
-      };
-    };
-    delete: {
-      parameters: {
-        query: {
-          id?: parameters["rowFilter.config.id"];
-          session_id?: parameters["rowFilter.config.session_id"];
-          created_at?: parameters["rowFilter.config.created_at"];
-          name?: parameters["rowFilter.config.name"];
-          content?: parameters["rowFilter.config.content"];
-        };
-        header: {
-          /** Preference */
-          Prefer?: parameters["preferReturn"];
-        };
-      };
-      responses: {
-        /** No Content */
-        204: never;
-      };
-    };
-    patch: {
-      parameters: {
-        query: {
-          id?: parameters["rowFilter.config.id"];
-          session_id?: parameters["rowFilter.config.session_id"];
-          created_at?: parameters["rowFilter.config.created_at"];
-          name?: parameters["rowFilter.config.name"];
-          content?: parameters["rowFilter.config.content"];
-        };
-        body: {
-          /** config */
-          config?: definitions["config"];
-        };
-        header: {
-          /** Preference */
-          Prefer?: parameters["preferReturn"];
-        };
-      };
-      responses: {
-        /** No Content */
-        204: never;
-      };
-    };
-  };
-  "/document": {
-    get: {
-      parameters: {
-        query: {
-          id?: parameters["rowFilter.document.id"];
-          session_id?: parameters["rowFilter.document.session_id"];
-          created_at?: parameters["rowFilter.document.created_at"];
-          name?: parameters["rowFilter.document.name"];
-          content?: parameters["rowFilter.document.content"];
-          views?: parameters["rowFilter.document.views"];
-          /** Filtering Columns */
-          select?: parameters["select"];
-          /** Ordering */
-          order?: parameters["order"];
-          /** Limiting and Pagination */
-          offset?: parameters["offset"];
-          /** Limiting and Pagination */
-          limit?: parameters["limit"];
-        };
-        header: {
-          /** Limiting and Pagination */
-          Range?: parameters["range"];
-          /** Limiting and Pagination */
-          "Range-Unit"?: parameters["rangeUnit"];
-          /** Preference */
-          Prefer?: parameters["preferCount"];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          schema: definitions["document"][];
-        };
-        /** Partial Content */
-        206: unknown;
-      };
-    };
-    post: {
-      parameters: {
-        body: {
-          /** document */
-          document?: definitions["document"];
-        };
-        query: {
-          /** Filtering Columns */
-          select?: parameters["select"];
-        };
-        header: {
-          /** Preference */
-          Prefer?: parameters["preferReturn"];
-        };
-      };
-      responses: {
-        /** Created */
-        201: unknown;
-      };
-    };
-    delete: {
-      parameters: {
-        query: {
-          id?: parameters["rowFilter.document.id"];
-          session_id?: parameters["rowFilter.document.session_id"];
-          created_at?: parameters["rowFilter.document.created_at"];
-          name?: parameters["rowFilter.document.name"];
-          content?: parameters["rowFilter.document.content"];
-          views?: parameters["rowFilter.document.views"];
-        };
-        header: {
-          /** Preference */
-          Prefer?: parameters["preferReturn"];
-        };
-      };
-      responses: {
-        /** No Content */
-        204: never;
-      };
-    };
-    patch: {
-      parameters: {
-        query: {
-          id?: parameters["rowFilter.document.id"];
-          session_id?: parameters["rowFilter.document.session_id"];
-          created_at?: parameters["rowFilter.document.created_at"];
-          name?: parameters["rowFilter.document.name"];
-          content?: parameters["rowFilter.document.content"];
-          views?: parameters["rowFilter.document.views"];
-        };
-        body: {
-          /** document */
-          document?: definitions["document"];
-        };
-        header: {
-          /** Preference */
-          Prefer?: parameters["preferReturn"];
-        };
-      };
-      responses: {
-        /** No Content */
-        204: never;
-      };
-    };
-  };
 }
 
 export interface definitions {
-  ontology: {
+  workspace_access: {
     /**
-     * Format: integer
+     * Format: uuid
      * @description Note:
      * This is a Primary Key.<pk/>
+     * @default gen_random_uuid()
      */
-    id: number;
+    id: string;
     /**
      * Format: timestamp without time zone
      * @default now()
      */
     created_at: string;
-    /** Format: character varying */
-    name: string;
-    /**
-     * Format: integer
-     * @default 0
-     */
-    views: number;
-  };
-  annotation_session_access: {
-    /**
-     * Format: integer
-     * @description Note:
-     * This is a Primary Key.<pk/>
-     */
-    id: number;
-    /**
-     * Format: timestamp without time zone
-     * @default now()
-     */
-    created_at: string;
-    /** Format: character varying */
+    /** Format: uuid */
     user_id: string;
+    /** Format: uuid */
+    workspace_id: string;
     /** Format: character varying */
-    session_id: string;
-    /** Format: character varying */
-    role: string;
+    role?: string;
   };
-  ontology_access: {
+  workspace_config: {
     /**
-     * Format: integer
+     * Format: uuid
      * @description Note:
      * This is a Primary Key.<pk/>
+     * @default gen_random_uuid()
      */
-    id: number;
+    id: string;
     /**
      * Format: timestamp without time zone
      * @default now()
      */
     created_at: string;
-    /** Format: character varying */
-    user_id: string;
-    /** Format: character varying */
-    ontology_id: string;
-    /** Format: character varying */
-    role: string;
-  };
-  annotation_sessions: {
-    /**
-     * Format: integer
-     * @description Note:
-     * This is a Primary Key.<pk/>
-     */
-    id: number;
-    /**
-     * Format: timestamp without time zone
-     * @default now()
-     */
-    created_at: string;
-    /** Format: character varying */
-    name: string;
-    /**
-     * Format: integer
-     * @default 0
-     */
-    views: number;
-  };
-  config: {
-    /**
-     * Format: integer
-     * @description Note:
-     * This is a Primary Key.<pk/>
-     */
-    id: number;
-    /** Format: character varying */
-    session_id: string;
-    /**
-     * Format: timestamp without time zone
-     * @default now()
-     */
-    created_at: string;
-    /** Format: character varying */
-    name: string;
-    /** Format: character varying */
-    content: string;
-  };
-  document: {
-    /**
-     * Format: integer
-     * @description Note:
-     * This is a Primary Key.<pk/>
-     */
-    id: number;
-    /** Format: character varying */
-    session_id: string;
-    /**
-     * Format: timestamp without time zone
-     * @default now()
-     */
-    created_at: string;
+    /** Format: uuid */
+    workspace_id: string;
     /** Format: character varying */
     name: string;
     /** Format: text */
     content: string;
+  };
+  workspace: {
+    /**
+     * Format: uuid
+     * @description Note:
+     * This is a Primary Key.<pk/>
+     * @default gen_random_uuid()
+     */
+    id: string;
+    /**
+     * Format: timestamp without time zone
+     * @default now()
+     */
+    created_at: string;
+    /** Format: character varying */
+    name: string;
     /**
      * Format: integer
      * @default 0
      */
     views: number;
+  };
+  ontology: {
+    /**
+     * Format: uuid
+     * @description Note:
+     * This is a Primary Key.<pk/>
+     * @default gen_random_uuid()
+     */
+    id: string;
+    /**
+     * Format: timestamp without time zone
+     * @default now()
+     */
+    created_at: string;
+    /** Format: character varying */
+    name: string;
+  };
+  workspace_document: {
+    /**
+     * Format: uuid
+     * @description Note:
+     * This is a Primary Key.<pk/>
+     * @default gen_random_uuid()
+     */
+    id: string;
+    /**
+     * Format: timestamp without time zone
+     * @default now()
+     */
+    created_at: string;
+    /** Format: uuid */
+    workspace_id: string;
+    /** Format: character varying */
+    name: string;
+    /** Format: text */
+    content: string;
+  };
+  ontology_access: {
+    /**
+     * Format: uuid
+     * @description Note:
+     * This is a Primary Key.<pk/>
+     * @default gen_random_uuid()
+     */
+    id: string;
+    /**
+     * Format: timestamp without time zone
+     * @default now()
+     */
+    created_at: string;
+    /** Format: uuid */
+    user_id: string;
+    /** Format: uuid */
+    ontology_id: string;
+    /** Format: character varying */
+    role: string;
   };
 }
 
@@ -762,76 +752,72 @@ export interface parameters {
   offset: string;
   /** @description Limiting and Pagination */
   limit: string;
+  /** @description workspace_access */
+  "body.workspace_access": definitions["workspace_access"];
+  /** Format: uuid */
+  "rowFilter.workspace_access.id": string;
+  /** Format: timestamp without time zone */
+  "rowFilter.workspace_access.created_at": string;
+  /** Format: uuid */
+  "rowFilter.workspace_access.user_id": string;
+  /** Format: uuid */
+  "rowFilter.workspace_access.workspace_id": string;
+  /** Format: character varying */
+  "rowFilter.workspace_access.role": string;
+  /** @description workspace_config */
+  "body.workspace_config": definitions["workspace_config"];
+  /** Format: uuid */
+  "rowFilter.workspace_config.id": string;
+  /** Format: timestamp without time zone */
+  "rowFilter.workspace_config.created_at": string;
+  /** Format: uuid */
+  "rowFilter.workspace_config.workspace_id": string;
+  /** Format: character varying */
+  "rowFilter.workspace_config.name": string;
+  /** Format: text */
+  "rowFilter.workspace_config.content": string;
+  /** @description workspace */
+  "body.workspace": definitions["workspace"];
+  /** Format: uuid */
+  "rowFilter.workspace.id": string;
+  /** Format: timestamp without time zone */
+  "rowFilter.workspace.created_at": string;
+  /** Format: character varying */
+  "rowFilter.workspace.name": string;
+  /** Format: integer */
+  "rowFilter.workspace.views": string;
   /** @description ontology */
   "body.ontology": definitions["ontology"];
-  /** Format: integer */
+  /** Format: uuid */
   "rowFilter.ontology.id": string;
   /** Format: timestamp without time zone */
   "rowFilter.ontology.created_at": string;
   /** Format: character varying */
   "rowFilter.ontology.name": string;
-  /** Format: integer */
-  "rowFilter.ontology.views": string;
-  /** @description annotation_session_access */
-  "body.annotation_session_access": definitions["annotation_session_access"];
-  /** Format: integer */
-  "rowFilter.annotation_session_access.id": string;
+  /** @description workspace_document */
+  "body.workspace_document": definitions["workspace_document"];
+  /** Format: uuid */
+  "rowFilter.workspace_document.id": string;
   /** Format: timestamp without time zone */
-  "rowFilter.annotation_session_access.created_at": string;
+  "rowFilter.workspace_document.created_at": string;
+  /** Format: uuid */
+  "rowFilter.workspace_document.workspace_id": string;
   /** Format: character varying */
-  "rowFilter.annotation_session_access.user_id": string;
-  /** Format: character varying */
-  "rowFilter.annotation_session_access.session_id": string;
-  /** Format: character varying */
-  "rowFilter.annotation_session_access.role": string;
+  "rowFilter.workspace_document.name": string;
+  /** Format: text */
+  "rowFilter.workspace_document.content": string;
   /** @description ontology_access */
   "body.ontology_access": definitions["ontology_access"];
-  /** Format: integer */
+  /** Format: uuid */
   "rowFilter.ontology_access.id": string;
   /** Format: timestamp without time zone */
   "rowFilter.ontology_access.created_at": string;
-  /** Format: character varying */
+  /** Format: uuid */
   "rowFilter.ontology_access.user_id": string;
-  /** Format: character varying */
+  /** Format: uuid */
   "rowFilter.ontology_access.ontology_id": string;
   /** Format: character varying */
   "rowFilter.ontology_access.role": string;
-  /** @description annotation_sessions */
-  "body.annotation_sessions": definitions["annotation_sessions"];
-  /** Format: integer */
-  "rowFilter.annotation_sessions.id": string;
-  /** Format: timestamp without time zone */
-  "rowFilter.annotation_sessions.created_at": string;
-  /** Format: character varying */
-  "rowFilter.annotation_sessions.name": string;
-  /** Format: integer */
-  "rowFilter.annotation_sessions.views": string;
-  /** @description config */
-  "body.config": definitions["config"];
-  /** Format: integer */
-  "rowFilter.config.id": string;
-  /** Format: character varying */
-  "rowFilter.config.session_id": string;
-  /** Format: timestamp without time zone */
-  "rowFilter.config.created_at": string;
-  /** Format: character varying */
-  "rowFilter.config.name": string;
-  /** Format: character varying */
-  "rowFilter.config.content": string;
-  /** @description document */
-  "body.document": definitions["document"];
-  /** Format: integer */
-  "rowFilter.document.id": string;
-  /** Format: character varying */
-  "rowFilter.document.session_id": string;
-  /** Format: timestamp without time zone */
-  "rowFilter.document.created_at": string;
-  /** Format: character varying */
-  "rowFilter.document.name": string;
-  /** Format: text */
-  "rowFilter.document.content": string;
-  /** Format: integer */
-  "rowFilter.document.views": string;
 }
 
 export interface operations {}

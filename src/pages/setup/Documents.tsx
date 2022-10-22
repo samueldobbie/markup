@@ -2,25 +2,25 @@ import { Group, Button, ActionIcon, Text, FileButton } from "@mantine/core"
 import { IconTrash } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
-import { database, Document } from "utils/Database"
+import { database, WorkspaceDocument } from "pages/database/Database"
 import { SectionProps } from "./Interfaces"
 
-function Documents({ session }: SectionProps) {
+function Documents({ workspace }: SectionProps) {
   const [files, setFiles] = useState<File[]>([])
-  const [documents, setDocuments] = useState<Document[]>([])
+  const [documents, setDocuments] = useState<WorkspaceDocument[]>([])
 
   useEffect(() => {
     database
-      .getDocuments(session.id)
+      .getWorkspaceDocuments(workspace.id)
       .then(setDocuments)
-  }, [session.id])
+  }, [workspace.id])
 
   useEffect(() => {
     if (files.length === 0) return
 
     const func = async () => {
       database
-        .addDocuments(session.id, files)
+        .addWorkspaceDocuments(workspace.id, files)
         .then(insertedDocuments => {
           setFiles([])
           setDocuments([...documents, ...insertedDocuments])
@@ -28,7 +28,7 @@ function Documents({ session }: SectionProps) {
     }
 
     func()
-  }, [documents, files, session.id])
+  }, [documents, files, workspace.id])
 
   return (
     <DataTable
@@ -60,7 +60,7 @@ function Documents({ session }: SectionProps) {
               <ActionIcon color="red">
                 <IconTrash
                   size={16}
-                  onClick={() => database.deleteDocument(document.id)}
+                  onClick={() => database.deleteWorkspaceDocument(document.id)}
                 />
               </ActionIcon>
             </Group>

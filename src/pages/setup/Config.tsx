@@ -2,25 +2,25 @@ import { Group, Button, ActionIcon, Text, FileButton } from "@mantine/core"
 import { IconTrash, IconEdit } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
-import { Config, database } from "utils/Database"
+import { WorkspaceConfig, database } from "pages/database/Database"
 import { SectionProps } from "./Interfaces"
 
-function Configs({ session }: SectionProps) {
+function Configs({ workspace }: SectionProps) {
   const [file, setFile] = useState<File | null>(null)
-  const [config, setConfig] = useState<Config>()
+  const [config, setConfig] = useState<WorkspaceConfig>()
 
   useEffect(() => {
     database
-      .getConfig(session.id)
+      .getWorkspaceConfig(workspace.id)
       .then(setConfig)
-  }, [session.id])
+  }, [workspace.id])
 
   useEffect(() => {
     if (file === null) return
 
     const func = async () => {
       database
-        .addConfig(session.id, file)
+        .addWorkspaceConfig(workspace.id, file)
         .then(insertedConfig => {
           setFile(null)
           setConfig(insertedConfig)
@@ -28,7 +28,7 @@ function Configs({ session }: SectionProps) {
     }
 
     func()
-  }, [config, file, session.id])
+  }, [config, file, workspace.id])
 
   return (
     <DataTable
@@ -68,7 +68,7 @@ function Configs({ session }: SectionProps) {
                   size={16}
                   onClick={() => {
                     if (config) {
-                      database.deleteConfig(config.id)
+                      database.deleteWorkspaceConfig(config.id)
                       setConfig(undefined)
                     }
                   }}

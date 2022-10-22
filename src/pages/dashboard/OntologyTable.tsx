@@ -3,7 +3,7 @@ import { Dropzone } from "@mantine/dropzone"
 import { IconTrash, IconEdit, IconFile, IconUpload, IconX } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
-import { database, Ontology } from "utils/Database"
+import { database, Ontology } from "pages/database/Database"
 import { ModalProps } from "./Interfaces"
 
 interface Props {
@@ -52,7 +52,7 @@ function OntologyTable({ completeTutorialStep }: Props) {
                 <ActionIcon color="red">
                   <IconTrash
                     size={16}
-                    onClick={() => database.deleteOntology(1)}
+                    onClick={() => database.deleteOntology(ontology.id)}
                   />
                 </ActionIcon>
 

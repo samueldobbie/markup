@@ -3,33 +3,32 @@ import { Container, Grid } from "@mantine/core"
 import { moveToPage } from "utils/Location"
 import { Path } from "utils/Path"
 import { useEffect, useState } from "react"
-import { database, Session } from "utils/Database"
+import { database, Workspace } from "pages/database/Database"
 import Documents from "./Documents"
-import Ontology from "./Ontology"
 import Header from "./Header"
 import Configs from "./Config"
 
 function Setup() {
   const { id } = useParams()
 
-  const [session, setSession] = useState<Session>()
+  const [workspace, setWorkspace] = useState<Workspace>()
 
   useEffect(() => {
     if (id === undefined) {
-      alert("Session not found, or insufficient permissions")
+      alert("Workspace doesn't exist, or insufficient permissions")
       moveToPage(Path.Dashboard)
       return
     }
 
     database
-      .getSessions([parseInt(id)])
-      .then(sessions => {
-        if (sessions.length === 0) {
-          alert("Session not found, or insufficient permissions")
+      .getWorkspaces([id])
+      .then(workspaces => {
+        if (workspaces.length === 0) {
+          alert("Workspace doesn't exist, or insufficient permissions")
           moveToPage(Path.Dashboard)
           return
         } else {
-          setSession(sessions[0])
+          setWorkspace(workspaces[0])
         }
       })
   }, [id])
@@ -37,22 +36,18 @@ function Setup() {
   return (
     <>
       <Container my="md" size="xl">
-        {session &&
+        {workspace &&
           <Grid>
             <Grid.Col xs={12}>
-              <Header session={session} />
+              <Header workspace={workspace} />
             </Grid.Col>
 
             <Grid.Col xs={12} md={5}>
-              <Configs session={session} />
+              <Configs workspace={workspace} />
             </Grid.Col>
 
             <Grid.Col xs={12} md={7}>
-              <Documents session={session} />
-            </Grid.Col>
-
-            <Grid.Col xs={12} md={5}>
-              <Ontology session={session} />
+              <Documents workspace={workspace} />
             </Grid.Col>
           </Grid>
         }

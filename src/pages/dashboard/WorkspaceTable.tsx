@@ -3,7 +3,7 @@ import { useForm } from "@mantine/form"
 import { IconTrash, IconEdit, IconPlayerPlay } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
-import { database, Session } from "utils/Database"
+import { database, Workspace } from "pages/database/Database"
 import { moveToPage } from "utils/Location"
 import { ModalProps } from "./Interfaces"
 
@@ -11,14 +11,14 @@ interface Props {
   completeTutorialStep: (v: string) => void
 }
 
-function SessionTable({ completeTutorialStep }: Props) {
+function WorkspaceTable({ completeTutorialStep }: Props) {
   const [openedModal, setOpenedModal] = useState(false)
-  const [sessions, setSessions] = useState<Session[]>([])
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([])
 
   useEffect(() => {
     database
-      .getSessions()
-      .then(setSessions)
+      .getWorkspaces()
+      .then(setWorkspaces)
   }, [])
 
   return (
@@ -26,44 +26,44 @@ function SessionTable({ completeTutorialStep }: Props) {
       <DataTable
         withBorder
         highlightOnHover
-        emptyState="Create a session to start annotating"
+        emptyState="Create a workspace to start annotating"
         borderRadius="md"
         sx={{ minHeight: "500px" }}
-        records={sessions}
+        records={workspaces}
         columns={[
           {
             accessor: "name",
-            title: <Text size={16}>Sessions</Text>,
+            title: <Text size={16}>Workspaces</Text>,
           },
           {
             accessor: "actions",
             title: (
               <Group spacing={4} position="right" noWrap>
                 <Button variant="light" onClick={() => setOpenedModal(true)}>
-                  Create session
+                  Create workspace
                 </Button>
               </Group>
             ),
             textAlignment: "right",
-            render: (session) => (
+            render: (workspace) => (
               <Group spacing={4} position="right" noWrap>
                 <ActionIcon color="red">
                   <IconTrash
                     size={16}
-                    onClick={() => database.deleteSession(session.id)}
+                    onClick={() => database.deleteWorkspace(workspace.id)}
                   />
                 </ActionIcon>
 
                 <ActionIcon color="blue">
                   <IconEdit
                     size={16}
-                    onClick={() => moveToPage(`/setup/${session.id.toString()}`)}
+                    onClick={() => moveToPage(`/setup/${workspace.id}`)}
                   />
                 </ActionIcon>
 
                 <ActionIcon color="green">
                   <IconPlayerPlay
-                    onClick={() => moveToPage(`/setup/${session.id.toString()}`)}
+                    onClick={() => moveToPage(`/setup/${workspace.id}`)}
                     size={16}
                   />
                 </ActionIcon>
@@ -73,7 +73,7 @@ function SessionTable({ completeTutorialStep }: Props) {
         ]}
       />
 
-      <CreateSessionModal
+      <CreateWorkspaceModal
         openedModal={openedModal}
         setOpenedModal={setOpenedModal}
       />
@@ -81,42 +81,42 @@ function SessionTable({ completeTutorialStep }: Props) {
   )
 }
 
-interface CreateSessionForm {
+interface CreateWorkspaceForm {
   name: string
 }
 
-function CreateSessionModal({ openedModal, setOpenedModal }: ModalProps) {
+function CreateWorkspaceModal({ openedModal, setOpenedModal }: ModalProps) {
   const form = useForm({
     initialValues: {
       name: "",
     }
   })
 
-  const handleCreateSession = async (form: CreateSessionForm) => {
+  const handleCreateWorkspace = async (form: CreateWorkspaceForm) => {
     const { name } = form
-    const sessions = await database.addSession(name)
+    const workspaces = await database.addWorkspace(name)
 
-    if (sessions.length === 0) {
-      alert("Failed to create session")
+    if (workspaces.length === 0) {
+      alert("Failed to create workspace")
       return
     }
 
-    moveToPage(`/setup/${sessions[0].id.toString()}`)
+    moveToPage(`/setup/${workspaces[0].id}`)
   }
 
   return (
     <Modal
       opened={openedModal}
       onClose={() => setOpenedModal(false)}
-      title="Create an annotation session"
+      title="Create workspace"
     >
-      <form onSubmit={form.onSubmit((values) => handleCreateSession(values))}>
+      <form onSubmit={form.onSubmit((values) => handleCreateWorkspace(values))}>
         <Grid>
           <Grid.Col>
             <TextInput
               required
               withAsterisk
-              label="Session name"
+              label="Workspace name"
               placeholder="Clinical letters"
               {...form.getInputProps("name")}
             />
@@ -133,4 +133,4 @@ function CreateSessionModal({ openedModal, setOpenedModal }: ModalProps) {
   )
 }
 
-export default SessionTable
+export default WorkspaceTable

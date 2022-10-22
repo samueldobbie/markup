@@ -41,8 +41,8 @@ function AccountOverview({ tutorialProgress, completeTutorialStep }: Props) {
       </Text>
 
       <Text size="md" color="dimmed" mt={10} mb="xl">
-        You're currently on the dashboard where you can manage your annotation
-        sessions and ontologies. Complete the steps below to get familiar with Markup.
+        You're currently on the dashboard where you can manage workspaces and ontologies.
+        Complete the steps below to get familiar with Markup.
       </Text>
 
       <Checkbox
@@ -67,8 +67,15 @@ function AccountOverview({ tutorialProgress, completeTutorialStep }: Props) {
       <Checkbox
         mt={15}
         readOnly
-        checked={tutorialProgress.createSession}
-        label="Create an annotation session"
+        checked={tutorialProgress.createWorkspace}
+        label="Create a workspace"
+      />
+
+      <Checkbox
+        mt={15}
+        readOnly
+        checked={tutorialProgress.setupWorkspace}
+        label="Setup a workspace"
       />
 
       <Checkbox

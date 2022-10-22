@@ -5,7 +5,7 @@ import { Path } from "utils/Path"
 import { supabase } from "utils/Supabase"
 
 interface ForgotPasswordForm {
-  email: string
+  email: string,
 }
 
 const useStyles = createStyles((theme) => ({
@@ -40,7 +40,6 @@ function ForgotPassword() {
 
   const handleForgotPassword = async (submitted: ForgotPasswordForm) => {
     const { email } = submitted
-
     const { error } = await supabase.auth.resetPasswordForEmail(email)
 
     if (error) {
