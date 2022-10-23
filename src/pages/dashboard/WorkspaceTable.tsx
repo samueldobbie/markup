@@ -64,13 +64,6 @@ function WorkspaceTable({ completeTutorialStep }: Props) {
             textAlignment: "right",
             render: (workspace) => (
               <Group spacing={8} position="right" noWrap>
-                <ActionIcon color="gray" variant="light">
-                  <IconSettings
-                    size={16}
-                    onClick={() => moveToPage(toSetupUrl(workspace.id))}
-                  />
-                </ActionIcon>
-
                 <ActionIcon color="red" variant="light">
                   <IconTrashX
                     size={16}
@@ -80,7 +73,7 @@ function WorkspaceTable({ completeTutorialStep }: Props) {
 
                 <ActionIcon color="green" variant="light">
                   <IconPlayerPlay
-                    onClick={() => moveToPage(toAnnotateUrl(workspace.id))}
+                    onClick={() => moveToPage(toSetupUrl(workspace.id))}
                     size={16}
                   />
                 </ActionIcon>

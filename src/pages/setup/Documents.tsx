@@ -1,5 +1,5 @@
 import { Group, Button, ActionIcon, Text, FileButton } from "@mantine/core"
-import { IconTrash } from "@tabler/icons"
+import { IconChevronDown, IconTrash } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import { database, WorkspaceDocument } from "pages/database/Database"
@@ -38,6 +38,13 @@ function Documents({ workspace }: SectionProps) {
       borderRadius="md"
       sx={{ minHeight: "500px" }}
       records={documents}
+      rowExpansion={{
+        content: (document) => (
+          <Text p={20} color="dimmed">
+            {document.record.content.slice(0, 250)}...
+          </Text>
+        )
+      }}
       columns={[
         { accessor: "name", title: <Text size={16}>Documents</Text> },
         {
@@ -57,10 +64,12 @@ function Documents({ workspace }: SectionProps) {
           textAlignment: "right",
           render: (document) => (
             <Group spacing={4} position="right" noWrap>
-              <ActionIcon color="red">
+              <ActionIcon color="red" variant="light">
                 <IconTrash
                   size={16}
-                  onClick={() => {
+                  onClick={(event) => {
+                    event.stopPropagation()
+
                     database
                       .deleteWorkspaceDocument(document.id)
                       .then(() => setDocuments(documents.filter(i => i.id !== document.id)))

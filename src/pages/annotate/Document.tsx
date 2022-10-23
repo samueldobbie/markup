@@ -28,6 +28,7 @@ function Document({ workspace }: SectionProps) {
             <ActionIcon
               size="lg"
               color="x"
+              variant="light"
               onClick={moveToFirstDocument}
               disabled={documentIndex <= 0}
             >
@@ -37,6 +38,7 @@ function Document({ workspace }: SectionProps) {
             <ActionIcon
               size="lg"
               color="x"
+              variant="light"
               onClick={moveToPreviousDocument}
               disabled={documentIndex <= 0}
             >
@@ -59,6 +61,7 @@ function Document({ workspace }: SectionProps) {
             <ActionIcon
               size="lg"
               color="x"
+              variant="light"
               onClick={moveToNextDocument}
               disabled={documentIndex >= documents.length - 1}
             >
@@ -68,6 +71,7 @@ function Document({ workspace }: SectionProps) {
             <ActionIcon
               size="lg"
               color="x"
+              variant="light"
               onClick={moveToLastDocument}
               disabled={documentIndex >= documents.length - 1}
             >
