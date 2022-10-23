@@ -7,12 +7,12 @@ import { SectionProps } from "./Interfaces"
 
 function Configs({ workspace }: SectionProps) {
   const [file, setFile] = useState<File | null>(null)
-  const [config, setConfig] = useState<WorkspaceConfig[]>([])
+  const [configs, setConfigs] = useState<WorkspaceConfig[]>([])
 
   useEffect(() => {
     database
       .getWorkspaceConfig(workspace.id)
-      .then(setConfig)
+      .then(setConfigs)
   }, [workspace.id])
 
   useEffect(() => {
@@ -23,12 +23,12 @@ function Configs({ workspace }: SectionProps) {
         .addWorkspaceConfig(workspace.id, file)
         .then(insertedConfig => {
           setFile(null)
-          setConfig([insertedConfig])
+          setConfigs([insertedConfig])
         })
     }
 
     func()
-  }, [config, file, workspace.id])
+  }, [configs, file, workspace.id])
 
   return (
     <DataTable
@@ -37,7 +37,7 @@ function Configs({ workspace }: SectionProps) {
       emptyState="Upload or create a config"
       borderRadius="md"
       sx={{ minHeight: "500px" }}
-      records={config}
+      records={configs}
       rowExpansion={{
         content: (config) => (
           <Text p={20} color="dimmed">
@@ -81,7 +81,7 @@ function Configs({ workspace }: SectionProps) {
                     
                     database
                       .deleteWorkspaceConfig(config.id)
-                      .then(() => setConfig([]))
+                      .then(() => setConfigs([]))
                       .catch(alert)
                   }}
                 />

@@ -151,12 +151,12 @@ async function addWorkspaceConfig(workspaceId: string, file: File): Promise<Work
 async function getWorkspaceConfig(workspaceId: string): Promise<WorkspaceConfig[]> {
   const { data: config, error } = await supabase
     .from("workspace_config")
-    .select("name")
+    .select()
     .eq("workspace_id", workspaceId)
 
   if (error) {
     console.error(error)
-    // return undefined
+    return []
   }
 
   return config

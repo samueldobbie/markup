@@ -1,4 +1,4 @@
-import { ActionIcon, Card, Divider, Group, Select, Text } from "@mantine/core"
+import { ActionIcon, Card, Divider, Group, Select, Text, Textarea } from "@mantine/core"
 import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight } from "@tabler/icons"
 import { database, WorkspaceDocument } from "pages/database/Database"
 import { useEffect, useState } from "react"
@@ -28,7 +28,7 @@ function Document({ workspace }: SectionProps) {
             <ActionIcon
               size="lg"
               color="x"
-              variant="light"
+              variant="transparent"
               onClick={moveToFirstDocument}
               disabled={documentIndex <= 0}
             >
@@ -38,7 +38,7 @@ function Document({ workspace }: SectionProps) {
             <ActionIcon
               size="lg"
               color="x"
-              variant="light"
+              variant="transparent"
               onClick={moveToPreviousDocument}
               disabled={documentIndex <= 0}
             >
@@ -61,7 +61,7 @@ function Document({ workspace }: SectionProps) {
             <ActionIcon
               size="lg"
               color="x"
-              variant="light"
+              variant="transparent"
               onClick={moveToNextDocument}
               disabled={documentIndex >= documents.length - 1}
             >
@@ -71,7 +71,7 @@ function Document({ workspace }: SectionProps) {
             <ActionIcon
               size="lg"
               color="x"
-              variant="light"
+              variant="transparent"
               onClick={moveToLastDocument}
               disabled={documentIndex >= documents.length - 1}
             >
@@ -81,9 +81,9 @@ function Document({ workspace }: SectionProps) {
 
           <Divider m={20} />
 
-          <Text size="lg" weight={500}>
+          <Textarea autosize readOnly maxRows={25}>
             {documents[documentIndex].content}
-          </Text>
+          </Textarea>
         </Card>
       }
     </>
