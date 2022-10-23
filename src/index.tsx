@@ -25,7 +25,7 @@ function App(): JSX.Element {
           colorScheme,
           primaryColor: "brand",
           colors: {
-            "brand": [
+            brand: [
               "#F1F1F9",
               "#D0D1F1",
               "#AAACF2",
@@ -36,12 +36,24 @@ function App(): JSX.Element {
               "#5C5EA7",
               "#5C5D90",
               "#5A5B7D"
+            ],
+            dark: [
+              "#F8F9F9",
+              "#B1B3B7",
+              "#7C7F89",
+              "#585B65",
+              "#3E414B",
+              "#2C2F38",
+              "#1E212A",
+              "#141519",
+              "#0D0D0F",
+              "#080809",
             ]
           },
           primaryShade: {
             light: 4,
             dark: 4,
-          }
+          },
           // white: "#E8E8E8", 
           // black: "#1e212a",
         }}
