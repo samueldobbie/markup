@@ -38,15 +38,15 @@ function Annotate() {
       {workspace &&
         <Grid>
           <Grid.Col xs={3}>
-            <Config />
+            <Config workspace={workspace} />
           </Grid.Col>
 
           <Grid.Col xs={6}>
-            <Document />
+            <Document workspace={workspace} />
           </Grid.Col>
 
           <Grid.Col xs={3}>
-            <Output />
+            <Output workspace={workspace} />
           </Grid.Col>
         </Grid>
       }

@@ -1,6 +1,7 @@
 import { Card, Text } from "@mantine/core"
+import { SectionProps } from "./Interfaces"
 
-function Config() {
+function Config({ workspace }: SectionProps) {
   return (
     <Card withBorder radius="md" p="xl">
       <Text size="lg" weight={500}>
