@@ -1,5 +1,16 @@
 import { atom } from "recoil"
 
+export interface Annotation {
+  start: number
+  end: number
+  text: string
+  entity: string
+  attributes: Attribute[]
+}
+
+interface Attribute {
+  text: string
+}
 
 const activeEntityState = atom({
   key: "activeEntityState",
@@ -11,4 +22,9 @@ const entityColoursState = atom<Record<string, string>>({
   default: {},
 })
 
-export { activeEntityState, entityColoursState }
+const annotationsState = atom<Annotation[]>({
+  key: "annotationsState",
+  default: [],
+})
+
+export { activeEntityState, entityColoursState, annotationsState }
