@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Card, Collapse, Grid, Group, Radio, Select, Text } from "@mantine/core"
+import { ActionIcon, Card, Collapse, Grid, Group, Radio, Select, Text } from "@mantine/core"
 import { IconChevronDown, IconChevronUp } from "@tabler/icons"
 import { database, WorkspaceConfig } from "pages/database/Database"
 import { useState, useEffect } from "react"
@@ -35,15 +35,10 @@ function Config({ workspace }: SectionProps) {
   }, [config])
 
   useEffect(() => {
-    if (activeEntity === "") {
-      setActiveAttributes([])
-      return
+    if (entities.length > 0) {
+      setActiveEntity(entities[0])
     }
-
-    setActiveAttributes(attributes.filter(i => (
-      i.isGlobal || i.targetEntity === activeEntity
-    )))
-  }, [activeEntity, attributes])
+  }, [entities, setActiveEntity])
 
   useEffect(() => {
     const colours: Record<string, string> = {}
@@ -59,6 +54,17 @@ function Config({ workspace }: SectionProps) {
 
     setEntityColours(colours)
   }, [entities, setEntityColours])
+
+  useEffect(() => {
+    if (activeEntity === "") {
+      setActiveAttributes([])
+      return
+    }
+
+    setActiveAttributes(attributes.filter(i => (
+      i.isGlobal || i.targetEntity === activeEntity
+    )))
+  }, [activeEntity, attributes])
 
   return (
     <Card withBorder radius="md" p="xl">
@@ -79,8 +85,9 @@ function Config({ workspace }: SectionProps) {
                 orientation="vertical"
                 onChange={setActiveEntity}
                 spacing="xs"
+                value={activeEntity}
               >
-                {entities?.map((entity) => (
+                {entities?.map((entity, index) => (
                   <Radio
                     label={
                       <span style={{
@@ -92,6 +99,7 @@ function Config({ workspace }: SectionProps) {
                         {entity}
                       </span>}
                     value={entity}
+                    key={index}
                   />
                 ))}
               </Radio.Group>
@@ -129,18 +137,6 @@ function Config({ workspace }: SectionProps) {
               </Group>
             }
           </Collapse>
-        </Grid.Col>
-
-        <Grid.Col xs={12}>
-          <Group noWrap>
-            <Button>
-              Add annotation
-            </Button>
-
-            <Button variant="subtle">
-              Export
-            </Button>
-          </Group>
         </Grid.Col>
       </Grid>
     </Card>
