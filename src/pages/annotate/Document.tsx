@@ -4,21 +4,8 @@ import { database, WorkspaceDocument } from "pages/database/Database"
 import { useEffect, useState } from "react"
 import { SectionProps } from "./Interfaces"
 import { TextAnnotateBlend } from "react-text-annotate-blend"
-import { TokenAnnotator } from "react-text-annotate"
 import { useRecoilState, useRecoilValue } from "recoil"
-import { activeEntityState, entityColoursState } from "store/Annotate"
-
-interface Annotation {
-  start: number
-  end: number
-  text: string
-  entity: string
-  attributes: Attribute[]
-}
-
-interface Attribute {
-  text: string
-}
+import { activeEntityState, annotationsState, entityColoursState } from "store/Annotate"
 
 function Document({ workspace }: SectionProps) {
   const activeEntity = useRecoilValue(activeEntityState)
@@ -26,7 +13,7 @@ function Document({ workspace }: SectionProps) {
 
   const [documentIndex, setDocumentIndex] = useState(0)
   const [documents, setDocuments] = useState<WorkspaceDocument[]>([])
-  const [annotations, setAnnotations] = useState<Annotation[]>([])
+  const [annotations, setAnnotations] = useRecoilState(annotationsState)
 
   const moveToFirstDocument = () => setDocumentIndex(0)
   const moveToPreviousDocument = () => setDocumentIndex(documentIndex - 1)
@@ -39,14 +26,6 @@ function Document({ workspace }: SectionProps) {
       .then(setDocuments)
       .catch(alert)
   }, [workspace.id])
-
-  useEffect(() => {
-    console.log(documentIndex)
-  }, [documentIndex])
-
-  useEffect(() => {
-    console.log(annotations)
-  }, [annotations])
 
   return (
     <>
@@ -109,34 +88,54 @@ function Document({ workspace }: SectionProps) {
 
           <Divider m={20} />
 
-          <TokenAnnotator
-            tokens={documents[documentIndex].content.split(" ")}
-            style={{ fontSize: "1.1rem" }}
+          <TextAnnotateBlend
+            content={documents[documentIndex].content}
             value={annotations.map(annotation => ({
-              tag: annotation.entity,
+              tag: "",
               start: annotation.start,
               end: annotation.end,
               color: entityColours[annotation.entity],
             }))}
-            onChange={(value) => {
+            onChange={(value1) => {
+              const value = value1 as {
+                tag: string;
+                start: number;
+                end: number;
+                color: string;
+            }[]
+
+              if (annotations.length >= value.length) {
+                const updatedAnnotations = annotations.filter(i => {
+                  let keep = false
+                  
+                  value.forEach((v) => {
+                    if (v.start === i.start && v.end === i.end) {
+                      keep = true
+                    }
+                  })
+
+                  return keep
+                })
+
+                setAnnotations(updatedAnnotations)
+                return
+              }
+
               if (activeEntity === "") {
                 alert("You need to select an entity")
                 return
               }
 
-              if (annotations.length >= value.length) {
-                return
-              }
-
               const annotation = value[value.length - 1]
+              const { start, end, tag } = annotation
 
               setAnnotations([
                 ...annotations,
                 {
-                  start: annotation.start,
-                  end: annotation.end,
-                  entity: annotation.tag,
-                  text: documents[documentIndex].content.slice(annotation.start, annotation.end),
+                  start,
+                  end,
+                  entity: tag,
+                  text: documents[documentIndex].content.slice(start, end),
                   attributes: [],
                 }
               ])
@@ -147,6 +146,7 @@ function Document({ workspace }: SectionProps) {
               start: span.start,
               end: span.end,
             })}
+            style={{ fontSize: "1.1rem" }}
           />
         </Card>
       }
