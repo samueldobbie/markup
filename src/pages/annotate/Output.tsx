@@ -3,7 +3,7 @@ import { SectionProps } from "./Interfaces"
 
 function Output({ workspace }: SectionProps) {
   return (
-    <Card withBorder radius="md" p="xl">
+    <Card withBorder radius="md" p="xl" sx={{ height: "82.5%" }}>
       <Text size="lg" weight={500}>
         Output
       </Text>

@@ -2776,6 +2776,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/chroma-js@^2.0.0":
+  version "2.1.4"
+  resolved "https://registry.yarnpkg.com/@types/chroma-js/-/chroma-js-2.1.4.tgz#52e3a8453000cdb9ad76357c2c47dbed702d136f"
+  integrity sha512-l9hWzP7cp7yleJUI7P2acmpllTJNYf5uU6wh50JzSIZt3fFHe+w2FM6w9oZGBTYzjjm2qHdnQvI+fF/JF/E5jQ==
+
 "@types/connect-history-api-fallback@^1.3.5":
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/@types/connect-history-api-fallback/-/connect-history-api-fallback-1.3.5.tgz#d1f7a8a09d0ed5a57aee5ae9c18ab9b803205dae"
@@ -4000,6 +4005,11 @@ chokidar@^3.4.2, chokidar@^3.5.3:
   optionalDependencies:
     fsevents "~2.3.2"
 
+chroma-js@^2.1.0:
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/chroma-js/-/chroma-js-2.4.2.tgz#dffc214ed0c11fa8eefca2c36651d8e57cbfb2b0"
+  integrity sha512-U9eDw6+wt7V8z5NncY2jJfZa+hUH8XEj8FQHgFJTrUFnJfXYf4Ml4adI2vXZOjqRDpFWtYVWypDfZwnJ+HIR4A==
+
 chrome-trace-event@^1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/chrome-trace-event/-/chrome-trace-event-1.0.3.tgz#1015eced4741e15d06664a957dbbf50d041e26ac"
@@ -4617,6 +4627,15 @@ dir-glob@^3.0.1:
   integrity sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==
   dependencies:
     path-type "^4.0.0"
+
+distinct-colors@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/distinct-colors/-/distinct-colors-3.0.0.tgz#9871044c9b5be87405963d99eda84e41d3faadf9"
+  integrity sha512-ID2CzFkvsdhkm4IVpUYxCcUpB6GspIvVW8dLSWFjIwJzV5kNOoayegfgDyyzcWkOWWMAFc1cyEhdtFH868AfYQ==
+  dependencies:
+    "@types/chroma-js" "^2.0.0"
+    chroma-js "^2.1.0"
+    mout "^1.2.2"
 
 dlv@^1.1.3:
   version "1.1.3"
@@ -7305,6 +7324,11 @@ mkdirp@~0.5.1:
   dependencies:
     minimist "^1.2.6"
 
+mout@^1.2.2:
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/mout/-/mout-1.2.4.tgz#9ffd261c4d6509e7ebcbf6b641a89b36ecdf8155"
+  integrity sha512-mZb9uOruMWgn/fw28DG4/yE3Kehfk1zKCLhuDU2O3vlKdnBBr4XaOCqVTflJ5aODavGUPqFHZgrFX3NJVuxGhQ==
+
 ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
@@ -8679,6 +8703,20 @@ react-scripts@5.0.1:
     workbox-webpack-plugin "^6.4.1"
   optionalDependencies:
     fsevents "^2.3.2"
+
+react-text-annotate-blend@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/react-text-annotate-blend/-/react-text-annotate-blend-1.1.0.tgz#56c0bc79314f774fe99dedf3ffedb90c5f9f5a6d"
+  integrity sha512-SssPkhI4K+TOcWhWpJ6OxI5zi2+Y69MowTZYBVj9/HSJ6GDBgVmeX2P1ti9dchrRknOWclzbJCjjtPZJ2IslYg==
+  dependencies:
+    lodash.sortby "^4.7.0"
+
+react-text-annotate@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/react-text-annotate/-/react-text-annotate-0.3.0.tgz#95b028ec7ea67a093d8dc30e99d1db93fdb69591"
+  integrity sha512-DSZnPp9QYOoPSi7Mwkq6I1/IA1i5ELcd6DhSUNs0lmSnAIKnv6oSOkd6E526I8kKaBTNh+sC6haU7EtaOdl8TA==
+  dependencies:
+    lodash.sortby "^4.7.0"
 
 react-textarea-autosize@8.3.4:
   version "8.3.4"
