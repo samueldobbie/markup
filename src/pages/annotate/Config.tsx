@@ -45,7 +45,7 @@ function Config({ workspace }: SectionProps) {
 
     const palette = distinctColors({
       count: entities.length,
-      lightMin: 60,
+      lightMin: 80,
     })
 
     entities.forEach((entity, index) => {

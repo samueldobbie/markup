@@ -6,6 +6,7 @@ import { SectionProps } from "./Interfaces"
 import { TextAnnotateBlend } from "react-text-annotate-blend"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { activeEntityState, annotationsState, entityColoursState } from "store/Annotate"
+import "./Document.css"
 
 function Document({ workspace }: SectionProps) {
   const activeEntity = useRecoilValue(activeEntityState)
