@@ -1,4 +1,4 @@
-import { ActionIcon, Card, Collapse, Grid, Group, Radio, Select, Text } from "@mantine/core"
+import { ActionIcon, Card, Collapse, Grid, Group, MultiSelect, Radio, Select, Text } from "@mantine/core"
 import { IconChevronDown, IconChevronUp } from "@tabler/icons"
 import { database, WorkspaceConfig } from "pages/database/Database"
 import { useState, useEffect } from "react"
@@ -126,7 +126,7 @@ function Config({ workspace }: SectionProps) {
             {activeAttributes.length > 0 &&
               <Group mb={20}>
                 {activeAttributes.map((attribute, index) => (
-                  <Select
+                  <MultiSelect
                     data={attribute.options}
                     placeholder={attribute.name}
                     size="xs"
