@@ -54,8 +54,6 @@ function App(): JSX.Element {
             light: 4,
             dark: 4,
           },
-          // white: "#E8E8E8", 
-          // black: "#1e212a",
         }}
       >
         <ModalsProvider>

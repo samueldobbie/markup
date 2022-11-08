@@ -40,7 +40,7 @@ function Documents({ workspace }: SectionProps) {
       records={documents}
       rowExpansion={{
         content: (document) => (
-          <Text p={20} color="dimmed" lineClamp={4} mb={20}>
+          <Text p={20} color="dimmed" mb={20}>
             {document.record.content}
           </Text>
         )

@@ -46,7 +46,7 @@ function WorkspaceTable({ completeTutorialStep }: Props) {
         withBorder
         highlightOnHover
         emptyState="Create a workspace to start annotating"
-        borderRadius="md"
+        borderRadius={2}
         sx={{ minHeight: "400px" }}
         records={workspaces}
         columns={[

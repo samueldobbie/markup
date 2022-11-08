@@ -1,38 +1,40 @@
-import { ActionIcon, Card, Collapse, Grid, Group, MultiSelect, Radio, Select, Text } from "@mantine/core"
-import { IconChevronDown, IconChevronUp } from "@tabler/icons"
-import { database, WorkspaceConfig } from "pages/database/Database"
+import { ActionIcon, Card, Collapse, Grid, Group, MultiSelect, Radio, Text } from "@mantine/core"
+import { IconEye, IconEyeOff } from "@tabler/icons"
+import { database } from "pages/database/Database"
 import { useState, useEffect } from "react"
 import { useRecoilState } from "recoil"
-import { activeEntityState, entityColoursState } from "store/Annotate"
+import { activeEntityState, entityColoursState, populatedAttributeState } from "store/Annotate"
 import { SectionProps } from "./Interfaces"
 import { Attribute, parseConfig } from "./Parse"
 import distinctColors from "distinct-colors"
 
 function Config({ workspace }: SectionProps) {
-  const [config, setConfig] = useState<WorkspaceConfig>()
   const [entities, setEntities] = useState<string[]>([])
-  const [attributes, setAttributes] = useState<Attribute[]>([])
-  const [activeEntity, setActiveEntity] = useRecoilState(activeEntityState)
   const [entityColours, setEntityColours] = useRecoilState(entityColoursState)
-  const [activeAttributes, setActiveAttributes] = useState<Attribute[]>([])
+  const [activeEntity, setActiveEntity] = useRecoilState(activeEntityState)
   const [entitySectionOpen, setEntitySectionOpen] = useState(true)
+
+  const [attributes, setAttributes] = useState<Attribute[]>([])
+  const [shownAttributes, setShownAttributes] = useState<Attribute[]>([])
+  const [populatedAttributes, setPopulatedAttributes] = useRecoilState(populatedAttributeState)
   const [attributeSectionOpen, setAttributeSectionOpen] = useState(true)
 
   useEffect(() => {
     database
       .getWorkspaceConfig(workspace.id)
-      .then(configs => setConfig(configs[0]))
+      .then(configs => {
+        if (configs.length > 0) {
+          const config = configs[0]
+          const { entities, attributes } = parseConfig(config)
+
+          setEntities(entities)
+          setAttributes(attributes)
+        } else {
+          alert("Failed to load workspace config. Try refreshing the page.")
+        }
+      })
       .catch(alert)
   }, [workspace.id])
-
-  useEffect(() => {
-    if (config) {
-      const { entities, attributes } = parseConfig(config)
-
-      setEntities(entities)
-      setAttributes(attributes)
-    }
-  }, [config])
 
   useEffect(() => {
     if (entities.length > 0) {
@@ -56,18 +58,16 @@ function Config({ workspace }: SectionProps) {
   }, [entities, setEntityColours])
 
   useEffect(() => {
-    if (activeEntity === "") {
-      setActiveAttributes([])
-      return
-    }
+    const attributesToShow = attributes.filter(attribute => (
+      attribute.isGlobal ||
+      attribute.targetEntity === activeEntity
+    ))
 
-    setActiveAttributes(attributes.filter(i => (
-      i.isGlobal || i.targetEntity === activeEntity
-    )))
+    setShownAttributes(attributesToShow)
   }, [activeEntity, attributes])
 
   return (
-    <Card withBorder radius="md" p="xl">
+    <Card withBorder radius={2} p="xl">
       <Grid>
         <Grid.Col xs={12}>
           <Title
@@ -90,12 +90,16 @@ function Config({ workspace }: SectionProps) {
                 {entities?.map((entity, index) => (
                   <Radio
                     label={
-                      <span style={{
-                        backgroundColor: entityColours[entity],
-                        padding: 3,
-                        borderRadius: 5,
-                        color: "#333333",
-                      }}>
+                      <span
+                        onClick={() => setActiveEntity(entity)}
+                        style={{
+                          backgroundColor: entityColours[entity],
+                          padding: 3,
+                          borderRadius: 5,
+                          color: "#333333",
+                          cursor: "pointer",
+                        }}
+                      >
                         {entity}
                       </span>}
                     value={entity}
@@ -117,23 +121,34 @@ function Config({ workspace }: SectionProps) {
 
         <Grid.Col xs={12}>
           <Collapse in={attributeSectionOpen}>
-            {activeAttributes.length === 0 &&
+            {shownAttributes.length === 0 &&
               <Text color="dimmed">
                 Select entity to see attributes
               </Text>
             }
 
-            {activeAttributes.length > 0 &&
+            {shownAttributes.length > 0 &&
               <Group mb={20}>
-                {activeAttributes.map((attribute, index) => (
-                  <MultiSelect
-                    data={attribute.options}
-                    placeholder={attribute.name}
-                    size="xs"
-                    key={index + attribute.name}
-                    searchable
-                  />
-                ))}
+                <Grid>
+                  {shownAttributes.map((attribute, index) => (
+                    <Grid.Col md={12} lg={6}>
+                      <MultiSelect
+                        data={attribute.options}
+                        placeholder={attribute.name}
+                        size="xs"
+                        key={index + attribute.name}
+                        onChange={(value) => {
+                          const copy = { ...populatedAttributes }
+                          copy[attribute.name] = value
+                          setPopulatedAttributes(copy)
+                        }}
+                        searchable
+                        clearable
+                        creatable
+                      />
+                    </Grid.Col>
+                  ))}
+                </Grid>
               </Group>
             }
           </Collapse>
@@ -152,14 +167,14 @@ interface TitleProps {
 function Title({ text, open, setOpen }: TitleProps) {
   return (
     <Group position="left" noWrap>
-      <Text size={"sm"}>
+      <ActionIcon onClick={() => setOpen(!open)}>
+        {open && <IconEye style={{ opacity: 0.25 }} size={18} />}
+        {!open && <IconEyeOff style={{ opacity: 0.25 }} size={18} />}
+      </ActionIcon>
+
+      <Text size="sm">
         {text}
       </Text>
-
-      <ActionIcon onClick={() => setOpen(!open)}>
-        {open && <IconChevronDown />}
-        {!open && <IconChevronUp />}
-      </ActionIcon>
     </Group>
   )
 }

@@ -1,21 +1,28 @@
-import { Button, Card, Grid, Group, Text } from "@mantine/core"
+import { Button, Card, Collapse, Grid, Group, Text } from "@mantine/core"
+import { IconX } from "@tabler/icons"
 import { useEffect, useState } from "react"
 import { useRecoilValue } from "recoil"
-import { Annotation, annotationsState, entityColoursState } from "store/Annotate"
+import { Annotation, annotationsState, documentIndexState, entityColoursState } from "store/Annotate"
 import { SectionProps } from "./Interfaces"
 
 type AnnotationGroup = Record<string, Annotation[]>
 
+interface AnnotationOutput {
+  name: string
+  payload: string[]
+}
+
 function Output({ workspace }: SectionProps) {
   const entityColours = useRecoilValue(entityColoursState)
   const annotations = useRecoilValue(annotationsState)
+  const documentIndex = useRecoilValue(documentIndexState)
 
   const [groupedAnnotations, setGroupedAnnotations] = useState<AnnotationGroup>({})
 
   useEffect(() => {
     const grouped: AnnotationGroup = {}
 
-    annotations.forEach((annotation) => {
+    annotations[documentIndex]?.forEach((annotation) => {
       if (annotation.entity in grouped) {
         grouped[annotation.entity].push(annotation)
       } else {
@@ -24,7 +31,7 @@ function Output({ workspace }: SectionProps) {
     })
 
     setGroupedAnnotations(grouped)
-  }, [annotations])
+  }, [annotations, documentIndex])
 
   // useEffect(() => {
   //   groupAnnotations()
@@ -67,8 +74,64 @@ function Output({ workspace }: SectionProps) {
   //   setGroupedAnnotations(grouped)
   // }
 
+  const exportAnnotations = () => {
+    // const outputs = [] as AnnotationOutput[]
+    // const documentSnapshot = await readDocuments()
+
+    // for (const document of documentSnapshot.docs) {
+    //   const documentData = document.data()
+    //   const annotations = [] as IAnnotation[]
+    //   const annotationSnapshot = await document.ref.collection(Collection.Annotation).get()
+
+    //   for (const annotation of annotationSnapshot.docs) {
+    //     const annotationData = annotation.data()
+    //     annotations.push(annotationData as IAnnotation)
+    //   }
+
+    //   const name = documentData.name
+    //   const output = buildSingleOutput(name, annotations)
+
+    //   outputs.push(output)
+    // }
+
+    // exportAnnotations(outputs)
+  }
+
+  const readDocuments = () => {
+    // database.getWorkspaceAnnotations(workspace.id)
+  }
+
+  const deleteAnnotation = () => {
+    const filteredAnnotations = annotations[documentIndex].filter(existing => {
+      let keep = false
+
+      annotations.forEach((updated) => {
+        if (updated.localId === anno)
+
+        const shouldKeep = 
+          updated.start === existing.start &&
+          updated.end === existing.end
+        )
+
+        if (shouldKeep) keep = true
+      })
+
+      return keep
+    })
+
+    const copy: Annotation[][] = []
+
+    for (let i = 0; i < annotations.length; i++) {
+      copy.push([...annotations[i]])
+    }
+
+    copy[documentIndex] = filteredAnnotations
+
+    setAnnotations([...copy])
+  }
+
   return (
-    <Card withBorder radius="md" p="xl" sx={{ height: "82.5%" }}>
+    <Card withBorder radius={2} p="xl" sx={{ height: "82.5%" }}>
       <Grid>
         <Grid.Col xs={12}>
           <Group position="apart" noWrap>
@@ -76,7 +139,7 @@ function Output({ workspace }: SectionProps) {
               Annotations
             </Text>
 
-            <Button variant="subtle">
+            <Button variant="subtle" onClick={exportAnnotations}>
               Export
             </Button>
           </Group>
@@ -88,14 +151,26 @@ function Output({ workspace }: SectionProps) {
               {entity}
             </Grid.Col>
 
-
             {groupedAnnotations[entity].map(annotation => (
               <Grid.Col xs={12}>
-                <Card sx={{
-                  backgroundColor: entityColours[annotation.entity],
-                  color: "#333333",
-                }}>
-                  {annotation.text}
+                <Card
+                  radius={2}
+                  p="sm"
+                  sx={{
+                    backgroundColor: entityColours[annotation.entity],
+                    color: "#333333",
+                  }}
+                >
+                  <Group position="apart">
+                    <Text>{annotation.text}</Text>
+                    <IconX size={16} onClick={() => { }} />
+                  </Group>
+
+                  <Collapse in={false}>
+                    {Object.keys(annotation.attributes).map((attributeType) => (
+                      <>{attributeType}</>
+                    ))}
+                  </Collapse>
                 </Card>
               </Grid.Col>
             ))}

@@ -40,7 +40,17 @@ function Configs({ workspace }: SectionProps) {
       records={configs}
       rowExpansion={{
         content: (config) => (
-          <Text p={20} color="dimmed">
+          <Text
+            p={20}
+            mb={20}
+            color="dimmed"
+            lineClamp={4}
+            sx={{
+              whiteSpace: "pre-line",
+              overflowX: "hidden",
+              width: "500px", // remove hardcoded
+            }}
+          >
             {config.record.content}
           </Text>
         )

@@ -45,7 +45,7 @@ function OntologyTable({ completeTutorialStep }: Props) {
         withBorder
         highlightOnHover
         emptyState="Upload an ontology or explore existing ones"
-        borderRadius="md"
+        borderRadius={2}
         sx={{ minHeight: "400px" }}
         records={ontologies}
         columns={[
