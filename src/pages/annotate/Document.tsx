@@ -7,11 +7,17 @@ import { TextAnnotateBlend } from "react-text-annotate-blend"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { activeEntityState, Annotation, annotationsState, documentIndexState, entityColoursState, populatedAttributeState } from "store/Annotate"
 import "./Document.css"
-import { randomId } from "@mantine/hooks"
+
+interface RawAnnotation {
+  tag: string
+  start: number
+  end: number
+  color: string
+}
 
 function Document({ workspace }: SectionProps) {
-  const entityColours = useRecoilValue(entityColoursState)
   const activeEntity = useRecoilValue(activeEntityState)
+  const entityColours = useRecoilValue(entityColoursState)
   const populatedAttributes = useRecoilValue(populatedAttributeState)
 
   const [documents, setDocuments] = useState<WorkspaceDocument[]>([])
@@ -22,6 +28,54 @@ function Document({ workspace }: SectionProps) {
   const moveToPreviousDocument = () => setDocumentIndex(documentIndex - 1)
   const moveToNextDocument = () => setDocumentIndex(documentIndex + 1)
   const moveToLastDocument = () => setDocumentIndex(documents.length - 1)
+
+  const addAnnotation = (updatedAnnotations: RawAnnotation[]) => {
+    const annotation = updatedAnnotations[updatedAnnotations.length - 1]
+
+    const copy: Annotation[][] = []
+
+    for (let i = 0; i < annotations.length; i++) {
+      copy.push([...annotations[i]])
+    }
+
+    copy[documentIndex].push({
+      start: annotation.start,
+      end: annotation.end,
+      entity: annotation.tag,
+      text: documents[documentIndex].content.slice(
+        annotation.start,
+        annotation.end,
+      ),
+      attributes: populatedAttributes,
+    })
+
+    setAnnotations([...copy])
+  }
+
+  const deleteAnnotation = (updatedAnnotations: RawAnnotation[]) => {
+    const filtered = annotations[documentIndex].filter(existing => {
+      let keep = false
+
+      updatedAnnotations.forEach((a) => {
+        if (a.start === existing.start && a.end === existing.end) {
+          keep = true
+        }
+      })
+
+      return keep
+    })
+
+    const copy: Annotation[][] = []
+
+    for (let i = 0; i < annotations.length; i++) {
+      copy.push([...annotations[i]])
+    }
+
+    copy[documentIndex] = filtered
+
+    setAnnotations([...copy])
+    return
+  }
 
   useEffect(() => {
     const newAnnotations: Annotation[][] = []
@@ -105,44 +159,21 @@ function Document({ workspace }: SectionProps) {
 
           <TextAnnotateBlend
             content={documents[documentIndex].content}
-            value={annotations[documentIndex]?.map(annotation => ({
-              localId: annotation.localId,
-              tag: "", // annotation.entity
-              start: annotation.start,
-              end: annotation.end,
-              color: entityColours[annotation.entity],
-            }))}
-            onChange={(rawUpdatedAnnotations) => {
-              const updatedAnnotations = rawUpdatedAnnotations as {
-                localId: string;
-                tag: string;
-                start: number;
-                end: number;
-                color: string;
-              }[]
+            value={annotations[documentIndex]?.map(annotation => {
+              const rawAnnotation: RawAnnotation = {
+                tag: "",
+                start: annotation.start,
+                end: annotation.end,
+                color: entityColours[annotation.entity],
+              }
 
-              if (annotations[documentIndex].length >= updatedAnnotations.length) {
-                const filteredAnnotations = annotations[documentIndex].filter(existing => {
-                  let keep = false
+              return rawAnnotation
+            })}
+            onChange={(updatedAnnotations) => {
+              const shouldDelete = annotations[documentIndex].length >= updatedAnnotations.length
 
-                  updatedAnnotations.forEach((updated) => {
-                    if (updated.localId === existing.localId) {
-                      keep = true
-                    }
-                  })
-
-                  return keep
-                })
-
-                const copy: Annotation[][] = []
-
-                for (let i = 0; i < annotations.length; i++) {
-                  copy.push([...annotations[i]])
-                }
-
-                copy[documentIndex] = filteredAnnotations
-
-                setAnnotations([...copy])
+              if (shouldDelete) {
+                deleteAnnotation(updatedAnnotations)
                 return
               }
 
@@ -151,28 +182,9 @@ function Document({ workspace }: SectionProps) {
                 return
               }
 
-              const copy: Annotation[][] = []
-
-              for (let i = 0; i < annotations.length; i++) {
-                copy.push([...annotations[i]])
-              }
-
-              const addedAnnotation = updatedAnnotations[updatedAnnotations.length - 1]
-              const { start, end, tag } = addedAnnotation
-
-              copy[documentIndex].push({
-                localId: randomId(),
-                start,
-                end,
-                entity: tag,
-                text: documents[documentIndex].content.slice(start, end),
-                attributes: populatedAttributes,
-              })
-
-              setAnnotations([...copy])
+              addAnnotation(updatedAnnotations)
             }}
             getSpan={(span) => ({
-              localId: span.localId,
               tag: activeEntity,
               color: entityColours[activeEntity],
               start: span.start,

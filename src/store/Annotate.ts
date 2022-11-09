@@ -1,7 +1,6 @@
 import { atom } from "recoil"
 
 export interface Annotation {
-  localId: string,
   start: number
   end: number
   text: string

@@ -1,7 +1,7 @@
-import { Button, Card, Collapse, Grid, Group, Text } from "@mantine/core"
+import { Button, Card, Center, Collapse, Grid, Group, Text } from "@mantine/core"
 import { IconX } from "@tabler/icons"
 import { useEffect, useState } from "react"
-import { useRecoilValue } from "recoil"
+import { useRecoilState, useRecoilValue } from "recoil"
 import { Annotation, annotationsState, documentIndexState, entityColoursState } from "store/Annotate"
 import { SectionProps } from "./Interfaces"
 
@@ -14,9 +14,8 @@ interface AnnotationOutput {
 
 function Output({ workspace }: SectionProps) {
   const entityColours = useRecoilValue(entityColoursState)
-  const annotations = useRecoilValue(annotationsState)
   const documentIndex = useRecoilValue(documentIndexState)
-
+  const [annotations, setAnnotations] = useRecoilState(annotationsState)
   const [groupedAnnotations, setGroupedAnnotations] = useState<AnnotationGroup>({})
 
   useEffect(() => {
@@ -106,14 +105,14 @@ function Output({ workspace }: SectionProps) {
       let keep = false
 
       annotations.forEach((updated) => {
-        if (updated.localId === anno)
+        // if (updated.localId === anno)
 
-        const shouldKeep = 
-          updated.start === existing.start &&
-          updated.end === existing.end
-        )
+        // const shouldKeep = 
+        //   updated.start === existing.start &&
+        //   updated.end === existing.end
+        // )
 
-        if (shouldKeep) keep = true
+        // if (shouldKeep) keep = true
       })
 
       return keep
@@ -161,10 +160,21 @@ function Output({ workspace }: SectionProps) {
                     color: "#333333",
                   }}
                 >
-                  <Group position="apart">
-                    <Text>{annotation.text}</Text>
-                    <IconX size={16} onClick={() => { }} />
-                  </Group>
+                  <Grid>
+                    <Grid.Col xs={2}>
+                      <IconX
+                        size={16}
+                        onClick={() => { }}
+                        style={{ cursor: "pointer" }}
+                      />
+                    </Grid.Col>
+
+                    <Grid.Col xs={10}>
+                      <Text>
+                        {annotation.text}
+                      </Text>
+                    </Grid.Col>
+                  </Grid>
 
                   <Collapse in={false}>
                     {Object.keys(annotation.attributes).map((attributeType) => (
