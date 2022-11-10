@@ -1,4 +1,4 @@
-import { definitions } from "storage/database/Supabase"
+import { definitions } from "./Definitions"
 import { supabase } from "../../utils/Supabase"
 
 export type Workspace = definitions["workspace"]
@@ -6,6 +6,7 @@ export type WorkspaceAccess = definitions["workspace_access"]
 export type WorkspaceDocument = definitions["workspace_document"]
 export type RawWorkspaceDocument = Omit<Omit<definitions["workspace_document"], "id">, "created_at">
 export type WorkspaceConfig = definitions["workspace_config"]
+export type WorkspaceAnnotation = definitions["workspace_annotation"]
 export type Ontology = definitions["ontology"]
 export type OntologyAccess = definitions["ontology_access"]
 

@@ -48,7 +48,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "generateTypes": "openapi-typescript http://localhost:54321/rest/v1/?apikey=$SUPABASE_KEY_DEV --output src/database/Definitions.ts"
+    "generateTypes": "openapi-typescript http://localhost:54321/rest/v1/?apikey=$SUPABASE_KEY_DEV --output src/storage/database/Definitions.ts"
   },
   "eslintConfig": {
     "extends": [

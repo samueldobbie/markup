@@ -12,6 +12,108 @@ export interface paths {
       };
     };
   };
+  "/workspace_annotation": {
+    get: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.workspace_annotation.id"];
+          created_at?: parameters["rowFilter.workspace_annotation.created_at"];
+          document_id?: parameters["rowFilter.workspace_annotation.document_id"];
+          entity?: parameters["rowFilter.workspace_annotation.entity"];
+          start_index?: parameters["rowFilter.workspace_annotation.start_index"];
+          end_index?: parameters["rowFilter.workspace_annotation.end_index"];
+          /** Filtering Columns */
+          select?: parameters["select"];
+          /** Ordering */
+          order?: parameters["order"];
+          /** Limiting and Pagination */
+          offset?: parameters["offset"];
+          /** Limiting and Pagination */
+          limit?: parameters["limit"];
+        };
+        header: {
+          /** Limiting and Pagination */
+          Range?: parameters["range"];
+          /** Limiting and Pagination */
+          "Range-Unit"?: parameters["rangeUnit"];
+          /** Preference */
+          Prefer?: parameters["preferCount"];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["workspace_annotation"][];
+        };
+        /** Partial Content */
+        206: unknown;
+      };
+    };
+    post: {
+      parameters: {
+        body: {
+          /** workspace_annotation */
+          workspace_annotation?: definitions["workspace_annotation"];
+        };
+        query: {
+          /** Filtering Columns */
+          select?: parameters["select"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** Created */
+        201: unknown;
+      };
+    };
+    delete: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.workspace_annotation.id"];
+          created_at?: parameters["rowFilter.workspace_annotation.created_at"];
+          document_id?: parameters["rowFilter.workspace_annotation.document_id"];
+          entity?: parameters["rowFilter.workspace_annotation.entity"];
+          start_index?: parameters["rowFilter.workspace_annotation.start_index"];
+          end_index?: parameters["rowFilter.workspace_annotation.end_index"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+    patch: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.workspace_annotation.id"];
+          created_at?: parameters["rowFilter.workspace_annotation.created_at"];
+          document_id?: parameters["rowFilter.workspace_annotation.document_id"];
+          entity?: parameters["rowFilter.workspace_annotation.entity"];
+          start_index?: parameters["rowFilter.workspace_annotation.start_index"];
+          end_index?: parameters["rowFilter.workspace_annotation.end_index"];
+        };
+        body: {
+          /** workspace_annotation */
+          workspace_annotation?: definitions["workspace_annotation"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+  };
   "/workspace_access": {
     get: {
       parameters: {
@@ -600,6 +702,27 @@ export interface paths {
 }
 
 export interface definitions {
+  workspace_annotation: {
+    /**
+     * Format: uuid
+     * @description Note:
+     * This is a Primary Key.<pk/>
+     */
+    id: string;
+    /**
+     * Format: timestamp without time zone
+     * @default now()
+     */
+    created_at: string;
+    /** Format: uuid */
+    document_id: string;
+    /** Format: character varying */
+    entity: string;
+    /** Format: integer */
+    start_index: number;
+    /** Format: integer */
+    end_index: number;
+  };
   workspace_access: {
     /**
      * Format: uuid
@@ -752,6 +875,20 @@ export interface parameters {
   offset: string;
   /** @description Limiting and Pagination */
   limit: string;
+  /** @description workspace_annotation */
+  "body.workspace_annotation": definitions["workspace_annotation"];
+  /** Format: uuid */
+  "rowFilter.workspace_annotation.id": string;
+  /** Format: timestamp without time zone */
+  "rowFilter.workspace_annotation.created_at": string;
+  /** Format: uuid */
+  "rowFilter.workspace_annotation.document_id": string;
+  /** Format: character varying */
+  "rowFilter.workspace_annotation.entity": string;
+  /** Format: integer */
+  "rowFilter.workspace_annotation.start_index": string;
+  /** Format: integer */
+  "rowFilter.workspace_annotation.end_index": string;
   /** @description workspace_access */
   "body.workspace_access": definitions["workspace_access"];
   /** Format: uuid */
