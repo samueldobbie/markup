@@ -101,6 +101,7 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal }: ModalProps) {
       opened={openedModal}
       onClose={() => setOpenedModal(false)}
       title="Explore existing ontologies"
+      centered
     >
       <Text>
         I'll be adding existing ontologies (e.g. UMLS) soon
@@ -117,6 +118,7 @@ function UploadOntologyModal({ openedModal, setOpenedModal }: ModalProps) {
       opened={openedModal}
       onClose={() => setOpenedModal(false)}
       title="Upload an ontology"
+      centered
     >
       <Grid>
         <Grid.Col>

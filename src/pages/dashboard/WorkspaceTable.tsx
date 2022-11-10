@@ -119,6 +119,7 @@ function CreateWorkspaceModal({ openedModal, setOpenedModal }: ModalProps) {
       opened={openedModal}
       onClose={() => setOpenedModal(false)}
       title="Create workspace"
+      centered
     >
       <form onSubmit={form.onSubmit((values) => handleCreateWorkspace(values))}>
         <Grid>

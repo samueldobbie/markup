@@ -42,7 +42,7 @@ function AccountOverview({ tutorialProgress, completeTutorialStep }: Props) {
 
       <Text size="md" color="dimmed" mt={10} mb="xl">
         You're currently on the dashboard where you can manage workspaces and ontologies.
-        Complete the steps below to get familiar with Markup.
+        Follow the steps below to get familiar with Markup.
       </Text>
 
       <Checkbox

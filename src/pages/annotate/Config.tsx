@@ -93,17 +93,23 @@ function Config({ workspace }: SectionProps) {
                       <span
                         onClick={() => setActiveEntity(entity)}
                         style={{
-                          backgroundColor: entityColours[entity],
-                          padding: 3,
-                          borderRadius: 5,
                           color: "#333333",
+                          fontWeight: "bold",
                           cursor: "pointer",
+                          paddingRight: 10,
+                          userSelect: "none",
                         }}
                       >
                         {entity}
                       </span>}
                     value={entity}
                     key={index}
+                    sx={{
+                      backgroundColor: entityColours[entity],
+                      padding: 3,
+                      borderRadius: 5,
+                      cursor: "pointer",
+                    }}
                   />
                 ))}
               </Radio.Group>

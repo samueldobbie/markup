@@ -1,4 +1,4 @@
-import { Group, Button, ActionIcon, Text, FileButton } from "@mantine/core"
+import { Group, Button, ActionIcon, Text, FileButton, Tooltip } from "@mantine/core"
 import { IconChevronDown, IconTrash } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
@@ -50,16 +50,32 @@ function Documents({ workspace }: SectionProps) {
         {
           accessor: "actions",
           title: (
-            <FileButton onChange={setFiles} accept="plain/text" multiple>
-              {(props) => (
-                <Button
-                  {...props}
-                  variant="light"
-                >
-                  Upload documents
-                </Button>
-              )}
-            </FileButton>
+            <Group position="right">
+              <FileButton onChange={setFiles} accept="plain/text" multiple>
+                {(props) => (
+                  <Tooltip label="Each annotation filename (excl. file extension) must match the document you want to associate it with">
+                    <Button
+                      {...props}
+                      variant="light"
+                      disabled
+                    >
+                      Upload annotations
+                    </Button>
+                  </Tooltip>
+                )}
+              </FileButton>
+
+              <FileButton onChange={setFiles} accept="plain/text" multiple>
+                {(props) => (
+                  <Button
+                    {...props}
+                    variant="light"
+                  >
+                    Upload documents
+                  </Button>
+                )}
+              </FileButton>
+            </Group>
           ),
           textAlignment: "right",
           render: (document) => (
