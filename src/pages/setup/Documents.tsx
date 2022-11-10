@@ -2,7 +2,7 @@ import { Group, Button, ActionIcon, Text, FileButton, Tooltip } from "@mantine/c
 import { IconChevronDown, IconTrash } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
-import { database, WorkspaceDocument } from "pages/database/Database"
+import { database, WorkspaceDocument } from "storage/database/Database"
 import { SectionProps } from "./Interfaces"
 
 function Documents({ workspace }: SectionProps) {

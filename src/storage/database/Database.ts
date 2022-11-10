@@ -1,4 +1,4 @@
-import { definitions } from "pages/database/Supabase"
+import { definitions } from "storage/database/Supabase"
 import { supabase } from "../../utils/Supabase"
 
 export type Workspace = definitions["workspace"]

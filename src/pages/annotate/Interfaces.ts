@@ -1,4 +1,4 @@
-import { Workspace } from "pages/database/Database"
+import { Workspace } from "storage/database/Database"
 
 interface SectionProps {
   workspace: Workspace

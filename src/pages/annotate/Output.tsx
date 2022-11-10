@@ -2,7 +2,7 @@ import { Button, Card, Center, Collapse, Grid, Group, Text } from "@mantine/core
 import { IconX } from "@tabler/icons"
 import { useEffect, useState } from "react"
 import { useRecoilState, useRecoilValue } from "recoil"
-import { Annotation, annotationsState, documentIndexState, entityColoursState } from "store/Annotate"
+import { Annotation, annotationsState, documentIndexState, entityColoursState } from "storage/state/Annotate"
 import { SectionProps } from "./Interfaces"
 
 type AnnotationGroup = Record<string, Annotation[]>
@@ -130,7 +130,7 @@ function Output({ workspace }: SectionProps) {
   }
 
   return (
-    <Card withBorder radius={2} p="xl" sx={{ height: "82.5%" }}>
+    <Card withBorder radius={5} p="xl" sx={{ height: "82.5%" }}>
       <Grid>
         <Grid.Col xs={12}>
           <Group position="apart" noWrap>

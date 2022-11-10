@@ -1,4 +1,4 @@
-import { WorkspaceConfig } from "pages/database/Database"
+import { WorkspaceConfig } from "storage/database/Database"
 
 enum Config {
   GlobalAttributeKey = "<ENTITY>",

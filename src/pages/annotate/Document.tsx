@@ -1,11 +1,11 @@
 import { ActionIcon, Card, Divider, Group, Select } from "@mantine/core"
 import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight } from "@tabler/icons"
-import { database, WorkspaceDocument } from "pages/database/Database"
+import { database, WorkspaceDocument } from "storage/database/Database"
 import { useEffect, useState } from "react"
 import { SectionProps } from "./Interfaces"
 import { TextAnnotateBlend } from "react-text-annotate-blend"
 import { useRecoilState, useRecoilValue } from "recoil"
-import { activeEntityState, Annotation, annotationsState, documentIndexState, entityColoursState, populatedAttributeState } from "store/Annotate"
+import { activeEntityState, Annotation, annotationsState, documentIndexState, entityColoursState, populatedAttributeState } from "storage/state/Annotate"
 import "./Document.css"
 
 interface RawAnnotation {
@@ -99,7 +99,7 @@ function Document({ workspace }: SectionProps) {
   return (
     <>
       {documents.length > 0 &&
-        <Card withBorder radius={2} p="xl" sx={{ height: "82.5%" }}>
+        <Card withBorder radius={5} p="xl" sx={{ height: "82.5%" }}>
           <Group spacing={4} position="center" noWrap>
             <ActionIcon
               size="lg"

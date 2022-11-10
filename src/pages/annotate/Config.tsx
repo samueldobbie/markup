@@ -1,9 +1,9 @@
 import { ActionIcon, Card, Collapse, Grid, Group, MultiSelect, Radio, Text } from "@mantine/core"
 import { IconEye, IconEyeOff } from "@tabler/icons"
-import { database } from "pages/database/Database"
+import { database } from "storage/database/Database"
 import { useState, useEffect } from "react"
 import { useRecoilState } from "recoil"
-import { activeEntityState, entityColoursState, populatedAttributeState } from "store/Annotate"
+import { activeEntityState, entityColoursState, populatedAttributeState } from "storage/state/Annotate"
 import { SectionProps } from "./Interfaces"
 import { Attribute, parseConfig } from "./Parse"
 import distinctColors from "distinct-colors"
@@ -67,7 +67,7 @@ function Config({ workspace }: SectionProps) {
   }, [activeEntity, attributes])
 
   return (
-    <Card withBorder radius={2} p="xl">
+    <Card withBorder radius={5} p="xl">
       <Grid>
         <Grid.Col xs={12}>
           <Title
@@ -174,8 +174,8 @@ function Title({ text, open, setOpen }: TitleProps) {
   return (
     <Group position="left" noWrap>
       <ActionIcon onClick={() => setOpen(!open)}>
-        {open && <IconEye style={{ opacity: 0.25 }} size={18} />}
-        {!open && <IconEyeOff style={{ opacity: 0.25 }} size={18} />}
+        {open && <IconEye style={{ opacity: 0.5 }} size={18} />}
+        {!open && <IconEyeOff style={{ opacity: 0.5 }} size={18} />}
       </ActionIcon>
 
       <Text size="sm">

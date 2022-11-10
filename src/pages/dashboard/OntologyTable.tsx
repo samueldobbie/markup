@@ -3,7 +3,7 @@ import { Dropzone } from "@mantine/dropzone"
 import { IconTrash, IconEdit, IconFile, IconUpload, IconX } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
-import { database, Ontology } from "pages/database/Database"
+import { database, Ontology } from "storage/database/Database"
 import { ModalProps } from "./Interfaces"
 import { openConfirmModal } from "@mantine/modals"
 
@@ -45,7 +45,7 @@ function OntologyTable({ completeTutorialStep }: Props) {
         withBorder
         highlightOnHover
         emptyState="Upload an ontology or explore existing ones"
-        borderRadius={2}
+        borderRadius={5}
         sx={{ minHeight: "400px" }}
         records={ontologies}
         columns={[

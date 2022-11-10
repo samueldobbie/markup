@@ -3,7 +3,7 @@ import { useForm } from "@mantine/form"
 import { IconPlayerPlay, IconSettings, IconTrashX } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
-import { database, Workspace } from "pages/database/Database"
+import { database, Workspace } from "storage/database/Database"
 import { moveToPage } from "utils/Location"
 import { ModalProps } from "./Interfaces"
 import { toAnnotateUrl, toSetupUrl } from "utils/Path"
@@ -46,7 +46,7 @@ function WorkspaceTable({ completeTutorialStep }: Props) {
         withBorder
         highlightOnHover
         emptyState="Create a workspace to start annotating"
-        borderRadius={2}
+        borderRadius={5}
         sx={{ minHeight: "400px" }}
         records={workspaces}
         columns={[

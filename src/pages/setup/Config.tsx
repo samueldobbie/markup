@@ -2,7 +2,7 @@ import { Group, Button, ActionIcon, Text, FileButton } from "@mantine/core"
 import { IconTrash } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
-import { WorkspaceConfig, database } from "pages/database/Database"
+import { WorkspaceConfig, database } from "storage/database/Database"
 import { SectionProps } from "./Interfaces"
 
 function Configs({ workspace }: SectionProps) {
@@ -65,7 +65,7 @@ function Configs({ workspace }: SectionProps) {
           title: (
             <Group spacing={4} position="right" noWrap>
               <Button variant="subtle">
-                Create
+                Create config
               </Button>
 
               <FileButton onChange={setFile} accept="plain/text">
