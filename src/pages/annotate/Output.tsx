@@ -1,11 +1,12 @@
-import { Button, Card, Center, Collapse, Grid, Group, Text } from "@mantine/core"
+import { Button, Card, Collapse, Grid, Group, Text } from "@mantine/core"
 import { IconX } from "@tabler/icons"
 import { useEffect, useState } from "react"
 import { useRecoilState, useRecoilValue } from "recoil"
-import { Annotation, annotationsState, documentIndexState, entityColoursState } from "storage/state/Annotate"
+import { WorkspaceAnnotation } from "storage/database"
+import { annotationsState, documentIndexState, entityColoursState } from "storage/state/Annotate"
 import { SectionProps } from "./Interfaces"
 
-type AnnotationGroup = Record<string, Annotation[]>
+type AnnotationGroup = Record<string, WorkspaceAnnotation[]>
 
 interface AnnotationOutput {
   name: string
@@ -118,7 +119,7 @@ function Output({ workspace }: SectionProps) {
       return keep
     })
 
-    const copy: Annotation[][] = []
+    const copy: WorkspaceAnnotation[][] = []
 
     for (let i = 0; i < annotations.length; i++) {
       copy.push([...annotations[i]])
@@ -177,9 +178,9 @@ function Output({ workspace }: SectionProps) {
                   </Grid>
 
                   <Collapse in={false}>
-                    {Object.keys(annotation.attributes).map((attributeType) => (
+                    {/* {Object.keys(annotation.attributes).map((attributeType) => (
                       <>{attributeType}</>
-                    ))}
+                    ))} */}
                   </Collapse>
                 </Card>
               </Grid.Col>
@@ -192,3 +193,28 @@ function Output({ workspace }: SectionProps) {
 }
 
 export default Output
+
+// const deleteAnnotation = (updatedAnnotations: WorkspaceAnnotation[]) => {
+//   const filtered = annotations[documentIndex].filter(existing => {
+//     let keep = false
+
+//     updatedAnnotations.forEach((a) => {
+//       if (a.id === existing.id) {
+//         keep = true
+//       }
+//     })
+
+//     return keep
+//   })
+
+//   const copy: WorkspaceAnnotation[][] = []
+
+//   for (let i = 0; i < annotations.length; i++) {
+//     copy.push([...annotations[i]])
+//   }
+
+//   copy[documentIndex] = filtered
+
+//   setAnnotations([...copy])
+//   return
+// }

@@ -7,6 +7,7 @@ export type WorkspaceDocument = definitions["workspace_document"]
 export type RawWorkspaceDocument = Omit<Omit<definitions["workspace_document"], "id">, "created_at">
 export type WorkspaceConfig = definitions["workspace_config"]
 export type WorkspaceAnnotation = definitions["workspace_annotation"]
+export type RawAnnotation = Omit<Omit<Omit<definitions["workspace_annotation"], "id">, "created_at">, "document_id">
 export type Ontology = definitions["ontology"]
 export type OntologyAccess = definitions["ontology_access"]
 
@@ -184,6 +185,39 @@ async function deleteWorkspaceConfig(configId: string): Promise<boolean> {
   return false
 }
 
+async function addWorkspaceAnnotation(
+  documentId: string,
+  rawAnnotation: RawAnnotation,
+): Promise<WorkspaceAnnotation> {
+  const { data: annotation, error } = await supabase
+    .from("workspace_annotation")
+    .insert({
+      document_id: documentId,
+      entity: rawAnnotation.entity,
+      start_index: rawAnnotation.start_index,
+      end_index: rawAnnotation.end_index,
+      text: rawAnnotation.text,
+      attributes: rawAnnotation.attributes,
+    })
+    .select()
+
+  if (error || annotation === null || annotation.length === 0) {
+    console.error(error)
+
+    return {
+      id: "",
+      created_at: "",
+      document_id: "",
+      text: "",
+      start_index: -1,
+      end_index: -1,
+      attributes: {},
+    } as WorkspaceAnnotation
+  }
+
+  return annotation[0]
+}
+
 async function addOntology(): Promise<boolean> {
   return false
 }
@@ -208,6 +242,8 @@ export const database = {
   addWorkspaceConfig,
   getWorkspaceConfig,
   deleteWorkspaceConfig,
+
+  addWorkspaceAnnotation,
 
   addOntology,
   getOntologies,

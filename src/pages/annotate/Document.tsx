@@ -1,6 +1,6 @@
 import { ActionIcon, Card, Divider, Group, Select } from "@mantine/core"
 import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight } from "@tabler/icons"
-import { database, WorkspaceAnnotation, WorkspaceDocument } from "storage/database/Database"
+import { database, RawAnnotation, WorkspaceAnnotation, WorkspaceDocument } from "storage/database/Database"
 import { useEffect, useState } from "react"
 import { SectionProps } from "./Interfaces"
 import { TextAnnotateBlend } from "react-text-annotate-blend"
@@ -8,11 +8,11 @@ import { useRecoilState, useRecoilValue } from "recoil"
 import { activeEntityState, annotationsState, documentIndexState, entityColoursState, populatedAttributeState } from "storage/state/Annotate"
 import "./Document.css"
 
-interface RawAnnotation {
-  entity: string
-  text: string
-  startIndex: number
-  endIndex: number
+interface InlineAnnotation {
+  tag: string
+  start: number
+  end: number
+  color: string
 }
 
 function Document({ workspace }: SectionProps) {
@@ -29,53 +29,26 @@ function Document({ workspace }: SectionProps) {
   const moveToNextDocument = () => setDocumentIndex(documentIndex + 1)
   const moveToLastDocument = () => setDocumentIndex(documents.length - 1)
 
-  const addAnnotation = (updatedAnnotations: WorkspaceAnnotation[]) => {
-    const annotation = updatedAnnotations[updatedAnnotations.length - 1]
-    const { start_index, end_index, entity } = annotation
+  const addAnnotation = (inlineAnnotation: InlineAnnotation) => {
+    const { tag, start, end } = inlineAnnotation
 
-    // const copy: WorkspaceAnnotation[][] = []
+    const documentId = documents[documentIndex].id
+    const text = documents[documentIndex].content.slice(start, end)
+    const rawAnnotation = {
+      text,
+      entity: tag,
+      start_index: start,
+      end_index: end,
+      attributes: populatedAttributes,
+    } as RawAnnotation
 
-    // for (let i = 0; i < annotations.length; i++) {
-    //   copy.push([...annotations[i]])
-    // }
-
-    // supabase.addAnnotation(...)
-
-    // copy[documentIndex].push({
-    //   id: 
-    //   start_index: start_index,
-    //   end_index: end_index,
-    //   entity: entity,
-    //   text: documents[documentIndex].content.slice(start_index, end_index),
-    //   attributes: populatedAttributes,
-    // })
-
-    // setAnnotations([...copy])
-  }
-
-  const deleteAnnotation = (updatedAnnotations: WorkspaceAnnotation[]) => {
-    const filtered = annotations[documentIndex].filter(existing => {
-      let keep = false
-
-      updatedAnnotations.forEach((a) => {
-        if (a.id === existing.id) {
-          keep = true
-        }
+    database
+      .addWorkspaceAnnotation(documentId, rawAnnotation)
+      .then((annotation) => {
+        const copy = [...annotations]
+        copy[documentIndex] = [...copy[documentIndex], annotation]
+        setAnnotations(copy)
       })
-
-      return keep
-    })
-
-    const copy: WorkspaceAnnotation[][] = []
-
-    for (let i = 0; i < annotations.length; i++) {
-      copy.push([...annotations[i]])
-    }
-
-    copy[documentIndex] = filtered
-
-    setAnnotations([...copy])
-    return
   }
 
   useEffect(() => {
@@ -161,22 +134,20 @@ function Document({ workspace }: SectionProps) {
           <TextAnnotateBlend
             content={documents[documentIndex].content}
             value={annotations[documentIndex]?.map(annotation => {
-              const rawAnnotation = {
-                id: annotation.id,
+              const inlineAnnotation: InlineAnnotation = {
                 tag: "",
                 start: annotation.start_index,
                 end: annotation.end_index,
-                attributes: annotation.attributes,
                 color: entityColours[annotation.entity],
               }
 
-              return rawAnnotation
+              return inlineAnnotation
             })}
-            onChange={(updatedAnnotations) => {
-              const shouldDelete = annotations[documentIndex].length >= updatedAnnotations.length
-
-              if (shouldDelete) {
-                deleteAnnotation(updatedAnnotations)
+            onChange={(updated) => {
+              if (
+                annotations[documentIndex].length >= updated.length ||
+                updated.length === 0
+              ) {
                 return
               }
 
@@ -185,7 +156,7 @@ function Document({ workspace }: SectionProps) {
                 return
               }
 
-              addAnnotation(updatedAnnotations)
+              addAnnotation(updated[updated.length - 1])
             }}
             getSpan={(span) => ({
               tag: activeEntity,
