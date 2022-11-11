@@ -238,6 +238,20 @@ async function getWorkspaceAnnotations(documentIds: string[]): Promise<Workspace
   return result
 }
 
+async function deleteWorkspaceAnnotation(annotationId: string): Promise<boolean> {
+  const { error } = await supabase
+    .from("workspace_annotation")
+    .delete()
+    .eq("id", annotationId)
+
+  if (error) {
+    console.error(error)
+    return true
+  }
+
+  return false
+}
+
 async function addOntology(): Promise<boolean> {
   return false
 }
@@ -265,6 +279,7 @@ export const database = {
 
   addWorkspaceAnnotation,
   getWorkspaceAnnotations,
+  deleteWorkspaceAnnotation,
 
   addOntology,
   getOntologies,
