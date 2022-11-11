@@ -70,6 +70,16 @@ function Document({ workspace }: SectionProps) {
       .catch(alert)
   }, [workspace.id])
 
+  useEffect(() => {
+    if (documents.length === 0) {
+      return
+    }
+
+    database
+      .getWorkspaceAnnotations(documents.map(i => i.id))
+      .then(setAnnotations)
+  }, [documents, setAnnotations])
+
   return (
     <>
       {documents.length > 0 &&

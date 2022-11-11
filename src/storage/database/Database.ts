@@ -218,6 +218,26 @@ async function addWorkspaceAnnotation(
   return annotation[0]
 }
 
+async function getWorkspaceAnnotations(documentIds: string[]): Promise<WorkspaceAnnotation[][]> {
+  const { data: annotations, error } = await supabase
+    .from("workspace_annotation")
+    .select()
+    .in("document_id", documentIds)
+
+  if (error || annotations === null) {
+    console.error(error)
+    return []
+  }
+
+  const result: WorkspaceAnnotation[][] = []
+
+  documentIds.forEach(documentId => {
+    result.push(annotations.filter(i => i.document_id === documentId))
+  })
+
+  return result
+}
+
 async function addOntology(): Promise<boolean> {
   return false
 }
@@ -244,6 +264,7 @@ export const database = {
   deleteWorkspaceConfig,
 
   addWorkspaceAnnotation,
+  getWorkspaceAnnotations,
 
   addOntology,
   getOntologies,
