@@ -3,11 +3,11 @@ import ReactDOM from "react-dom/client"
 import { RecoilRoot, useRecoilState } from "recoil"
 import { AuthProvider } from "providers/AuthProvider"
 import { ColorScheme, ColorSchemeProvider, MantineProvider } from "@mantine/core"
-import { themeState } from "storage/Theme"
 import { BrowserRouter } from "react-router-dom"
 import Navbar from "components/nav/Navbar"
 import PageRoutes from "components/routes/PageRoutes"
 import { ModalsProvider } from "@mantine/modals"
+import { themeState } from "storage/state"
 
 function App(): JSX.Element {
   const [colorScheme, setColorScheme] = useRecoilState(themeState)

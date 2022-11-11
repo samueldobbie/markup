@@ -50,7 +50,7 @@ async function getWorkspaces(workspaceIds: string[] = []): Promise<Workspace[]> 
       .select("workspace_id")
       .eq("user_id", userId)
 
-    workspaceAccessData.forEach((access: WorkspaceAccess) => {
+    workspaceAccessData?.forEach((access) => {
       workspaceIds.push(access.workspace_id)
     })
   }
@@ -132,7 +132,7 @@ async function deleteWorkspaceDocument(documentId: string): Promise<boolean> {
 }
 
 async function addWorkspaceConfig(workspaceId: string, file: File): Promise<WorkspaceConfig> {
-  const { data: cofig, error } = await supabase
+  const { data: config, error } = await supabase
     .from("workspace_config")
     .insert({
       workspace_id: workspaceId,
@@ -141,12 +141,19 @@ async function addWorkspaceConfig(workspaceId: string, file: File): Promise<Work
     })
     .select()
 
-  if (error) {
+  if (error || config === null || config.length === 0) {
     console.error(error)
-    // return []
+
+    return {
+      id: "",
+      created_at: "",
+      workspace_id: "",
+      name: "",
+      content: "",
+    }
   }
 
-  return cofig[0]
+  return config[0]
 }
 
 async function getWorkspaceConfig(workspaceId: string): Promise<WorkspaceConfig[]> {

@@ -1,12 +1,5 @@
 import { atom } from "recoil"
-
-export interface Annotation {
-  start: number
-  end: number
-  text: string
-  entity: string
-  attributes: Record<string, string[]>
-}
+import { WorkspaceAnnotation } from "storage/database"
 
 const documentIndexState = atom({
   key: "documentIndexState",
@@ -28,7 +21,7 @@ const populatedAttributeState = atom<Record<string, string[]>>({
   default: {},
 })
 
-const annotationsState = atom<Annotation[][]>({
+const annotationsState = atom<WorkspaceAnnotation[][]>({
   key: "annotationsState",
   default: [],
 })
@@ -90,4 +83,10 @@ const annotationsState = atom<Annotation[][]>({
 //   }
 // })
 
-export { documentIndexState, activeEntityState, entityColoursState, populatedAttributeState, annotationsState }
+export {
+  documentIndexState,
+  activeEntityState,
+  entityColoursState,
+  populatedAttributeState,
+  annotationsState,
+}

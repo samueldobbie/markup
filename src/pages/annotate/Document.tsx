@@ -1,18 +1,18 @@
 import { ActionIcon, Card, Divider, Group, Select } from "@mantine/core"
 import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight } from "@tabler/icons"
-import { database, WorkspaceDocument } from "storage/database/Database"
+import { database, WorkspaceAnnotation, WorkspaceDocument } from "storage/database/Database"
 import { useEffect, useState } from "react"
 import { SectionProps } from "./Interfaces"
 import { TextAnnotateBlend } from "react-text-annotate-blend"
 import { useRecoilState, useRecoilValue } from "recoil"
-import { activeEntityState, Annotation, annotationsState, documentIndexState, entityColoursState, populatedAttributeState } from "storage/state/Annotate"
+import { activeEntityState, annotationsState, documentIndexState, entityColoursState, populatedAttributeState } from "storage/state/Annotate"
 import "./Document.css"
 
 interface RawAnnotation {
-  tag: string
-  start: number
-  end: number
-  color: string
+  entity: string
+  text: string
+  startIndex: number
+  endIndex: number
 }
 
 function Document({ workspace }: SectionProps) {
@@ -29,35 +29,36 @@ function Document({ workspace }: SectionProps) {
   const moveToNextDocument = () => setDocumentIndex(documentIndex + 1)
   const moveToLastDocument = () => setDocumentIndex(documents.length - 1)
 
-  const addAnnotation = (updatedAnnotations: RawAnnotation[]) => {
+  const addAnnotation = (updatedAnnotations: WorkspaceAnnotation[]) => {
     const annotation = updatedAnnotations[updatedAnnotations.length - 1]
+    const { start_index, end_index, entity } = annotation
 
-    const copy: Annotation[][] = []
+    // const copy: WorkspaceAnnotation[][] = []
 
-    for (let i = 0; i < annotations.length; i++) {
-      copy.push([...annotations[i]])
-    }
+    // for (let i = 0; i < annotations.length; i++) {
+    //   copy.push([...annotations[i]])
+    // }
 
-    copy[documentIndex].push({
-      start: annotation.start,
-      end: annotation.end,
-      entity: annotation.tag,
-      text: documents[documentIndex].content.slice(
-        annotation.start,
-        annotation.end,
-      ),
-      attributes: populatedAttributes,
-    })
+    // supabase.addAnnotation(...)
 
-    setAnnotations([...copy])
+    // copy[documentIndex].push({
+    //   id: 
+    //   start_index: start_index,
+    //   end_index: end_index,
+    //   entity: entity,
+    //   text: documents[documentIndex].content.slice(start_index, end_index),
+    //   attributes: populatedAttributes,
+    // })
+
+    // setAnnotations([...copy])
   }
 
-  const deleteAnnotation = (updatedAnnotations: RawAnnotation[]) => {
+  const deleteAnnotation = (updatedAnnotations: WorkspaceAnnotation[]) => {
     const filtered = annotations[documentIndex].filter(existing => {
       let keep = false
 
       updatedAnnotations.forEach((a) => {
-        if (a.start === existing.start && a.end === existing.end) {
+        if (a.id === existing.id) {
           keep = true
         }
       })
@@ -65,7 +66,7 @@ function Document({ workspace }: SectionProps) {
       return keep
     })
 
-    const copy: Annotation[][] = []
+    const copy: WorkspaceAnnotation[][] = []
 
     for (let i = 0; i < annotations.length; i++) {
       copy.push([...annotations[i]])
@@ -78,7 +79,7 @@ function Document({ workspace }: SectionProps) {
   }
 
   useEffect(() => {
-    const newAnnotations: Annotation[][] = []
+    const newAnnotations: WorkspaceAnnotation[][] = []
     let documentSize = documents.length
 
     while (documentSize > 0) {
@@ -160,10 +161,12 @@ function Document({ workspace }: SectionProps) {
           <TextAnnotateBlend
             content={documents[documentIndex].content}
             value={annotations[documentIndex]?.map(annotation => {
-              const rawAnnotation: RawAnnotation = {
+              const rawAnnotation = {
+                id: annotation.id,
                 tag: "",
-                start: annotation.start,
-                end: annotation.end,
+                start: annotation.start_index,
+                end: annotation.end_index,
+                attributes: annotation.attributes,
                 color: entityColours[annotation.entity],
               }
 

@@ -94,10 +94,9 @@ function Config({ workspace }: SectionProps) {
                         onClick={() => setActiveEntity(entity)}
                         style={{
                           color: "#333333",
-                          fontWeight: "bold",
                           cursor: "pointer",
-                          paddingRight: 10,
                           userSelect: "none",
+                          paddingRight: 10,
                         }}
                       >
                         {entity}
@@ -137,11 +136,12 @@ function Config({ workspace }: SectionProps) {
               <Group mb={20}>
                 <Grid>
                   {shownAttributes.map((attribute, index) => (
-                    <Grid.Col md={12} lg={6}>
+                    <Grid.Col xs={12}>
                       <MultiSelect
                         data={attribute.options}
+                        label={attribute.name}
                         placeholder={attribute.name}
-                        size="xs"
+                        size="sm"
                         key={index + attribute.name}
                         onChange={(value) => {
                           const copy = { ...populatedAttributes }
@@ -172,8 +172,13 @@ interface TitleProps {
 
 function Title({ text, open, setOpen }: TitleProps) {
   return (
-    <Group position="left" noWrap>
-      <ActionIcon onClick={() => setOpen(!open)}>
+    <Group
+      position="left"
+      noWrap
+      onClick={() => setOpen(!open)}
+      sx={{ cursor: "pointer" }}
+    >
+      <ActionIcon>
         {open && <IconEye style={{ opacity: 0.5 }} size={18} />}
         {!open && <IconEyeOff style={{ opacity: 0.5 }} size={18} />}
       </ActionIcon>

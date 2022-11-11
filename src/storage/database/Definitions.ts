@@ -22,6 +22,8 @@ export interface paths {
           entity?: parameters["rowFilter.workspace_annotation.entity"];
           start_index?: parameters["rowFilter.workspace_annotation.start_index"];
           end_index?: parameters["rowFilter.workspace_annotation.end_index"];
+          attributes?: parameters["rowFilter.workspace_annotation.attributes"];
+          text?: parameters["rowFilter.workspace_annotation.text"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -78,6 +80,8 @@ export interface paths {
           entity?: parameters["rowFilter.workspace_annotation.entity"];
           start_index?: parameters["rowFilter.workspace_annotation.start_index"];
           end_index?: parameters["rowFilter.workspace_annotation.end_index"];
+          attributes?: parameters["rowFilter.workspace_annotation.attributes"];
+          text?: parameters["rowFilter.workspace_annotation.text"];
         };
         header: {
           /** Preference */
@@ -98,6 +102,8 @@ export interface paths {
           entity?: parameters["rowFilter.workspace_annotation.entity"];
           start_index?: parameters["rowFilter.workspace_annotation.start_index"];
           end_index?: parameters["rowFilter.workspace_annotation.end_index"];
+          attributes?: parameters["rowFilter.workspace_annotation.attributes"];
+          text?: parameters["rowFilter.workspace_annotation.text"];
         };
         body: {
           /** workspace_annotation */
@@ -722,6 +728,10 @@ export interface definitions {
     start_index: number;
     /** Format: integer */
     end_index: number;
+    /** Format: jsonb */
+    attributes: unknown;
+    /** Format: text */
+    text: string;
   };
   workspace_access: {
     /**
@@ -889,6 +899,10 @@ export interface parameters {
   "rowFilter.workspace_annotation.start_index": string;
   /** Format: integer */
   "rowFilter.workspace_annotation.end_index": string;
+  /** Format: jsonb */
+  "rowFilter.workspace_annotation.attributes": string;
+  /** Format: text */
+  "rowFilter.workspace_annotation.text": string;
   /** @description workspace_access */
   "body.workspace_access": definitions["workspace_access"];
   /** Format: uuid */
