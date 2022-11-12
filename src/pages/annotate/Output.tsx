@@ -99,43 +99,6 @@ function Output({ workspace }: SectionProps) {
       .join("-")
   }
 
-  // const handleSingleExport = () => {
-  //   const name = documents[exportDocument].name
-
-  //   let annotations2 = [] as IAnnotation[]
-
-  //   for (const value of Object.values(annotations)) {
-  //     annotations2 = [...annotations2, ...value]
-  //   }
-
-  //   const output = buildSingleOutput(name, annotations2)
-  //   const blob = new Blob(output.payload, { type: "text/plain" })
-  //   saveAs(blob, output.name)
-  // }
-
-  // const handleSessionExport = async () => {
-  //   const outputs = [] as AnnotationOutput[]
-  //   const documentSnapshot = await readDocuments()
-
-  //   for (const document of documentSnapshot.docs) {
-  //     const documentData = document.data()
-  //     const annotations = [] as IAnnotation[]
-  //     const annotationSnapshot = await document.ref.collection(Collection.Annotation).get()
-
-  //     for (const annotation of annotationSnapshot.docs) {
-  //       const annotationData = annotation.data()
-  //       annotations.push(annotationData as IAnnotation)
-  //     }
-
-  //     const name = documentData.name
-  //     const output = buildSingleOutput(name, annotations)
-
-  //     outputs.push(output)
-  //   }
-
-  //   exportAnnotations(outputs)
-  // }
-
   useEffect(() => {
     const grouped: AnnotationGroup = {}
 

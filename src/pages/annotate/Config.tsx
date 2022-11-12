@@ -93,22 +93,18 @@ function Config({ workspace }: SectionProps) {
                       <span
                         onClick={() => setActiveEntity(entity)}
                         style={{
+                          backgroundColor: entityColours[entity],
                           color: "#333333",
                           cursor: "pointer",
                           userSelect: "none",
-                          paddingRight: 10,
+                          borderRadius: 5,
+                          padding: 5,
                         }}
                       >
                         {entity}
                       </span>}
                     value={entity}
                     key={index}
-                    sx={{
-                      backgroundColor: entityColours[entity],
-                      padding: 3,
-                      borderRadius: 5,
-                      cursor: "pointer",
-                    }}
                   />
                 ))}
               </Radio.Group>
@@ -185,8 +181,8 @@ function Title({ text, open, setOpen }: TitleProps) {
       sx={{ cursor: "pointer" }}
     >
       <ActionIcon>
-        {open && <IconEye style={{ opacity: 0.5 }} size={18} />}
-        {!open && <IconEyeOff style={{ opacity: 0.5 }} size={18} />}
+        {open && <IconEye style={{ opacity: 0.8 }} size={18} />}
+        {!open && <IconEyeOff style={{ opacity: 0.8 }} size={18} />}
       </ActionIcon>
 
       <Text size="sm">

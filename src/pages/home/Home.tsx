@@ -132,7 +132,7 @@ function Home(): JSX.Element {
               variant="default"
               color="gray"
               component="a"
-              href={Path.Demo}
+              href={Path.AnnotateDemo}
             >
                Try demo
             </Button>

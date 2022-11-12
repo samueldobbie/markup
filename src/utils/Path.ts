@@ -1,6 +1,5 @@
 enum Path {
   Home = "/",
-  Demo = "/demo",
   Docs = "/docs",
   SignUp = "/sign-up",
   SignIn = "/sign-in",
@@ -8,6 +7,7 @@ enum Path {
   Dashboard = "/dashboard",
   Setup = "/workspace/setup/:id",
   Annotate = "/workspace/annotate/:id",
+  AnnotateDemo = "/workspace/annotate/75ec6637-7bb8-4a27-af1b-7be75fcd08a7",
   Contact = "/contact",
   Settings = "/settings",
   NotFound = "*",

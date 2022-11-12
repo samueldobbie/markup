@@ -167,6 +167,7 @@ function Navbar(): JSX.Element {
         onLabel={<IconSun color={theme.white} size={20} stroke={1.5} />}
         offLabel={<IconMoonStars color={theme.colors.gray[6]} size={20} stroke={1.5} />}
         className={cx(classes.navItem)}
+        sx={{ marginBottom: 11 }}
       />
 
       <Group className={cx(classes.navItem)}>
