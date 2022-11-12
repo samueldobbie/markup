@@ -137,8 +137,8 @@ function Output({ workspace }: SectionProps) {
 
   return (
     <Card withBorder radius={5} p="xl">
-      <ScrollArea scrollbarSize={0}>
-        <Grid sx={{ height: "78vh" }}>
+      <ScrollArea scrollbarSize={0} sx={{ height: "76vh" }}>
+        <Grid>
           <Grid.Col xs={12}>
             <Group position="apart" noWrap>
               <Text size="lg" weight={500}>

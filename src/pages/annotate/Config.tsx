@@ -68,8 +68,8 @@ function Config({ workspace }: SectionProps) {
 
   return (
     <Card withBorder radius={5} p="xl">
-      <ScrollArea scrollbarSize={0}>
-        <Grid sx={{ height: "78vh" }}>
+      <ScrollArea scrollbarSize={0} sx={{ height: "76vh" }}>
+        <Grid>
           <Grid.Col xs={12}>
             <Title
               text="Select an entity"
@@ -154,6 +154,7 @@ function Config({ workspace }: SectionProps) {
                           searchable
                           clearable
                           creatable
+                          getCreateLabel={(query) => `+ Create ${query}`}
                         />
                       </Grid.Col>
                     ))}

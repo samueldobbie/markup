@@ -84,8 +84,8 @@ function Document({ workspace }: SectionProps) {
     <>
       {documents.length > 0 &&
         <Card withBorder radius={5} p="xl">
-          <ScrollArea scrollbarSize={0}>
-            <Grid sx={{ height: "78vh" }}>
+          <ScrollArea scrollbarSize={0} sx={{ height: "76vh" }}>
+            <Grid>
               <Grid.Col xs={12}>
                 <Group spacing={4} position="center" noWrap>
                   <ActionIcon
