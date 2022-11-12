@@ -1,5 +1,5 @@
 import { Group, Button, ActionIcon, Text, FileButton, Tooltip } from "@mantine/core"
-import { IconChevronDown, IconTrash } from "@tabler/icons"
+import { IconTrash } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import { database, WorkspaceDocument } from "storage/database/Database"

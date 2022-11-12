@@ -1,11 +1,11 @@
 import { ActionIcon, Card, Divider, Group, Select } from "@mantine/core"
 import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight } from "@tabler/icons"
-import { database, RawAnnotation, WorkspaceAnnotation, WorkspaceDocument } from "storage/database/Database"
-import { useEffect, useState } from "react"
+import { database, RawAnnotation, WorkspaceAnnotation } from "storage/database/Database"
+import { useEffect } from "react"
 import { SectionProps } from "./Interfaces"
 import { TextAnnotateBlend } from "react-text-annotate-blend"
 import { useRecoilState, useRecoilValue } from "recoil"
-import { activeEntityState, annotationsState, documentIndexState, entityColoursState, populatedAttributeState } from "storage/state/Annotate"
+import { activeEntityState, annotationsState, documentIndexState, documentsState, entityColoursState, populatedAttributeState } from "storage/state/Annotate"
 import "./Document.css"
 
 interface InlineAnnotation {
@@ -20,7 +20,7 @@ function Document({ workspace }: SectionProps) {
   const entityColours = useRecoilValue(entityColoursState)
   const populatedAttributes = useRecoilValue(populatedAttributeState)
 
-  const [documents, setDocuments] = useState<WorkspaceDocument[]>([])
+  const [documents, setDocuments] = useRecoilState(documentsState)
   const [documentIndex, setDocumentIndex] = useRecoilState(documentIndexState)
   const [annotations, setAnnotations] = useRecoilState(annotationsState)
 

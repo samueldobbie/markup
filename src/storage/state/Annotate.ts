@@ -1,5 +1,10 @@
 import { atom } from "recoil"
-import { WorkspaceAnnotation } from "storage/database"
+import { WorkspaceAnnotation, WorkspaceDocument } from "storage/database"
+
+const documentsState = atom<WorkspaceDocument[]>({
+  key: "documentsState",
+  default: [],
+})
 
 const documentIndexState = atom({
   key: "documentIndexState",
@@ -27,6 +32,7 @@ const annotationsState = atom<WorkspaceAnnotation[][]>({
 })
 
 export {
+  documentsState,
   documentIndexState,
   activeEntityState,
   entityColoursState,

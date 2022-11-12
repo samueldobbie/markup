@@ -145,7 +145,13 @@ function Config({ workspace }: SectionProps) {
                         key={index + attribute.name}
                         onChange={(value) => {
                           const copy = { ...populatedAttributes }
-                          copy[attribute.name] = value
+
+                          if (value.length > 0) {
+                            copy[attribute.name] = value
+                          } else if (Object.keys(copy).includes(attribute.name)) {
+                            delete copy[attribute.name]
+                          }
+
                           setPopulatedAttributes(copy)
                         }}
                         searchable

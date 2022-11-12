@@ -1,12 +1,12 @@
 import { Group, Button, ActionIcon, Text, Grid, Modal, TextInput } from "@mantine/core"
 import { useForm } from "@mantine/form"
-import { IconPlayerPlay, IconSettings, IconTrashX } from "@tabler/icons"
+import { IconPlayerPlay, IconTrashX } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import { database, Workspace } from "storage/database/Database"
 import { moveToPage } from "utils/Location"
 import { ModalProps } from "./Interfaces"
-import { toAnnotateUrl, toSetupUrl } from "utils/Path"
+import { toSetupUrl } from "utils/Path"
 import { openConfirmModal } from "@mantine/modals"
 
 interface Props {
