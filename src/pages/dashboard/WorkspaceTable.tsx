@@ -8,7 +8,6 @@ import { moveToPage } from "utils/Location"
 import { ModalProps } from "./Interfaces"
 import { toSetupUrl } from "utils/Path"
 import { openConfirmModal } from "@mantine/modals"
-import "./WorkspaceTable.css"
 
 interface Props {
   completeTutorialStep: (v: string) => void
@@ -68,6 +67,7 @@ function WorkspaceTable({ completeTutorialStep }: Props) {
                   <IconTrashX
                     size={16}
                     onClick={() => openConfirmDelete(workspace)}
+                    style={{ color: "rgb(217 138 138)" }}
                   />
                 </ActionIcon>
 
@@ -75,6 +75,7 @@ function WorkspaceTable({ completeTutorialStep }: Props) {
                   <IconPlayerPlay
                     onClick={() => moveToPage(toSetupUrl(workspace.id))}
                     size={16}
+                    style={{ color: "#8ad98a" }}
                   />
                 </ActionIcon>
               </Group>

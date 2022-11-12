@@ -8,6 +8,7 @@ import Navbar from "components/nav/Navbar"
 import PageRoutes from "components/routes/PageRoutes"
 import { ModalsProvider } from "@mantine/modals"
 import { themeState } from "storage/state"
+import "./index.css"
 
 function App(): JSX.Element {
   const [colorScheme, setColorScheme] = useRecoilState(themeState)

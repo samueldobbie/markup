@@ -1,4 +1,4 @@
-import { ActionIcon, Card, Collapse, Grid, Group, MultiSelect, Radio, ScrollArea, Text } from "@mantine/core"
+import { ActionIcon, Button, Card, Collapse, Grid, Group, MultiSelect, Radio, ScrollArea, Text } from "@mantine/core"
 import { IconEye, IconEyeOff } from "@tabler/icons"
 import { database } from "storage/database/Database"
 import { useState, useEffect } from "react"
@@ -18,6 +18,12 @@ function Config({ workspace }: SectionProps) {
   const [shownAttributes, setShownAttributes] = useState<Attribute[]>([])
   const [populatedAttributes, setPopulatedAttributes] = useRecoilState(populatedAttributeState)
   const [attributeSectionOpen, setAttributeSectionOpen] = useState(true)
+
+  const [ontologySectionOpen, setOntologySectionOpen] = useState(true)
+
+  const clearPopulatedAttributes = () => {
+    setPopulatedAttributes({})
+  }
 
   useEffect(() => {
     database
@@ -114,11 +120,20 @@ function Config({ workspace }: SectionProps) {
           </Grid.Col>
 
           <Grid.Col xs={12}>
-            <Title
-              text="Add attributes"
-              open={attributeSectionOpen}
-              setOpen={setAttributeSectionOpen}
-            />
+            <Group position="apart">
+              <Title
+                text="Add attributes"
+                open={attributeSectionOpen}
+                setOpen={setAttributeSectionOpen}
+              />
+
+              <Button
+                variant="subtle"
+                onClick={clearPopulatedAttributes}
+              >
+                Clear
+              </Button>
+            </Group>
           </Grid.Col>
 
           <Grid.Col xs={12}>
@@ -135,6 +150,7 @@ function Config({ workspace }: SectionProps) {
                     {shownAttributes.map((attribute, index) => (
                       <Grid.Col xs={12}>
                         <MultiSelect
+                          maxSelectedValues={100}
                           data={attribute.options}
                           label={attribute.name}
                           placeholder={attribute.name}
@@ -161,6 +177,44 @@ function Config({ workspace }: SectionProps) {
                   </Grid>
                 </Group>
               }
+            </Collapse>
+          </Grid.Col>
+
+          <Grid.Col xs={12}>
+            <Group position="apart">
+              <Title
+                text="Map to ontology"
+                open={ontologySectionOpen}
+                setOpen={setOntologySectionOpen}
+              />
+
+              <Button
+                variant="subtle"
+                onClick={clearPopulatedAttributes}
+              >
+                Clear
+              </Button>
+            </Group>
+          </Grid.Col>
+
+          <Grid.Col xs={12}>
+            <Collapse in={ontologySectionOpen}>
+              <Group mb={20}>
+                <Grid>
+                  <Grid.Col xs={12}>
+                    <MultiSelect
+                      maxSelectedValues={100}
+                      data={[]}
+                      label="Ontology"
+                      placeholder="Ontology"
+                      size="sm"
+                      searchable
+                      clearable
+                      creatable
+                    />
+                  </Grid.Col>
+                </Grid>
+              </Group>
             </Collapse>
           </Grid.Col>
         </Grid>

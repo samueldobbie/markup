@@ -1,4 +1,4 @@
-import { Group, Button, ActionIcon, Text, FileButton, Tooltip } from "@mantine/core"
+import { Group, Button, ActionIcon, Text, FileButton, Tooltip, Card } from "@mantine/core"
 import { IconTrash } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
@@ -31,73 +31,72 @@ function Documents({ workspace }: SectionProps) {
   }, [documents, files, workspace.id])
 
   return (
-    <DataTable
-      withBorder
-      highlightOnHover
-      emptyState="Upload documents to annotate"
-      borderRadius="md"
-      sx={{ minHeight: "500px" }}
-      records={documents}
-      rowExpansion={{
-        content: (document) => (
-          <Text p={20} color="dimmed" mb={20}>
-            {document.record.content}
-          </Text>
-        )
-      }}
-      columns={[
-        { accessor: "name", title: <Text size={16}>Documents</Text> },
-        {
-          accessor: "actions",
-          title: (
-            <Group position="right">
-              <FileButton onChange={setFiles} accept="plain/text" multiple>
-                {(props) => (
-                  <Tooltip label="Each annotation filename (excl. file extension) must match the document you want to associate it with">
-                    <Button
-                      {...props}
-                      variant="light"
-                      disabled
-                    >
-                      Upload annotations
+    <Card shadow="xs" radius={5} p="xl">
+      <DataTable
+        withBorder={false}
+        emptyState="Upload documents to annotate"
+        borderRadius={5}
+        sx={{ minHeight: "500px" }}
+        records={documents}
+        rowExpansion={{
+          content: (document) => (
+            <Text p={20} color="dimmed" mb={20}>
+              {document.record.content}
+            </Text>
+          )
+        }}
+        columns={[
+          { accessor: "name", title: <Text size={16}>Documents</Text> },
+          {
+            accessor: "actions",
+            title: (
+              <Group position="right">
+                <FileButton onChange={setFiles} accept="plain/text" multiple>
+                  {(props) => (
+                    <Tooltip label="Each annotation filename (excl. file extension) must match the document you want to associate it with">
+                      <Button
+                        {...props}
+                        variant="subtle"
+                        disabled
+                      >
+                        Upload annotations
+                      </Button>
+                    </Tooltip>
+                  )}
+                </FileButton>
+
+                <FileButton onChange={setFiles} accept="plain/text" multiple>
+                  {(props) => (
+                    <Button {...props}>
+                      Upload documents
                     </Button>
-                  </Tooltip>
-                )}
-              </FileButton>
+                  )}
+                </FileButton>
+              </Group>
+            ),
+            textAlignment: "right",
+            render: (document) => (
+              <Group spacing={4} position="right" noWrap>
+                <ActionIcon color="primary">
+                  <IconTrash
+                    size={16}
+                    style={{ color: "rgb(217 138 138)" }}
+                    onClick={(event) => {
+                      event.stopPropagation()
 
-              <FileButton onChange={setFiles} accept="plain/text" multiple>
-                {(props) => (
-                  <Button
-                    {...props}
-                    variant="light"
-                  >
-                    Upload documents
-                  </Button>
-                )}
-              </FileButton>
-            </Group>
-          ),
-          textAlignment: "right",
-          render: (document) => (
-            <Group spacing={4} position="right" noWrap>
-              <ActionIcon color="red" variant="light">
-                <IconTrash
-                  size={16}
-                  onClick={(event) => {
-                    event.stopPropagation()
-
-                    database
-                      .deleteWorkspaceDocument(document.id)
-                      .then(() => setDocuments(documents.filter(i => i.id !== document.id)))
-                      .catch(alert)
-                  }}
-                />
-              </ActionIcon>
-            </Group>
-          ),
-        },
-      ]}
-    />
+                      database
+                        .deleteWorkspaceDocument(document.id)
+                        .then(() => setDocuments(documents.filter(i => i.id !== document.id)))
+                        .catch(alert)
+                    }}
+                  />
+                </ActionIcon>
+              </Group>
+            ),
+          },
+        ]}
+      />
+    </Card>
   )
 }
 

@@ -68,7 +68,7 @@ function Document({ workspace }: SectionProps) {
       .getWorkspaceDocuments(workspace.id)
       .then(setDocuments)
       .catch(alert)
-  }, [workspace.id])
+  }, [setDocuments, workspace.id])
 
   useEffect(() => {
     if (documents.length === 0) {
@@ -182,7 +182,10 @@ function Document({ workspace }: SectionProps) {
                     start: span.start,
                     end: span.end,
                   })}
-                  style={{ fontSize: "1.1rem" }}
+                  style={{
+                    fontSize: "1.1rem",
+                    whiteSpace: "pre-line",
+                  }}
                 />
               </Grid.Col>
             </Grid>

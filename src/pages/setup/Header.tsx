@@ -1,4 +1,5 @@
 import { Group, Button, Text } from "@mantine/core"
+import { IconArrowRight } from "@tabler/icons"
 import { useParams } from "react-router-dom"
 import { moveToPage } from "utils/Location"
 import { Path, toAnnotateUrl } from "utils/Path"
@@ -22,8 +23,8 @@ function Header({ workspace }: SectionProps) {
           Back to dashboard
         </Button>
 
-        <Button onClick={() => moveToPage(toAnnotateUrl(id))}>
-          Start annotating
+        <Button variant="subtle" onClick={() => moveToPage(toAnnotateUrl(id))}>
+          Start annotating <IconArrowRight />
         </Button>
       </Group>
     </Group>

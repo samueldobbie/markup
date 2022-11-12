@@ -6,7 +6,6 @@ import { useEffect, useState } from "react"
 import { database, Ontology } from "storage/database/Database"
 import { ModalProps } from "./Interfaces"
 import { openConfirmModal } from "@mantine/modals"
-import "./WorkspaceTable.css"
 
 interface Props {
   completeTutorialStep: (v: string) => void
