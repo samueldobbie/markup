@@ -1,4 +1,4 @@
-import { ActionIcon, Card, Collapse, Grid, Group, MultiSelect, Radio, Text } from "@mantine/core"
+import { ActionIcon, Card, Collapse, Grid, Group, MultiSelect, Radio, ScrollArea, Text } from "@mantine/core"
 import { IconEye, IconEyeOff } from "@tabler/icons"
 import { database } from "storage/database/Database"
 import { useState, useEffect } from "react"
@@ -68,100 +68,102 @@ function Config({ workspace }: SectionProps) {
 
   return (
     <Card withBorder radius={5} p="xl">
-      <Grid>
-        <Grid.Col xs={12}>
-          <Title
-            text="Select an entity"
-            open={entitySectionOpen}
-            setOpen={setEntitySectionOpen}
-          />
-        </Grid.Col>
+      <ScrollArea scrollbarSize={0}>
+        <Grid sx={{ height: "78vh" }}>
+          <Grid.Col xs={12}>
+            <Title
+              text="Select an entity"
+              open={entitySectionOpen}
+              setOpen={setEntitySectionOpen}
+            />
+          </Grid.Col>
 
-        <Grid.Col xs={12}>
-          <Collapse in={entitySectionOpen}>
-            <Group mb={20}>
-              <Radio.Group
-                name="entities"
-                orientation="vertical"
-                onChange={setActiveEntity}
-                spacing="xs"
-                value={activeEntity}
-              >
-                {entities?.map((entity, index) => (
-                  <Radio
-                    label={
-                      <span
-                        onClick={() => setActiveEntity(entity)}
-                        style={{
-                          backgroundColor: entityColours[entity],
-                          color: "#333333",
-                          cursor: "pointer",
-                          userSelect: "none",
-                          borderRadius: 5,
-                          padding: 5,
-                        }}
-                      >
-                        {entity}
-                      </span>}
-                    value={entity}
-                    key={index}
-                  />
-                ))}
-              </Radio.Group>
-            </Group>
-          </Collapse>
-        </Grid.Col>
-
-        <Grid.Col xs={12}>
-          <Title
-            text="Add attributes"
-            open={attributeSectionOpen}
-            setOpen={setAttributeSectionOpen}
-          />
-        </Grid.Col>
-
-        <Grid.Col xs={12}>
-          <Collapse in={attributeSectionOpen}>
-            {shownAttributes.length === 0 &&
-              <Text color="dimmed">
-                Select entity to see attributes
-              </Text>
-            }
-
-            {shownAttributes.length > 0 &&
+          <Grid.Col xs={12}>
+            <Collapse in={entitySectionOpen}>
               <Group mb={20}>
-                <Grid>
-                  {shownAttributes.map((attribute, index) => (
-                    <Grid.Col xs={12}>
-                      <MultiSelect
-                        data={attribute.options}
-                        label={attribute.name}
-                        placeholder={attribute.name}
-                        size="sm"
-                        key={index + attribute.name}
-                        onChange={(value) => {
-                          const copy = { ...populatedAttributes }
-
-                          if (value.length > 0) {
-                            copy[attribute.name] = value
-                          } else if (Object.keys(copy).includes(attribute.name)) {
-                            delete copy[attribute.name]
-                          }
-
-                          setPopulatedAttributes(copy)
-                        }}
-                        searchable
-                        clearable
-                        creatable
-                      />
-                    </Grid.Col>
+                <Radio.Group
+                  name="entities"
+                  orientation="vertical"
+                  onChange={setActiveEntity}
+                  spacing="xs"
+                  value={activeEntity}
+                >
+                  {entities?.map((entity, index) => (
+                    <Radio
+                      label={
+                        <span
+                          onClick={() => setActiveEntity(entity)}
+                          style={{
+                            backgroundColor: entityColours[entity],
+                            color: "#333333",
+                            cursor: "pointer",
+                            userSelect: "none",
+                            borderRadius: 5,
+                            padding: 5,
+                          }}
+                        >
+                          {entity}
+                        </span>}
+                      value={entity}
+                      key={index}
+                    />
                   ))}
-                </Grid>
+                </Radio.Group>
               </Group>
-            }
-          </Collapse>
-        </Grid.Col>
-      </Grid>
+            </Collapse>
+          </Grid.Col>
+
+          <Grid.Col xs={12}>
+            <Title
+              text="Add attributes"
+              open={attributeSectionOpen}
+              setOpen={setAttributeSectionOpen}
+            />
+          </Grid.Col>
+
+          <Grid.Col xs={12}>
+            <Collapse in={attributeSectionOpen}>
+              {shownAttributes.length === 0 &&
+                <Text color="dimmed">
+                  Select entity to see attributes
+                </Text>
+              }
+
+              {shownAttributes.length > 0 &&
+                <Group mb={20}>
+                  <Grid>
+                    {shownAttributes.map((attribute, index) => (
+                      <Grid.Col xs={12}>
+                        <MultiSelect
+                          data={attribute.options}
+                          label={attribute.name}
+                          placeholder={attribute.name}
+                          size="sm"
+                          key={index + attribute.name}
+                          onChange={(value) => {
+                            const copy = { ...populatedAttributes }
+
+                            if (value.length > 0) {
+                              copy[attribute.name] = value
+                            } else if (Object.keys(copy).includes(attribute.name)) {
+                              delete copy[attribute.name]
+                            }
+
+                            setPopulatedAttributes(copy)
+                          }}
+                          searchable
+                          clearable
+                          creatable
+                        />
+                      </Grid.Col>
+                    ))}
+                  </Grid>
+                </Group>
+              }
+            </Collapse>
+          </Grid.Col>
+        </Grid>
+      </ScrollArea>
     </Card>
   )
 }
@@ -185,7 +187,7 @@ function Title({ text, open, setOpen }: TitleProps) {
         {!open && <IconEyeOff style={{ opacity: 0.8 }} size={18} />}
       </ActionIcon>
 
-      <Text size="sm">
+      <Text size="md">
         {text}
       </Text>
     </Group>

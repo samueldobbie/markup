@@ -3,15 +3,12 @@ import { useAuth } from "providers/AuthProvider"
 import { Navigate } from "react-router-dom"
 import { Path } from "utils/Path"
 
-function ProtectedRoute({ children, title, assertion }: any): JSX.Element {
+function ProtectedRoute({ children, title, exception }: any): JSX.Element {
   useDocumentTitle(title)
 
   const { user } = useAuth()
 
-  if (
-    (user === null && assertion === undefined) ||
-    (user === null && assertion !== undefined && assertion())
-  ) {
+  if (user === null && (exception === undefined || (exception !== undefined && !exception()))) {
     return <Navigate to={Path.SignIn} replace />
   }
 

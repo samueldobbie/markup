@@ -1,4 +1,4 @@
-import { ActionIcon, Card, Divider, Group, Select } from "@mantine/core"
+import { ActionIcon, Card, Divider, Grid, Group, ScrollArea, Select } from "@mantine/core"
 import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight } from "@tabler/icons"
 import { database, RawAnnotation, WorkspaceAnnotation } from "storage/database/Database"
 import { useEffect } from "react"
@@ -83,99 +83,110 @@ function Document({ workspace }: SectionProps) {
   return (
     <>
       {documents.length > 0 &&
-        <Card withBorder radius={5} p="xl" sx={{ height: "82.5%" }}>
-          <Group spacing={4} position="center" noWrap>
-            <ActionIcon
-              size="lg"
-              color="x"
-              variant="transparent"
-              onClick={moveToFirstDocument}
-              disabled={documentIndex <= 0}
-            >
-              <IconChevronsLeft size={16} />
-            </ActionIcon>
+        <Card withBorder radius={5} p="xl">
+          <ScrollArea scrollbarSize={0}>
+            <Grid sx={{ height: "78vh" }}>
+              <Grid.Col xs={12}>
+                <Group spacing={4} position="center" noWrap>
+                  <ActionIcon
+                    size="lg"
+                    color="x"
+                    variant="transparent"
+                    onClick={moveToFirstDocument}
+                    disabled={documentIndex <= 0}
+                  >
+                    <IconChevronsLeft size={16} />
+                  </ActionIcon>
 
-            <ActionIcon
-              size="lg"
-              color="x"
-              variant="transparent"
-              onClick={moveToPreviousDocument}
-              disabled={documentIndex <= 0}
-            >
-              <IconChevronLeft size={16} />
-            </ActionIcon>
+                  <ActionIcon
+                    size="lg"
+                    color="x"
+                    variant="transparent"
+                    onClick={moveToPreviousDocument}
+                    disabled={documentIndex <= 0}
+                  >
+                    <IconChevronLeft size={16} />
+                  </ActionIcon>
 
-            <Select
-              data={documents.map(i => i.name)}
-              value={documents[documentIndex].name}
-              onChange={(nextDocumentName) => {
-                documents.forEach((document, index) => {
-                  if (document.name === nextDocumentName) {
-                    setDocumentIndex(index)
-                    return
-                  }
-                })
-              }}
-            />
+                  <Select
+                    size="md"
+                    data={documents.map(i => i.name)}
+                    value={documents[documentIndex].name}
+                    onChange={(nextDocumentName) => {
+                      documents.forEach((document, index) => {
+                        if (document.name === nextDocumentName) {
+                          setDocumentIndex(index)
+                          return
+                        }
+                      })
+                    }}
+                  />
 
-            <ActionIcon
-              size="lg"
-              color="x"
-              variant="transparent"
-              onClick={moveToNextDocument}
-              disabled={documentIndex >= documents.length - 1}
-            >
-              <IconChevronRight size={16} />
-            </ActionIcon>
+                  <ActionIcon
+                    size="lg"
+                    color="x"
+                    variant="transparent"
+                    onClick={moveToNextDocument}
+                    disabled={documentIndex >= documents.length - 1}
+                  >
+                    <IconChevronRight size={16} />
+                  </ActionIcon>
 
-            <ActionIcon
-              size="lg"
-              color="x"
-              variant="transparent"
-              onClick={moveToLastDocument}
-              disabled={documentIndex >= documents.length - 1}
-            >
-              <IconChevronsRight size={16} />
-            </ActionIcon>
-          </Group>
+                  <ActionIcon
+                    size="lg"
+                    color="x"
+                    variant="transparent"
+                    onClick={moveToLastDocument}
+                    disabled={documentIndex >= documents.length - 1}
+                  >
+                    <IconChevronsRight size={16} />
+                  </ActionIcon>
+                </Group>
+              </Grid.Col>
 
-          <Divider m={20} />
+              <Grid.Col xs={12}>
+                <Divider />
+              </Grid.Col>
 
-          <TextAnnotateBlend
-            content={documents[documentIndex].content}
-            value={annotations[documentIndex]?.map(annotation => {
-              const inlineAnnotation: InlineAnnotation = {
-                tag: "",
-                start: annotation.start_index,
-                end: annotation.end_index,
-                color: entityColours[annotation.entity],
-              }
+              <Grid.Col xs={12}>
+                <TextAnnotateBlend
+                  content={documents[documentIndex].content}
+                  value={annotations[documentIndex]?.map(annotation => {
+                    const inlineAnnotation: InlineAnnotation = {
+                      tag: "",
+                      start: annotation.start_index,
+                      end: annotation.end_index,
+                      color: entityColours[annotation.entity],
+                    }
 
-              return inlineAnnotation
-            })}
-            onChange={(updated) => {
-              if (
-                annotations[documentIndex].length >= updated.length ||
-                updated.length === 0
-              ) {
-                return
-              }
+                    return inlineAnnotation
+                  })}
+                  onChange={(updated) => {
+                    if (
+                      annotations[documentIndex].length >= updated.length ||
+                      updated.length === 0
+                    ) {
+                      return
+                    }
 
-              if (activeEntity === "") {
-                alert("You need to select an entity")
-                return
-              }
+                    if (activeEntity === "") {
+                      alert("You need to select an entity")
+                      return
+                    }
 
-              addAnnotation(updated[updated.length - 1])
-            }}
-            getSpan={(span) => ({
-              tag: activeEntity,
-              color: entityColours[activeEntity],
-              start: span.start,
-              end: span.end,
-            })}
-            style={{ fontSize: "1.1rem" }}
-          />
+                    addAnnotation(updated[updated.length - 1])
+                  }}
+                  getSpan={(span) => ({
+                    tag: activeEntity,
+                    color: entityColours[activeEntity],
+                    start: span.start,
+                    end: span.end,
+                  })}
+                  style={{ fontSize: "1.1rem" }}
+                />
+              </Grid.Col>
+            </Grid>
+          </ScrollArea>
         </Card>
       }
     </>

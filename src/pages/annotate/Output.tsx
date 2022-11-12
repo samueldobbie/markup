@@ -1,4 +1,4 @@
-import { Button, Card, Collapse, Grid, Group, Text } from "@mantine/core"
+import { Button, Card, Collapse, Divider, Grid, Group, ScrollArea, Text } from "@mantine/core"
 import { IconX } from "@tabler/icons"
 import { useEffect, useState } from "react"
 import { useRecoilState, useRecoilValue } from "recoil"
@@ -46,7 +46,7 @@ function Output({ workspace }: SectionProps) {
         zip.file(output.name, output.payload.join(""))
       }
     })
-  
+
     zip
       .generateAsync({ type: "blob" })
       .then((content) => {
@@ -63,7 +63,7 @@ function Output({ workspace }: SectionProps) {
 
   function buildExportRows(annotations: WorkspaceAnnotation[]): string[] {
     const rows = [] as string[]
-  
+
     let annotationId = 1
     let attributeId = 1
 
@@ -76,20 +76,20 @@ function Output({ workspace }: SectionProps) {
 
     const addAttributeRow = (annotation: WorkspaceAnnotation) => {
       const { attributes } = annotation
-  
+
       Object.entries(attributes).forEach(([name, value]) => {
         const output = `A${attributeId}\t${name} T${annotationId} ${value}\n`
         rows.push(output)
         attributeId++
       })
     }
-  
+
     annotations.forEach((annotation: WorkspaceAnnotation) => {
       addAnnotationRow(annotation)
       addAttributeRow(annotation)
       annotationId++
     })
-  
+
     return rows
   }
 
@@ -136,78 +136,84 @@ function Output({ workspace }: SectionProps) {
   }
 
   return (
-    <Card withBorder radius={5} p="xl" sx={{ height: "82.5%" }}>
-      <Grid>
-        <Grid.Col xs={12}>
-          <Group position="apart" noWrap>
-            <Text size="lg" weight={500}>
-              Annotations
-            </Text>
+    <Card withBorder radius={5} p="xl">
+      <ScrollArea scrollbarSize={0}>
+        <Grid sx={{ height: "78vh" }}>
+          <Grid.Col xs={12}>
+            <Group position="apart" noWrap>
+              <Text size="lg" weight={500}>
+                Annotations
+              </Text>
 
-            <Button variant="subtle" onClick={exportAnnotations}>
-              Export
-            </Button>
-          </Group>
-        </Grid.Col>
+              <Button variant="subtle" onClick={exportAnnotations}>
+                Export
+              </Button>
+            </Group>
+          </Grid.Col>
 
-        {Object.keys(groupedAnnotations).map(entity => (
-          <>
-            <Grid.Col xs={12}>
-              {entity}
-            </Grid.Col>
+          <Grid.Col xs={12}>
+            <Divider />
+          </Grid.Col>
 
-            {groupedAnnotations[entity].map(annotation => (
+          {Object.keys(groupedAnnotations).map(entity => (
+            <>
               <Grid.Col xs={12}>
-                <Card
-                  radius={2}
-                  p="sm"
-                  sx={{
-                    backgroundColor: entityColours[annotation.entity],
-                    color: "#333333",
-                    cursor: "pointer"
-                  }}
-                  onClick={() => {
-                    const copy = { ...openAnnotations }
-                    copy[annotation.id] = !copy[annotation.id]
-                    setOpenAnnotations(copy)
-                  }}
-                >
-                  <Grid>
-                    <Grid.Col xs={2}>
-                      <IconX
-                        size={16}
-                        onClick={() => deleteAnnotation(annotation.id)}
-                      />
-                    </Grid.Col>
-
-                    <Grid.Col xs={10} sx={{ userSelect: "none" }}>
-                      <Text>
-                        {annotation.text}
-                      </Text>
-
-                      <Text color="dimmed" size={12} sx={{ cursor: "pointer" }}>
-                        {Object.keys(annotation.attributes).length} attributes
-                      </Text>
-                    </Grid.Col>
-                  </Grid>
-
-                  <Collapse in={Object.keys(annotation.attributes).length > 0 && openAnnotations[annotation.id]} mt={10}>
-                    {Object.keys(annotation.attributes).map((attributeType) => (
-                      <Text size={12}>
-                        {attributeType}
-
-                        <Text color="dimmed">
-                          {annotation.attributes[attributeType].join(", ")}
-                        </Text>
-                      </Text>
-                    ))}
-                  </Collapse>
-                </Card>
+                {entity}
               </Grid.Col>
-            ))}
-          </>
-        ))}
-      </Grid>
+
+              {groupedAnnotations[entity].map(annotation => (
+                <Grid.Col xs={12}>
+                  <Card
+                    radius={2}
+                    p="sm"
+                    sx={{
+                      backgroundColor: entityColours[annotation.entity],
+                      color: "#333333",
+                      cursor: "pointer"
+                    }}
+                    onClick={() => {
+                      const copy = { ...openAnnotations }
+                      copy[annotation.id] = !copy[annotation.id]
+                      setOpenAnnotations(copy)
+                    }}
+                  >
+                    <Grid>
+                      <Grid.Col xs={2}>
+                        <IconX
+                          size={16}
+                          onClick={() => deleteAnnotation(annotation.id)}
+                        />
+                      </Grid.Col>
+
+                      <Grid.Col xs={10} sx={{ userSelect: "none" }}>
+                        <Text>
+                          {annotation.text}
+                        </Text>
+
+                        <Text color="dimmed" size={12} sx={{ cursor: "pointer" }}>
+                          {Object.keys(annotation.attributes).length} attributes
+                        </Text>
+                      </Grid.Col>
+                    </Grid>
+
+                    <Collapse in={Object.keys(annotation.attributes).length > 0 && openAnnotations[annotation.id]} mt={10}>
+                      {Object.keys(annotation.attributes).map((attributeType) => (
+                        <Text size={12}>
+                          {attributeType}
+
+                          <Text color="dimmed">
+                            {annotation.attributes[attributeType].join(", ")}
+                          </Text>
+                        </Text>
+                      ))}
+                    </Collapse>
+                  </Card>
+                </Grid.Col>
+              ))}
+            </>
+          ))}
+        </Grid>
+      </ScrollArea>
     </Card>
   )
 }

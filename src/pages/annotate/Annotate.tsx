@@ -33,26 +33,22 @@ function Annotate() {
       })
   }, [id])
 
+  // </ScrollArea>
+
   return (
     <Container sx={{ width: "95%", maxWidth: "95%" }}>
       {workspace &&
         <Grid>
           <Grid.Col xs={3}>
-            <ScrollArea>
-              <Config workspace={workspace} />
-            </ScrollArea>
+            <Config workspace={workspace} />
           </Grid.Col>
 
           <Grid.Col xs={6}>
-            <ScrollArea>
-              <Document workspace={workspace} />
-            </ScrollArea>
+            <Document workspace={workspace} />
           </Grid.Col>
 
           <Grid.Col xs={3}>
-            <ScrollArea>
-              <Output workspace={workspace} />
-            </ScrollArea>
+            <Output workspace={workspace} />
           </Grid.Col>
         </Grid>
       }

@@ -55,7 +55,7 @@ function PageRoutes(): JSX.Element {
       <Route path={Path.Annotate} element={
         <ProtectedRoute
           title="Annotate Workspace - Markup"
-          assertion={() => window.location.pathname !== Path.AnnotateDemo}
+          exception={() => window.location.pathname === Path.AnnotateDemo}
         >
           <Annotate />
         </ProtectedRoute>
