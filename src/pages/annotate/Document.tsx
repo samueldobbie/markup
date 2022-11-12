@@ -83,7 +83,7 @@ function Document({ workspace }: SectionProps) {
   return (
     <>
       {documents.length > 0 &&
-        <Card withBorder radius={5} p="xl">
+        <Card shadow="xs" radius={5} p="xl">
           <ScrollArea scrollbarSize={0} sx={{ height: "76vh" }}>
             <Grid>
               <Grid.Col xs={12}>

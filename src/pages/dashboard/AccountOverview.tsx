@@ -35,7 +35,7 @@ function AccountOverview({ tutorialProgress, completeTutorialStep }: Props) {
   const { classes } = useStyles()
 
   return (
-    <Card withBorder radius={5} p="xl">
+    <Card shadow="xs" radius={5} p="xl">
       <Text size="lg" className={classes.title} weight={500}>
         Welcome to Markup!
       </Text>
@@ -60,7 +60,7 @@ function AccountOverview({ tutorialProgress, completeTutorialStep }: Props) {
               }}
             >
               Quick Start
-            </Anchor> guide (~3 mins)
+            </Anchor> guide
           </>
         } />
 

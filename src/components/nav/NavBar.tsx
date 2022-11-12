@@ -123,7 +123,7 @@ function Navbar(): JSX.Element {
         <>
           {docNavItem}
 
-          <Menu width={200} shadow="md">
+          <Menu width={200} shadow="xs">
             <Menu.Target>
               <a
                 href="/"

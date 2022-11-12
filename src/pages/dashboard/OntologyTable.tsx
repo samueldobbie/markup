@@ -1,4 +1,4 @@
-import { Group, Button, ActionIcon, Grid, Modal, TextInput, useMantineTheme, Text } from "@mantine/core"
+import { Group, Button, ActionIcon, Grid, Modal, TextInput, useMantineTheme, Text, Card } from "@mantine/core"
 import { Dropzone } from "@mantine/dropzone"
 import { IconTrash, IconEdit, IconFile, IconUpload, IconX } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import { database, Ontology } from "storage/database/Database"
 import { ModalProps } from "./Interfaces"
 import { openConfirmModal } from "@mantine/modals"
+import "./WorkspaceTable.css"
 
 interface Props {
   completeTutorialStep: (v: string) => void
@@ -40,9 +41,9 @@ function OntologyTable({ completeTutorialStep }: Props) {
   }, [])
 
   return (
-    <>
+    <Card shadow="xs" radius={5} p="xl">
       <DataTable
-        withBorder
+        withBorder={false}
         highlightOnHover
         emptyState="Upload an ontology or explore existing ones"
         borderRadius={5}
@@ -54,11 +55,11 @@ function OntologyTable({ completeTutorialStep }: Props) {
             accessor: "actions",
             title: (
               <Group spacing={4} position="right" noWrap>
-                <Button variant="subtle" onClick={() => setOpenExploreModal(true)}>
-                  Explore
+                <Button variant="subtle" onClick={() => setOpenExploreModal(true)} mr={5}>
+                  Use existing ontology
                 </Button>
 
-                <Button variant="light" onClick={() => setOpenUploadModal(true)}>
+                <Button onClick={() => setOpenUploadModal(true)}>
                   Upload ontology
                 </Button>
               </Group>
@@ -91,7 +92,7 @@ function OntologyTable({ completeTutorialStep }: Props) {
         openedModal={openUploadModal}
         setOpenedModal={setOpenUploadModal}
       />
-    </>
+    </Card>
   )
 }
 

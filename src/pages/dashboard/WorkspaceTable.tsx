@@ -1,4 +1,4 @@
-import { Group, Button, ActionIcon, Text, Grid, Modal, TextInput } from "@mantine/core"
+import { Group, Button, ActionIcon, Text, Grid, Modal, TextInput, Card } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { IconPlayerPlay, IconTrashX } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
@@ -8,6 +8,7 @@ import { moveToPage } from "utils/Location"
 import { ModalProps } from "./Interfaces"
 import { toSetupUrl } from "utils/Path"
 import { openConfirmModal } from "@mantine/modals"
+import "./WorkspaceTable.css"
 
 interface Props {
   completeTutorialStep: (v: string) => void
@@ -41,10 +42,9 @@ function WorkspaceTable({ completeTutorialStep }: Props) {
   }, [])
 
   return (
-    <>
+    <Card shadow="xs" radius={5} p="xl">
       <DataTable
-        withBorder
-        highlightOnHover
+        withBorder={false}
         emptyState="Create a workspace to start annotating"
         borderRadius={5}
         sx={{ minHeight: "400px" }}
@@ -57,21 +57,21 @@ function WorkspaceTable({ completeTutorialStep }: Props) {
           {
             accessor: "actions",
             title: (
-              <Button variant="light" onClick={() => setOpenedModal(true)}>
+              <Button onClick={() => setOpenedModal(true)}>
                 Create workspace
               </Button>
             ),
             textAlignment: "right",
             render: (workspace) => (
               <Group spacing={8} position="right" noWrap>
-                <ActionIcon color="red" variant="light">
+                <ActionIcon color="primary" variant="subtle">
                   <IconTrashX
                     size={16}
                     onClick={() => openConfirmDelete(workspace)}
                   />
                 </ActionIcon>
 
-                <ActionIcon color="green" variant="light">
+                <ActionIcon color="primary" variant="subtle">
                   <IconPlayerPlay
                     onClick={() => moveToPage(toSetupUrl(workspace.id))}
                     size={16}
@@ -87,7 +87,7 @@ function WorkspaceTable({ completeTutorialStep }: Props) {
         openedModal={openedModal}
         setOpenedModal={setOpenedModal}
       />
-    </>
+    </Card>
   )
 }
 

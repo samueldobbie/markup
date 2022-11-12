@@ -57,7 +57,7 @@ function ForgotPassword() {
         Enter your email to get a reset link
       </Text>
 
-      <Paper withBorder shadow="md" p={30} radius="md" mt="xl">
+      <Paper withBorder shadow="xs" p={30} radius="md" mt="xl">
       <form onSubmit={form.onSubmit((values) => handleForgotPassword(values))}>
         <TextInput
           required

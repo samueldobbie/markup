@@ -67,7 +67,7 @@ function Config({ workspace }: SectionProps) {
   }, [activeEntity, attributes])
 
   return (
-    <Card withBorder radius={5} p="xl">
+    <Card shadow="xs" radius={5} p="xl">
       <ScrollArea scrollbarSize={0} sx={{ height: "76vh" }}>
         <Grid>
           <Grid.Col xs={12}>

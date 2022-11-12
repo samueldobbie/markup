@@ -56,7 +56,7 @@ function SignUp(): JSX.Element {
         </Anchor>
       </Text>
 
-      <Paper withBorder shadow="md" p={30} mt={30} radius="md">
+      <Paper withBorder shadow="xs" p={30} mt={30} radius="md">
         <form onSubmit={form.onSubmit((values) => handleSignUp(values))}>
           <TextInput
             required
