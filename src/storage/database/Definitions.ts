@@ -729,7 +729,7 @@ export interface definitions {
     /** Format: integer */
     end_index: number;
     /** Format: jsonb */
-    attributes: unknown;
+    attributes: Record<string, string[]>;
     /** Format: text */
     text: string;
   };

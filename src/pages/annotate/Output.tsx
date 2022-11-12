@@ -1,5 +1,6 @@
 import { Button, Card, Collapse, Grid, Group, Text } from "@mantine/core"
 import { IconX } from "@tabler/icons"
+import Documents from "pages/setup/Documents"
 import { useEffect, useState } from "react"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { database, WorkspaceAnnotation } from "storage/database"
@@ -15,6 +16,7 @@ function Output({ workspace }: SectionProps) {
 
   const [annotations, setAnnotations] = useRecoilState(annotationsState)
   const [groupedAnnotations, setGroupedAnnotations] = useState<AnnotationGroup>({})
+  const [openAnnotations, setOpenAnnotations] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     const grouped: AnnotationGroup = {}
@@ -29,6 +31,18 @@ function Output({ workspace }: SectionProps) {
 
     setGroupedAnnotations(grouped)
   }, [annotations, documentIndex])
+
+  useEffect(() => {
+    annotations.forEach(documentAnnotations => {
+      documentAnnotations.forEach(annotation => {
+        if (!Object.keys(openAnnotations).includes(annotation.id)) {
+          const copy = {...openAnnotations}
+          copy[annotation.id] = false
+          setOpenAnnotations(copy)
+        }
+      })
+    })
+  }, [annotations, openAnnotations])
 
   const deleteAnnotation = (annotationId: string) => {
     database
@@ -69,6 +83,12 @@ function Output({ workspace }: SectionProps) {
                   sx={{
                     backgroundColor: entityColours[annotation.entity],
                     color: "#333333",
+                    cursor: "pointer"
+                  }}
+                  onClick={() => {
+                    const copy = {...openAnnotations}
+                    copy[annotation.id] = !copy[annotation.id]
+                    setOpenAnnotations(copy)
                   }}
                 >
                   <Grid>
@@ -76,21 +96,28 @@ function Output({ workspace }: SectionProps) {
                       <IconX
                         size={16}
                         onClick={() => deleteAnnotation(annotation.id)}
-                        style={{ cursor: "pointer" }}
                       />
                     </Grid.Col>
 
-                    <Grid.Col xs={10}>
+                    <Grid.Col xs={10} sx={{ userSelect: "none" }}>
                       <Text>
                         {annotation.text}
+                      </Text>
+
+                      <Text color="dimmed" size={12} sx={{ cursor: "pointer" }}>
+                        {Object.keys(annotation.attributes).length} attributes
                       </Text>
                     </Grid.Col>
                   </Grid>
 
-                  <Collapse in={false}>
-                    {/* {Object.keys(annotation.attributes).map((attributeType) => (
-                      <>{attributeType}</>
-                    ))} */}
+                  <Collapse in={openAnnotations[annotation.id]} mt={10}>
+                    {Object.keys(annotation.attributes).map((attributeType) => (
+                      <Text size={14}>
+                        {attributeType}: <Text color="dimmed">
+                          {annotation.attributes[attributeType].join(", ")}
+                          </Text>
+                      </Text>
+                    ))}
                   </Collapse>
                 </Card>
               </Grid.Col>
