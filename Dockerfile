@@ -1,12 +1,20 @@
-FROM python:3.8.6
+FROM node:14 AS builder
 
-WORKDIR /usr/src/app
-
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
-
+ENV NODE_ENV production
+WORKDIR /app
+COPY package.json .
+COPY yarn.lock .
+RUN yarn install --production
 COPY . .
 
-EXPOSE 80
+RUN yarn build
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Bundle static assets with nginx
+FROM nginx:1.21.0-alpine as production
+
+ENV NODE_ENV production
+COPY --from=builder /app/build /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 8080
+
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,0 +1,8 @@
+mark {
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+mark:hover {
+  opacity: 0.8;
+}
