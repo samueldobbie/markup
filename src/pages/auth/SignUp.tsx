@@ -35,9 +35,9 @@ function SignUp(): JSX.Element {
 
     if (error) {
       alert(error)
+    } else {
+      moveToPage(Path.Verification)
     }
-
-    moveToPage(Path.Dashboard)
   }
 
   return (

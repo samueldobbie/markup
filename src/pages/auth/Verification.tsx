@@ -1,23 +1,11 @@
 import { createStyles, Title, Text, Button, Container, Group } from "@mantine/core"
+import { IconMail } from "@tabler/icons"
 import { Path } from "utils/Path"
 
 const useStyles = createStyles((theme) => ({
   root: {
     paddingTop: 80,
     paddingBottom: 80,
-  },
-
-  label: {
-    textAlign: "center",
-    fontWeight: 900,
-    fontSize: 220,
-    lineHeight: 1,
-    marginBottom: theme.spacing.xl * 1.5,
-    color: theme.colorScheme === "dark" ? theme.colors.dark[4] : theme.colors.gray[2],
-
-    [theme.fn.smallerThan("sm")]: {
-      fontSize: 120,
-    },
   },
 
   title: {
@@ -39,35 +27,30 @@ const useStyles = createStyles((theme) => ({
   },
 }))
 
-function NotFound() {
+function Verification() {
   const { classes } = useStyles()
 
-  const moveToHome = () => {
-    window.location.href = Path.Home
+  const moveToSignUp = () => {
+    window.location.href = Path.SignUp
   }
 
   return (
     <Container className={classes.root}>
-      <div className={classes.label}>
-        404
-      </div>
-
       <Title className={classes.title}>
-        You have found a secret place.
+        <IconMail size={30} /> You've got mail!
       </Title>
-
+      
       <Text color="dimmed" size="lg" align="center" className={classes.description}>
-        Unfortunately, this is only a 404 page. You may have mistyped the address, or the page has
-        been moved to another URL.
+        We've sent you an email with a link to verify your account.
       </Text>
 
       <Group position="center">
-        <Button variant="subtle" size="md" onClick={moveToHome}>
-          Take me back to home page
+        <Button variant="subtle" size="md" onClick={moveToSignUp}>
+          Return to sign up page
         </Button>
       </Group>
     </Container>
   )
 }
 
-export default NotFound
+export default Verification
