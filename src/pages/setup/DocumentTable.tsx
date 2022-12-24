@@ -3,9 +3,9 @@ import { IconTrash } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import { database, WorkspaceDocument } from "storage/database/Database"
-import { SectionProps } from "./Interfaces"
+import { SectionProps } from "./Setup"
 
-function Documents({ workspace }: SectionProps) {
+function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: SectionProps) {
   const [files, setFiles] = useState<File[]>([])
   const [documents, setDocuments] = useState<WorkspaceDocument[]>([])
 
@@ -30,8 +30,24 @@ function Documents({ workspace }: SectionProps) {
     func()
   }, [documents, files, workspace.id])
 
+  useEffect(() => {
+    if (setWorkspaceStatus === undefined) return
+
+    if (documents.length === 0 && workspaceStatus.hasDocument) {
+      setWorkspaceStatus({
+        ...workspaceStatus,
+        hasDocument: false,
+      })
+    } else if (documents.length > 0 && !workspaceStatus.hasDocument) {
+      setWorkspaceStatus({
+        ...workspaceStatus,
+        hasDocument: true,
+      })
+    }
+  }, [documents, workspaceStatus, setWorkspaceStatus])
+
   return (
-    <Card shadow="xs" radius={5} p="xl">
+    <Card shadow="xs" radius={5}>
       <DataTable
         withBorder={false}
         emptyState="Upload documents to annotate"
@@ -100,4 +116,4 @@ function Documents({ workspace }: SectionProps) {
   )
 }
 
-export default Documents
+export default DocumentTable

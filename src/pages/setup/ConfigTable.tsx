@@ -3,9 +3,9 @@ import { IconTrash } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import { WorkspaceConfig, database } from "storage/database/Database"
-import { SectionProps } from "./Interfaces"
+import { SectionProps } from "./Setup"
 
-function Configs({ workspace }: SectionProps) {
+function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: SectionProps) {
   const [file, setFile] = useState<File | null>(null)
   const [configs, setConfigs] = useState<WorkspaceConfig[]>([])
 
@@ -30,8 +30,24 @@ function Configs({ workspace }: SectionProps) {
     func()
   }, [configs, file, workspace.id])
 
+  useEffect(() => {
+    if (setWorkspaceStatus === undefined) return
+
+    if (configs.length === 0 && workspaceStatus.hasConfig) {
+      setWorkspaceStatus({
+        ...workspaceStatus,
+        hasConfig: false,
+      })
+    } else if (configs.length > 0 && !workspaceStatus.hasConfig) {
+      setWorkspaceStatus({
+        ...workspaceStatus,
+        hasConfig: true,
+      })
+    }
+  }, [configs, workspaceStatus, setWorkspaceStatus])
+
   return (
-    <Card shadow="xs" radius={5} p="xl">
+    <Card shadow="xs" radius={5}>
       <DataTable
         withBorder={false}
         emptyState="Upload or create a config"
@@ -103,4 +119,4 @@ function Configs({ workspace }: SectionProps) {
   )
 }
 
-export default Configs
+export default ConfigTable

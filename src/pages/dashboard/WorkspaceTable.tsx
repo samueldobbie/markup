@@ -61,17 +61,23 @@ function WorkspaceTable() {
             textAlignment: "right",
             render: (workspace) => (
               <Group spacing={8} position="right" noWrap>
-                <ActionIcon color="primary" variant="subtle">
+                <ActionIcon
+                  color="primary"
+                  variant="subtle"
+                  onClick={() => openConfirmDelete(workspace)}
+                >
                   <IconTrashX
                     size={16}
-                    onClick={() => openConfirmDelete(workspace)}
                     style={{ color: "rgb(217 138 138)" }}
                   />
                 </ActionIcon>
 
-                <ActionIcon color="primary" variant="subtle">
+                <ActionIcon
+                  color="primary"
+                  variant="subtle"
+                  onClick={() => moveToPage(toSetupUrl(workspace.id))}
+                >
                   <IconPlayerPlay
-                    onClick={() => moveToPage(toSetupUrl(workspace.id))}
                     size={16}
                     style={{ color: "#8ad98a" }}
                   />

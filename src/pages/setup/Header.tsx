@@ -3,9 +3,9 @@ import { IconArrowRight } from "@tabler/icons"
 import { useParams } from "react-router-dom"
 import { moveToPage } from "utils/Location"
 import { Path, toAnnotateUrl } from "utils/Path"
-import { SectionProps } from "./Interfaces"
+import { SectionProps } from "./Setup"
 
-function Header({ workspace }: SectionProps) {
+function Header({ workspace, workspaceStatus }: SectionProps) {
   const { id } = useParams()
 
   if (id === undefined) {
@@ -19,12 +19,19 @@ function Header({ workspace }: SectionProps) {
       </Text>
 
       <Group>
-        <Button variant="subtle" onClick={() => moveToPage(Path.Dashboard)}>
+        <Button
+          variant="subtle"
+          onClick={() => moveToPage(Path.Dashboard)}
+        >
           Back to dashboard
         </Button>
 
-        <Button variant="subtle" onClick={() => moveToPage(toAnnotateUrl(id))}>
-          Start annotating <IconArrowRight />
+        <Button
+          disabled={!workspaceStatus.hasConfig || !workspaceStatus.hasDocument}
+          variant="gradient"
+          onClick={() => moveToPage(toAnnotateUrl(id))}
+        >
+          Annotate <IconArrowRight size={19} />
         </Button>
       </Group>
     </Group>

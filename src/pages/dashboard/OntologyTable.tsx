@@ -105,12 +105,12 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal }: ModalProps) {
     <Modal
       opened={openedModal}
       onClose={() => setOpenedModal(false)}
-      title="Coming soon!"
+      title="Explore ontologies"
       centered
     >
       <Text>
-        I plan to embed common ontologies / dictionaries (e.g. SNOMED) that you can use
-        to annotate your data. For now, you can upload a custom ontology.
+        Coming soon - I will be embedding common ontologies (e.g. SNOMED) for a wide range of domains.
+        For now, please upload a custom ontology.
       </Text>
     </Modal>
   )

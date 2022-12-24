@@ -4,14 +4,29 @@ import { moveToPage } from "utils/Location"
 import { Path } from "utils/Path"
 import { useEffect, useState } from "react"
 import { database, Workspace } from "storage/database/Database"
-import Documents from "./Documents"
+import ConfigTable from "./ConfigTable"
+import DocumentTable from "./DocumentTable"
 import Header from "./Header"
-import Configs from "./Config"
+
+interface WorkspaceStatus {
+  hasConfig: boolean
+  hasDocument: boolean
+}
+
+export interface SectionProps {
+  workspace: Workspace
+  workspaceStatus: WorkspaceStatus
+  setWorkspaceStatus?: (status: WorkspaceStatus) => void
+}
 
 function Setup() {
   const { id } = useParams()
 
   const [workspace, setWorkspace] = useState<Workspace>()
+  const [workspaceStatus, setWorkspaceStatus] = useState({
+    hasConfig: false,
+    hasDocument: false,
+  })
 
   useEffect(() => {
     if (id === undefined) {
@@ -39,15 +54,26 @@ function Setup() {
         {workspace &&
           <Grid>
             <Grid.Col xs={12}>
-              <Header workspace={workspace} />
+              <Header
+                workspace={workspace}
+                workspaceStatus={workspaceStatus}
+              />
             </Grid.Col>
 
             <Grid.Col xs={12} md={5}>
-              <Configs workspace={workspace} />
+              <ConfigTable
+                workspace={workspace}
+                workspaceStatus={workspaceStatus}
+                setWorkspaceStatus={setWorkspaceStatus}
+              />
             </Grid.Col>
 
             <Grid.Col xs={12} md={7}>
-              <Documents workspace={workspace} />
+              <DocumentTable
+                workspace={workspace}
+                workspaceStatus={workspaceStatus}
+                setWorkspaceStatus={setWorkspaceStatus}
+              />
             </Grid.Col>
           </Grid>
         }
