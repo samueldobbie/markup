@@ -8,12 +8,10 @@ import { moveToPage } from "utils/Location"
 import { ModalProps } from "./Interfaces"
 import { toSetupUrl } from "utils/Path"
 import { openConfirmModal } from "@mantine/modals"
+import { tutorialProgressState } from "storage/state/Dashboard"
+import { useRecoilState } from "recoil"
 
-interface Props {
-  completeTutorialStep: (v: string) => void
-}
-
-function WorkspaceTable({ completeTutorialStep }: Props) {
+function WorkspaceTable() {
   const [openedModal, setOpenedModal] = useState(false)
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
 
@@ -41,7 +39,7 @@ function WorkspaceTable({ completeTutorialStep }: Props) {
   }, [])
 
   return (
-    <Card shadow="xs" radius={5} p="xl">
+    <Card shadow="xs" radius={5}>
       <DataTable
         withBorder={false}
         emptyState="Create a workspace to start annotating"
@@ -97,6 +95,8 @@ interface CreateWorkspaceForm {
 }
 
 function CreateWorkspaceModal({ openedModal, setOpenedModal }: ModalProps) {
+  const [tutorialProgress, setTutorialProgress] = useRecoilState(tutorialProgressState)
+
   const form = useForm({
     initialValues: {
       name: "",
@@ -122,7 +122,13 @@ function CreateWorkspaceModal({ openedModal, setOpenedModal }: ModalProps) {
       title="Create workspace"
       centered
     >
-      <form onSubmit={form.onSubmit((values) => handleCreateWorkspace(values))}>
+      <form onSubmit={form.onSubmit((values) => {
+        handleCreateWorkspace(values)
+        setTutorialProgress({
+          ...tutorialProgress,
+          "createWorkspace": true,
+        })
+      })}>
         <Grid>
           <Grid.Col>
             <TextInput

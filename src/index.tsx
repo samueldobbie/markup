@@ -4,10 +4,10 @@ import { RecoilRoot, useRecoilState } from "recoil"
 import { AuthProvider } from "providers/AuthProvider"
 import { ColorScheme, ColorSchemeProvider, MantineProvider } from "@mantine/core"
 import { BrowserRouter } from "react-router-dom"
-import Navbar from "components/nav/Navbar"
 import PageRoutes from "components/routes/PageRoutes"
 import { ModalsProvider } from "@mantine/modals"
 import { themeState } from "storage/state"
+import Navbar from "components/nav/NavBar"
 import "./index.css"
 
 function App(): JSX.Element {

@@ -1,5 +1,6 @@
 import { Card, Checkbox, Anchor, createStyles, Text } from "@mantine/core"
-import { TutorialProgress } from "./Dashboard"
+import { useRecoilState } from "recoil"
+import { tutorialProgressState } from "storage/state/Dashboard"
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -26,13 +27,10 @@ const useStyles = createStyles((theme) => ({
   },
 }))
 
-interface Props {
-  tutorialProgress: TutorialProgress
-  completeTutorialStep: (v: string) => void
-}
-
-function AccountOverview({ tutorialProgress, completeTutorialStep }: Props) {
+function AccountOverview() {
   const { classes } = useStyles()
+
+  const [tutorialProgress, setTutorialProgress] = useRecoilState(tutorialProgressState)
 
   return (
     <Card shadow="xs" radius={5} p="xl">
@@ -53,7 +51,12 @@ function AccountOverview({ tutorialProgress, completeTutorialStep }: Props) {
             Read the <Anchor
               href="https://www.notion.so/Markup-Docs-91e9c5cfc6dc416fbcf2241d7c84e6c7"
               target="_blank"
-              onClick={() => completeTutorialStep("readDocs")}
+              onClick={() => {
+                setTutorialProgress({
+                  ...tutorialProgress,
+                  "readDocs": true,
+                })
+              }}
               sx={{
                 fontWeight: "bold",
                 textDecoration: "underline",
@@ -69,13 +72,6 @@ function AccountOverview({ tutorialProgress, completeTutorialStep }: Props) {
         readOnly
         checked={tutorialProgress.createWorkspace}
         label="Create a workspace"
-      />
-
-      <Checkbox
-        mt={15}
-        readOnly
-        checked={tutorialProgress.setupWorkspace}
-        label="Setup a workspace"
       />
 
       <Checkbox

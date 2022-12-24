@@ -6,15 +6,14 @@ import { useEffect, useState } from "react"
 import { database, Ontology } from "storage/database/Database"
 import { ModalProps } from "./Interfaces"
 import { openConfirmModal } from "@mantine/modals"
+import { useRecoilState } from "recoil"
+import { tutorialProgressState } from "storage/state/Dashboard"
 
-interface Props {
-  completeTutorialStep: (v: string) => void
-}
-
-function OntologyTable({ completeTutorialStep }: Props) {
+function OntologyTable() {
   const [openExploreModal, setOpenExploreModal] = useState(false)
   const [openUploadModal, setOpenUploadModal] = useState(false)
   const [ontologies, setOntologies] = useState<Ontology[]>([])
+  const [tutorialProgress, setTutorialProgress] = useRecoilState(tutorialProgressState)
 
   const openConfirmDelete = (ontology: Ontology) => openConfirmModal({
     title: <>Are you sure you want to delete the '{ontology.name}' ontology?</>,
@@ -40,7 +39,7 @@ function OntologyTable({ completeTutorialStep }: Props) {
   }, [])
 
   return (
-    <Card shadow="xs" radius={5} p="xl">
+    <Card shadow="xs" radius={5}>
       <DataTable
         withBorder={false}
         highlightOnHover
@@ -54,7 +53,13 @@ function OntologyTable({ completeTutorialStep }: Props) {
             accessor: "actions",
             title: (
               <Group spacing={4} position="right" noWrap>
-                <Button variant="subtle" onClick={() => setOpenExploreModal(true)} mr={5}>
+                <Button variant="subtle" onClick={() => {
+                  setOpenExploreModal(true)
+                  setTutorialProgress({
+                    ...tutorialProgress,
+                    "exploreOntologies": true,
+                  })
+                }} mr={5}>
                   Use existing ontology
                 </Button>
 
@@ -100,11 +105,12 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal }: ModalProps) {
     <Modal
       opened={openedModal}
       onClose={() => setOpenedModal(false)}
-      title="Explore existing ontologies"
+      title="Coming soon!"
       centered
     >
       <Text>
-        I'll be adding existing ontologies (e.g. UMLS) soon
+        I plan to embed common ontologies / dictionaries (e.g. SNOMED) that you can use
+        to annotate your data. For now, you can upload a custom ontology.
       </Text>
     </Modal>
   )
