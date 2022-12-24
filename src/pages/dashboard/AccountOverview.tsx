@@ -1,6 +1,7 @@
-import { Card, Checkbox, Anchor, createStyles, Text } from "@mantine/core"
-import { useRecoilState } from "recoil"
-import { tutorialProgressState } from "storage/state/Dashboard"
+import { Card, Checkbox, Anchor, createStyles, Text, Group } from "@mantine/core"
+import { IconX } from "@tabler/icons"
+import { useRecoilState, useSetRecoilState } from "recoil"
+import { showTutorialState, tutorialProgressState } from "storage/state/Dashboard"
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -31,12 +32,23 @@ function AccountOverview() {
   const { classes } = useStyles()
 
   const [tutorialProgress, setTutorialProgress] = useRecoilState(tutorialProgressState)
+  const setShowTutorial = useSetRecoilState(showTutorialState)
 
   return (
     <Card shadow="xs" radius={5} p="xl">
-      <Text size="lg" className={classes.title} weight={500}>
-        Welcome to Markup!
-      </Text>
+      <Group position="apart">
+        <Text size="lg" className={classes.title} weight={500}>
+          Welcome to Markup!
+        </Text>
+
+        <span>
+          <IconX
+            onClick={() => setShowTutorial(false)}
+            size={16}
+            style={{ cursor: "pointer" }}
+          />
+        </span>
+      </Group>
 
       <Text size="md" color="dimmed" mt={10} mb="xl">
         You're currently on the dashboard where you can manage workspaces and ontologies.

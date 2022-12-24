@@ -3,6 +3,12 @@ import { recoilPersist } from "recoil-persist"
 
 const { persistAtom } = recoilPersist()
 
+const showTutorialState = atom({
+  key: "showTutorialState",
+  default: true,
+  effects: [persistAtom],
+})
+
 const tutorialProgressState = atom({
   key: "tutorialProgressState",
   default: {
@@ -13,4 +19,4 @@ const tutorialProgressState = atom({
   effects: [persistAtom],
 })
 
-export { tutorialProgressState }
+export { showTutorialState, tutorialProgressState }
