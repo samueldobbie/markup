@@ -143,21 +143,22 @@ const GLOBAL_ATTRIBUTE_KEY = "global"
 
 function ConfigCreatorModal({ openedModal, setOpenedModal }: Props) {
   const [entities, setEntities] = useState<string[]>([])
-  const [entityDropdownData, setEntityDropdownData] = useState<{ value: string; label: string }[]>([])
+  const [entityValues, setEntityValues] = useState<{ value: string; label: string }[]>([])
 
   const [attributes, setAttributes] = useState<Attribute[]>([])
-  const [attributeValues, setAttributeValues] = useState<string[]>([])
-  const [attributeValueDropdownData, setAttributeValueDropdownData] = useState<{ value: string; label: string }[]>([])
+  const [relatedEntity, setRelatedEntity] = useState<string>("")
+  const [attributeName, setAttributeName] = useState<string>("")
+  const [attributeValues, setAttributeValues] = useState<{ value: string; label: string }[]>([])
 
   useEffect(() => {
-    setEntities(entityDropdownData.map(({ value }) => value))
-  }, [entityDropdownData])
+    setEntities(entityValues.map(({ value }) => value))
+  }, [entityValues])
 
-  const addAttribute = (data: { entity: string, name: string }) => {
+  const addAttribute = () => {
     const addedAttribute = {
-      entity: data.entity,
-      name: data.name.split(" ").join(""),
-      values: attributeValues,
+      entity: relatedEntity,
+      name: attributeName, // .split(" ").join("")
+      values: attributeValues.map(({ value }) => value),
     } as Attribute
 
     const isUnique = attributes.filter((attribute) => (
@@ -167,6 +168,8 @@ function ConfigCreatorModal({ openedModal, setOpenedModal }: Props) {
 
     if (isUnique) {
       setAttributes([addedAttribute, ...attributes])
+      setRelatedEntity("")
+      setAttributeName("")
       setAttributeValues([])
     } else {
       alert("An attribute with that name already exists for the related entity.")
@@ -211,81 +214,130 @@ function ConfigCreatorModal({ openedModal, setOpenedModal }: Props) {
       opened={openedModal}
       onClose={() => setOpenedModal(false)}
       title="Config Creator"
+      size="xl"
       centered
     >
       <Grid>
-        <Grid.Col xs={12}>
-          <MultiSelect
-            label="Add entities"
-            description="The high-level nouns/categories of information you want to capture during annotation (e.g. 'Prescription' and 'Date of Birth')."
-            nothingFound="Start typing to create an entity"
-            placeholder="Start typing to create an entity"
-            data={entityDropdownData}
-            searchable
-            creatable
-            getCreateLabel={(query) => `+ Create ${query}`}
-            onCreate={(query) => {
-              const item = { value: query, label: query }
-              setEntityDropdownData((current) => [...current, item])
-              return item
-            }}
-          />
+        <Grid.Col xs={6}>
+          <Grid>
+            <Grid.Col xs={12}>
+              <Text size={16}>
+                Entities
+              </Text>
 
-          <Divider mt={20} mb={20} />
+              <Text size={12} mb={10} color="dimmed">
+                The high-level nouns/categories of information you want to capture during annotation (e.g. 'Person' and 'Prescription').
+              </Text>
 
-          <Text size={16}>
-            Attributes (optional)
-          </Text>
+              <MultiSelect
+                nothingFound="Start typing to create an entity"
+                placeholder="Start typing to create an entity"
+                data={entityValues}
+                searchable
+                creatable
+                getCreateLabel={(query) => `+ Create ${query}`}
+                onCreate={(query) => {
+                  const item = { value: query, label: query }
+                  setEntityValues((current) => [...current, item])
+                  return item
+                }}
+              />
 
-          <Text size={12} mb={10} color="dimmed">
-            These are the granular properties of an entity (e.g. 'Drug Name' and 'Drug Dose' for the 'Prescription' entity).
-          </Text>
+              <Divider mt={20} mb={20} />
 
-          <Select
-            label="Related entity"
-            placeholder="Select an entity"
-            data={entities}
-            mb={10}
-          />
+              <Text size={16}>
+                Attributes (optional)
+              </Text>
 
-          <TextInput
-            label="Attribute name"
-            placeholder="Attribute name (e.g. 'Drug Dose')"
-          />
+              <Text size={12} mb={10} color="dimmed">
+                These are the properties of an entity (e.g. a 'Person' entity may have 'Name' and 'Date of Birth' attributes).
+              </Text>
 
-          <MultiSelect
-            label="Attribute values"
-            description="The possible values for this attribute (e.g. 'mg' and 'ml' for the 'Drug Dose' attribute)."
-            nothingFound="Start typing to add an attribute value"
-            placeholder="Start typing to add an attribute value"
-            data={attributeValueDropdownData}
-            searchable
-            creatable
-            getCreateLabel={(query) => `+ Create ${query}`}
-            onCreate={(query) => {
-              const item = { value: query, label: query }
-              setAttributeValueDropdownData((current) => [...current, item])
-              return item
-            }}
-          />
+              <Select
+                label="Related entity"
+                placeholder="Select an entity"
+                data={entities}
+                mb={10}
+                onChange={(value) => setRelatedEntity(value!)}
+              />
 
-          <Button
-            mt={10}
-            variant="light"
-            // onClick={addAttribute}
-          >
-            Add attribute
-          </Button>
+              <TextInput
+                label="Attribute name"
+                placeholder="Attribute name (e.g. 'Name')"
+                onChange={(event) => setAttributeName(event.target.value)}
+              />
 
-          <Grid.Col xs={12}>
-            <Group position="right">
-              <Button onClick={handleSaveConfig}>
-                Export & Use
+              <MultiSelect
+                label="Attribute values"
+                description="The possible values for this attribute (e.g. 'mg' and 'ml' for a 'Drug Dose' attribute)."
+                nothingFound="Start typing to add attribute values"
+                placeholder="Start typing to add attribute values"
+                data={attributeValues}
+                searchable
+                creatable
+                getCreateLabel={(query) => `+ Create ${query}`}
+                onCreate={(query) => {
+                  const item = { value: query, label: query }
+                  setAttributeValues([...attributeValues, item])
+                  return item
+                }}
+              />
+
+              <Button
+                mt={10}
+                variant="light"
+                onClick={addAttribute}
+              >
+                Add attribute
               </Button>
-            </Group>
-          </Grid.Col>
+            </Grid.Col>
+          </Grid>
+        </Grid.Col>
+
+        <Divider orientation="vertical" ml={10} mr={10} />
+
+        <Grid.Col xs={5}>
+          <Grid>
+            <Grid.Col xs={12}>
+              <Text size={16}>
+                Output Preview
+              </Text>
+
+              <Text size={12} mt={15} color="dimmed">
+                [entities]
+              </Text>
+
+              {entities.map((entity) => (
+                <Text size={12} color="dimmed" key={entity}>
+                  {entity}
+                </Text>
+              ))}
+
+              <Text size={12} mt={15} color="dimmed">
+                [attributes]
+              </Text>
+
+              {attributes.map((attribute) => {
+                const { entity, name, values } = attribute
+
+                const valuesString = values.join("|")
+                const attributeString = `${name} Arg:${entity}, Value:${valuesString}`
+                return (
+                  <Text size={12} color="dimmed" key={attributeString}>
+                    {attributeString}
+                  </Text>
+                )
+              })}
+            </Grid.Col>
+          </Grid>
         </Grid.Col>
       </Grid>
+
+      <Group position="right">
+        <Button onClick={handleSaveConfig}>
+          Export & Use
+        </Button>
+      </Group>
     </Modal>
   )
 }
