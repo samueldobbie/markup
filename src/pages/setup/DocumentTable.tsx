@@ -67,7 +67,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
             accessor: "actions",
             title: (
               <Group position="right">
-                <FileButton onChange={setFiles} accept="plain/text" multiple>
+                <FileButton onChange={setFiles} accept=".ann" multiple>
                   {(props) => (
                     <Tooltip label="Each annotation filename (excl. file extension) must match the document you want to associate it with">
                       <Button
@@ -81,7 +81,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                   )}
                 </FileButton>
 
-                <FileButton onChange={setFiles} accept="plain/text" multiple>
+                <FileButton onChange={setFiles} accept=".txt" multiple>
                   {(props) => (
                     <Button {...props}>
                       Upload documents

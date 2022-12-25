@@ -63,11 +63,9 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
                 p={20}
                 mb={20}
                 color="dimmed"
-                lineClamp={4}
                 sx={{
                   whiteSpace: "pre-line",
                   overflowX: "hidden",
-                  width: "500px", // remove hardcoded
                 }}
               >
                 {config.record.content}
@@ -87,7 +85,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
                     Create config
                   </Button>
 
-                  <FileButton onChange={setFile} accept="plain/text">
+                  <FileButton onChange={setFile} accept=".conf">
                     {(props) => (
                       <Button {...props}>
                         Upload config
@@ -157,7 +155,7 @@ function ConfigCreatorModal({ openedModal, setOpenedModal }: Props) {
   const addAttribute = () => {
     const addedAttribute = {
       entity: relatedEntity,
-      name: attributeName, // .split(" ").join("")
+      name: attributeName.split(" ").join(""),
       values: attributeValues.map(({ value }) => value),
     } as Attribute
 
