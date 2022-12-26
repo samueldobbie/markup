@@ -80,7 +80,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
             {
               accessor: "actions",
               title: (
-                <Group spacing={4} position="right" noWrap>
+                <Group position="right" noWrap>
                   <Button variant="subtle" onClick={() => setOpenedModal(true)}>
                     Create config
                   </Button>

@@ -90,7 +90,7 @@ function AccountOverview() {
         mt={15}
         readOnly
         checked={tutorialProgress.exploreOntologies}
-        label="Explore existing ontologies"
+        label="Explore common ontologies"
       />
     </Card>
   )

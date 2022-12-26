@@ -73,7 +73,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                       <Button
                         {...props}
                         variant="subtle"
-                        disabled
+                        disabled={documents.length === 0}
                       >
                         Upload annotations
                       </Button>

@@ -1,6 +1,6 @@
-import { Group, Button, ActionIcon, Grid, Modal, TextInput, useMantineTheme, Text, Card } from "@mantine/core"
+import { Group, Button, ActionIcon, Grid, Modal, TextInput, useMantineTheme, Text, Card, Table } from "@mantine/core"
 import { Dropzone } from "@mantine/dropzone"
-import { IconTrash, IconEdit, IconFile, IconUpload, IconX } from "@tabler/icons"
+import { IconTrash, IconEdit, IconFile, IconUpload, IconX, IconSearch } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import { database, Ontology } from "storage/database/Database"
@@ -8,6 +8,7 @@ import { ModalProps } from "./Interfaces"
 import { openConfirmModal } from "@mantine/modals"
 import { useRecoilState } from "recoil"
 import { tutorialProgressState } from "storage/state/Dashboard"
+import { useDebouncedState } from "@mantine/hooks"
 
 function OntologyTable() {
   const [openExploreModal, setOpenExploreModal] = useState(false)
@@ -43,7 +44,7 @@ function OntologyTable() {
       <DataTable
         withBorder={false}
         highlightOnHover
-        emptyState="Upload an ontology or explore existing ones"
+        emptyState="Upload an ontology or use an existing one"
         borderRadius={5}
         sx={{ minHeight: "400px" }}
         records={ontologies}
@@ -64,7 +65,7 @@ function OntologyTable() {
                 </Button>
 
                 <Button onClick={() => setOpenUploadModal(true)}>
-                  Upload ontology
+                  Add custom ontology
                 </Button>
               </Group>
             ),
@@ -101,17 +102,54 @@ function OntologyTable() {
 }
 
 function ExploreOntologiesModal({ openedModal, setOpenedModal }: ModalProps) {
+  const [search, setSearch] = useDebouncedState("", 200)
+
+  const ontologies = [
+    {
+      name: "SNOMED CT",
+      description: "Clinical terminology",
+    },
+    {
+      name: "UMLS",
+      description: "Clinical terminology",
+    },
+    {
+      name: "ICD-10",
+      description: "Clinical terminology",
+    },
+  ]
+
   return (
     <Modal
       opened={openedModal}
       onClose={() => setOpenedModal(false)}
-      title="Explore ontologies"
+      title="Existing ontologies"
       centered
     >
-      <Text>
-        Coming soon - I will be embedding common ontologies (e.g. SNOMED) for a wide range of domains.
-        For now, please upload a custom ontology.
-      </Text>
+      <TextInput
+        placeholder="Search for an ontology"
+        icon={<IconSearch />}
+        mb={10}
+        onChange={(e) => setSearch(e.currentTarget.value)}
+      />
+
+      <Table>
+        <tbody>
+          {ontologies
+            .filter(i => i.name.toLowerCase().includes(search.toLowerCase()))
+            .map((ontology) => (
+              <tr onClick={() => alert("clicked")}>
+                <td>{ontology.name}</td>
+                <td>{ontology.description}</td>
+                <td>
+                  <Button variant="subtle">
+                    + Add
+                  </Button>
+                </td>
+              </tr>
+            ))}
+        </tbody>
+      </Table>
     </Modal>
   )
 }
