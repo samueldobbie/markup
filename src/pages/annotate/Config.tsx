@@ -20,6 +20,8 @@ function Config({ workspace }: SectionProps) {
   const [attributeSectionOpen, setAttributeSectionOpen] = useState(true)
 
   const [ontologySectionOpen, setOntologySectionOpen] = useState(true)
+  const [ontology, setOntology] = useState<string[]>([])
+  const [ontologies, setOntologies] = useState<string[]>([])
 
   const clearPopulatedAttributes = () => {
     setPopulatedAttributes({})
@@ -152,7 +154,6 @@ function Config({ workspace }: SectionProps) {
                         <MultiSelect
                           maxSelectedValues={100}
                           data={attribute.options}
-                          label={attribute.name}
                           placeholder={attribute.name}
                           size="sm"
                           key={index + attribute.name}
@@ -204,9 +205,20 @@ function Config({ workspace }: SectionProps) {
                   <Grid.Col xs={12}>
                     <MultiSelect
                       maxSelectedValues={100}
-                      data={[]}
-                      label="Ontology"
+                      data={ontologies}
                       placeholder="Ontology"
+                      size="sm"
+                      searchable
+                      clearable
+                      creatable
+                    />
+                  </Grid.Col>
+
+                  <Grid.Col xs={12}>
+                    <MultiSelect
+                      maxSelectedValues={100}
+                      data={ontologies}
+                      placeholder="Concept"
                       size="sm"
                       searchable
                       clearable

@@ -256,6 +256,20 @@ async function addOntology(): Promise<boolean> {
   return false
 }
 
+async function getDefaultOntologies(): Promise<Ontology[]> {
+  const { data, error } = await supabase
+    .from("ontology")
+    .select()
+    .eq("is_default", true)
+  
+  if (error) {
+    console.error(error)
+    return []
+  }
+
+  return data
+}
+
 async function getOntologies(): Promise<Ontology[]> {
   return []
 }
@@ -282,6 +296,7 @@ export const database = {
   deleteWorkspaceAnnotation,
 
   addOntology,
+  getDefaultOntologies,
   getOntologies,
   deleteOntology,
 }

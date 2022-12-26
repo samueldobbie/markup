@@ -65,7 +65,7 @@ function OntologyTable() {
                 </Button>
 
                 <Button onClick={() => setOpenUploadModal(true)}>
-                  Add custom ontology
+                  Upload ontology
                 </Button>
               </Group>
             ),
@@ -103,21 +103,13 @@ function OntologyTable() {
 
 function ExploreOntologiesModal({ openedModal, setOpenedModal }: ModalProps) {
   const [search, setSearch] = useDebouncedState("", 200)
+  const [ontologies, setOntologies] = useState<Ontology[]>([])
 
-  const ontologies = [
-    {
-      name: "SNOMED CT",
-      description: "Clinical terminology",
-    },
-    {
-      name: "UMLS",
-      description: "Clinical terminology",
-    },
-    {
-      name: "ICD-10",
-      description: "Clinical terminology",
-    },
-  ]
+  useEffect(() => {
+    database
+      .getDefaultOntologies()
+      .then(setOntologies)
+  }, [])
 
   return (
     <Modal
@@ -140,7 +132,7 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal }: ModalProps) {
             .map((ontology) => (
               <tr onClick={() => alert("clicked")}>
                 <td>{ontology.name}</td>
-                <td>{ontology.description}</td>
+                <td>{ontology.description ?? "No description"}</td>
                 <td>
                   <Button variant="subtle">
                     + Add

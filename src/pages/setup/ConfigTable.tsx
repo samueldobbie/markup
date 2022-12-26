@@ -137,7 +137,7 @@ interface Attribute {
   values: string[]
 }
 
-const GLOBAL_ATTRIBUTE_KEY = "global"
+const GLOBAL_ATTRIBUTE_KEY = "<ENTITY>"
 
 function ConfigCreatorModal({ openedModal, setOpenedModal }: Props) {
   const [entities, setEntities] = useState<string[]>([])
@@ -254,7 +254,7 @@ function ConfigCreatorModal({ openedModal, setOpenedModal }: Props) {
               <Select
                 label="Related entity"
                 placeholder="Select an entity"
-                data={entities}
+                data={[...entities, { value: GLOBAL_ATTRIBUTE_KEY, label: "Global (attribute will apply to all entities)" }]}
                 mb={10}
                 onChange={(value) => setRelatedEntity(value!)}
               />

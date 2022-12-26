@@ -421,6 +421,8 @@ export interface paths {
           id?: parameters["rowFilter.ontology.id"];
           created_at?: parameters["rowFilter.ontology.created_at"];
           name?: parameters["rowFilter.ontology.name"];
+          description?: parameters["rowFilter.ontology.description"];
+          is_default?: parameters["rowFilter.ontology.is_default"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -474,6 +476,8 @@ export interface paths {
           id?: parameters["rowFilter.ontology.id"];
           created_at?: parameters["rowFilter.ontology.created_at"];
           name?: parameters["rowFilter.ontology.name"];
+          description?: parameters["rowFilter.ontology.description"];
+          is_default?: parameters["rowFilter.ontology.is_default"];
         };
         header: {
           /** Preference */
@@ -491,6 +495,8 @@ export interface paths {
           id?: parameters["rowFilter.ontology.id"];
           created_at?: parameters["rowFilter.ontology.created_at"];
           name?: parameters["rowFilter.ontology.name"];
+          description?: parameters["rowFilter.ontology.description"];
+          is_default?: parameters["rowFilter.ontology.is_default"];
         };
         body: {
           /** ontology */
@@ -713,6 +719,7 @@ export interface definitions {
      * Format: uuid
      * @description Note:
      * This is a Primary Key.<pk/>
+     * @default gen_random_uuid()
      */
     id: string;
     /**
@@ -729,7 +736,7 @@ export interface definitions {
     /** Format: integer */
     end_index: number;
     /** Format: jsonb */
-    attributes: Record<string, string[]>;
+    attributes: any;
     /** Format: text */
     text: string;
   };
@@ -809,6 +816,13 @@ export interface definitions {
     created_at: string;
     /** Format: character varying */
     name: string;
+    /** Format: text */
+    description?: string;
+    /**
+     * Format: boolean
+     * @default false
+     */
+    is_default: boolean;
   };
   workspace_document: {
     /**
@@ -945,6 +959,10 @@ export interface parameters {
   "rowFilter.ontology.created_at": string;
   /** Format: character varying */
   "rowFilter.ontology.name": string;
+  /** Format: text */
+  "rowFilter.ontology.description": string;
+  /** Format: boolean */
+  "rowFilter.ontology.is_default": string;
   /** @description workspace_document */
   "body.workspace_document": definitions["workspace_document"];
   /** Format: uuid */

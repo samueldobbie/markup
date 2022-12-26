@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom"
-import { Container, Grid, ScrollArea } from "@mantine/core"
+import { Container, Grid } from "@mantine/core"
 import { moveToPage } from "utils/Location"
 import { Path } from "utils/Path"
 import { useEffect, useState } from "react"
@@ -32,8 +32,6 @@ function Annotate() {
         }
       })
   }, [id])
-
-  // </ScrollArea>
 
   return (
     <Container sx={{ width: "95%", maxWidth: "95%" }}>
