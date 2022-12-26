@@ -1,6 +1,6 @@
 import { Group, Button, ActionIcon, Grid, Modal, TextInput, useMantineTheme, Text, Card, Table } from "@mantine/core"
 import { Dropzone } from "@mantine/dropzone"
-import { IconTrash, IconEdit, IconFile, IconUpload, IconX, IconSearch } from "@tabler/icons"
+import { IconTrash, IconEdit, IconFile, IconUpload, IconX, IconSearch, IconCheck, IconPlus } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import { database, Ontology } from "storage/database/Database"
@@ -34,17 +34,21 @@ function OntologyTable() {
   })
 
   useEffect(() => {
+    refreshOntologies()
+  }, [])
+
+  const refreshOntologies = () => {
     database
       .getOntologies()
       .then(setOntologies)
-  }, [])
+  }
 
   return (
     <Card shadow="xs" radius={5}>
       <DataTable
         withBorder={false}
         highlightOnHover
-        emptyState="Upload an ontology or use an existing one"
+        emptyState="Upload an ontology or add an existing one"
         borderRadius={5}
         sx={{ minHeight: "400px" }}
         records={ontologies}
@@ -61,7 +65,7 @@ function OntologyTable() {
                     "exploreOntologies": true,
                   })
                 }} mr={5}>
-                  Use existing ontology
+                  Use common ontology
                 </Button>
 
                 <Button onClick={() => setOpenUploadModal(true)}>
@@ -91,6 +95,7 @@ function OntologyTable() {
       <ExploreOntologiesModal
         openedModal={openExploreModal}
         setOpenedModal={setOpenExploreModal}
+        refreshTable={refreshOntologies}
       />
 
       <UploadOntologyModal
@@ -101,9 +106,10 @@ function OntologyTable() {
   )
 }
 
-function ExploreOntologiesModal({ openedModal, setOpenedModal }: ModalProps) {
+function ExploreOntologiesModal({ openedModal, setOpenedModal, refreshTable }: ModalProps) {
   const [search, setSearch] = useDebouncedState("", 200)
   const [ontologies, setOntologies] = useState<Ontology[]>([])
+  const [activeOntologies, setActiveOntologies] = useState<Ontology[]>([])
 
   useEffect(() => {
     database
@@ -111,15 +117,33 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal }: ModalProps) {
       .then(setOntologies)
   }, [])
 
+  useEffect(() => {
+    database
+      .getOntologies()
+      .then(setActiveOntologies)
+      .then(refreshTable)
+  }, [refreshTable])
+
   const addOntology = (ontologyId: string) => {
-    database.useDefaultOntology(ontologyId)
+    database
+      .useDefaultOntology(ontologyId)
+      .then(() => {
+        const ontology = ontologies.find(i => i.id === ontologyId)!
+        setActiveOntologies([...activeOntologies, ontology])
+      })
+  }
+
+  const removeOntology = (ontologyId: string) => {
+    database
+      .removeDefaultOntology(ontologyId)
+      .then(() => setActiveOntologies(activeOntologies.filter(i => i.id !== ontologyId)))
   }
 
   return (
     <Modal
       opened={openedModal}
       onClose={() => setOpenedModal(false)}
-      title="Existing ontologies"
+      title="Common ontologies"
       centered
     >
       <TextInput
@@ -133,17 +157,38 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal }: ModalProps) {
         <tbody>
           {ontologies
             .filter(i => i.name.toLowerCase().includes(search.toLowerCase()))
-            .map((ontology) => (
-              <tr onClick={() => addOntology(ontology.id)}>
-                <td>{ontology.name}</td>
-                <td>{ontology.description ?? "No description"}</td>
-                <td>
-                  <Button variant="subtle">
-                    + Add
-                  </Button>
-                </td>
-              </tr>
-            ))}
+            .map((ontology) => {
+              const isActive = activeOntologies.some(i => i.id === ontology.id)
+
+              return (
+                <tr key={ontology.id}>
+                  <td>{ontology.name}</td>
+                  <td>{ontology.description ?? "No description"}</td>
+                  <td>
+                    {!isActive && (
+                      <Button
+                        variant="subtle"
+                        onClick={() => addOntology(ontology.id)}
+                        fullWidth
+                      >
+                        <IconPlus size={16} /> Add
+                      </Button>
+                    )}
+
+                    {isActive && (
+                      <Button
+                        variant="subtle"
+                        color="green"
+                        onClick={() => removeOntology(ontology.id)}
+                        fullWidth
+                      >
+                        <IconCheck size={16} /> Added
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              )
+            })}
         </tbody>
       </Table>
     </Modal>
@@ -153,6 +198,11 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal }: ModalProps) {
 function UploadOntologyModal({ openedModal, setOpenedModal }: ModalProps) {
   const theme = useMantineTheme()
 
+  const addOntology = () => {
+    // todo
+    database.addOntology()
+  }
+
   return (
     <Modal
       opened={openedModal}
@@ -161,18 +211,27 @@ function UploadOntologyModal({ openedModal, setOpenedModal }: ModalProps) {
       centered
     >
       <Grid>
-        <Grid.Col>
+        <Grid.Col xs={12}>
           <TextInput
             required
             withAsterisk
-            label="Ontology name"
+            label="Name"
             placeholder="UMLS"
           />
         </Grid.Col>
 
-        <Grid.Col>
-          <Text size={14}>
-            Ontology file
+        <Grid.Col xs={12}>
+          <TextInput
+            required
+            withAsterisk
+            label="Description"
+            placeholder="Clinical terminology"
+          />
+        </Grid.Col>
+
+        <Grid.Col xs={12}>
+          <Text size={16}>
+            Content <span style={{ color: theme.colors.red[theme.colorScheme === "dark" ? 4 : 6] }}>*</span>
           </Text>
 
           <Dropzone
@@ -217,7 +276,7 @@ function UploadOntologyModal({ openedModal, setOpenedModal }: ModalProps) {
         </Grid.Col>
 
         <Grid.Col>
-          <Button onClick={() => database.addOntology()}>
+          <Button onClick={addOntology}>
             Upload
           </Button>
         </Grid.Col>

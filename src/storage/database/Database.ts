@@ -307,8 +307,19 @@ async function getOntologies(): Promise<Ontology[]> {
   return data.map(i => i.ontology) as Ontology[]
 }
 
-async function removeDefaultOntology(ontologyId: string): Promise<boolean> {
-  return false
+async function removeDefaultOntology(ontologyId: string): Promise<void> {
+  const user = await supabase.auth.getUser()
+  const userId = user.data.user?.id ?? ""
+
+  const { error } = await supabase
+    .from("ontology_access")
+    .delete()
+    .eq("user_id", userId)
+    .eq("ontology_id", ontologyId)
+
+  if (error) {
+    console.error(error)
+  }
 }
 
 async function deleteOntology(ontologyId: string): Promise<boolean> {
@@ -336,5 +347,6 @@ export const database = {
   getOntologies,
   useDefaultOntology,
   getDefaultOntologies,
+  removeDefaultOntology,
   deleteOntology,
 }
