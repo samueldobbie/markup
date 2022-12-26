@@ -1,5 +1,6 @@
 import { definitions } from "./Definitions"
 import { supabase } from "../../utils/Supabase"
+import { OntologyRow } from "pages/dashboard/OntologyTable"
 
 export type Workspace = definitions["workspace"]
 export type WorkspaceAccess = definitions["workspace_access"]
@@ -252,8 +253,52 @@ async function deleteWorkspaceAnnotation(annotationId: string): Promise<boolean>
   return false
 }
 
-async function addOntology(): Promise<void> {
+async function addOntology(name: string, description: string, rows: OntologyRow[]): Promise<void> {
+  const { data, error } = await supabase
+    .from("ontology")
+    .insert({
+      name,
+      description
+    })
+    .select()
 
+  if (error) {
+    console.error(error)
+    return
+  }
+
+  const ontologyId = data[0].id
+  const user = await supabase.auth.getUser()
+  const userId = user.data.user?.id ?? ""
+
+  const { error: errorAccess } = await supabase
+    .from("ontology_access")
+    .insert({
+      user_id: userId,
+      ontology_id: ontologyId,
+    })
+
+  if (errorAccess) {
+    console.error(errorAccess)
+    return
+  }
+
+  const concepts = rows.map(i => ({
+    ontology_id: ontologyId,
+    concept: i.concept,
+    code: i.code,
+  }))
+
+  console.log(concepts)
+
+  const { error: errorRows } = await supabase
+    .from("ontology_concept")
+    .insert(concepts)
+
+  if (errorRows) {
+    console.error(errorRows)
+    return
+  }
 }
 
 async function useDefaultOntology(ontologyId: string): Promise<void> {
