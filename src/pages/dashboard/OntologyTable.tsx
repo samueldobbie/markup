@@ -111,6 +111,10 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal }: ModalProps) {
       .then(setOntologies)
   }, [])
 
+  const addOntology = (ontologyId: string) => {
+    database.useDefaultOntology(ontologyId)
+  }
+
   return (
     <Modal
       opened={openedModal}
@@ -130,7 +134,7 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal }: ModalProps) {
           {ontologies
             .filter(i => i.name.toLowerCase().includes(search.toLowerCase()))
             .map((ontology) => (
-              <tr onClick={() => alert("clicked")}>
+              <tr onClick={() => addOntology(ontology.id)}>
                 <td>{ontology.name}</td>
                 <td>{ontology.description ?? "No description"}</td>
                 <td>

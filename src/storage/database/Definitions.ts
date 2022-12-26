@@ -620,7 +620,7 @@ export interface paths {
           created_at?: parameters["rowFilter.ontology_access.created_at"];
           user_id?: parameters["rowFilter.ontology_access.user_id"];
           ontology_id?: parameters["rowFilter.ontology_access.ontology_id"];
-          role?: parameters["rowFilter.ontology_access.role"];
+          is_owner?: parameters["rowFilter.ontology_access.is_owner"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -675,7 +675,7 @@ export interface paths {
           created_at?: parameters["rowFilter.ontology_access.created_at"];
           user_id?: parameters["rowFilter.ontology_access.user_id"];
           ontology_id?: parameters["rowFilter.ontology_access.ontology_id"];
-          role?: parameters["rowFilter.ontology_access.role"];
+          is_owner?: parameters["rowFilter.ontology_access.is_owner"];
         };
         header: {
           /** Preference */
@@ -694,7 +694,7 @@ export interface paths {
           created_at?: parameters["rowFilter.ontology_access.created_at"];
           user_id?: parameters["rowFilter.ontology_access.user_id"];
           ontology_id?: parameters["rowFilter.ontology_access.ontology_id"];
-          role?: parameters["rowFilter.ontology_access.role"];
+          is_owner?: parameters["rowFilter.ontology_access.is_owner"];
         };
         body: {
           /** ontology_access */
@@ -861,8 +861,11 @@ export interface definitions {
     user_id: string;
     /** Format: uuid */
     ontology_id: string;
-    /** Format: character varying */
-    role: string;
+    /**
+     * Format: boolean
+     * @default false
+     */
+    is_owner: boolean;
   };
 }
 
@@ -985,8 +988,8 @@ export interface parameters {
   "rowFilter.ontology_access.user_id": string;
   /** Format: uuid */
   "rowFilter.ontology_access.ontology_id": string;
-  /** Format: character varying */
-  "rowFilter.ontology_access.role": string;
+  /** Format: boolean */
+  "rowFilter.ontology_access.is_owner": string;
 }
 
 export interface operations {}

@@ -252,8 +252,20 @@ async function deleteWorkspaceAnnotation(annotationId: string): Promise<boolean>
   return false
 }
 
-async function addOntology(): Promise<boolean> {
-  return false
+async function addOntology(): Promise<void> {
+
+}
+
+async function useDefaultOntology(ontologyId: string): Promise<void> {
+  const user = await supabase.auth.getUser()
+  const userId = user.data.user?.id ?? ""
+
+  await supabase
+    .from("ontology_access")
+    .insert({
+      user_id: userId,
+      ontology_id: ontologyId,
+    })
 }
 
 async function getDefaultOntologies(): Promise<Ontology[]> {
@@ -261,7 +273,7 @@ async function getDefaultOntologies(): Promise<Ontology[]> {
     .from("ontology")
     .select()
     .eq("is_default", true)
-  
+
   if (error) {
     console.error(error)
     return []
@@ -271,7 +283,32 @@ async function getDefaultOntologies(): Promise<Ontology[]> {
 }
 
 async function getOntologies(): Promise<Ontology[]> {
-  return []
+  const user = await supabase.auth.getUser()
+  const userId = user.data.user?.id ?? ""
+
+  const { data, error } = await supabase
+    .from("ontology_access")
+    .select(`
+      ontology (
+        id,
+        created_at,
+        name,
+        description,
+        is_default
+      )
+    `)
+    .eq("user_id", userId)
+
+  if (error) {
+    console.error(error)
+    return []
+  }
+
+  return data.map(i => i.ontology) as Ontology[]
+}
+
+async function removeDefaultOntology(ontologyId: string): Promise<boolean> {
+  return false
 }
 
 async function deleteOntology(ontologyId: string): Promise<boolean> {
@@ -296,7 +333,8 @@ export const database = {
   deleteWorkspaceAnnotation,
 
   addOntology,
-  getDefaultOntologies,
   getOntologies,
+  useDefaultOntology,
+  getDefaultOntologies,
   deleteOntology,
 }
