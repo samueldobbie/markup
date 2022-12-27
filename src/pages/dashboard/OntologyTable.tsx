@@ -1,6 +1,6 @@
-import { Group, Button, ActionIcon, Grid, Modal, TextInput, useMantineTheme, Text, Card, Table, Anchor } from "@mantine/core"
+import { Group, Button, ActionIcon, Grid, Modal, TextInput, useMantineTheme, Text, Card, Table, Anchor, Center } from "@mantine/core"
 import { Dropzone } from "@mantine/dropzone"
-import { IconTrash, IconEdit, IconFile, IconUpload, IconX, IconSearch, IconCheck, IconPlus } from "@tabler/icons"
+import { IconTrash, IconFile, IconUpload, IconX, IconSearch, IconCheck, IconPlus } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import { database, Ontology } from "storage/database/Database"
@@ -13,8 +13,9 @@ import { useDebouncedState } from "@mantine/hooks"
 function OntologyTable() {
   const [openExploreModal, setOpenExploreModal] = useState(false)
   const [openUploadModal, setOpenUploadModal] = useState(false)
-  const [ontologies, setOntologies] = useState<Ontology[]>([])
   const [tutorialProgress, setTutorialProgress] = useRecoilState(tutorialProgressState)
+  const [ontologies, setOntologies] = useState<Ontology[]>([])
+  const [activeOntologies, setActiveOntologies] = useState<Ontology[]>([])
 
   const openConfirmDelete = (ontology: Ontology) => openConfirmModal({
     title: <>Are you sure you want to delete the '{ontology.name}' ontology?</>,
@@ -27,17 +28,21 @@ function OntologyTable() {
     labels: { confirm: "Delete", cancel: "Cancel" },
     onConfirm: () => {
       database
-        .deleteOntology(ontology.id)
+        .deleteOntology(ontology.id, ontology.is_default)
         .then(() => setOntologies(ontologies.filter(i => i.id !== ontology.id)))
         .catch(alert)
     },
   })
 
   useEffect(() => {
-    refreshOntologies()
+    refreshTable()
   }, [])
 
-  const refreshOntologies = () => {
+  useEffect(() => {
+    refreshTable()
+  }, [activeOntologies])
+
+  const refreshTable = () => {
     database
       .getOntologies()
       .then(setOntologies)
@@ -82,10 +87,6 @@ function OntologyTable() {
                     onClick={() => openConfirmDelete(ontology)}
                   />
                 </ActionIcon>
-
-                <ActionIcon>
-                  <IconEdit size={16} />
-                </ActionIcon>
               </Group>
             ),
           },
@@ -95,21 +96,29 @@ function OntologyTable() {
       <ExploreOntologiesModal
         openedModal={openExploreModal}
         setOpenedModal={setOpenExploreModal}
-        refreshTable={refreshOntologies}
+        activeOntologies={activeOntologies}
+        setActiveOntologies={setActiveOntologies}
       />
 
       <UploadOntologyModal
         openedModal={openUploadModal}
         setOpenedModal={setOpenUploadModal}
+        refreshTable={refreshTable}
       />
     </Card>
   )
 }
 
-function ExploreOntologiesModal({ openedModal, setOpenedModal, refreshTable }: ModalProps) {
+interface Props {
+  openedModal: boolean
+  setOpenedModal: (value: boolean) => void
+  activeOntologies: Ontology[]
+  setActiveOntologies: (value: Ontology[]) => void
+}
+
+function ExploreOntologiesModal({ openedModal, setOpenedModal, activeOntologies, setActiveOntologies }: Props) {
   const [search, setSearch] = useDebouncedState("", 200)
   const [ontologies, setOntologies] = useState<Ontology[]>([])
-  const [activeOntologies, setActiveOntologies] = useState<Ontology[]>([])
 
   useEffect(() => {
     database
@@ -121,8 +130,7 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal, refreshTable }: M
     database
       .getOntologies()
       .then(setActiveOntologies)
-      .then(refreshTable)
-  }, [refreshTable])
+  }, [setActiveOntologies])
 
   const addOntology = (ontologyId: string) => {
     database
@@ -200,7 +208,7 @@ export interface OntologyRow {
   code: string
 }
 
-function UploadOntologyModal({ openedModal, setOpenedModal }: ModalProps) {
+function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: ModalProps) {
   const theme = useMantineTheme()
 
   const [name, setName] = useState("")
@@ -235,6 +243,8 @@ function UploadOntologyModal({ openedModal, setOpenedModal }: ModalProps) {
         setName("")
         setDescription("")
         setFile(null)
+        setOpenedModal(false)
+        refreshTable!()
       })
   }
 
@@ -282,23 +292,41 @@ function UploadOntologyModal({ openedModal, setOpenedModal }: ModalProps) {
           >
             <Group position="center" spacing="xl" style={{ minHeight: 220, pointerEvents: "none" }}>
               <Dropzone.Accept>
-                <IconUpload
-                  size={50}
-                  stroke={1.5}
-                  color={theme.colors[theme.primaryColor][theme.colorScheme === "dark" ? 4 : 6]}
-                />
+                <Center>
+                  <IconUpload
+                    size={50}
+                    stroke={1.5}
+                    color={theme.colors[theme.primaryColor][theme.colorScheme === "dark" ? 4 : 6]}
+                  />
+                </Center>
+
+                <Text size="sm" color="dimmed" mt={7}>
+                  {file ? file.name : "No file selected"}
+                </Text>
               </Dropzone.Accept>
 
               <Dropzone.Reject>
-                <IconX
-                  size={50}
-                  stroke={1.5}
-                  color={theme.colors.red[theme.colorScheme === "dark" ? 4 : 6]}
-                />
+                <Center>
+                  <IconX
+                    size={50}
+                    stroke={1.5}
+                    color={theme.colors.red[theme.colorScheme === "dark" ? 4 : 6]}
+                  />
+                </Center>
+
+                <Text size="lg" color="dimmed" mt={7}>
+                  {file ? file.name : "No file selected"}
+                </Text>
               </Dropzone.Reject>
 
               <Dropzone.Idle>
-                <IconFile size={50} stroke={1.5} />
+                <Center>
+                  <IconFile size={50} stroke={1.5} />
+                </Center>
+
+                <Text size="lg" color="dimmed" mt={7}>
+                  {file ? file.name : "No file selected"}
+                </Text>
               </Dropzone.Idle>
 
               <div style={{ textAlign: "center" }}>

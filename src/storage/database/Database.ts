@@ -258,7 +258,7 @@ async function addOntology(name: string, description: string, rows: OntologyRow[
     .from("ontology")
     .insert({
       name,
-      description
+      description,
     })
     .select()
 
@@ -276,6 +276,7 @@ async function addOntology(name: string, description: string, rows: OntologyRow[
     .insert({
       user_id: userId,
       ontology_id: ontologyId,
+      is_owner: true,
     })
 
   if (errorAccess) {
@@ -288,8 +289,6 @@ async function addOntology(name: string, description: string, rows: OntologyRow[
     concept: i.concept,
     code: i.code,
   }))
-
-  console.log(concepts)
 
   const { error: errorRows } = await supabase
     .from("ontology_concept")
@@ -367,7 +366,55 @@ async function removeDefaultOntology(ontologyId: string): Promise<void> {
   }
 }
 
-async function deleteOntology(ontologyId: string): Promise<boolean> {
+async function deleteOntology(ontologyId: string, isDefault: boolean): Promise<boolean> {
+  const user = await supabase.auth.getUser()
+  const userId = user.data.user?.id ?? ""
+
+  if (!isDefault) {
+    const { error: ontologyConceptError } = await supabase
+      .from("ontology_concept")
+      .delete()
+      .eq("ontology_id", ontologyId)
+
+    if (ontologyConceptError) {
+      console.error(ontologyConceptError)
+      return true
+    }
+
+    const { error: ontologyAccessError } = await supabase
+      .from("ontology_access")
+      .delete()
+      .eq("ontology_id", ontologyId)
+      .eq("user_id", userId)
+
+    if (ontologyAccessError) {
+      console.error(ontologyAccessError)
+      return true
+    }
+
+    const { error: ontologyError } = await supabase
+      .from("ontology")
+      .delete()
+      .eq("id", ontologyId)
+
+    if (ontologyError) {
+      console.error(ontologyError)
+      return true
+    }
+  } else {
+
+    const { error: ontologyAccessError } = await supabase
+      .from("ontology_access")
+      .delete()
+      .eq("ontology_id", ontologyId)
+      .eq("user_id", userId)
+
+    if (ontologyAccessError) {
+      console.error(ontologyAccessError)
+      return true
+    }
+  }
+
   return false
 }
 
