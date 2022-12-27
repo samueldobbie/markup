@@ -1,5 +1,5 @@
 import { Group, Button, ActionIcon, Text, FileButton, Card, Modal, Grid, MultiSelect, Select, TextInput, Divider } from "@mantine/core"
-import { IconTrash } from "@tabler/icons"
+import { IconTrashX } from "@tabler/icons"
 import saveAs from "file-saver"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
@@ -96,19 +96,19 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
               ),
               textAlignment: "right",
               render: (config) => (
-                <Group spacing={4} position="right" noWrap>
-                  <ActionIcon color="primary">
-                    <IconTrash
+                <Group spacing={8} position="right" noWrap>
+                  <ActionIcon
+                    color="primary"
+                    onClick={() => {
+                      database
+                        .deleteWorkspaceConfig(config.id)
+                        .then(() => setConfigs([]))
+                        .catch(alert)
+                    }}
+                  >
+                    <IconTrashX
                       size={16}
                       style={{ color: "rgb(217 138 138)" }}
-                      onClick={(event) => {
-                        event.stopPropagation()
-
-                        database
-                          .deleteWorkspaceConfig(config.id)
-                          .then(() => setConfigs([]))
-                          .catch(alert)
-                      }}
                     />
                   </ActionIcon>
                 </Group>

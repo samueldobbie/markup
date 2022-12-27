@@ -219,6 +219,105 @@ export interface paths {
       };
     };
   };
+  "/ontology_concept": {
+    get: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.ontology_concept.id"];
+          created_at?: parameters["rowFilter.ontology_concept.created_at"];
+          ontology_id?: parameters["rowFilter.ontology_concept.ontology_id"];
+          concept?: parameters["rowFilter.ontology_concept.concept"];
+          code?: parameters["rowFilter.ontology_concept.code"];
+          /** Filtering Columns */
+          select?: parameters["select"];
+          /** Ordering */
+          order?: parameters["order"];
+          /** Limiting and Pagination */
+          offset?: parameters["offset"];
+          /** Limiting and Pagination */
+          limit?: parameters["limit"];
+        };
+        header: {
+          /** Limiting and Pagination */
+          Range?: parameters["range"];
+          /** Limiting and Pagination */
+          "Range-Unit"?: parameters["rangeUnit"];
+          /** Preference */
+          Prefer?: parameters["preferCount"];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["ontology_concept"][];
+        };
+        /** Partial Content */
+        206: unknown;
+      };
+    };
+    post: {
+      parameters: {
+        body: {
+          /** ontology_concept */
+          ontology_concept?: definitions["ontology_concept"];
+        };
+        query: {
+          /** Filtering Columns */
+          select?: parameters["select"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** Created */
+        201: unknown;
+      };
+    };
+    delete: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.ontology_concept.id"];
+          created_at?: parameters["rowFilter.ontology_concept.created_at"];
+          ontology_id?: parameters["rowFilter.ontology_concept.ontology_id"];
+          concept?: parameters["rowFilter.ontology_concept.concept"];
+          code?: parameters["rowFilter.ontology_concept.code"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+    patch: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.ontology_concept.id"];
+          created_at?: parameters["rowFilter.ontology_concept.created_at"];
+          ontology_id?: parameters["rowFilter.ontology_concept.ontology_id"];
+          concept?: parameters["rowFilter.ontology_concept.concept"];
+          code?: parameters["rowFilter.ontology_concept.code"];
+        };
+        body: {
+          /** ontology_concept */
+          ontology_concept?: definitions["ontology_concept"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+  };
   "/workspace_config": {
     get: {
       parameters: {
@@ -325,6 +424,7 @@ export interface paths {
           id?: parameters["rowFilter.workspace.id"];
           created_at?: parameters["rowFilter.workspace.created_at"];
           name?: parameters["rowFilter.workspace.name"];
+          description?: parameters["rowFilter.workspace.description"];
           views?: parameters["rowFilter.workspace.views"];
           /** Filtering Columns */
           select?: parameters["select"];
@@ -379,6 +479,7 @@ export interface paths {
           id?: parameters["rowFilter.workspace.id"];
           created_at?: parameters["rowFilter.workspace.created_at"];
           name?: parameters["rowFilter.workspace.name"];
+          description?: parameters["rowFilter.workspace.description"];
           views?: parameters["rowFilter.workspace.views"];
         };
         header: {
@@ -397,6 +498,7 @@ export interface paths {
           id?: parameters["rowFilter.workspace.id"];
           created_at?: parameters["rowFilter.workspace.created_at"];
           name?: parameters["rowFilter.workspace.name"];
+          description?: parameters["rowFilter.workspace.description"];
           views?: parameters["rowFilter.workspace.views"];
         };
         body: {
@@ -760,6 +862,30 @@ export interface definitions {
     /** Format: character varying */
     role?: string;
   };
+  ontology_concept: {
+    /**
+     * Format: uuid
+     * @description Note:
+     * This is a Primary Key.<pk/>
+     * @default gen_random_uuid()
+     */
+    id: string;
+    /**
+     * Format: timestamp without time zone
+     * @default now()
+     */
+    created_at: string;
+    /**
+     * Format: uuid
+     * @description Note:
+     * This is a Foreign Key to `ontology.id`.<fk table='ontology' column='id'/>
+     */
+    ontology_id: string;
+    /** Format: character varying */
+    concept: string;
+    /** Format: character varying */
+    code: string;
+  };
   workspace_config: {
     /**
      * Format: uuid
@@ -795,6 +921,8 @@ export interface definitions {
     created_at: string;
     /** Format: character varying */
     name: string;
+    /** Format: text */
+    description?: string;
     /**
      * Format: integer
      * @default 0
@@ -859,7 +987,11 @@ export interface definitions {
     created_at: string;
     /** Format: uuid */
     user_id: string;
-    /** Format: uuid */
+    /**
+     * Format: uuid
+     * @description Note:
+     * This is a Foreign Key to `ontology.id`.<fk table='ontology' column='id'/>
+     */
     ontology_id: string;
     /**
      * Format: boolean
@@ -932,6 +1064,18 @@ export interface parameters {
   "rowFilter.workspace_access.workspace_id": string;
   /** Format: character varying */
   "rowFilter.workspace_access.role": string;
+  /** @description ontology_concept */
+  "body.ontology_concept": definitions["ontology_concept"];
+  /** Format: uuid */
+  "rowFilter.ontology_concept.id": string;
+  /** Format: timestamp without time zone */
+  "rowFilter.ontology_concept.created_at": string;
+  /** Format: uuid */
+  "rowFilter.ontology_concept.ontology_id": string;
+  /** Format: character varying */
+  "rowFilter.ontology_concept.concept": string;
+  /** Format: character varying */
+  "rowFilter.ontology_concept.code": string;
   /** @description workspace_config */
   "body.workspace_config": definitions["workspace_config"];
   /** Format: uuid */
@@ -952,6 +1096,8 @@ export interface parameters {
   "rowFilter.workspace.created_at": string;
   /** Format: character varying */
   "rowFilter.workspace.name": string;
+  /** Format: text */
+  "rowFilter.workspace.description": string;
   /** Format: integer */
   "rowFilter.workspace.views": string;
   /** @description ontology */

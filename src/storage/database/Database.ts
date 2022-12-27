@@ -12,13 +12,16 @@ export type RawAnnotation = Omit<Omit<Omit<definitions["workspace_annotation"], 
 export type Ontology = definitions["ontology"]
 export type OntologyAccess = definitions["ontology_access"]
 
-async function addWorkspace(name: string): Promise<Workspace[]> {
+async function addWorkspace(name: string, description: string): Promise<Workspace[]> {
   const user = await supabase.auth.getUser()
   const userId = user.data.user?.id ?? ""
 
   const { data: workspace, error: workspaceError } = await supabase
     .from("workspace")
-    .insert({ name })
+    .insert({
+      name,
+      description,
+    })
     .select()
 
   if (workspaceError) {

@@ -1,5 +1,5 @@
 import { Group, Button, ActionIcon, Text, FileButton, Tooltip, Card } from "@mantine/core"
-import { IconTrash } from "@tabler/icons"
+import { IconTrashX } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import { database, WorkspaceDocument } from "storage/database/Database"
@@ -92,19 +92,19 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
             ),
             textAlignment: "right",
             render: (document) => (
-              <Group spacing={4} position="right" noWrap>
-                <ActionIcon color="primary">
-                  <IconTrash
+              <Group spacing={8} position="right" noWrap>
+                <ActionIcon
+                  color="primary"
+                  onClick={() => {
+                    database
+                      .deleteWorkspaceDocument(document.id)
+                      .then(() => setDocuments(documents.filter(i => i.id !== document.id)))
+                      .catch(alert)
+                  }}
+                >
+                  <IconTrashX
                     size={16}
                     style={{ color: "rgb(217 138 138)" }}
-                    onClick={(event) => {
-                      event.stopPropagation()
-
-                      database
-                        .deleteWorkspaceDocument(document.id)
-                        .then(() => setDocuments(documents.filter(i => i.id !== document.id)))
-                        .catch(alert)
-                    }}
                   />
                 </ActionIcon>
               </Group>

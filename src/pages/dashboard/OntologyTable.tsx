@@ -1,6 +1,6 @@
 import { Group, Button, ActionIcon, Grid, Modal, TextInput, useMantineTheme, Text, Card, Table, Anchor, Center } from "@mantine/core"
 import { Dropzone } from "@mantine/dropzone"
-import { IconTrash, IconFile, IconUpload, IconX, IconSearch, IconCheck, IconPlus } from "@tabler/icons"
+import { IconTrash, IconFile, IconUpload, IconX, IconSearch, IconCheck, IconPlus, IconTrashX } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import { database, Ontology } from "storage/database/Database"
@@ -53,11 +53,25 @@ function OntologyTable() {
         sx={{ minHeight: "400px" }}
         records={ontologies}
         columns={[
-          { accessor: "name", title: <Text size={16}>Ontology</Text> },
+          {
+            accessor: "name",
+            title: <Text size={16}>Ontology</Text>,
+            render: (ontology) => (
+              <>
+                <Text>
+                  {ontology.name}
+                </Text>
+
+                <Text size="sm" color="dimmed">
+                  {ontology.description}
+                </Text>
+              </>
+            ),
+          },
           {
             accessor: "actions",
             title: (
-              <Group spacing={4} position="right" noWrap>
+              <Group spacing={8} position="right" noWrap>
                 <Button variant="subtle" onClick={() => {
                   setOpenExploreModal(true)
                   setTutorialProgress({
@@ -75,11 +89,15 @@ function OntologyTable() {
             ),
             textAlignment: "right",
             render: (ontology) => (
-              <Group spacing={4} position="right" noWrap>
-                <ActionIcon>
-                  <IconTrash
+              <Group spacing={8} position="right" noWrap>
+                <ActionIcon
+                  color="primary"
+                  variant="subtle"
+                  onClick={() => openConfirmDelete(ontology)}
+                >
+                  <IconTrashX
                     size={16}
-                    onClick={() => openConfirmDelete(ontology)}
+                    style={{ color: "rgb(217 138 138)" }}
                   />
                 </ActionIcon>
               </Group>

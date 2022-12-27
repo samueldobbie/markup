@@ -50,6 +50,17 @@ function WorkspaceTable() {
           {
             accessor: "name",
             title: <Text size={16}>Workspaces</Text>,
+            render: (workspace) => (
+              <>
+                <Text>
+                  {workspace.name}
+                </Text>
+
+                <Text size="sm" color="dimmed">
+                  {workspace.description}
+                </Text>
+              </>
+            ),
           },
           {
             accessor: "actions",
@@ -98,6 +109,7 @@ function WorkspaceTable() {
 
 interface CreateWorkspaceForm {
   name: string
+  description?: string
 }
 
 function CreateWorkspaceModal({ openedModal, setOpenedModal }: ModalProps) {
@@ -106,12 +118,13 @@ function CreateWorkspaceModal({ openedModal, setOpenedModal }: ModalProps) {
   const form = useForm({
     initialValues: {
       name: "",
+      description: "",
     }
   })
 
   const handleCreateWorkspace = async (form: CreateWorkspaceForm) => {
-    const { name } = form
-    const workspaces = await database.addWorkspace(name)
+    const { name, description } = form
+    const workspaces = await database.addWorkspace(name, description || "")
 
     if (workspaces.length === 0) {
       alert("Failed to create workspace")
@@ -136,17 +149,25 @@ function CreateWorkspaceModal({ openedModal, setOpenedModal }: ModalProps) {
         })
       })}>
         <Grid>
-          <Grid.Col>
+          <Grid.Col xs={12}>
             <TextInput
               required
               withAsterisk
-              label="Workspace name"
+              label="Name"
               placeholder="Clinical letters"
               {...form.getInputProps("name")}
             />
           </Grid.Col>
 
-          <Grid.Col>
+          <Grid.Col xs={12}>
+            <TextInput
+              label="Description"
+              placeholder="500 letters provided by LSE hospital"
+              {...form.getInputProps("description")}
+            />
+          </Grid.Col>
+
+          <Grid.Col xs={12}>
             <Button type="submit">
               Create
             </Button>
