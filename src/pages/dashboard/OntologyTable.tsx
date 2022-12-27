@@ -15,7 +15,6 @@ function OntologyTable() {
   const [openUploadModal, setOpenUploadModal] = useState(false)
   const [tutorialProgress, setTutorialProgress] = useRecoilState(tutorialProgressState)
   const [ontologies, setOntologies] = useState<Ontology[]>([])
-  const [activeOntologies, setActiveOntologies] = useState<Ontology[]>([])
 
   const openConfirmDelete = (ontology: Ontology) => openConfirmModal({
     title: <>Are you sure you want to delete the '{ontology.name}' ontology?</>,
@@ -37,10 +36,6 @@ function OntologyTable() {
   useEffect(() => {
     refreshTable()
   }, [])
-
-  useEffect(() => {
-    refreshTable()
-  }, [activeOntologies])
 
   const refreshTable = () => {
     database
@@ -96,8 +91,8 @@ function OntologyTable() {
       <ExploreOntologiesModal
         openedModal={openExploreModal}
         setOpenedModal={setOpenExploreModal}
-        activeOntologies={activeOntologies}
-        setActiveOntologies={setActiveOntologies}
+        ontologies={ontologies}
+        setOntologies={setOntologies}
       />
 
       <UploadOntologyModal
@@ -112,39 +107,33 @@ function OntologyTable() {
 interface Props {
   openedModal: boolean
   setOpenedModal: (value: boolean) => void
-  activeOntologies: Ontology[]
-  setActiveOntologies: (value: Ontology[]) => void
+  ontologies: Ontology[]
+  setOntologies: (value: Ontology[]) => void
 }
 
-function ExploreOntologiesModal({ openedModal, setOpenedModal, activeOntologies, setActiveOntologies }: Props) {
+function ExploreOntologiesModal({ openedModal, setOpenedModal, ontologies, setOntologies }: Props) {
   const [search, setSearch] = useDebouncedState("", 200)
-  const [ontologies, setOntologies] = useState<Ontology[]>([])
+  const [defaultOntologies, setDefaultOntologies] = useState<Ontology[]>([])
 
   useEffect(() => {
     database
       .getDefaultOntologies()
-      .then(setOntologies)
+      .then(setDefaultOntologies)
   }, [])
-
-  useEffect(() => {
-    database
-      .getOntologies()
-      .then(setActiveOntologies)
-  }, [setActiveOntologies])
 
   const addOntology = (ontologyId: string) => {
     database
       .useDefaultOntology(ontologyId)
       .then(() => {
-        const ontology = ontologies.find(i => i.id === ontologyId)!
-        setActiveOntologies([...activeOntologies, ontology])
+        const ontology = defaultOntologies.find(i => i.id === ontologyId)!
+        setOntologies([...ontologies, ontology])
       })
   }
 
   const removeOntology = (ontologyId: string) => {
     database
       .removeDefaultOntology(ontologyId)
-      .then(() => setActiveOntologies(activeOntologies.filter(i => i.id !== ontologyId)))
+      .then(() => setOntologies(ontologies.filter(i => i.id !== ontologyId)))
   }
 
   return (
@@ -163,20 +152,20 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal, activeOntologies,
 
       <Table>
         <tbody>
-          {ontologies
+          {defaultOntologies
             .filter(i => i.name.toLowerCase().includes(search.toLowerCase()))
-            .map((ontology) => {
-              const isActive = activeOntologies.some(i => i.id === ontology.id)
+            .map((defaultOntology) => {
+              const isActive = ontologies.some(i => i.id === defaultOntology.id)
 
               return (
-                <tr key={ontology.id}>
-                  <td>{ontology.name}</td>
-                  <td>{ontology.description ?? "No description"}</td>
+                <tr key={defaultOntology.id}>
+                  <td>{defaultOntology.name}</td>
+                  <td>{defaultOntology.description ?? "No description"}</td>
                   <td>
                     {!isActive && (
                       <Button
                         variant="subtle"
-                        onClick={() => addOntology(ontology.id)}
+                        onClick={() => addOntology(defaultOntology.id)}
                         fullWidth
                       >
                         <IconPlus size={16} /> Add
@@ -187,7 +176,7 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal, activeOntologies,
                       <Button
                         variant="subtle"
                         color="green"
-                        onClick={() => removeOntology(ontology.id)}
+                        onClick={() => removeOntology(defaultOntology.id)}
                         fullWidth
                       >
                         <IconCheck size={16} /> Added
