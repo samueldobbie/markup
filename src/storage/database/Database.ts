@@ -222,6 +222,29 @@ async function addWorkspaceAnnotation(
   return annotation[0]
 }
 
+async function addWorkspaceAnnotations(
+  documentId: string,
+  rawAnnotations: RawAnnotation[],
+): Promise<void> {
+  const { data: annotations, error } = await supabase
+    .from("workspace_annotation")
+    .insert(
+      rawAnnotations.map((rawAnnotation) => ({
+        document_id: documentId,
+        entity: rawAnnotation.entity,
+        start_index: rawAnnotation.start_index,
+        end_index: rawAnnotation.end_index,
+        text: rawAnnotation.text,
+        attributes: rawAnnotation.attributes,
+      })),
+    )
+    .select()
+
+  if (error || annotations === null || annotations.length === 0) {
+    console.error(error)
+  }
+}
+
 async function getWorkspaceAnnotations(documentIds: string[]): Promise<WorkspaceAnnotation[][]> {
   const { data: annotations, error } = await supabase
     .from("workspace_annotation")
@@ -435,6 +458,7 @@ export const database = {
   deleteWorkspaceConfig,
 
   addWorkspaceAnnotation,
+  addWorkspaceAnnotations,
   getWorkspaceAnnotations,
   deleteWorkspaceAnnotation,
 

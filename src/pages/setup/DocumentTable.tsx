@@ -2,13 +2,12 @@ import { Group, Button, ActionIcon, Text, FileButton, Tooltip, Card } from "@man
 import { IconFilePlus, IconTrashX } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
-import { database, WorkspaceDocument } from "storage/database/Database"
+import { database, RawAnnotation, WorkspaceDocument } from "storage/database/Database"
 import { SectionProps } from "./Setup"
 
 function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: SectionProps) {
   const [documents, setDocuments] = useState<WorkspaceDocument[]>([])
   const [documentFiles, setDocumentFiles] = useState<File[]>([])
-  const [annotationFile, setAnnotationFile] = useState<File | null>(null)
 
   useEffect(() => {
     database
@@ -26,25 +25,49 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
           setDocumentFiles([])
           setDocuments([...documents, ...insertedDocuments])
         })
+        .catch(console.error)
     }
 
     func()
   }, [documents, documentFiles, workspace.id])
 
-  // useEffect(() => {
-  //   if (annotationFiles.length === 0) return
+  const uploadAnnotations = (documentId: string, file: File) => {
+    const rawAnnotationMap: Record<string, RawAnnotation> = {}
 
-  //   const func = async () => {
-  //     // database
-  //     //   .addWorkspaceAnnotations(workspace.id, annotationFiles)
-  //     //   .then(insertedAnnotations => {
-  //     //     setAnnotationFiles([])
-  //     //     setAnnotations([...annotations, ...insertedAnnotations])
-  //     //   })
-  //   }
+    file.text().then(content => {
+      const lines = content.split("\n")
 
-  //   func()
-  // }, [annotations, annotationFiles, workspace.id])
+      for (const line of lines) {
+        if (line.startsWith("T")) {
+          const [id, annotation, text] = line.split("\t")
+          const [entity, start, end] = annotation.split(" ")
+
+          rawAnnotationMap[id] = {
+            entity,
+            start_index: parseInt(start),
+            end_index: parseInt(end),
+            attributes: {},
+            text,
+          }
+        } else if (line.startsWith("A")) {
+          const [_, attribute] = line.split("\t")
+          const [name, targetId, value] = attribute.split(" ")
+
+          if (rawAnnotationMap[targetId]) {
+            if (!rawAnnotationMap[targetId].attributes[name]) {
+              rawAnnotationMap[targetId].attributes[name] = []
+            }
+
+            rawAnnotationMap[targetId].attributes[name].push(value)
+          }
+        }
+      }
+
+      database
+        .addWorkspaceAnnotations(documentId, Object.values(rawAnnotationMap))
+        .catch(console.error)
+    })
+  }
 
   useEffect(() => {
     if (setWorkspaceStatus === undefined) return
@@ -83,13 +106,13 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
             title: <Text size={16}>Documents</Text>,
             render: (document) => (
               <>
-              <Text>
-                {document.name}
-              </Text>
+                <Text>
+                  {document.name}
+                </Text>
 
-              <Text size="sm" color="dimmed">
-                {document.content.split(" ").length} words
-              </Text>
+                <Text size="sm" color="dimmed">
+                  {document.content.split(" ").length} words
+                </Text>
               </>
             ),
           },
@@ -109,9 +132,16 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
             textAlignment: "right",
             render: (document) => (
               <Group spacing={8} position="right" noWrap>
-                <FileButton onChange={setAnnotationFile} accept=".ann">
+                <FileButton
+                  accept=".ann"
+                  onChange={(file) => {
+                    if (file) {
+                      uploadAnnotations(document.id, file)
+                    }
+                  }}
+                >
                   {(props) => (
-                    <Tooltip label="Add annotations">
+                    <Tooltip label="Add existing annotations">
                       <ActionIcon
                         color="primary"
                         {...props}
