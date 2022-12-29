@@ -76,6 +76,17 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
             {
               accessor: "name",
               title: <Text size={16}>Config</Text>,
+              render: (config) => (
+                <>
+                <Text>
+                  {config.name}
+                </Text>
+  
+                <Text size="sm" color="dimmed">
+                  {config.content.split(" ").length} words
+                </Text>
+                </>
+              ),
             },
             {
               accessor: "actions",
@@ -263,11 +274,12 @@ function ConfigCreatorModal({ openedModal, setOpenedModal }: Props) {
                 label="Attribute name"
                 placeholder="Attribute name (e.g. 'Name')"
                 onChange={(event) => setAttributeName(event.target.value)}
+                mb={10}
               />
 
               <MultiSelect
-                label="Attribute values"
-                description="The possible values for this attribute (e.g. 'mg' and 'ml' for a 'Drug Dose' attribute)."
+                label="Default attribute values"
+                description="The default options that will show for this attribute (e.g. 'mg' and 'ml' for a 'Drug Dose' attribute). These can be changed during annotation."
                 nothingFound="Start typing to add attribute values"
                 placeholder="Start typing to add attribute values"
                 data={attributeValues}

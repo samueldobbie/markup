@@ -1,13 +1,14 @@
 import { Group, Button, ActionIcon, Text, FileButton, Tooltip, Card } from "@mantine/core"
-import { IconTrashX } from "@tabler/icons"
+import { IconFilePlus, IconTrashX } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import { database, WorkspaceDocument } from "storage/database/Database"
 import { SectionProps } from "./Setup"
 
 function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: SectionProps) {
-  const [files, setFiles] = useState<File[]>([])
   const [documents, setDocuments] = useState<WorkspaceDocument[]>([])
+  const [documentFiles, setDocumentFiles] = useState<File[]>([])
+  const [annotationFile, setAnnotationFile] = useState<File | null>(null)
 
   useEffect(() => {
     database
@@ -16,19 +17,34 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
   }, [workspace.id])
 
   useEffect(() => {
-    if (files.length === 0) return
+    if (documentFiles.length === 0) return
 
     const func = async () => {
       database
-        .addWorkspaceDocuments(workspace.id, files)
+        .addWorkspaceDocuments(workspace.id, documentFiles)
         .then(insertedDocuments => {
-          setFiles([])
+          setDocumentFiles([])
           setDocuments([...documents, ...insertedDocuments])
         })
     }
 
     func()
-  }, [documents, files, workspace.id])
+  }, [documents, documentFiles, workspace.id])
+
+  // useEffect(() => {
+  //   if (annotationFiles.length === 0) return
+
+  //   const func = async () => {
+  //     // database
+  //     //   .addWorkspaceAnnotations(workspace.id, annotationFiles)
+  //     //   .then(insertedAnnotations => {
+  //     //     setAnnotationFiles([])
+  //     //     setAnnotations([...annotations, ...insertedAnnotations])
+  //     //   })
+  //   }
+
+  //   func()
+  // }, [annotations, annotationFiles, workspace.id])
 
   useEffect(() => {
     if (setWorkspaceStatus === undefined) return
@@ -62,26 +78,26 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
           )
         }}
         columns={[
-          { accessor: "name", title: <Text size={16}>Documents</Text> },
+          {
+            accessor: "name",
+            title: <Text size={16}>Documents</Text>,
+            render: (document) => (
+              <>
+              <Text>
+                {document.name}
+              </Text>
+
+              <Text size="sm" color="dimmed">
+                {document.content.split(" ").length} words
+              </Text>
+              </>
+            ),
+          },
           {
             accessor: "actions",
             title: (
               <Group position="right">
-                <FileButton onChange={setFiles} accept=".ann" multiple>
-                  {(props) => (
-                    <Tooltip label="Each annotation filename (excl. file extension) must match the document you want to associate it with">
-                      <Button
-                        {...props}
-                        variant="subtle"
-                        disabled={documents.length === 0}
-                      >
-                        Upload annotations
-                      </Button>
-                    </Tooltip>
-                  )}
-                </FileButton>
-
-                <FileButton onChange={setFiles} accept=".txt" multiple>
+                <FileButton onChange={setDocumentFiles} accept=".txt" multiple>
                   {(props) => (
                     <Button {...props}>
                       Upload documents
@@ -93,20 +109,37 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
             textAlignment: "right",
             render: (document) => (
               <Group spacing={8} position="right" noWrap>
-                <ActionIcon
-                  color="primary"
-                  onClick={() => {
-                    database
-                      .deleteWorkspaceDocument(document.id)
-                      .then(() => setDocuments(documents.filter(i => i.id !== document.id)))
-                      .catch(alert)
-                  }}
-                >
-                  <IconTrashX
-                    size={16}
-                    style={{ color: "rgb(217 138 138)" }}
-                  />
-                </ActionIcon>
+                <FileButton onChange={setAnnotationFile} accept=".ann">
+                  {(props) => (
+                    <Tooltip label="Add annotations">
+                      <ActionIcon
+                        color="primary"
+                        {...props}
+                      >
+                        <IconFilePlus size={16} />
+                      </ActionIcon>
+                    </Tooltip>
+                  )}
+                </FileButton>
+
+                <Tooltip label="Delete document">
+                  <ActionIcon
+                    color="primary"
+                    onClick={(event: any) => {
+                      event.stopPropagation()
+
+                      database
+                        .deleteWorkspaceDocument(document.id)
+                        .then(() => setDocuments(documents.filter(i => i.id !== document.id)))
+                        .catch(alert)
+                    }}
+                  >
+                    <IconTrashX
+                      size={16}
+                      color="rgb(217 138 138)"
+                    />
+                  </ActionIcon>
+                </Tooltip>
               </Group>
             ),
           },

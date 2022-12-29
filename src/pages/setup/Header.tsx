@@ -28,8 +28,9 @@ function Header({ workspace, workspaceStatus }: SectionProps) {
 
         <Button
           disabled={!workspaceStatus.hasConfig || !workspaceStatus.hasDocument}
-          variant="gradient"
           onClick={() => moveToPage(toAnnotateUrl(id))}
+          variant="light"
+          color="green"
         >
           Annotate <IconArrowRight size={19} />
         </Button>
