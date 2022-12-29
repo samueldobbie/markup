@@ -1,4 +1,4 @@
-import { Group, Button, ActionIcon, Grid, Modal, TextInput, useMantineTheme, Text, Card, Table, Anchor, Center } from "@mantine/core"
+import { Group, Button, ActionIcon, Grid, Modal, TextInput, useMantineTheme, Text, Card, Table, Anchor, Center, Tooltip } from "@mantine/core"
 import { Dropzone } from "@mantine/dropzone"
 import { IconTrash, IconFile, IconUpload, IconX, IconSearch, IconCheck, IconPlus, IconTrashX } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
@@ -90,16 +90,18 @@ function OntologyTable() {
             textAlignment: "right",
             render: (ontology) => (
               <Group spacing={8} position="right" noWrap>
-                <ActionIcon
-                  color="primary"
-                  variant="subtle"
-                  onClick={() => openConfirmDelete(ontology)}
-                >
-                  <IconTrashX
-                    size={16}
-                    style={{ color: "rgb(217 138 138)" }}
-                  />
-                </ActionIcon>
+                <Tooltip label="Delete ontology">
+                  <ActionIcon
+                    color="primary"
+                    variant="subtle"
+                    onClick={() => openConfirmDelete(ontology)}
+                  >
+                    <IconTrashX
+                      size={16}
+                      style={{ color: "rgb(217 138 138)" }}
+                    />
+                  </ActionIcon>
+                </Tooltip>
               </Group>
             ),
           },

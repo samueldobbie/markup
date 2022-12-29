@@ -1,6 +1,6 @@
-import { Group, Button, ActionIcon, Text, Grid, Modal, TextInput, Card } from "@mantine/core"
+import { Group, Button, ActionIcon, Text, Grid, Modal, TextInput, Card, Tooltip } from "@mantine/core"
 import { useForm } from "@mantine/form"
-import { IconPlayerPlay, IconTrashX } from "@tabler/icons"
+import { IconPlayerPlay, IconTrashX, IconUserPlus } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import { database, Workspace } from "storage/database/Database"
@@ -72,27 +72,43 @@ function WorkspaceTable() {
             textAlignment: "right",
             render: (workspace) => (
               <Group spacing={8} position="right" noWrap>
-                <ActionIcon
-                  color="primary"
-                  variant="subtle"
-                  onClick={() => openConfirmDelete(workspace)}
-                >
-                  <IconTrashX
-                    size={16}
-                    style={{ color: "rgb(217 138 138)" }}
-                  />
-                </ActionIcon>
+                <Tooltip label="Delete workspace">
+                  <ActionIcon
+                    color="primary"
+                    variant="subtle"
+                    onClick={() => openConfirmDelete(workspace)}
+                  >
+                    <IconTrashX
+                      size={16}
+                      color="rgb(217 138 138)"
+                    />
+                  </ActionIcon>
+                </Tooltip>
 
-                <ActionIcon
-                  color="primary"
-                  variant="subtle"
-                  onClick={() => moveToPage(toSetupUrl(workspace.id))}
-                >
-                  <IconPlayerPlay
-                    size={16}
-                    style={{ color: "#8ad98a" }}
-                  />
-                </ActionIcon>
+                <Tooltip label="Add collaborators">
+                  <ActionIcon
+                    color="primary"
+                    variant="subtle"
+                    onClick={() => openConfirmDelete(workspace)}
+                  >
+                    <IconUserPlus
+                      size={16}
+                    />
+                  </ActionIcon>
+                </Tooltip>
+
+                <Tooltip label="Start annotation session">
+                  <ActionIcon
+                    color="primary"
+                    variant="subtle"
+                    onClick={() => moveToPage(toSetupUrl(workspace.id))}
+                  >
+                    <IconPlayerPlay
+                      size={16}
+                      color="#8ad98a"
+                    />
+                  </ActionIcon>
+                </Tooltip>
               </Group>
             ),
           },
