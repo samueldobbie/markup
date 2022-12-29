@@ -111,7 +111,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                 </Text>
 
                 <Text size="sm" color="dimmed">
-                  {document.content.split(" ").length} words
+                  No annotations
                 </Text>
               </>
             ),
@@ -146,7 +146,10 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                         color="primary"
                         {...props}
                       >
-                        <IconFilePlus size={16} />
+                        <IconFilePlus
+                          size={16}
+                          color="#acf2fa"
+                        />
                       </ActionIcon>
                     </Tooltip>
                   )}

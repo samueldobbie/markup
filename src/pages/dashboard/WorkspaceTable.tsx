@@ -1,6 +1,6 @@
-import { Group, Button, ActionIcon, Text, Grid, Modal, TextInput, Card, Tooltip } from "@mantine/core"
+import { Group, Button, ActionIcon, Text, Grid, Modal, TextInput, Card, Tooltip, Avatar } from "@mantine/core"
 import { useForm } from "@mantine/form"
-import { IconPlayerPlay, IconTrashX, IconUserPlus } from "@tabler/icons"
+import { IconPlayerPlay, IconTrashX, IconUsers } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import { database, Workspace } from "storage/database/Database"
@@ -12,10 +12,12 @@ import { tutorialProgressState } from "storage/state/Dashboard"
 import { useRecoilState } from "recoil"
 
 function WorkspaceTable() {
-  const [openedModal, setOpenedModal] = useState(false)
+  const [openedCreateWorkspaceModal, setOpenedCreateWorkspaceModal] = useState(false)
+  const [openedManageCollaboratorsModal, setOpenedManageCollaboratorsModal] = useState(false)
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
+  const [workspaceName, setWorkspaceName] = useState("adsadsa")
 
-  const openConfirmDelete = (workspace: Workspace) => openConfirmModal({
+  const openConfirmDeleteModal = (workspace: Workspace) => openConfirmModal({
     title: <>Are you sure you want to delete the '{workspace.name}' workspace?</>,
     children: (
       <Text size="sm" color="dimmed">
@@ -57,7 +59,7 @@ function WorkspaceTable() {
                 </Text>
 
                 <Text size="sm" color="dimmed">
-                  {workspace.description}
+                  {workspace.description} - Shared with 3 collaborators
                 </Text>
               </>
             ),
@@ -65,7 +67,7 @@ function WorkspaceTable() {
           {
             accessor: "actions",
             title: (
-              <Button onClick={() => setOpenedModal(true)}>
+              <Button onClick={() => setOpenedCreateWorkspaceModal(true)}>
                 Create workspace
               </Button>
             ),
@@ -76,7 +78,7 @@ function WorkspaceTable() {
                   <ActionIcon
                     color="primary"
                     variant="subtle"
-                    onClick={() => openConfirmDelete(workspace)}
+                    onClick={() => openConfirmDeleteModal(workspace)}
                   >
                     <IconTrashX
                       size={16}
@@ -85,19 +87,20 @@ function WorkspaceTable() {
                   </ActionIcon>
                 </Tooltip>
 
-                <Tooltip label="Add collaborators">
+                <Tooltip label="Manage collaborators">
                   <ActionIcon
                     color="primary"
                     variant="subtle"
-                    onClick={() => openConfirmDelete(workspace)}
+                    onClick={() => setOpenedManageCollaboratorsModal(true)}
                   >
-                    <IconUserPlus
+                    <IconUsers
                       size={16}
+                      color="#acf2fa"
                     />
                   </ActionIcon>
                 </Tooltip>
 
-                <Tooltip label="Start annotation session">
+                <Tooltip label="Annotate">
                   <ActionIcon
                     color="primary"
                     variant="subtle"
@@ -116,8 +119,14 @@ function WorkspaceTable() {
       />
 
       <CreateWorkspaceModal
-        openedModal={openedModal}
-        setOpenedModal={setOpenedModal}
+        openedModal={openedCreateWorkspaceModal}
+        setOpenedModal={setOpenedCreateWorkspaceModal}
+      />
+
+      <ManageCollaboratorsModal
+        openedModal={openedManageCollaboratorsModal}
+        setOpenedModal={setOpenedManageCollaboratorsModal}
+        workspaceName={workspaceName}
       />
     </Card>
   )
@@ -187,6 +196,102 @@ function CreateWorkspaceModal({ openedModal, setOpenedModal }: ModalProps) {
             <Button type="submit">
               Create
             </Button>
+          </Grid.Col>
+        </Grid>
+      </form>
+    </Modal>
+  )
+}
+
+interface Collaborator {
+  id: string
+  email: string
+}
+
+interface ManageCollaboratorsModalProps {
+  workspaceName: string
+  openedModal: boolean
+  setOpenedModal: (opened: boolean) => void
+}
+
+function ManageCollaboratorsModal({ workspaceName, openedModal, setOpenedModal }: ManageCollaboratorsModalProps) {
+  const [collaborators, setCollaborators] = useState<Collaborator[]>([
+    {
+      id: "1",
+      email: "john@doe.com",
+    },
+    {
+      id: "2",
+      email: "jane@doe.com",
+    },
+    {
+      id: "3",
+      email: "dsadsa@doe.com",
+    },
+    {
+      id: "4",
+      email: "ewqewq@doe.com",
+    },
+  ])
+
+  return (
+    <Modal
+      opened={openedModal}
+      onClose={() => setOpenedModal(false)}
+      title="Manage collaborators"
+      centered
+    >
+      <form>
+        <Grid>
+          {collaborators.slice(0, 3).map((collaborator, index) => (
+            <Grid.Col xs={12}>
+              <Group position="apart" noWrap>
+                <Group position="left" noWrap>
+                  <Avatar key={index} radius="xl" color="primary">
+                    {collaborator.email.slice(0, 2)}
+                  </Avatar>
+
+                  <Text>
+                    {collaborator.email}
+                  </Text>
+                </Group>
+
+                <Group position="right" noWrap>
+                  <Text>
+                    Pending
+                  </Text>
+
+                  <ActionIcon
+                    variant="subtle"
+                    color="red"
+                  >
+                    <IconTrashX size={16} />
+                  </ActionIcon>
+                </Group>
+              </Group>
+            </Grid.Col>
+          ))}
+
+          <Grid.Col xs={12}>
+            <Group>
+              <TextInput
+                label="Add collaborator"
+                placeholder="Enter their email"
+                description={
+                  <>
+                    Collaborators will have full access to the
+                    workspace <b>{workspaceName}</b>. The only
+                    action they <b>won't</b> be able to perform is
+                    deleting the workspace itself. You can revoke
+                    their access at any time.
+                  </>
+                }
+              />
+
+              <Button type="submit">
+                Invite
+              </Button>
+            </Group>
           </Grid.Col>
         </Grid>
       </form>

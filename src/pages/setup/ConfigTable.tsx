@@ -83,7 +83,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
                 </Text>
   
                 <Text size="sm" color="dimmed">
-                  {config.content.split(" ").length} words
+                  8 entities and 52 attributes
                 </Text>
                 </>
               ),
