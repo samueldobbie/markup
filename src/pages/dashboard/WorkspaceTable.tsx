@@ -15,7 +15,7 @@ function WorkspaceTable() {
   const [openedCreateWorkspaceModal, setOpenedCreateWorkspaceModal] = useState(false)
   const [openedManageCollaboratorsModal, setOpenedManageCollaboratorsModal] = useState(false)
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
-  const [workspaceName, setWorkspaceName] = useState("adsadsa")
+  const [workspace, setWorkspace] = useState<Workspace>()
 
   const openConfirmDeleteModal = (workspace: Workspace) => openConfirmModal({
     title: <>Are you sure you want to delete the '{workspace.name}' workspace?</>,
@@ -59,7 +59,7 @@ function WorkspaceTable() {
                 </Text>
 
                 <Text size="sm" color="dimmed">
-                  {workspace.description} - Shared with 3 collaborators
+                  {workspace.description} - Shared with {workspace.collaborators} collaborators
                 </Text>
               </>
             ),
@@ -91,7 +91,10 @@ function WorkspaceTable() {
                   <ActionIcon
                     color="primary"
                     variant="subtle"
-                    onClick={() => setOpenedManageCollaboratorsModal(true)}
+                    onClick={() => {
+                      setWorkspace(workspace)
+                      setOpenedManageCollaboratorsModal(true)
+                    }}
                   >
                     <IconUsers
                       size={16}
@@ -123,11 +126,13 @@ function WorkspaceTable() {
         setOpenedModal={setOpenedCreateWorkspaceModal}
       />
 
-      <ManageCollaboratorsModal
-        openedModal={openedManageCollaboratorsModal}
-        setOpenedModal={setOpenedManageCollaboratorsModal}
-        workspaceName={workspaceName}
-      />
+      {workspace && (
+        <ManageCollaboratorsModal
+          openedModal={openedManageCollaboratorsModal}
+          setOpenedModal={setOpenedManageCollaboratorsModal}
+          workspace={workspace}
+        />
+      )}
     </Card>
   )
 }
@@ -203,36 +208,25 @@ function CreateWorkspaceModal({ openedModal, setOpenedModal }: ModalProps) {
   )
 }
 
-interface Collaborator {
+export interface WorkspaceCollaborator {
   id: string
   email: string
 }
 
 interface ManageCollaboratorsModalProps {
-  workspaceName: string
+  workspace: Workspace
   openedModal: boolean
   setOpenedModal: (opened: boolean) => void
 }
 
-function ManageCollaboratorsModal({ workspaceName, openedModal, setOpenedModal }: ManageCollaboratorsModalProps) {
-  const [collaborators, setCollaborators] = useState<Collaborator[]>([
-    {
-      id: "1",
-      email: "john@doe.com",
-    },
-    {
-      id: "2",
-      email: "jane@doe.com",
-    },
-    {
-      id: "3",
-      email: "dsadsa@doe.com",
-    },
-    {
-      id: "4",
-      email: "ewqewq@doe.com",
-    },
-  ])
+function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: ManageCollaboratorsModalProps) {
+  const [collaborators, setCollaborators] = useState<WorkspaceCollaborator[]>([])
+
+  useEffect(() => {
+    database
+      .getWorkspaceCollaborators(workspace.id)
+      .then(setCollaborators)
+  }, [workspace.id])
 
   return (
     <Modal
@@ -280,10 +274,9 @@ function ManageCollaboratorsModal({ workspaceName, openedModal, setOpenedModal }
                 description={
                   <>
                     Collaborators will have full access to the
-                    workspace <b>{workspaceName}</b>. The only
-                    action they <b>won't</b> be able to perform is
-                    deleting the workspace itself. You can revoke
-                    their access at any time.
+                    workspace <b>{workspace.name}</b>. You can revoke
+                    their access at any time. The provided email
+                    must be associated with an existing Markup user account.
                   </>
                 }
               />

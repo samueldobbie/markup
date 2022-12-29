@@ -1,6 +1,7 @@
 import { definitions } from "./Definitions"
 import { supabase } from "../../utils/Supabase"
 import { OntologyRow } from "pages/dashboard/OntologyTable"
+import { WorkspaceCollaborator } from "pages/dashboard/WorkspaceTable"
 
 export type Workspace = definitions["workspace"]
 export type WorkspaceAccess = definitions["workspace_access"]
@@ -34,7 +35,7 @@ async function addWorkspace(name: string, description: string): Promise<Workspac
     .insert({
       user_id: userId,
       workspace_id: workspace[0].id,
-      role: "owner",
+      is_owner: true,
     })
 
   if (workspaceAccessError) {
@@ -279,6 +280,44 @@ async function deleteWorkspaceAnnotation(annotationId: string): Promise<boolean>
   return false
 }
 
+async function getWorkspaceCollaborators(workspaceId: string): Promise<WorkspaceCollaborator[]> {
+  const { data: accessData, error } = await supabase
+    .from("workspace_access")
+    .select()
+    .eq("workspace_id", workspaceId)
+
+  if (error) {
+    console.error(error)
+    return []
+  }
+
+  const collaborators: WorkspaceCollaborator[] = []
+  const userIds = accessData.map(i => i.user_id)
+
+  const { data: userData, error: errorUsers } = await supabase
+    .from("users")
+    .select()
+    .in("id", userIds)
+  
+  if (errorUsers) {
+    console.error(errorUsers)
+    return []
+  }
+
+  accessData.forEach(i => {
+    const user = userData.find(j => j.id === i.user_id)
+
+    if (user) {
+      collaborators.push({
+        id: i.id,
+        email: user.email,
+      })
+    }
+  })
+
+  return collaborators
+}
+
 async function addOntology(name: string, description: string, rows: OntologyRow[]): Promise<void> {
   const { data, error } = await supabase
     .from("ontology")
@@ -461,6 +500,8 @@ export const database = {
   addWorkspaceAnnotations,
   getWorkspaceAnnotations,
   deleteWorkspaceAnnotation,
+
+  getWorkspaceCollaborators,
 
   addOntology,
   getOntologies,

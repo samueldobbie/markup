@@ -128,7 +128,6 @@ export interface paths {
           created_at?: parameters["rowFilter.workspace_access.created_at"];
           user_id?: parameters["rowFilter.workspace_access.user_id"];
           workspace_id?: parameters["rowFilter.workspace_access.workspace_id"];
-          role?: parameters["rowFilter.workspace_access.role"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -183,7 +182,6 @@ export interface paths {
           created_at?: parameters["rowFilter.workspace_access.created_at"];
           user_id?: parameters["rowFilter.workspace_access.user_id"];
           workspace_id?: parameters["rowFilter.workspace_access.workspace_id"];
-          role?: parameters["rowFilter.workspace_access.role"];
         };
         header: {
           /** Preference */
@@ -202,7 +200,6 @@ export interface paths {
           created_at?: parameters["rowFilter.workspace_access.created_at"];
           user_id?: parameters["rowFilter.workspace_access.user_id"];
           workspace_id?: parameters["rowFilter.workspace_access.workspace_id"];
-          role?: parameters["rowFilter.workspace_access.role"];
         };
         body: {
           /** workspace_access */
@@ -425,6 +422,8 @@ export interface paths {
           created_at?: parameters["rowFilter.workspace.created_at"];
           name?: parameters["rowFilter.workspace.name"];
           description?: parameters["rowFilter.workspace.description"];
+          is_owner?: parameters["rowFilter.workspace.is_owner"];
+          collaborators?: parameters["rowFilter.workspace.collaborators"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -479,6 +478,8 @@ export interface paths {
           created_at?: parameters["rowFilter.workspace.created_at"];
           name?: parameters["rowFilter.workspace.name"];
           description?: parameters["rowFilter.workspace.description"];
+          is_owner?: parameters["rowFilter.workspace.is_owner"];
+          collaborators?: parameters["rowFilter.workspace.collaborators"];
         };
         header: {
           /** Preference */
@@ -497,6 +498,8 @@ export interface paths {
           created_at?: parameters["rowFilter.workspace.created_at"];
           name?: parameters["rowFilter.workspace.name"];
           description?: parameters["rowFilter.workspace.description"];
+          is_owner?: parameters["rowFilter.workspace.is_owner"];
+          collaborators?: parameters["rowFilter.workspace.collaborators"];
         };
         body: {
           /** workspace */
@@ -600,105 +603,6 @@ export interface paths {
         body: {
           /** ontology */
           ontology?: definitions["ontology"];
-        };
-        header: {
-          /** Preference */
-          Prefer?: parameters["preferReturn"];
-        };
-      };
-      responses: {
-        /** No Content */
-        204: never;
-      };
-    };
-  };
-  "/collaborator_invite": {
-    get: {
-      parameters: {
-        query: {
-          id?: parameters["rowFilter.collaborator_invite.id"];
-          created_at?: parameters["rowFilter.collaborator_invite.created_at"];
-          workspace_id?: parameters["rowFilter.collaborator_invite.workspace_id"];
-          email?: parameters["rowFilter.collaborator_invite.email"];
-          status?: parameters["rowFilter.collaborator_invite.status"];
-          /** Filtering Columns */
-          select?: parameters["select"];
-          /** Ordering */
-          order?: parameters["order"];
-          /** Limiting and Pagination */
-          offset?: parameters["offset"];
-          /** Limiting and Pagination */
-          limit?: parameters["limit"];
-        };
-        header: {
-          /** Limiting and Pagination */
-          Range?: parameters["range"];
-          /** Limiting and Pagination */
-          "Range-Unit"?: parameters["rangeUnit"];
-          /** Preference */
-          Prefer?: parameters["preferCount"];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          schema: definitions["collaborator_invite"][];
-        };
-        /** Partial Content */
-        206: unknown;
-      };
-    };
-    post: {
-      parameters: {
-        body: {
-          /** collaborator_invite */
-          collaborator_invite?: definitions["collaborator_invite"];
-        };
-        query: {
-          /** Filtering Columns */
-          select?: parameters["select"];
-        };
-        header: {
-          /** Preference */
-          Prefer?: parameters["preferReturn"];
-        };
-      };
-      responses: {
-        /** Created */
-        201: unknown;
-      };
-    };
-    delete: {
-      parameters: {
-        query: {
-          id?: parameters["rowFilter.collaborator_invite.id"];
-          created_at?: parameters["rowFilter.collaborator_invite.created_at"];
-          workspace_id?: parameters["rowFilter.collaborator_invite.workspace_id"];
-          email?: parameters["rowFilter.collaborator_invite.email"];
-          status?: parameters["rowFilter.collaborator_invite.status"];
-        };
-        header: {
-          /** Preference */
-          Prefer?: parameters["preferReturn"];
-        };
-      };
-      responses: {
-        /** No Content */
-        204: never;
-      };
-    };
-    patch: {
-      parameters: {
-        query: {
-          id?: parameters["rowFilter.collaborator_invite.id"];
-          created_at?: parameters["rowFilter.collaborator_invite.created_at"];
-          workspace_id?: parameters["rowFilter.collaborator_invite.workspace_id"];
-          email?: parameters["rowFilter.collaborator_invite.email"];
-          status?: parameters["rowFilter.collaborator_invite.status"];
-        };
-        body: {
-          /** collaborator_invite */
-          collaborator_invite?: definitions["collaborator_invite"];
         };
         header: {
           /** Preference */
@@ -934,7 +838,7 @@ export interface definitions {
     /** Format: integer */
     end_index: number;
     /** Format: jsonb */
-    attributes: any;
+    attributes: unknown;
     /** Format: text */
     text: string;
   };
@@ -955,8 +859,6 @@ export interface definitions {
     user_id: string;
     /** Format: uuid */
     workspace_id: string;
-    /** Format: character varying */
-    role?: string;
   };
   ontology_concept: {
     /**
@@ -1019,6 +921,16 @@ export interface definitions {
     name: string;
     /** Format: text */
     description?: string;
+    /**
+     * Format: boolean
+     * @default false
+     */
+    is_owner: boolean;
+    /**
+     * Format: integer
+     * @default 0
+     */
+    collaborators: number;
   };
   ontology: {
     /**
@@ -1042,26 +954,6 @@ export interface definitions {
      * @default false
      */
     is_default: boolean;
-  };
-  collaborator_invite: {
-    /**
-     * Format: uuid
-     * @description Note:
-     * This is a Primary Key.<pk/>
-     * @default gen_random_uuid()
-     */
-    id: string;
-    /**
-     * Format: timestamp without time zone
-     * @default now()
-     */
-    created_at: string;
-    /** Format: uuid */
-    workspace_id: string;
-    /** Format: text */
-    email: string;
-    /** Format: character varying */
-    status: string;
   };
   workspace_document: {
     /**
@@ -1173,8 +1065,6 @@ export interface parameters {
   "rowFilter.workspace_access.user_id": string;
   /** Format: uuid */
   "rowFilter.workspace_access.workspace_id": string;
-  /** Format: character varying */
-  "rowFilter.workspace_access.role": string;
   /** @description ontology_concept */
   "body.ontology_concept": definitions["ontology_concept"];
   /** Format: uuid */
@@ -1209,6 +1099,10 @@ export interface parameters {
   "rowFilter.workspace.name": string;
   /** Format: text */
   "rowFilter.workspace.description": string;
+  /** Format: boolean */
+  "rowFilter.workspace.is_owner": string;
+  /** Format: integer */
+  "rowFilter.workspace.collaborators": string;
   /** @description ontology */
   "body.ontology": definitions["ontology"];
   /** Format: uuid */
@@ -1221,18 +1115,6 @@ export interface parameters {
   "rowFilter.ontology.description": string;
   /** Format: boolean */
   "rowFilter.ontology.is_default": string;
-  /** @description collaborator_invite */
-  "body.collaborator_invite": definitions["collaborator_invite"];
-  /** Format: uuid */
-  "rowFilter.collaborator_invite.id": string;
-  /** Format: timestamp without time zone */
-  "rowFilter.collaborator_invite.created_at": string;
-  /** Format: uuid */
-  "rowFilter.collaborator_invite.workspace_id": string;
-  /** Format: text */
-  "rowFilter.collaborator_invite.email": string;
-  /** Format: character varying */
-  "rowFilter.collaborator_invite.status": string;
   /** @description workspace_document */
   "body.workspace_document": definitions["workspace_document"];
   /** Format: uuid */
