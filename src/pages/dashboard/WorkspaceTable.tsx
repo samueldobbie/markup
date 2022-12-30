@@ -71,13 +71,13 @@ function WorkspaceTable() {
                 <Text size="sm" color="dimmed">
                   {ownedWorkspaceIds.includes(workspace.id) && (
                     <>
-                      {workspace.description || "No description"} - Owner ({workspace.collaborators} collaborators)
+                      {workspace.description || "No description"} - {workspace.collaborators} collaborators
                     </>
                   )}
 
                   {!ownedWorkspaceIds.includes(workspace.id) && (
                     <>
-                      {workspace.description || "No description"} - Collaborator
+                      {workspace.description || "No description"} - Shared with you
                     </>
                   )}
                 </Text>

@@ -2,6 +2,7 @@ import { Group, Button, ActionIcon, Text, FileButton, Card, Modal, Grid, MultiSe
 import { IconTrashX } from "@tabler/icons"
 import saveAs from "file-saver"
 import { DataTable } from "mantine-datatable"
+import { parseConfig } from "pages/annotate/Parse"
 import { useEffect, useState } from "react"
 import { WorkspaceConfig, database } from "storage/database/Database"
 import { SectionProps } from "./Setup"
@@ -10,11 +11,19 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
   const [file, setFile] = useState<File | null>(null)
   const [configs, setConfigs] = useState<WorkspaceConfig[]>([])
   const [openedModal, setOpenedModal] = useState(false)
+  const [entityCount, setEntityCount] = useState(0)
+  const [attributeCount, setAttributeCount] = useState(0)
 
   useEffect(() => {
     database
       .getWorkspaceConfig(workspace.id)
-      .then(setConfigs)
+      .then((insertedConfigs) => {
+        const parsedConfig = parseConfig(insertedConfigs[0])
+
+        setConfigs(insertedConfigs)
+        setEntityCount(parsedConfig.entities.length)
+        setAttributeCount(parsedConfig.attributes.length)
+      })
   }, [workspace.id])
 
   useEffect(() => {
@@ -24,8 +33,12 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
       database
         .addWorkspaceConfig(workspace.id, file)
         .then(insertedConfig => {
+          const parsedConfig = parseConfig(insertedConfig)
+
           setFile(null)
           setConfigs([insertedConfig])
+          setEntityCount(parsedConfig.entities.length)
+          setAttributeCount(parsedConfig.attributes.length)
         })
     }
 
@@ -83,7 +96,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
                 </Text>
   
                 <Text size="sm" color="dimmed">
-                  8 entities and 52 attributes
+                  {entityCount} entities - {attributeCount} attributes
                 </Text>
                 </>
               ),
