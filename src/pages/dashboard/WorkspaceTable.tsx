@@ -10,12 +10,15 @@ import { toSetupUrl } from "utils/Path"
 import { openConfirmModal } from "@mantine/modals"
 import { tutorialProgressState } from "storage/state/Dashboard"
 import { useRecoilState } from "recoil"
+import { supabase } from "utils/Supabase"
 
 function WorkspaceTable() {
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([])
+  const [ownedWorkspaceIds, setOwnedWorkspaceIds] = useState<string[]>([])
+  const [workspace, setWorkspace] = useState<Workspace>()
+
   const [openedCreateWorkspaceModal, setOpenedCreateWorkspaceModal] = useState(false)
   const [openedManageCollaboratorsModal, setOpenedManageCollaboratorsModal] = useState(false)
-  const [workspaces, setWorkspaces] = useState<Workspace[]>([])
-  const [workspace, setWorkspace] = useState<Workspace>()
 
   const openConfirmDeleteModal = (workspace: Workspace) => openConfirmModal({
     title: <>Are you sure you want to delete the '{workspace.name}' workspace?</>,
@@ -37,7 +40,14 @@ function WorkspaceTable() {
   useEffect(() => {
     database
       .getWorkspaces()
-      .then(setWorkspaces)
+      .then((result) => {
+        const ownedWorkspaces = result["owner"]
+        const collaboratorWorkspaces = result["collaborator"]
+        const workspaces = ownedWorkspaces.concat(collaboratorWorkspaces)
+
+        setWorkspaces(workspaces)
+        setOwnedWorkspaceIds(ownedWorkspaces.map(i => i.id))
+      })
   }, [])
 
   return (
@@ -59,7 +69,17 @@ function WorkspaceTable() {
                 </Text>
 
                 <Text size="sm" color="dimmed">
-                  {workspace.description} - Shared with {workspace.collaborators} collaborators
+                  {ownedWorkspaceIds.includes(workspace.id) && (
+                    <>
+                      {workspace.description || "No description"} - Owner ({workspace.collaborators} collaborators)
+                    </>
+                  )}
+
+                  {!ownedWorkspaceIds.includes(workspace.id) && (
+                    <>
+                      {workspace.description || "No description"} - Collaborator
+                    </>
+                  )}
                 </Text>
               </>
             ),
@@ -74,34 +94,38 @@ function WorkspaceTable() {
             textAlignment: "right",
             render: (workspace) => (
               <Group spacing={8} position="right" noWrap>
-                <Tooltip label="Delete workspace">
-                  <ActionIcon
-                    color="primary"
-                    variant="subtle"
-                    onClick={() => openConfirmDeleteModal(workspace)}
-                  >
-                    <IconTrashX
-                      size={16}
-                      color="rgb(217 138 138)"
-                    />
-                  </ActionIcon>
-                </Tooltip>
+                {ownedWorkspaceIds.includes(workspace.id) && (
+                  <Tooltip label="Delete workspace">
+                    <ActionIcon
+                      color="primary"
+                      variant="subtle"
+                      onClick={() => openConfirmDeleteModal(workspace)}
+                    >
+                      <IconTrashX
+                        size={16}
+                        color="rgb(217 138 138)"
+                      />
+                    </ActionIcon>
+                  </Tooltip>
+                )}
 
-                <Tooltip label="Manage collaborators">
-                  <ActionIcon
-                    color="primary"
-                    variant="subtle"
-                    onClick={() => {
-                      setWorkspace(workspace)
-                      setOpenedManageCollaboratorsModal(true)
-                    }}
-                  >
-                    <IconUsers
-                      size={16}
-                      color="#acf2fa"
-                    />
-                  </ActionIcon>
-                </Tooltip>
+                {ownedWorkspaceIds.includes(workspace.id) && (
+                  <Tooltip label="Manage collaborators">
+                    <ActionIcon
+                      color="primary"
+                      variant="subtle"
+                      onClick={() => {
+                        setWorkspace(workspace)
+                        setOpenedManageCollaboratorsModal(true)
+                      }}
+                    >
+                      <IconUsers
+                        size={16}
+                        color="#acf2fa"
+                      />
+                    </ActionIcon>
+                  </Tooltip>
+                )}
 
                 <Tooltip label="Annotate">
                   <ActionIcon
@@ -209,7 +233,8 @@ function CreateWorkspaceModal({ openedModal, setOpenedModal }: ModalProps) {
 }
 
 export interface WorkspaceCollaborator {
-  id: string
+  access_id: string
+  user_id: string
   email: string
 }
 
@@ -221,6 +246,31 @@ interface ManageCollaboratorsModalProps {
 
 function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: ManageCollaboratorsModalProps) {
   const [collaborators, setCollaborators] = useState<WorkspaceCollaborator[]>([])
+  const [userId, setUserId] = useState("")
+
+  useEffect(() => {
+    const f = async () => {
+      const { data } = await supabase.auth.getUser()
+
+      if (data && data.user) {
+        setUserId(data.user.id)
+      }
+    }
+
+    f()
+  }, [])
+
+  const form = useForm({
+    initialValues: {
+      email: "",
+    },
+  })
+
+  const handleAddCollaborator = async (email: string) => {
+    database
+      .addWorkspaceCollaborator(workspace.id, email)
+      .then((collaborator) => setCollaborators([...collaborators, collaborator]))
+  }
 
   useEffect(() => {
     database
@@ -235,36 +285,38 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
       title="Manage collaborators"
       centered
     >
-      <form>
+      <form onSubmit={form.onSubmit((values) => handleAddCollaborator(values.email))}>
         <Grid>
-          {collaborators.slice(0, 3).map((collaborator, index) => (
-            <Grid.Col xs={12}>
-              <Group position="apart" noWrap>
-                <Group position="left" noWrap>
-                  <Avatar key={index} radius="xl" color="primary">
-                    {collaborator.email.slice(0, 2)}
-                  </Avatar>
+          {collaborators.map((collaborator, index) => {
+            if (collaborator.user_id === userId) {
+              return null
+            }
 
-                  <Text>
-                    {collaborator.email}
-                  </Text>
+            return (
+              <Grid.Col xs={12}>
+                <Group position="apart" noWrap>
+                  <Group position="left" noWrap>
+                    <Avatar key={index} radius="xl" color="primary">
+                      {collaborator.email.slice(0, 2)}
+                    </Avatar>
+
+                    <Text>
+                      {collaborator.email}
+                    </Text>
+                  </Group>
+
+                  <Group position="right" noWrap>
+                    <ActionIcon
+                      variant="subtle"
+                      color="red"
+                    >
+                      <IconTrashX size={16} />
+                    </ActionIcon>
+                  </Group>
                 </Group>
-
-                <Group position="right" noWrap>
-                  <Text>
-                    Pending
-                  </Text>
-
-                  <ActionIcon
-                    variant="subtle"
-                    color="red"
-                  >
-                    <IconTrashX size={16} />
-                  </ActionIcon>
-                </Group>
-              </Group>
-            </Grid.Col>
-          ))}
+              </Grid.Col>
+            )
+          })}
 
           <Grid.Col xs={12}>
             <Group>
@@ -279,6 +331,7 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
                     must be associated with an existing Markup user account.
                   </>
                 }
+                {...form.getInputProps("email")}
               />
 
               <Button type="submit">

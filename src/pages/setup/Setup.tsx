@@ -36,7 +36,7 @@ function Setup() {
     }
 
     database
-      .getWorkspaces([id])
+      .getWorkspace(id)
       .then(workspaces => {
         if (workspaces.length === 0) {
           alert("Workspace doesn't exist, or insufficient permissions")
