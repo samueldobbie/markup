@@ -128,6 +128,7 @@ export interface paths {
           created_at?: parameters["rowFilter.workspace_access.created_at"];
           user_id?: parameters["rowFilter.workspace_access.user_id"];
           workspace_id?: parameters["rowFilter.workspace_access.workspace_id"];
+          is_owner?: parameters["rowFilter.workspace_access.is_owner"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -182,6 +183,7 @@ export interface paths {
           created_at?: parameters["rowFilter.workspace_access.created_at"];
           user_id?: parameters["rowFilter.workspace_access.user_id"];
           workspace_id?: parameters["rowFilter.workspace_access.workspace_id"];
+          is_owner?: parameters["rowFilter.workspace_access.is_owner"];
         };
         header: {
           /** Preference */
@@ -200,6 +202,7 @@ export interface paths {
           created_at?: parameters["rowFilter.workspace_access.created_at"];
           user_id?: parameters["rowFilter.workspace_access.user_id"];
           workspace_id?: parameters["rowFilter.workspace_access.workspace_id"];
+          is_owner?: parameters["rowFilter.workspace_access.is_owner"];
         };
         body: {
           /** workspace_access */
@@ -422,7 +425,6 @@ export interface paths {
           created_at?: parameters["rowFilter.workspace.created_at"];
           name?: parameters["rowFilter.workspace.name"];
           description?: parameters["rowFilter.workspace.description"];
-          is_owner?: parameters["rowFilter.workspace.is_owner"];
           collaborators?: parameters["rowFilter.workspace.collaborators"];
           /** Filtering Columns */
           select?: parameters["select"];
@@ -478,7 +480,6 @@ export interface paths {
           created_at?: parameters["rowFilter.workspace.created_at"];
           name?: parameters["rowFilter.workspace.name"];
           description?: parameters["rowFilter.workspace.description"];
-          is_owner?: parameters["rowFilter.workspace.is_owner"];
           collaborators?: parameters["rowFilter.workspace.collaborators"];
         };
         header: {
@@ -498,7 +499,6 @@ export interface paths {
           created_at?: parameters["rowFilter.workspace.created_at"];
           name?: parameters["rowFilter.workspace.name"];
           description?: parameters["rowFilter.workspace.description"];
-          is_owner?: parameters["rowFilter.workspace.is_owner"];
           collaborators?: parameters["rowFilter.workspace.collaborators"];
         };
         body: {
@@ -603,6 +603,96 @@ export interface paths {
         body: {
           /** ontology */
           ontology?: definitions["ontology"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+  };
+  "/users": {
+    get: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.users.id"];
+          email?: parameters["rowFilter.users.email"];
+          /** Filtering Columns */
+          select?: parameters["select"];
+          /** Ordering */
+          order?: parameters["order"];
+          /** Limiting and Pagination */
+          offset?: parameters["offset"];
+          /** Limiting and Pagination */
+          limit?: parameters["limit"];
+        };
+        header: {
+          /** Limiting and Pagination */
+          Range?: parameters["range"];
+          /** Limiting and Pagination */
+          "Range-Unit"?: parameters["rangeUnit"];
+          /** Preference */
+          Prefer?: parameters["preferCount"];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["users"][];
+        };
+        /** Partial Content */
+        206: unknown;
+      };
+    };
+    post: {
+      parameters: {
+        body: {
+          /** users */
+          users?: definitions["users"];
+        };
+        query: {
+          /** Filtering Columns */
+          select?: parameters["select"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** Created */
+        201: unknown;
+      };
+    };
+    delete: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.users.id"];
+          email?: parameters["rowFilter.users.email"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+    patch: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.users.id"];
+          email?: parameters["rowFilter.users.email"];
+        };
+        body: {
+          /** users */
+          users?: definitions["users"];
         };
         header: {
           /** Preference */
@@ -838,7 +928,7 @@ export interface definitions {
     /** Format: integer */
     end_index: number;
     /** Format: jsonb */
-    attributes: unknown;
+    attributes: any;
     /** Format: text */
     text: string;
   };
@@ -859,6 +949,11 @@ export interface definitions {
     user_id: string;
     /** Format: uuid */
     workspace_id: string;
+    /**
+     * Format: boolean
+     * @default false
+     */
+    is_owner: boolean;
   };
   ontology_concept: {
     /**
@@ -922,11 +1017,6 @@ export interface definitions {
     /** Format: text */
     description?: string;
     /**
-     * Format: boolean
-     * @default false
-     */
-    is_owner: boolean;
-    /**
      * Format: integer
      * @default 0
      */
@@ -954,6 +1044,16 @@ export interface definitions {
      * @default false
      */
     is_default: boolean;
+  };
+  users: {
+    /**
+     * Format: uuid
+     * @description Note:
+     * This is a Primary Key.<pk/>
+     */
+    id: string;
+    /** Format: text */
+    email?: string;
   };
   workspace_document: {
     /**
@@ -1065,6 +1165,8 @@ export interface parameters {
   "rowFilter.workspace_access.user_id": string;
   /** Format: uuid */
   "rowFilter.workspace_access.workspace_id": string;
+  /** Format: boolean */
+  "rowFilter.workspace_access.is_owner": string;
   /** @description ontology_concept */
   "body.ontology_concept": definitions["ontology_concept"];
   /** Format: uuid */
@@ -1099,8 +1201,6 @@ export interface parameters {
   "rowFilter.workspace.name": string;
   /** Format: text */
   "rowFilter.workspace.description": string;
-  /** Format: boolean */
-  "rowFilter.workspace.is_owner": string;
   /** Format: integer */
   "rowFilter.workspace.collaborators": string;
   /** @description ontology */
@@ -1115,6 +1215,12 @@ export interface parameters {
   "rowFilter.ontology.description": string;
   /** Format: boolean */
   "rowFilter.ontology.is_default": string;
+  /** @description users */
+  "body.users": definitions["users"];
+  /** Format: uuid */
+  "rowFilter.users.id": string;
+  /** Format: text */
+  "rowFilter.users.email": string;
   /** @description workspace_document */
   "body.workspace_document": definitions["workspace_document"];
   /** Format: uuid */
