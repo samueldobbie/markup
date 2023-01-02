@@ -1,12 +1,13 @@
-import { ActionIcon, Card, Divider, Grid, Group, ScrollArea, Select } from "@mantine/core"
-import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight } from "@tabler/icons"
-import { database, RawAnnotation, WorkspaceAnnotation } from "storage/database/Database"
-import { useEffect } from "react"
+import { ActionIcon, Button, Card, Divider, Grid, Group, Modal, ScrollArea, Select, TextInput, Text } from "@mantine/core"
+import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight, IconSearch } from "@tabler/icons"
+import { database, RawAnnotation, WorkspaceAnnotation, WorkspaceDocument } from "storage/database/Database"
+import { useEffect, useState } from "react"
 import { SectionProps } from "./Interfaces"
 import { TextAnnotateBlend } from "react-text-annotate-blend"
-import { useRecoilState, useRecoilValue } from "recoil"
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { activeEntityState, annotationsState, documentIndexState, documentsState, entityColoursState, populatedAttributeState } from "storage/state/Annotate"
 import "./Document.css"
+import { useDebouncedState } from "@mantine/hooks"
 
 interface InlineAnnotation {
   tag: string
@@ -23,6 +24,7 @@ function Document({ workspace }: SectionProps) {
   const [documents, setDocuments] = useRecoilState(documentsState)
   const [documentIndex, setDocumentIndex] = useRecoilState(documentIndexState)
   const [annotations, setAnnotations] = useRecoilState(annotationsState)
+  const [openedSearchDocumentModal, setOpenedSearchDocumentModal] = useState(false)
 
   const moveToFirstDocument = () => setDocumentIndex(0)
   const moveToPreviousDocument = () => setDocumentIndex(documentIndex - 1)
@@ -141,6 +143,16 @@ function Document({ workspace }: SectionProps) {
                   >
                     <IconChevronsRight size={16} />
                   </ActionIcon>
+
+                  <Divider orientation="vertical" ml={20} mr={25} />
+
+                  <Button
+                    variant="subtle"
+                    leftIcon={<IconSearch size={16} />}
+                    onClick={() => setOpenedSearchDocumentModal(true)}
+                  >
+                    Search documents
+                  </Button>
                 </Group>
               </Grid.Col>
 
@@ -192,7 +204,95 @@ function Document({ workspace }: SectionProps) {
           </ScrollArea>
         </Card>
       }
+
+      <SearchDocumentModal
+        documents={documents}
+        openedModal={openedSearchDocumentModal}
+        setOpenedModal={setOpenedSearchDocumentModal}
+      />
     </>
+  )
+}
+
+interface Props {
+  documents: WorkspaceDocument[]
+  openedModal: boolean
+  setOpenedModal: (openedModal: boolean) => void
+}
+
+function SearchDocumentModal({ documents, openedModal, setOpenedModal }: Props) {
+  const setDocumentIndex = useSetRecoilState(documentIndexState)
+
+  const [availableDocuments, setAvailableDocuments] = useState<WorkspaceDocument[]>(documents)
+  const [searchTerm, setSearchTerm] = useDebouncedState("", 200)
+
+  useEffect(() => {
+    if (searchTerm === "") {
+      setAvailableDocuments(documents)
+      return
+    }
+
+    const filteredDocuments = documents.filter(document => {
+      return (
+        document.name.toLocaleLowerCase().includes(searchTerm) ||
+        document.content.toLocaleLowerCase().includes(searchTerm)
+      )
+    })
+    setAvailableDocuments(filteredDocuments)
+  }, [documents, searchTerm])
+
+  return (
+    <Modal
+      size="xl"
+      opened={openedModal}
+      onClose={() => setOpenedModal(false)}
+      title="Document Finder"
+      centered
+    >
+      <TextInput
+        placeholder="Enter search term"
+        size="md"
+        onChange={(e) => {
+          const searchTerm = e.currentTarget.value.toLocaleLowerCase()
+          setSearchTerm(searchTerm)
+        }}
+      />
+
+      <Divider />
+
+      <ScrollArea scrollbarSize={0} >
+        <Grid mt={10}>
+          {availableDocuments.length === 0 && (
+            <Grid.Col xs={12}>
+              <Text color="dimmed">
+                No matching documents found
+              </Text>
+            </Grid.Col>
+          )}
+
+          {availableDocuments.map((document, index) => (
+            <Grid.Col
+              xs={12}
+              key={index}
+              onClick={() => {
+                setDocumentIndex(index)
+                setOpenedModal(false)
+              }}
+            >
+              <Card shadow="xs" radius={5} p="xl">
+                {document.name}
+
+                <Divider mt={10} mb={10} />
+
+                <Text color="dimmed">
+                  {document.content.slice(0, 250)}
+                </Text>
+              </Card>
+            </Grid.Col>
+          ))}
+        </Grid>
+      </ScrollArea>
+    </Modal>
   )
 }
 
