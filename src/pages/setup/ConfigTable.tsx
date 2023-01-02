@@ -93,13 +93,13 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
               title: <Text size={16}>Config</Text>,
               render: (config) => (
                 <>
-                <Text>
-                  {config.name}
-                </Text>
-  
-                <Text size="sm" color="dimmed">
-                  {entityCount} entities - {attributeCount} attributes
-                </Text>
+                  <Text>
+                    {config.name}
+                  </Text>
+
+                  <Text size="sm" color="dimmed">
+                    {entityCount} entities - {attributeCount} attributes
+                  </Text>
                 </>
               ),
             },
@@ -145,6 +145,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
       </Card>
 
       <ConfigCreatorModal
+        workspaceId={workspace.id}
         openedModal={openedModal}
         setOpenedModal={setOpenedModal}
       />
@@ -153,6 +154,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
 }
 
 interface Props {
+  workspaceId: string
   openedModal: boolean
   setOpenedModal: (opened: boolean) => void
 }
@@ -165,7 +167,7 @@ interface Attribute {
 
 const GLOBAL_ATTRIBUTE_KEY = "<ENTITY>"
 
-function ConfigCreatorModal({ openedModal, setOpenedModal }: Props) {
+function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props) {
   const [entities, setEntities] = useState<string[]>([])
   const [entityValues, setEntityValues] = useState<{ value: string; label: string }[]>([])
 
@@ -200,16 +202,19 @@ function ConfigCreatorModal({ openedModal, setOpenedModal }: Props) {
     }
   }
 
-  const handleSaveConfig = () => {
+  const handleExportAndUseConfig = () => {
     const fileName = "annotation.conf"
     const entitySection = buildEntitySection()
     const attributeSection = buildAttributeSection()
     const output = `${entitySection}\n\n${attributeSection}`
-    const blob = new Blob([output], { type: "text/plain" })
 
-    saveAs(blob, fileName)
-
-    // todo: upload to db
+    database
+      .addWorkspaceConfig(workspaceId, output)
+      .then(() => {
+        const blob = new Blob([output], { type: "text/plain" })
+        saveAs(blob, fileName)
+        window.location.reload()
+      })
   }
 
   const buildEntitySection = () => {
@@ -359,7 +364,7 @@ function ConfigCreatorModal({ openedModal, setOpenedModal }: Props) {
       </Grid>
 
       <Group position="right">
-        <Button onClick={handleSaveConfig}>
+        <Button onClick={handleExportAndUseConfig}>
           Export & Use
         </Button>
       </Group>

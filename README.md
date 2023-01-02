@@ -8,7 +8,7 @@ Markup is an online annotation tool that can be used to transform unstructured d
 
 - *Predictive ontology mapping* - Markup's predictive ontology mapping feature uses machine learning to suggest appropriate mappings to standard and custom terminologies based on the text you're annotating.
 
-- *Integrated ontology access* - Markup provides integrated access to a wide range of common ontologies (e.g. UMLS, SNOMED-CT, ICD-10), as well as the ability to upload custom ontologies.
+- *Integrated ontology access* - Markup provides integrated access to a wide range of common ontologies (e.g. UMLS, SNOMED-CT, ICD-10), along with the ability to upload custom ontologies, for concept mapping.
 
 - *User-friendly interface* - Whether you're a technical expert or a beginner, Markup's user-friendly interface makes it easy for anyone to start annotating documents with minimal setup.
 

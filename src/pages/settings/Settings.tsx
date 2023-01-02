@@ -4,15 +4,14 @@ import { useForm } from "@mantine/form"
 function Settings() {
   const form = useForm({
     initialValues: {
-      name: "",
       email: "",
-      subject: "",
-      message: "",
+      password: "",
+      passwordConf: "",
     },
     validate: {
-      name: (value) => value.trim().length < 2,
       email: (value) => !/^\S+@\S+$/.test(value),
-      subject: (value) => value.trim().length === 0,
+      password: (value) => (value.length > 6 ? null : "Must be longer than 6 characters"),
+      passwordConf: (value) => (value.length > 6 ? null : "Must be longer than 6 characters"),
     },
   })
 
@@ -44,7 +43,7 @@ function Settings() {
               placeholder="New password"
               name="email"
               variant="filled"
-              {...form.getInputProps("email")}
+              {...form.getInputProps("password")}
             />
 
             <TextInput
@@ -52,7 +51,7 @@ function Settings() {
               placeholder="Confirm new password"
               name="email"
               variant="filled"
-              {...form.getInputProps("email")}
+              {...form.getInputProps("passwordConf")}
             />
           </SimpleGrid>
 
