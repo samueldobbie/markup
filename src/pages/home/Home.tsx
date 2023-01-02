@@ -1,6 +1,8 @@
-import { createStyles, Title, Text, Button, Container, Image, useMantineTheme } from "@mantine/core"
+import { createStyles, Title, Text, Button, Container, Image, useMantineTheme, Modal, Card, Divider, Grid, ScrollArea, TextInput } from "@mantine/core"
 import { useAuth } from "providers"
-import { Path } from "utils/Path"
+import { useState } from "react"
+import { DEMO_DOMAINS } from "utils/Demo"
+import { Path, toAnnotateUrl } from "utils/Path"
 import Dots from "./Dots"
 import SocialProof from "./SocialProof"
 
@@ -92,16 +94,16 @@ const useStyles = createStyles((theme) => ({
 
 function Home(): JSX.Element {
   const { classes } = useStyles()
-
   const { user } = useAuth()
 
   const primaryButtonLink = user === null ? Path.SignUp : Path.Dashboard
   const primaryButtonText = user === null ? "Get started" : "Go to dashboard"
-
   const theme = useMantineTheme()
   const demoImage = theme.colorScheme === "dark"
     ? "https://i.imgur.com/uqnXoX0.png"
     : "https://i.imgur.com/BmqM0yT.png"
+
+  const [openedDemoDomainModal, setOpenedDemoDomainModal] = useState(false)
 
   return (
     <>
@@ -132,9 +134,9 @@ function Home(): JSX.Element {
               variant="default"
               color="gray"
               component="a"
-              href={Path.AnnotateDemo}
+              onClick={() => setOpenedDemoDomainModal(true)}
             >
-               Try demo
+              Try demo
             </Button>
 
             <Button
@@ -156,7 +158,45 @@ function Home(): JSX.Element {
           <SocialProof />
         </div>
       </Container>
+
+      <DemoDomainModal
+        openedModal={openedDemoDomainModal}
+        setOpenedModal={setOpenedDemoDomainModal}
+      />
     </>
+  )
+}
+
+interface Props {
+  openedModal: boolean
+  setOpenedModal: (v: boolean) => void
+}
+
+function DemoDomainModal({ openedModal, setOpenedModal }: Props) {
+  return (
+    <Modal
+      size="xl"
+      opened={openedModal}
+      onClose={() => setOpenedModal(false)}
+      title="Select type of documents to annotate"
+      centered
+    >
+      <Grid>
+        {DEMO_DOMAINS.map((domain) => (
+          <Grid.Col
+            span={6}
+            onClick={() => window.location.href = toAnnotateUrl(domain.id)}
+            sx={{ cursor: "pointer" }}
+          >
+            <Card shadow="sm">
+              <Text size="xl" weight={500}>
+                {domain.name}
+              </Text>
+            </Card>
+          </Grid.Col>
+        ))}
+      </Grid>
+    </Modal>
   )
 }
 

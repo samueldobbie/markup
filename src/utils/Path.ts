@@ -8,7 +8,6 @@ enum Path {
   Dashboard = "/dashboard",
   Setup = "/workspace/setup/:id",
   Annotate = "/workspace/annotate/:id",
-  AnnotateDemo = "/workspace/annotate/9c3c3f56-d71b-404a-821e-96b93906451c",
   Contact = "/contact",
   Settings = "/settings",
   NotFound = "*",

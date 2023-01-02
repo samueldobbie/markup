@@ -14,6 +14,7 @@ import DefaultRoute from "./DefaultRoute"
 import Annotate from "pages/annotate/Annotate"
 import Verification from "pages/auth/Verification"
 import Settings from "pages/settings/Settings"
+import { DEMO_PATHS } from "utils/Demo"
 
 function PageRoutes(): JSX.Element {
   return (
@@ -63,7 +64,7 @@ function PageRoutes(): JSX.Element {
       <Route path={Path.Annotate} element={
         <ProtectedRoute
           title="Annotate Workspace - Markup"
-          exception={() => window.location.pathname === Path.AnnotateDemo}
+          exception={() => DEMO_PATHS.includes(window.location.pathname)}
         >
           <Annotate />
         </ProtectedRoute>
