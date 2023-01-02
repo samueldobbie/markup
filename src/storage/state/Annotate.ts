@@ -1,3 +1,4 @@
+import { OntologyConcept } from "pages/dashboard/OntologyTable"
 import { atom } from "recoil"
 import { WorkspaceAnnotation, WorkspaceDocument } from "storage/database"
 
@@ -26,6 +27,11 @@ const populatedAttributeState = atom<Record<string, string[]>>({
   default: {},
 })
 
+const selectedOntologyConceptsState = atom<OntologyConcept[]>({
+  key: "selectedOntologyConceptsState",
+  default: [],
+})
+
 const annotationsState = atom<WorkspaceAnnotation[][]>({
   key: "annotationsState",
   default: [],
@@ -37,5 +43,6 @@ export {
   activeEntityState,
   entityColoursState,
   populatedAttributeState,
+  selectedOntologyConceptsState,
   annotationsState,
 }

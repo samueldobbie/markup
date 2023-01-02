@@ -13,6 +13,7 @@ import Setup from "pages/setup/Setup"
 import DefaultRoute from "./DefaultRoute"
 import Annotate from "pages/annotate/Annotate"
 import Verification from "pages/auth/Verification"
+import Settings from "pages/settings/Settings"
 
 function PageRoutes(): JSX.Element {
   return (
@@ -72,6 +73,12 @@ function PageRoutes(): JSX.Element {
         <DefaultRoute title="Contact - Markup">
           <Contact />
         </DefaultRoute>
+      } />
+
+      <Route path={Path.Settings} element={
+        <ProtectedRoute title="Settings - Markup">
+          <Settings />
+        </ProtectedRoute>
       } />
 
       <Route path={Path.NotFound} element={

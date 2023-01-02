@@ -1,4 +1,4 @@
-import { TextInput, Textarea, SimpleGrid, Group, Title, Button, Container } from "@mantine/core"
+import { TextInput, Textarea, SimpleGrid, Group, Title, Button, Container, Card } from "@mantine/core"
 import { useForm } from "@mantine/form"
 
 function Contact() {
@@ -18,6 +18,7 @@ function Contact() {
 
   return (
     <Container>
+      <Card>
       <form onSubmit={form.onSubmit(() => { })}>
         <Title
           order={2}
@@ -72,6 +73,7 @@ function Contact() {
           </Button>
         </Group>
       </form>
+      </Card>
     </Container>
   )
 }

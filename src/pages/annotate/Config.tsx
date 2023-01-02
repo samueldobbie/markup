@@ -1,9 +1,9 @@
 import { ActionIcon, Button, Card, Collapse, Divider, Grid, Group, MultiSelect, Radio, ScrollArea, Text } from "@mantine/core"
 import { IconEye, IconEyeOff } from "@tabler/icons"
-import { database, Ontology } from "storage/database/Database"
+import { database } from "storage/database/Database"
 import { useState, useEffect } from "react"
 import { useRecoilState } from "recoil"
-import { activeEntityState, entityColoursState, populatedAttributeState } from "storage/state/Annotate"
+import { activeEntityState, entityColoursState, populatedAttributeState, selectedOntologyConceptsState } from "storage/state/Annotate"
 import { SectionProps } from "./Interfaces"
 import { Attribute, parseConfig } from "./Parse"
 import distinctColors from "distinct-colors"
@@ -28,7 +28,8 @@ function Config({ workspace }: SectionProps) {
   const [ontologySectionOpen, setOntologySectionOpen] = useState(true)
   const [availableOntologies, setAvailableOntologies] = useState<Data[]>([])
   const [selectedOntologyIds, setSelectedOntologyIds] = useState<string[]>([])
-  const [selectedOntologyConcepts, setSelectedOntologyConcepts] = useState<OntologyConcept[]>([])
+  const [availableOntologyConcepts, setAvailableOntologyConcepts] = useState<OntologyConcept[]>([])
+  const [selectedOntologyConcepts, setSelectedOntologyConcepts] = useRecoilState(selectedOntologyConceptsState)
 
   const clearPopulatedAttributes = () => {
     setPopulatedAttributes({})
@@ -73,7 +74,7 @@ function Config({ workspace }: SectionProps) {
   useEffect(() => {
     database
       .getOntologyConcepts(selectedOntologyIds)
-      .then(setSelectedOntologyConcepts)
+      .then(setAvailableOntologyConcepts)
   }, [selectedOntologyIds])
 
   useEffect(() => {
@@ -244,12 +245,13 @@ function Config({ workspace }: SectionProps) {
                   <Grid.Col xs={12}>
                     <MultiSelect
                       maxSelectedValues={100}
-                      data={selectedOntologyConcepts.map(concept => `${concept.name} (${concept.code})`)}
+                      data={availableOntologyConcepts.map(concept => `${concept.name} (${concept.code})`)}
                       placeholder="Concept"
                       size="sm"
                       searchable
                       clearable
                       creatable
+                      // onChange={(concepts) => setSelectedOntologyConcepts(concepts)}
                     />
                   </Grid.Col>
                 </Grid>
