@@ -175,7 +175,7 @@ function Config({ workspace }: SectionProps) {
 
               {shownAttributes.length > 0 &&
                 <Group mb={20}>
-                  <Grid>
+                  <Grid sx={{ width: "100%" }}>
                     {shownAttributes.map((attribute, index) => (
                       <Grid.Col xs={12}>
                         <MultiSelect
@@ -228,7 +228,7 @@ function Config({ workspace }: SectionProps) {
           <Grid.Col xs={12}>
             <Collapse in={ontologySectionOpen}>
               <Group mb={20}>
-                <Grid>
+                <Grid sx={{ width: "100%" }}>
                   <Grid.Col xs={12}>
                     <MultiSelect
                       maxSelectedValues={100}

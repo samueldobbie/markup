@@ -6,8 +6,8 @@ import { SectionProps } from "./Interfaces"
 import { TextAnnotateBlend } from "react-text-annotate-blend"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { activeEntityState, annotationsState, documentIndexState, documentsState, entityColoursState, populatedAttributeState } from "storage/state/Annotate"
-import "./Document.css"
 import { useDebouncedState } from "@mantine/hooks"
+import "./Document.css"
 
 interface InlineAnnotation {
   tag: string
@@ -258,10 +258,10 @@ function SearchDocumentModal({ documents, openedModal, setOpenedModal }: Props) 
         }}
       />
 
-      <Divider />
+      <Divider mt={20} mb={20} />
 
-      <ScrollArea scrollbarSize={0} >
-        <Grid mt={10}>
+      <ScrollArea scrollbarSize={0} sx={{ height: 400 }}>
+        <Grid>
           {availableDocuments.length === 0 && (
             <Grid.Col xs={12}>
               <Text color="dimmed">
@@ -270,26 +270,54 @@ function SearchDocumentModal({ documents, openedModal, setOpenedModal }: Props) 
             </Grid.Col>
           )}
 
-          {availableDocuments.map((document, index) => (
-            <Grid.Col
-              xs={12}
-              key={index}
-              onClick={() => {
-                setDocumentIndex(index)
-                setOpenedModal(false)
-              }}
-            >
-              <Card shadow="xs" radius={5} p="xl">
-                {document.name}
+          {availableDocuments.map((document, index) => {
+            let content = (
+              <Text color="dimmed">
+                {document.content.slice(0, 250)}
+              </Text>
+            )
 
-                <Divider mt={10} mb={10} />
+            if (searchTerm !== "") {
+              const firstMatch = document.content.search(searchTerm)
+              const before = document.content.slice(Math.max(firstMatch - 250, 0), firstMatch)
+              const after = document.content.slice(firstMatch + searchTerm.length, Math.min(firstMatch + 250, document.content.length))
 
+              content = (
                 <Text color="dimmed">
-                  {document.content.slice(0, 250)}
+                  {document.content.search(searchTerm) > 0 && (
+                    <Text>
+                      {before}
+
+                      <span style={{ backgroundColor: "yellow" }}>
+                        {searchTerm}
+                      </span>
+
+                      {after}
+                    </Text>
+                  )}
                 </Text>
-              </Card>
-            </Grid.Col>
-          ))}
+              )
+            }
+
+            return (
+              <Grid.Col
+                xs={12}
+                key={index}
+                onClick={() => {
+                  setDocumentIndex(index)
+                  setOpenedModal(false)
+                }}
+              >
+                <Card shadow="xs" radius={5} p="xl">
+                  {document.name}
+
+                  <Divider mt={10} mb={10} />
+
+                  {content}
+                </Card>
+              </Grid.Col>
+            )
+          })}
         </Grid>
       </ScrollArea>
     </Modal>

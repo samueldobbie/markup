@@ -39,6 +39,7 @@ function parseAttributes(content: string): Attribute[] {
       .split(Config.AttributeValue)[1]
       .trim()
       .split(Config.AttributeValueSeparator)
+      .filter((option) => option !== "")
 
     const targetEntity = rawAttribute
       .split(Config.TargetEntity)[1]
