@@ -226,7 +226,7 @@ export interface paths {
           id?: parameters["rowFilter.ontology_concept.id"];
           created_at?: parameters["rowFilter.ontology_concept.created_at"];
           ontology_id?: parameters["rowFilter.ontology_concept.ontology_id"];
-          concept?: parameters["rowFilter.ontology_concept.concept"];
+          name?: parameters["rowFilter.ontology_concept.name"];
           code?: parameters["rowFilter.ontology_concept.code"];
           /** Filtering Columns */
           select?: parameters["select"];
@@ -281,7 +281,7 @@ export interface paths {
           id?: parameters["rowFilter.ontology_concept.id"];
           created_at?: parameters["rowFilter.ontology_concept.created_at"];
           ontology_id?: parameters["rowFilter.ontology_concept.ontology_id"];
-          concept?: parameters["rowFilter.ontology_concept.concept"];
+          name?: parameters["rowFilter.ontology_concept.name"];
           code?: parameters["rowFilter.ontology_concept.code"];
         };
         header: {
@@ -300,7 +300,7 @@ export interface paths {
           id?: parameters["rowFilter.ontology_concept.id"];
           created_at?: parameters["rowFilter.ontology_concept.created_at"];
           ontology_id?: parameters["rowFilter.ontology_concept.ontology_id"];
-          concept?: parameters["rowFilter.ontology_concept.concept"];
+          name?: parameters["rowFilter.ontology_concept.name"];
           code?: parameters["rowFilter.ontology_concept.code"];
         };
         body: {
@@ -975,7 +975,7 @@ export interface definitions {
      */
     ontology_id: string;
     /** Format: character varying */
-    concept: string;
+    name: string;
     /** Format: character varying */
     code: string;
   };
@@ -1176,7 +1176,7 @@ export interface parameters {
   /** Format: uuid */
   "rowFilter.ontology_concept.ontology_id": string;
   /** Format: character varying */
-  "rowFilter.ontology_concept.concept": string;
+  "rowFilter.ontology_concept.name": string;
   /** Format: character varying */
   "rowFilter.ontology_concept.code": string;
   /** @description workspace_config */

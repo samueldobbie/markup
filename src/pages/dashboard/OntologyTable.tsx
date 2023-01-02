@@ -1,6 +1,6 @@
 import { Group, Button, ActionIcon, Grid, Modal, TextInput, useMantineTheme, Text, Card, Table, Anchor, Center, Tooltip } from "@mantine/core"
 import { Dropzone } from "@mantine/dropzone"
-import { IconTrash, IconFile, IconUpload, IconX, IconSearch, IconCheck, IconPlus, IconTrashX } from "@tabler/icons"
+import { IconFile, IconUpload, IconX, IconSearch, IconCheck, IconPlus, IconTrashX } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import { database, Ontology } from "storage/database/Database"
@@ -212,8 +212,8 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal, ontologies, setOn
   )
 }
 
-export interface OntologyRow {
-  concept: string
+export interface OntologyConcept {
+  name: string
   code: string
 }
 
@@ -227,7 +227,7 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
   const addOntology = async () => {
     const content = await file?.text() ?? ""
 
-    const rows: OntologyRow[] = []
+    const concepts: OntologyConcept[] = []
 
     content
       .split("\n")
@@ -235,19 +235,19 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
         if (row === "") return null
 
         const parts = row.split("***")
-        const concept = parts[0]
+        const name = parts[0]
         const code = parts[1]
 
-        if (concept === undefined || code === undefined) return null
+        if (name === undefined || code === undefined) return null
 
-        rows.push({
-          concept,
+        concepts.push({
+          name,
           code,
         })
       })
 
     database
-      .addOntology(name, description, rows)
+      .addOntology(name, description, concepts)
       .then(() => {
         setName("")
         setDescription("")

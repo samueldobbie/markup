@@ -20,6 +20,8 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
       .then((insertedConfigs) => {
         const parsedConfig = parseConfig(insertedConfigs[0])
 
+        console.log(parsedConfig.attributes.map((i) => i.name))
+
         setConfigs(insertedConfigs)
         setEntityCount(parsedConfig.entities.length)
         setAttributeCount(parsedConfig.attributes.length)

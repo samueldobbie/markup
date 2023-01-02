@@ -1,6 +1,6 @@
 import { definitions } from "./Definitions"
 import { supabase } from "../../utils/Supabase"
-import { OntologyRow } from "pages/dashboard/OntologyTable"
+import { OntologyConcept } from "pages/dashboard/OntologyTable"
 import { WorkspaceCollaborator } from "pages/dashboard/WorkspaceTable"
 
 export type Workspace = definitions["workspace"]
@@ -403,8 +403,8 @@ async function getWorkspaceCollaborators(workspaceId: string): Promise<Workspace
 
   return collaborators
 }
-  
-async function addOntology(name: string, description: string, rows: OntologyRow[]): Promise<void> {
+
+async function addOntology(name: string, description: string, rows: OntologyConcept[]): Promise<void> {
   const { data, error } = await supabase
     .from("ontology")
     .insert({
@@ -437,7 +437,7 @@ async function addOntology(name: string, description: string, rows: OntologyRow[
 
   const concepts = rows.map(i => ({
     ontology_id: ontologyId,
-    concept: i.concept,
+    name: i.name,
     code: i.code,
   }))
 
@@ -500,6 +500,23 @@ async function getOntologies(): Promise<Ontology[]> {
   }
 
   return data.map(i => i.ontology) as Ontology[]
+}
+
+async function getOntologyConcepts(ontologyIds: string[]): Promise<OntologyConcept[]> {
+  const { data, error } = await supabase
+    .from("ontology_concept")
+    .select()
+    .in("ontology_id", ontologyIds)
+
+  if (error) {
+    console.error(error)
+    return []
+  }
+
+  return data.map(concept => ({
+    name: concept.name,
+    code: concept.code,
+  }))
 }
 
 async function removeDefaultOntology(ontologyId: string): Promise<void> {
@@ -593,6 +610,7 @@ export const database = {
 
   addOntology,
   getOntologies,
+  getOntologyConcepts,
   useDefaultOntology,
   getDefaultOntologies,
   removeDefaultOntology,
