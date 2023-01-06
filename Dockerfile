@@ -1,12 +1,10 @@
-FROM node:14 AS builder
+FROM node:latest AS builder
 
-ENV NODE_ENV production
 WORKDIR /app
 COPY package.json .
 COPY yarn.lock .
-RUN yarn install --production
+RUN yarn install
 COPY . .
-
 RUN yarn build
 
 # Bundle static assets with nginx

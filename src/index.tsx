@@ -1,5 +1,4 @@
 import React from "react"
-import ReactDOM from "react-dom/client"
 import { RecoilRoot, useRecoilState } from "recoil"
 import { AuthProvider } from "providers/AuthProvider"
 import { ColorScheme, ColorSchemeProvider, MantineProvider } from "@mantine/core"
@@ -8,6 +7,7 @@ import PageRoutes from "components/routes/PageRoutes"
 import { ModalsProvider } from "@mantine/modals"
 import { themeState } from "storage/state"
 import Navbar from "components/nav/NavBar"
+import ReactDOM from "react-dom/client"
 import "./index.css"
 
 function App(): JSX.Element {
