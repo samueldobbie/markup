@@ -167,9 +167,15 @@ function Config({ workspace }: SectionProps) {
 
           <Grid.Col xs={12}>
             <Collapse in={attributeSectionOpen}>
-              {shownAttributes.length === 0 &&
+              {activeEntity === "" && shownAttributes.length === 0 &&
                 <Text color="dimmed">
                   Select entity to see attributes
+                </Text>
+              }
+
+              {activeEntity !== "" && shownAttributes.length === 0 &&
+                <Text color="dimmed">
+                  Selected entity has no attributes
                 </Text>
               }
 
@@ -251,7 +257,7 @@ function Config({ workspace }: SectionProps) {
                       searchable
                       clearable
                       creatable
-                      // onChange={(concepts) => setSelectedOntologyConcepts(concepts)}
+                    // onChange={(concepts) => setSelectedOntologyConcepts(concepts)}
                     />
                   </Grid.Col>
                 </Grid>

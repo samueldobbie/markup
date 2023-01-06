@@ -17,9 +17,6 @@ function App(): JSX.Element {
     setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"))
   }
 
-  // background = 1c1e25
-  // paper = 21252e
-
   return (
     <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
       <MantineProvider

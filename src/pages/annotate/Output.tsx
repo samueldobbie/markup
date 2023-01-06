@@ -1,5 +1,5 @@
-import { Button, Card, Collapse, Divider, Grid, Group, ScrollArea, Text } from "@mantine/core"
-import { IconX } from "@tabler/icons"
+import { ActionIcon, Button, Card, Collapse, Divider, Grid, Group, ScrollArea, Text } from "@mantine/core"
+import { IconCheck, IconTrashX, IconX } from "@tabler/icons"
 import { useEffect, useState } from "react"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { database, WorkspaceAnnotation } from "storage/database"
@@ -139,6 +139,60 @@ function Output({ workspace }: SectionProps) {
     <Card shadow="xs" radius={5} p="xl">
       <ScrollArea scrollbarSize={0} sx={{ height: "76vh" }}>
         <Grid>
+          <Grid.Col xs={12}>
+            <Group position="apart" noWrap>
+              <Text size="lg" weight={500}>
+                Suggestions
+              </Text>
+            </Group>
+          </Grid.Col>
+
+          <Grid.Col xs={12}>
+            <Divider />
+          </Grid.Col>
+
+          <Grid.Col xs={12}>
+            <Card
+              radius={2}
+              p="sm"
+              sx={{
+                backgroundColor: "pink",
+                color: "#333333",
+                cursor: "pointer",
+              }}
+            >
+              <Grid>
+                <Grid.Col xs={2}>
+                  <IconX
+                    size={16}
+                  />
+                </Grid.Col>
+
+                <Grid.Col xs={10} sx={{ userSelect: "none" }}>
+                  <Text>
+                    This is a demo suggestion
+                  </Text>
+
+                  <Text color="dimmed" size={12} sx={{ cursor: "pointer" }}>
+                    0 attributes
+                  </Text>
+                </Grid.Col>
+
+                <Grid.Col xs={12}>
+                  <Group position="right">
+                    <ActionIcon color="red" variant="filled">
+                      <IconTrashX size={16} />
+                    </ActionIcon>
+
+                    <ActionIcon color="green" variant="filled">
+                      <IconCheck size={16} />
+                    </ActionIcon>
+                  </Group>
+                </Grid.Col>
+              </Grid>
+            </Card>
+          </Grid.Col>
+
           <Grid.Col xs={12}>
             <Group position="apart" noWrap>
               <Text size="lg" weight={500}>
