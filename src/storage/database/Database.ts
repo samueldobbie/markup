@@ -2,6 +2,7 @@ import { definitions } from "./Definitions"
 import { supabase } from "../../utils/Supabase"
 import { OntologyConcept } from "pages/dashboard/OntologyTable"
 import { WorkspaceCollaborator } from "pages/dashboard/WorkspaceTable"
+import { WorkspaceGuideline } from "pages/setup/GuidelinesTable"
 
 export type Workspace = definitions["workspace"]
 export type WorkspaceAccess = definitions["workspace_access"]
@@ -160,6 +161,52 @@ async function deleteWorkspaceDocument(documentId: string): Promise<boolean> {
     .from("workspace_document")
     .delete()
     .eq("id", documentId)
+
+  if (error) {
+    console.error(error)
+    return true
+  }
+
+  return false
+}
+
+async function getWorkspaceGuideline(workspaceId: string): Promise<WorkspaceGuideline[]> {
+  const { data: config, error } = await supabase
+    .from("workspace_guideline")
+    .select()
+    .eq("workspace_id", workspaceId)
+
+  if (error) {
+    console.error(error)
+    return []
+  }
+
+  return config
+}
+
+async function addWorkspaceGuideline(workspaceId: string, file: File): Promise<WorkspaceGuideline[]> {
+  const { data: config, error } = await supabase
+    .from("workspace_guideline")
+    .insert({
+      workspace_id: workspaceId,
+      name: file.name,
+      content: await file.text(),
+    })
+    .select()
+
+  if (error) {
+    console.error(error)
+    return []
+  }
+
+  return config
+}
+
+async function deleteWorkspaceGuideline(guidelineId: string): Promise<boolean> {
+  const { error } = await supabase
+    .from("workspace_guideline")
+    .delete()
+    .eq("id", guidelineId)
 
   if (error) {
     console.error(error)
@@ -609,6 +656,10 @@ export const database = {
   addWorkspaceConfig,
   getWorkspaceConfig,
   deleteWorkspaceConfig,
+
+  getWorkspaceGuideline,
+  addWorkspaceGuideline,
+  deleteWorkspaceGuideline,
 
   addWorkspaceAnnotation,
   addWorkspaceAnnotations,
