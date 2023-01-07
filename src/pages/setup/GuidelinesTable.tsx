@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { database } from "storage/database/Database"
 import { SectionProps } from "./Setup"
 
-interface Guideline {
+export interface WorkspaceGuideline {
   id: string
   name: string
   content: string
@@ -13,11 +13,11 @@ interface Guideline {
 
 function GuidelinesTable({ workspace }: SectionProps) {
   const [file, setFile] = useState<File | null>(null)
-  const [guidelines, setGuidelines] = useState<Guideline[]>([])
+  const [guidelines, setGuidelines] = useState<WorkspaceGuideline[]>([])
 
   useEffect(() => {
     database
-      .getWorkspaceGuidelines(workspace.id)
+      .getWorkspaceGuideline(workspace.id)
       .then((guidelines) => setGuidelines(guidelines))
   }, [workspace.id])
 
@@ -71,13 +71,13 @@ function GuidelinesTable({ workspace }: SectionProps) {
                 </Text>
               </Text>
             ),
-            render: (config) => <Text>{config.name}</Text>
+            render: (guideline) => <Text>{guideline.name}</Text>
           },
           {
             accessor: "actions",
             title: (
               <Group position="right" noWrap>
-                <FileButton onChange={setFile} accept=".conf">
+                <FileButton onChange={setFile} accept=".txt">
                   {(props) => (
                     <Button {...props}>
                       Upload guidelines
@@ -87,13 +87,13 @@ function GuidelinesTable({ workspace }: SectionProps) {
               </Group>
             ),
             textAlignment: "right",
-            render: (config) => (
+            render: (guideline) => (
               <Group spacing={8} position="right" noWrap>
                 <ActionIcon
                   color="primary"
                   onClick={() => {
                     database
-                      .deleteWorkspaceConfig(config.id)
+                      .deleteWorkspaceGuideline(guideline.id)
                       .then(() => setGuidelines([]))
                       .catch(alert)
                   }}
