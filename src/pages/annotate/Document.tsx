@@ -70,7 +70,11 @@ function Document({ workspace }: SectionProps) {
   useEffect(() => {
     database
       .getWorkspaceGuideline(workspace.id)
-      .then((guidelines) => setGuideline(guidelines[0].content))
+      .then((guidelines) => {
+        if (guidelines.length > 0) {
+          setGuideline(guidelines[0].content)
+        }
+      })
       .catch(alert)
   }, [setDocuments, workspace.id])
 
