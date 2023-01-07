@@ -1,5 +1,5 @@
 import { ActionIcon, Button, Card, Divider, Grid, Group, Modal, ScrollArea, Select, TextInput, Text } from "@mantine/core"
-import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight, IconSearch } from "@tabler/icons"
+import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight, IconSearch, IconView360 } from "@tabler/icons"
 import { database, RawAnnotation, WorkspaceAnnotation, WorkspaceDocument } from "storage/database/Database"
 import { useEffect, useState } from "react"
 import { SectionProps } from "./Interfaces"
@@ -21,11 +21,13 @@ function Document({ workspace }: SectionProps) {
   const entityColours = useRecoilValue(entityColoursState)
   const populatedAttributes = useRecoilValue(populatedAttributeState)
 
+  const [guideline, setGuideline] = useState("")
   const [documents, setDocuments] = useRecoilState(documentsState)
   const [documentIndex, setDocumentIndex] = useRecoilState(documentIndexState)
   const [annotations, setAnnotations] = useRecoilState(annotationsState)
   const [openedSearchDocumentModal, setOpenedSearchDocumentModal] = useState(false)
-
+  const [openedViewGuidelineModal, setOpenedViewGuidelineModal] = useState(false)
+  
   const moveToFirstDocument = () => setDocumentIndex(0)
   const moveToPreviousDocument = () => setDocumentIndex(documentIndex - 1)
   const moveToNextDocument = () => setDocumentIndex(documentIndex + 1)
@@ -67,6 +69,13 @@ function Document({ workspace }: SectionProps) {
 
   useEffect(() => {
     database
+      .getWorkspaceGuideline(workspace.id)
+      .then((guidelines) => setGuideline(guidelines[0].content))
+      .catch(alert)
+  }, [setDocuments, workspace.id])
+
+  useEffect(() => {
+    database
       .getWorkspaceDocuments(workspace.id)
       .then(setDocuments)
       .catch(alert)
@@ -89,7 +98,7 @@ function Document({ workspace }: SectionProps) {
           <ScrollArea scrollbarSize={0} sx={{ height: "76vh" }}>
             <Grid>
               <Grid.Col xs={12}>
-                <Group spacing={4} position="center" noWrap>
+                <Group spacing={0} position="center" noWrap>
                   <ActionIcon
                     size="lg"
                     color="x"
@@ -144,7 +153,7 @@ function Document({ workspace }: SectionProps) {
                     <IconChevronsRight size={16} />
                   </ActionIcon>
 
-                  <Divider orientation="vertical" ml={20} mr={25} />
+                  <Divider orientation="vertical" ml={6} mr={8} />
 
                   <Button
                     variant="subtle"
@@ -152,6 +161,16 @@ function Document({ workspace }: SectionProps) {
                     onClick={() => setOpenedSearchDocumentModal(true)}
                   >
                     Search documents
+                  </Button>
+
+                  <Divider orientation="vertical" ml={6} mr={8} />
+
+                  <Button
+                    variant="subtle"
+                    leftIcon={<IconView360 size={16} />}
+                    onClick={() => setOpenedViewGuidelineModal(true)}
+                  >
+                    View Guidelines
                   </Button>
                 </Group>
               </Grid.Col>
@@ -209,6 +228,12 @@ function Document({ workspace }: SectionProps) {
         documents={documents}
         openedModal={openedSearchDocumentModal}
         setOpenedModal={setOpenedSearchDocumentModal}
+      />
+
+      <ViewGuidelineModal
+        guideline={guideline}
+        openedModal={openedViewGuidelineModal}
+        setOpenedModal={setOpenedViewGuidelineModal}
       />
     </>
   )
@@ -319,6 +344,30 @@ function SearchDocumentModal({ documents, openedModal, setOpenedModal }: Props) 
             )
           })}
         </Grid>
+      </ScrollArea>
+    </Modal>
+  )
+}
+
+interface ViewGuidelineModalProps {
+  guideline: string
+  openedModal: boolean
+  setOpenedModal: (openedModal: boolean) => void
+}
+
+function ViewGuidelineModal({ guideline, openedModal, setOpenedModal }: ViewGuidelineModalProps) {
+  return (
+    <Modal
+      size="xl"
+      opened={openedModal}
+      onClose={() => setOpenedModal(false)}
+      title="Annotation Guidelines"
+      centered
+    >
+      <ScrollArea scrollbarSize={0} sx={{ height: 400 }}>
+        <Text color="dimmed">
+          {guideline}
+        </Text>
       </ScrollArea>
     </Modal>
   )

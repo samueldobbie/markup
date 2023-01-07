@@ -152,48 +152,12 @@ function Output({ workspace }: SectionProps) {
           </Grid.Col>
 
           <Grid.Col xs={12}>
-            <Card
-              radius={2}
-              p="sm"
-              sx={{
-                backgroundColor: "pink",
-                color: "#333333",
-                cursor: "pointer",
-              }}
-            >
-              <Grid>
-                <Grid.Col xs={2}>
-                  <IconX
-                    size={16}
-                  />
-                </Grid.Col>
-
-                <Grid.Col xs={10} sx={{ userSelect: "none" }}>
-                  <Text>
-                    This is a demo suggestion
-                  </Text>
-
-                  <Text color="dimmed" size={12} sx={{ cursor: "pointer" }}>
-                    0 attributes
-                  </Text>
-                </Grid.Col>
-
-                <Grid.Col xs={12}>
-                  <Group position="right">
-                    <ActionIcon color="red" variant="filled">
-                      <IconTrashX size={16} />
-                    </ActionIcon>
-
-                    <ActionIcon color="green" variant="filled">
-                      <IconCheck size={16} />
-                    </ActionIcon>
-                  </Group>
-                </Grid.Col>
-              </Grid>
-            </Card>
+            <Text color="dimmed">
+              No suggestions
+            </Text>
           </Grid.Col>
 
-          <Grid.Col xs={12}>
+          <Grid.Col xs={12} mt={25}>
             <Group position="apart" noWrap>
               <Text size="lg" weight={500}>
                 Annotations
@@ -268,6 +232,50 @@ function Output({ workspace }: SectionProps) {
           ))}
         </Grid>
       </ScrollArea>
+    </Card>
+  )
+}
+
+function SuggestedAnnotation() {
+  return (
+    <Card
+      radius={2}
+      p="sm"
+      sx={{
+        backgroundColor: "pink",
+        color: "#333333",
+        cursor: "pointer",
+      }}
+    >
+      <Grid>
+        <Grid.Col xs={2}>
+          <IconX
+            size={16}
+          />
+        </Grid.Col>
+
+        <Grid.Col xs={10} sx={{ userSelect: "none" }}>
+          <Text>
+            This is a demo suggestion
+          </Text>
+
+          <Text color="dimmed" size={12} sx={{ cursor: "pointer" }}>
+            0 attributes
+          </Text>
+        </Grid.Col>
+
+        <Grid.Col xs={12}>
+          <Group position="right">
+            <ActionIcon color="red" variant="filled">
+              <IconTrashX size={16} />
+            </ActionIcon>
+
+            <ActionIcon color="green" variant="filled">
+              <IconCheck size={16} />
+            </ActionIcon>
+          </Group>
+        </Grid.Col>
+      </Grid>
     </Card>
   )
 }
