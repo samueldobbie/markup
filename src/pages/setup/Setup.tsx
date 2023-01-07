@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom"
-import { Container, Grid } from "@mantine/core"
+import { Container, Grid, Group } from "@mantine/core"
 import { moveToPage } from "utils/Location"
 import { Path } from "utils/Path"
 import { useEffect, useState } from "react"
@@ -7,6 +7,7 @@ import { database, Workspace } from "storage/database/Database"
 import ConfigTable from "./ConfigTable"
 import DocumentTable from "./DocumentTable"
 import Header from "./Header"
+import GuidelinesTable from "./GuidelinesTable"
 
 interface WorkspaceStatus {
   hasConfig: boolean
@@ -61,11 +62,23 @@ function Setup() {
             </Grid.Col>
 
             <Grid.Col xs={12} md={5}>
-              <ConfigTable
-                workspace={workspace}
-                workspaceStatus={workspaceStatus}
-                setWorkspaceStatus={setWorkspaceStatus}
-              />
+              <Grid>
+                <Grid.Col xs={12}>
+                  <ConfigTable
+                    workspace={workspace}
+                    workspaceStatus={workspaceStatus}
+                    setWorkspaceStatus={setWorkspaceStatus}
+                  />
+                </Grid.Col>
+
+                <Grid.Col xs={12}>
+                  <GuidelinesTable
+                    workspace={workspace}
+                    workspaceStatus={workspaceStatus}
+                    setWorkspaceStatus={setWorkspaceStatus}
+                  />
+                </Grid.Col>
+              </Grid>
             </Grid.Col>
 
             <Grid.Col xs={12} md={7}>

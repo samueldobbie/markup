@@ -55,7 +55,15 @@ function OntologyTable() {
         columns={[
           {
             accessor: "name",
-            title: <Text size={16}>Ontology</Text>,
+            title: (
+              <Text size={16}>
+                Ontology
+
+                <Text size={13} color="dimmed">
+                  Terminologies for mapping
+                </Text>
+              </Text>
+            ),
             render: (ontology) => (
               <>
                 <Text>

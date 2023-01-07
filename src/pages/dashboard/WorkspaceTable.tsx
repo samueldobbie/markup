@@ -61,7 +61,15 @@ function WorkspaceTable() {
         columns={[
           {
             accessor: "name",
-            title: <Text size={16}>Workspaces</Text>,
+            title: (
+              <Text size={16}>
+                Workspaces
+
+                <Text size={13} color="dimmed">
+                  Your annotation sessions
+                </Text>
+              </Text>
+            ),
             render: (workspace) => (
               <>
                 <Text>
