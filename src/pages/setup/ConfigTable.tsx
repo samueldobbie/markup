@@ -70,7 +70,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
           withBorder={false}
           emptyState="Upload or create a config"
           borderRadius={5}
-          sx={{ minHeight: "500px" }}
+          sx={{ minHeight: "225px" }}
           records={configs}
           rowExpansion={{
             content: (config) => (
@@ -90,7 +90,15 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
           columns={[
             {
               accessor: "name",
-              title: <Text size={16}>Config</Text>,
+              title: (
+                <Text size={16}>
+                  Config
+
+                  <Text size={13} color="dimmed">
+                    Required
+                  </Text>
+                </Text>
+              ),
               render: (config) => (
                 <>
                   <Text>

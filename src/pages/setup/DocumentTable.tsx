@@ -103,7 +103,15 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
         columns={[
           {
             accessor: "name",
-            title: <Text size={16}>Documents</Text>,
+            title: (
+              <Text size={16}>
+                Documents
+
+                <Text size={13} color="dimmed">
+                  Required
+                </Text>
+              </Text>
+            ),
             render: (document) => (
               <>
                 <Text>
