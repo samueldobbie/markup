@@ -1,5 +1,5 @@
 import { ActionIcon, Button, Card, Collapse, Divider, Grid, Group, MultiSelect, Radio, ScrollArea, Text } from "@mantine/core"
-import { IconEye, IconEyeOff } from "@tabler/icons"
+import { IconCaretDown, IconCaretRight } from "@tabler/icons"
 import { database } from "storage/database/Database"
 import { useState, useEffect } from "react"
 import { useRecoilState } from "recoil"
@@ -118,7 +118,7 @@ function Config({ workspace }: SectionProps) {
               <Group mb={20}>
                 <Radio.Group
                   name="entities"
-                  orientation="vertical"
+                  orientation="horizontal"
                   onChange={setActiveEntity}
                   spacing="xs"
                   value={activeEntity}
@@ -285,8 +285,8 @@ function Title({ text, open, setOpen }: TitleProps) {
       sx={{ cursor: "pointer" }}
     >
       <ActionIcon>
-        {open && <IconEye style={{ opacity: 0.8 }} size={18} />}
-        {!open && <IconEyeOff style={{ opacity: 0.8 }} size={18} />}
+        {open && <IconCaretDown style={{ opacity: 0.8 }} size={18} />}
+        {!open && <IconCaretRight style={{ opacity: 0.8 }} size={18} />}
       </ActionIcon>
 
       <Text size="md">
