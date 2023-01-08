@@ -1,9 +1,10 @@
-import { Group, Button, ActionIcon, Text, FileButton, Card, Modal, Grid, MultiSelect, Select, TextInput, Divider } from "@mantine/core"
+import { Group, Button, ActionIcon, Text, FileButton, Card, Modal, Grid, MultiSelect, Select, TextInput, Divider, ScrollArea } from "@mantine/core"
 import { IconTrashX } from "@tabler/icons"
 import saveAs from "file-saver"
 import { DataTable } from "mantine-datatable"
 import { parseConfig } from "pages/annotate/Parse"
 import { useEffect, useState } from "react"
+import JSONPretty from "react-json-pretty"
 import { WorkspaceConfig, database } from "storage/database/Database"
 import { SectionProps } from "./Setup"
 
@@ -248,6 +249,36 @@ function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props)
     return output.join("\n")
   }
 
+  const output = {
+    "entities": [
+      {
+        "name": "Person",
+        "attributes": [
+          {
+            "name": "Age",
+            "values": [
+              "18-25",
+              "26-35",
+              "36-45",
+              "46-55",
+              "56-65",
+            ],
+            "allowCustomValues": true,
+            "allowMultipleValues": false,
+          },
+        ],
+      }
+    ],
+    "globalAttributes": [
+      {
+        "name": "Date",
+        "values": [],
+        "allowCustomValues": true,
+        "allowMultipleValues": false,
+      },
+    ],
+  }
+
   return (
     <Modal
       opened={openedModal}
@@ -337,39 +368,15 @@ function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props)
         <Divider orientation="vertical" ml={10} mr={10} />
 
         <Grid.Col xs={5}>
-          <Grid>
-            <Grid.Col xs={12}>
-              <Text size={16}>
-                Output Preview
-              </Text>
+          <Text size={16}>
+            Config Preview
+          </Text>
 
-              <Text size={12} mt={15} color="dimmed">
-                [entities]
-              </Text>
-
-              {entities.map((entity) => (
-                <Text size={12} color="dimmed" key={entity}>
-                  {entity}
-                </Text>
-              ))}
-
-              <Text size={12} mt={15} color="dimmed">
-                [attributes]
-              </Text>
-
-              {attributes.map((attribute) => {
-                const { entity, name, values } = attribute
-
-                const valuesString = values.join("|")
-                const attributeString = `${name} Arg:${entity}, Value:${valuesString}`
-                return (
-                  <Text size={12} color="dimmed" key={attributeString}>
-                    {attributeString}
-                  </Text>
-                )
-              })}
-            </Grid.Col>
-          </Grid>
+          <ScrollArea sx={{ height: 500 }}>
+            <Text size={14} mt={15} color="dimmed">
+              <JSONPretty data={output} />
+            </Text>
+          </ScrollArea>
         </Grid.Col>
       </Grid>
 
