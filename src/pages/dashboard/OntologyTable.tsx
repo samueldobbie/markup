@@ -233,27 +233,38 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
   const [file, setFile] = useState<File | null>(null)
 
   const addOntology = async () => {
-    const content = await file?.text() ?? ""
+    if (file === null) {
+      alert("Please select a file")
+      return null
+    }
+
+    const content = JSON.parse(await file.text())
+
+    if (!Array.isArray(content)) {
+      setFile(null)
+      alert("File was empty or invalid. Please select a valid JSON file")
+      return null
+    }
 
     const concepts: OntologyConcept[] = []
 
-    content
-      .split("\n")
-      .forEach(row => {
-        if (row === "") return null
+    content.forEach((row) => {
+      const { name, code } = row
 
-        const parts = row.split("***")
-        const name = parts[0]
-        const code = parts[1]
-
-        if (name === undefined || code === undefined) return null
-
+      if (typeof name === "string" && typeof code === "string") {
         concepts.push({
           name,
           code,
         })
-      })
+      }
+    })
 
+    if (concepts.length === 0) {
+      setFile(null)
+      alert("File was empty or invalid. Please select a valid JSON file")
+      return null
+    }
+    
     database
       .addOntology(name, description, concepts)
       .then(() => {
@@ -304,7 +315,7 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
             onDrop={(files) => setFile(files[0])}
             onReject={() => alert("Failed to upload files, please refresh and try again")}
             maxSize={3 * 1024 ** 2}
-            accept={["text/plain"]}
+            accept={[".json"]}
             multiple={false}
           >
             <Group position="center" spacing="xl" style={{ minHeight: 220, pointerEvents: "none" }}>
@@ -352,7 +363,7 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
                 </Text>
 
                 <Text size="sm" color="dimmed" inline mt={7}>
-                  Must be a .txt file that does not exceed 5MB.
+                  Must be a JSON file that does not exceed 5MB.
                 </Text>
               </div>
             </Group>
