@@ -235,36 +235,35 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
   const addOntology = async () => {
     if (file === null) {
       alert("Please select a file")
-      return null
+      return
     }
 
     const content = JSON.parse(await file.text())
-
-    if (!Array.isArray(content)) {
-      setFile(null)
-      alert("File was empty or invalid. Please select a valid JSON file")
-      return null
-    }
-
     const concepts: OntologyConcept[] = []
 
-    content.forEach((row) => {
-      const { name, code } = row
+    if (Array.isArray(content)) {
+      content.forEach((row) => {
+        const { name, code } = row
+        const isValidRow = (
+          typeof name === "string" &&
+          typeof code === "string"
+        )
 
-      if (typeof name === "string" && typeof code === "string") {
-        concepts.push({
-          name,
-          code,
-        })
-      }
-    })
+        if (isValidRow) {
+          concepts.push({
+            name,
+            code,
+          })
+        }
+      })
+    }
 
     if (concepts.length === 0) {
       setFile(null)
       alert("File was empty or invalid. Please select a valid JSON file")
-      return null
+      return
     }
-    
+
     database
       .addOntology(name, description, concepts)
       .then(() => {
