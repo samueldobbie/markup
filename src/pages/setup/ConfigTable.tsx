@@ -1,4 +1,4 @@
-import { Group, Button, ActionIcon, Text, FileButton, Card, Modal, Grid, MultiSelect, Select, TextInput, Divider, ScrollArea, Checkbox, Paper } from "@mantine/core"
+import { Group, Button, ActionIcon, Text, FileButton, Card, Modal, Grid, MultiSelect, Select, TextInput, Divider, ScrollArea, Checkbox } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { IconTrashX } from "@tabler/icons"
 import saveAs from "file-saver"
@@ -197,7 +197,6 @@ interface Attribute {
 interface AddAttributeForm {
   entity: string
   name: string
-  values: MultiSelectData[]
   allowCustomValues: boolean
   allowMultipleSelections: boolean
 }
@@ -273,7 +272,10 @@ function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props)
         <Grid.Col md={6}>
           <Grid>
             <Grid.Col xs={12}>
-              <EntitySection setEntities={setEntities} />
+              <EntitySection
+                entities={entities}
+                setEntities={setEntities}
+              />
 
               <Divider mt={20} mb={20} />
 
@@ -302,22 +304,12 @@ function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props)
   )
 }
 
-interface MultiSelectData {
-  value: string
-  label: string
-}
-
 interface EntitySectionProps {
+  entities: string[]
   setEntities: (entities: string[]) => void
 }
 
-function EntitySection({ setEntities }: EntitySectionProps) {
-  const [entityValues, setEntityValues] = useState<MultiSelectData[]>([])
-
-  useEffect(() => {
-    setEntities(entityValues.map(({ value }) => value))
-  }, [setEntities, entityValues])
-
+function EntitySection({ entities, setEntities }: EntitySectionProps) {
   return (
     <>
       <Text size={16}>
@@ -331,19 +323,14 @@ function EntitySection({ setEntities }: EntitySectionProps) {
       <MultiSelect
         nothingFound="Start typing to create an entity"
         placeholder="Start typing to create an entity"
-        data={entityValues}
+        data={entities}
         searchable
         creatable
+        onChange={(values) => setEntities(values)}
         getCreateLabel={(query) => `+ Create ${query}`}
         onCreate={(query) => {
-          const item = {
-            value: query,
-            label: query,
-          }
-
-          setEntityValues((current) => [...current, item])
-
-          return item
+          setEntities([...entities, query])
+          return query
         }}
       />
     </>
@@ -357,25 +344,24 @@ interface AttributeSectionProps {
 }
 
 function AttributeSection({ entities, attributes, setAttributes }: AttributeSectionProps) {
-  const [attributeValues, setAttributeValues] = useState<MultiSelectData[]>([])
+  const [attributeValues, setAttributeValues] = useState<string[]>([])
 
   const form = useForm<AddAttributeForm>({
     initialValues: {
       entity: "",
       name: "",
-      values: [],
       allowCustomValues: false,
       allowMultipleSelections: false,
     }
   })
 
-  const handleAddAttribute = (form: AddAttributeForm) => {
+  const handleAddAttribute = (submitted: AddAttributeForm) => {
     const addedAttribute: Attribute = {
-      entity: form.entity,
-      name: form.name.split(" ").join(""),
-      values: form.values.map(({ value }) => value),
-      allowCustomValues: form.allowCustomValues,
-      allowMultipleSelections: form.allowMultipleSelections,
+      entity: submitted.entity,
+      name: submitted.name,
+      values: attributeValues,
+      allowCustomValues: submitted.allowCustomValues,
+      allowMultipleSelections: submitted.allowMultipleSelections,
     }
 
     const isUnique = attributes.filter((attribute) => (
@@ -383,14 +369,8 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
       attribute.name === addedAttribute.name
     )).length === 0
 
-    console.log(addedAttribute)
-    console.log(isUnique)
-
     if (isUnique) {
       setAttributes([addedAttribute, ...attributes])
-      // setRelatedEntity("")
-      // setAttributeName("")
-      // setAttributeValues([])
     } else {
       alert("An attribute with that name already exists for the related entity.")
     }
@@ -430,16 +410,16 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
         searchable
         creatable
         mb={20}
+        onChange={(values) => setAttributeValues(values)}
         getCreateLabel={(query) => `+ Create ${query}`}
         onCreate={(query) => {
-          const item = { value: query, label: query }
-          setAttributeValues([...attributeValues, item])
-          return item
+          setAttributeValues([...attributeValues, query])
+          return query
         }}
-        {...form.getInputProps("values")}
       />
 
       <Checkbox
+        mb={10}
         label={
           <>
             Allow custom attribute values
@@ -449,11 +429,11 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
             </Text>
           </>
         }
-        mb={10}
         {...form.getInputProps("allowCustomValues")}
       />
 
       <Checkbox
+        mb={10}
         label={
           <>
             Allow selection of multiple attribute values
@@ -463,7 +443,6 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
             </Text>
           </>
         }
-        mb={10}
         {...form.getInputProps("allowMultipleSelections")}
       />
 
