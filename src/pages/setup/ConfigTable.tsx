@@ -1,4 +1,5 @@
-import { Group, Button, ActionIcon, Text, FileButton, Card, Modal, Grid, MultiSelect, Select, TextInput, Divider, ScrollArea } from "@mantine/core"
+import { Group, Button, ActionIcon, Text, FileButton, Card, Modal, Grid, MultiSelect, Select, TextInput, Divider, ScrollArea, Checkbox, Paper } from "@mantine/core"
+import { useForm } from "@mantine/form"
 import { IconTrashX } from "@tabler/icons"
 import saveAs from "file-saver"
 import { DataTable } from "mantine-datatable"
@@ -7,6 +8,23 @@ import { useEffect, useState } from "react"
 import JSONPretty from "react-json-pretty"
 import { WorkspaceConfig, database } from "storage/database/Database"
 import { SectionProps } from "./Setup"
+
+interface Config {
+  entities: ConfigEntity[]
+  globalAttributes: ConfigAttribute[]
+}
+
+interface ConfigEntity {
+  name: string
+  attributes: ConfigAttribute[]
+}
+
+interface ConfigAttribute {
+  name: string
+  values: string[]
+  allowCustomValues: boolean
+  allowMultipleSelections: boolean
+}
 
 function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: SectionProps) {
   const [file, setFile] = useState<File | null>(null)
@@ -20,8 +38,6 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
       .getWorkspaceConfig(workspace.id)
       .then((insertedConfigs) => {
         const parsedConfig = parseConfig(insertedConfigs[0])
-
-        console.log(parsedConfig.attributes.map((i) => i.name))
 
         setConfigs(insertedConfigs)
         setEntityCount(parsedConfig.entities.length)
@@ -174,109 +190,75 @@ interface Attribute {
   entity: string
   name: string
   values: string[]
+  allowCustomValues: boolean
+  allowMultipleSelections: boolean
+}
+
+interface AddAttributeForm {
+  entity: string
+  name: string
+  values: MultiSelectData[]
+  allowCustomValues: boolean
+  allowMultipleSelections: boolean
 }
 
 const GLOBAL_ATTRIBUTE_KEY = "<ENTITY>"
 
 function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props) {
   const [entities, setEntities] = useState<string[]>([])
-  const [entityValues, setEntityValues] = useState<{ value: string; label: string }[]>([])
-
   const [attributes, setAttributes] = useState<Attribute[]>([])
-  const [relatedEntity, setRelatedEntity] = useState<string>("")
-  const [attributeName, setAttributeName] = useState<string>("")
-  const [attributeValues, setAttributeValues] = useState<{ value: string; label: string }[]>([])
+  const [output, setOutput] = useState<Config>({
+    entities: [],
+    globalAttributes: [],
+  })
 
   useEffect(() => {
-    setEntities(entityValues.map(({ value }) => value))
-  }, [entityValues])
-
-  const addAttribute = () => {
-    const addedAttribute = {
-      entity: relatedEntity,
-      name: attributeName.split(" ").join(""),
-      values: attributeValues.map(({ value }) => value),
-    } as Attribute
-
-    const isUnique = attributes.filter((attribute) => (
-      attribute.entity === addedAttribute.entity &&
-      attribute.name === addedAttribute.name
-    )).length === 0
-
-    if (isUnique) {
-      setAttributes([addedAttribute, ...attributes])
-      setRelatedEntity("")
-      setAttributeName("")
-      setAttributeValues([])
-    } else {
-      alert("An attribute with that name already exists for the related entity.")
+    const updatedOutput: Config = {
+      entities: [],
+      globalAttributes: [],
     }
-  }
+
+    entities.forEach((entity) => {
+      const entityAttributes: ConfigAttribute[] = attributes
+        .filter((attribute) => attribute.entity === entity)
+        .map((attribute) => ({
+          name: attribute.name,
+          values: attribute.values,
+          allowCustomValues: attribute.allowCustomValues,
+          allowMultipleSelections: attribute.allowMultipleSelections,
+        }))
+
+      updatedOutput.entities.push({
+        name: entity,
+        attributes: entityAttributes,
+      })
+    })
+
+    const globalAttributes: ConfigAttribute[] = attributes
+      .filter((attribute) => attribute.entity === GLOBAL_ATTRIBUTE_KEY)
+      .map((attribute) => ({
+        name: attribute.name,
+        values: attribute.values,
+        allowCustomValues: attribute.allowCustomValues,
+        allowMultipleSelections: attribute.allowMultipleSelections,
+      }))
+
+    updatedOutput.globalAttributes = globalAttributes
+
+    setOutput(updatedOutput)
+  }, [entities, attributes])
 
   const handleExportAndUseConfig = () => {
-    const fileName = "annotation.conf"
-    const entitySection = buildEntitySection()
-    const attributeSection = buildAttributeSection()
-    const fileContent = `${entitySection}\n\n${attributeSection}`
+    const fileName = "annotation.json"
+    const fileContent = JSON.stringify(output, null, 2)
 
     database
       .addWorkspaceConfig(workspaceId, fileName, fileContent)
       .then(() => {
-        const blob = new Blob([fileContent], { type: "text/plain" })
+        const blob = new Blob([fileContent], { type: "application/json" })
         saveAs(blob, fileName)
         window.location.reload()
       })
-  }
-
-  const buildEntitySection = () => {
-    const output = ["[entities]", ...entities]
-    return output.join("\n")
-  }
-
-  const buildAttributeSection = () => {
-    const output = ["[attributes]"]
-
-    attributes.forEach((attribute) => {
-      const { entity, name, values } = attribute
-
-      if (entity === GLOBAL_ATTRIBUTE_KEY || entities.includes(entity)) {
-        const valuesString = values.join("|")
-        const attributeString = `${name} Arg:${entity}, Value:${valuesString}`
-        output.push(attributeString)
-      }
-    })
-
-    return output.join("\n")
-  }
-
-  const output = {
-    "entities": [
-      {
-        "name": "Person",
-        "attributes": [
-          {
-            "name": "Age",
-            "values": [
-              "18-25",
-              "26-35",
-              "36-45",
-              "46-55",
-              "56-65",
-            ],
-            "allowCustomValues": true,
-            "allowMultipleValues": false,
-          },
-        ],
-      }
-    ],
-    "globalAttributes": [
-      {
-        "name": "Date",
-        "values": [],
-        "allowCustomValues": true,
-        "allowMultipleValues": false,
-      },
-    ],
   }
 
   return (
@@ -284,83 +266,22 @@ function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props)
       opened={openedModal}
       onClose={() => setOpenedModal(false)}
       title="Config Creator"
-      size="xl"
+      size={1000}
       centered
     >
       <Grid>
         <Grid.Col xs={6}>
           <Grid>
             <Grid.Col xs={12}>
-              <Text size={16}>
-                Entities
-              </Text>
-
-              <Text size={12} mb={10} color="dimmed">
-                The high-level nouns/categories of information you want to capture during annotation (e.g. 'Person' and 'Prescription').
-              </Text>
-
-              <MultiSelect
-                nothingFound="Start typing to create an entity"
-                placeholder="Start typing to create an entity"
-                data={entityValues}
-                searchable
-                creatable
-                getCreateLabel={(query) => `+ Create ${query}`}
-                onCreate={(query) => {
-                  const item = { value: query, label: query }
-                  setEntityValues((current) => [...current, item])
-                  return item
-                }}
-              />
+              <EntitySection setEntities={setEntities} />
 
               <Divider mt={20} mb={20} />
 
-              <Text size={16}>
-                Attributes (optional)
-              </Text>
-
-              <Text size={12} mb={10} color="dimmed">
-                These are the properties of an entity (e.g. a 'Person' entity may have 'Name' and 'Date of Birth' attributes).
-              </Text>
-
-              <Select
-                label="Related entity"
-                placeholder="Select an entity"
-                data={[...entities, { value: GLOBAL_ATTRIBUTE_KEY, label: "Global (attribute will apply to all entities)" }]}
-                mb={10}
-                onChange={(value) => setRelatedEntity(value!)}
+              <AttributeSection
+                entities={entities}
+                attributes={attributes}
+                setAttributes={setAttributes}
               />
-
-              <TextInput
-                label="Attribute name"
-                placeholder="Attribute name (e.g. 'Name')"
-                onChange={(event) => setAttributeName(event.target.value)}
-                mb={10}
-              />
-
-              <MultiSelect
-                label="Default attribute values"
-                description="The default options that will show for this attribute (e.g. 'mg' and 'ml' for a 'Drug Dose' attribute). These can be changed during annotation."
-                nothingFound="Start typing to add attribute values"
-                placeholder="Start typing to add attribute values"
-                data={attributeValues}
-                searchable
-                creatable
-                getCreateLabel={(query) => `+ Create ${query}`}
-                onCreate={(query) => {
-                  const item = { value: query, label: query }
-                  setAttributeValues([...attributeValues, item])
-                  return item
-                }}
-              />
-
-              <Button
-                mt={10}
-                variant="light"
-                onClick={addAttribute}
-              >
-                Add attribute
-              </Button>
             </Grid.Col>
           </Grid>
         </Grid.Col>
@@ -368,15 +289,7 @@ function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props)
         <Divider orientation="vertical" ml={10} mr={10} />
 
         <Grid.Col xs={5}>
-          <Text size={16}>
-            Config Preview
-          </Text>
-
-          <ScrollArea sx={{ height: 500 }}>
-            <Text size={14} mt={15} color="dimmed">
-              <JSONPretty data={output} />
-            </Text>
-          </ScrollArea>
+          <PreviewSection output={output} />
         </Grid.Col>
       </Grid>
 
@@ -386,6 +299,208 @@ function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props)
         </Button>
       </Group>
     </Modal>
+  )
+}
+
+interface MultiSelectData {
+  value: string
+  label: string
+}
+
+interface EntitySectionProps {
+  setEntities: (entities: string[]) => void
+}
+
+function EntitySection({ setEntities }: EntitySectionProps) {
+  const [entityValues, setEntityValues] = useState<MultiSelectData[]>([])
+
+  useEffect(() => {
+    setEntities(entityValues.map(({ value }) => value))
+  }, [setEntities, entityValues])
+
+  return (
+    <>
+      <Text size={16}>
+        Entities
+      </Text>
+
+      <Text size={12} mb={10} color="dimmed">
+        The high-level nouns/categories of information you want to capture during annotation (e.g. 'Person' and 'Prescription').
+      </Text>
+
+      <MultiSelect
+        nothingFound="Start typing to create an entity"
+        placeholder="Start typing to create an entity"
+        data={entityValues}
+        searchable
+        creatable
+        getCreateLabel={(query) => `+ Create ${query}`}
+        onCreate={(query) => {
+          const item = {
+            value: query,
+            label: query,
+          }
+
+          setEntityValues((current) => [...current, item])
+
+          return item
+        }}
+      />
+    </>
+  )
+}
+
+interface AttributeSectionProps {
+  entities: string[]
+  attributes: Attribute[]
+  setAttributes: (attributes: Attribute[]) => void
+}
+
+function AttributeSection({ entities, attributes, setAttributes }: AttributeSectionProps) {
+  const [attributeValues, setAttributeValues] = useState<MultiSelectData[]>([])
+
+  const form = useForm<AddAttributeForm>({
+    initialValues: {
+      entity: "",
+      name: "",
+      values: [],
+      allowCustomValues: false,
+      allowMultipleSelections: false,
+    }
+  })
+
+  const handleAddAttribute = (form: AddAttributeForm) => {
+    const addedAttribute: Attribute = {
+      entity: form.entity,
+      name: form.name.split(" ").join(""),
+      values: form.values.map(({ value }) => value),
+      allowCustomValues: form.allowCustomValues,
+      allowMultipleSelections: form.allowMultipleSelections,
+    }
+
+    const isUnique = attributes.filter((attribute) => (
+      attribute.entity === addedAttribute.entity &&
+      attribute.name === addedAttribute.name
+    )).length === 0
+
+    console.log(addedAttribute)
+    console.log(isUnique)
+
+    if (isUnique) {
+      setAttributes([addedAttribute, ...attributes])
+      // setRelatedEntity("")
+      // setAttributeName("")
+      // setAttributeValues([])
+    } else {
+      alert("An attribute with that name already exists for the related entity.")
+    }
+  }
+
+  return (
+    <form onSubmit={form.onSubmit(handleAddAttribute)}>
+      <Text size={16}>
+        Attributes <span style={{ opacity: 0.5 }}>(optional)</span>
+      </Text>
+
+      <Text size={12} mb={10} color="dimmed">
+        The properties of an entity (e.g. 'Name' and 'Date of Birth' for the 'Person' entity).
+      </Text>
+
+      <Select
+        label="Related entity"
+        placeholder="Select an entity"
+        data={[...entities, { value: GLOBAL_ATTRIBUTE_KEY, label: "Global (attribute will apply to all entities)" }]}
+        mb={15}
+        {...form.getInputProps("entity")}
+      />
+
+      <TextInput
+        label="Attribute name"
+        placeholder="Attribute name (e.g. 'Name')"
+        mb={15}
+        {...form.getInputProps("name")}
+      />
+
+      <MultiSelect
+        label="Attribute values"
+        description="The possible values this attribute can have (e.g. 'mg' and 'ml' for a 'Drug Dose' attribute)."
+        nothingFound="Start typing to add attribute values"
+        placeholder="Start typing to add attribute values"
+        data={attributeValues}
+        searchable
+        creatable
+        mb={20}
+        getCreateLabel={(query) => `+ Create ${query}`}
+        onCreate={(query) => {
+          const item = { value: query, label: query }
+          setAttributeValues([...attributeValues, item])
+          return item
+        }}
+        {...form.getInputProps("values")}
+      />
+
+      <Checkbox
+        label={
+          <>
+            Allow custom attribute values
+
+            <Text size={12} color="dimmed">
+              Enable users to use custom values as they annotate.
+            </Text>
+          </>
+        }
+        mb={10}
+        {...form.getInputProps("allowCustomValues")}
+      />
+
+      <Checkbox
+        label={
+          <>
+            Allow selection of multiple attribute values
+
+            <Text size={12} color="dimmed">
+              Enable users to select multiple values as they annotate.
+            </Text>
+          </>
+        }
+        mb={10}
+        {...form.getInputProps("allowMultipleSelections")}
+      />
+
+      <Button
+        mt={10}
+        variant="light"
+        type="submit"
+      >
+        Add attribute
+      </Button>
+    </form>
+  )
+}
+
+interface PreviewSectionProps {
+  output: Config
+}
+
+function PreviewSection({ output }: PreviewSectionProps) {
+  return (
+    <>
+      <Text size={16}>
+        Config Preview
+      </Text>
+
+      <ScrollArea sx={{
+        height: 500,
+        width: "110%",
+        backgroundColor: "rgba(0, 0, 0, 0.05)",
+        padding: 10,
+        borderRadius: 5,
+      }}>
+        <Text size={14} mt={15} color="dimmed">
+          <JSONPretty data={output} />
+        </Text>
+      </ScrollArea>
+    </>
   )
 }
 
