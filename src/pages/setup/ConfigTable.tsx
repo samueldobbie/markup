@@ -270,7 +270,7 @@ function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props)
       centered
     >
       <Grid>
-        <Grid.Col xs={6}>
+        <Grid.Col md={6}>
           <Grid>
             <Grid.Col xs={12}>
               <EntitySection setEntities={setEntities} />
@@ -288,7 +288,7 @@ function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props)
 
         <Divider orientation="vertical" ml={10} mr={10} />
 
-        <Grid.Col xs={5}>
+        <Grid.Col md={5}>
           <PreviewSection output={output} />
         </Grid.Col>
       </Grid>
