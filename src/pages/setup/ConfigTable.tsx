@@ -3,7 +3,7 @@ import { useForm } from "@mantine/form"
 import { IconTrashX } from "@tabler/icons"
 import saveAs from "file-saver"
 import { DataTable } from "mantine-datatable"
-import { parseConfig } from "pages/annotate/Parse"
+import { parseConfig } from "pages/annotate/ParseStandoffConfig"
 import { useEffect, useState } from "react"
 import JSONPretty from "react-json-pretty"
 import { WorkspaceConfig, database } from "storage/database/Database"
@@ -37,11 +37,11 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
     database
       .getWorkspaceConfig(workspace.id)
       .then((insertedConfigs) => {
-        const parsedConfig = parseConfig(insertedConfigs[0])
+        const parsedConfig = JSON.parse(insertedConfigs[0].content) as Config
 
         setConfigs(insertedConfigs)
         setEntityCount(parsedConfig.entities.length)
-        setAttributeCount(parsedConfig.attributes.length)
+        setAttributeCount(parsedConfig.globalAttributes.length + parsedConfig.entities.reduce((acc, entity) => acc + entity.attributes.length, 0))
       })
   }, [workspace.id])
 
