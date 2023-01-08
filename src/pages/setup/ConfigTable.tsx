@@ -32,8 +32,10 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
     if (file === null) return
 
     const func = async () => {
+      const content = await file.text()
+
       database
-        .addWorkspaceConfig(workspace.id, file)
+        .addWorkspaceConfig(workspace.id, file.name, content)
         .then(insertedConfig => {
           const parsedConfig = parseConfig(insertedConfig)
 
@@ -119,7 +121,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
                     Create config
                   </Button>
 
-                  <FileButton onChange={setFile} accept=".conf">
+                  <FileButton onChange={setFile} accept=".conf,.json">
                     {(props) => (
                       <Button {...props}>
                         Upload config
@@ -214,12 +216,12 @@ function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props)
     const fileName = "annotation.conf"
     const entitySection = buildEntitySection()
     const attributeSection = buildAttributeSection()
-    const output = `${entitySection}\n\n${attributeSection}`
+    const fileContent = `${entitySection}\n\n${attributeSection}`
 
     database
-      .addWorkspaceConfig(workspaceId, output)
+      .addWorkspaceConfig(workspaceId, fileName, fileContent)
       .then(() => {
-        const blob = new Blob([output], { type: "text/plain" })
+        const blob = new Blob([fileContent], { type: "text/plain" })
         saveAs(blob, fileName)
         window.location.reload()
       })

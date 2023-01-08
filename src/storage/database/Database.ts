@@ -216,23 +216,13 @@ async function deleteWorkspaceGuideline(guidelineId: string): Promise<boolean> {
   return false
 }
 
-async function addWorkspaceConfig(workspaceId: string, content: File | string): Promise<WorkspaceConfig> {
-  let fileName = "annotation.conf"
-  let fileContent = ""
-
-  if (typeof content === "string") {
-    fileContent = content
-  } else {
-    fileName = content.name
-    fileContent = await content.text()
-  }
-
+async function addWorkspaceConfig(workspaceId: string, name: string, content: string): Promise<WorkspaceConfig> {
   const { data: config, error } = await supabase
     .from("workspace_config")
     .insert({
       workspace_id: workspaceId,
-      name: fileName,
-      content: fileContent
+      name,
+      content,
     })
     .select()
 
