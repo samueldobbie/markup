@@ -5,8 +5,8 @@ import { Path } from "utils/Path"
 import { useEffect, useState } from "react"
 import { database, Workspace } from "storage/database/Database"
 import Output from "./Output"
-import Config from "./Config"
 import Document from "./Document"
+import Config from "./Config"
 
 function Annotate() {
   const { id } = useParams()

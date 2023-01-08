@@ -9,17 +9,17 @@ import JSONPretty from "react-json-pretty"
 import { WorkspaceConfig, database } from "storage/database/Database"
 import { SectionProps } from "./Setup"
 
-interface Config {
-  entities: ConfigEntity[]
-  globalAttributes: ConfigAttribute[]
+export interface IConfig {
+  entities: IConfigEntity[]
+  globalAttributes: IConfigAttribute[]
 }
 
-interface ConfigEntity {
+interface IConfigEntity {
   name: string
-  attributes: ConfigAttribute[]
+  attributes: IConfigAttribute[]
 }
 
-interface ConfigAttribute {
+interface IConfigAttribute {
   name: string
   values: string[]
   allowCustomValues: boolean
@@ -37,7 +37,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
     database
       .getWorkspaceConfig(workspace.id)
       .then((insertedConfigs) => {
-        const parsedConfig = JSON.parse(insertedConfigs[0].content) as Config
+        const parsedConfig = JSON.parse(insertedConfigs[0].content) as IConfig
 
         setConfigs(insertedConfigs)
         setEntityCount(parsedConfig.entities.length)
@@ -206,19 +206,19 @@ const GLOBAL_ATTRIBUTE_KEY = "<ENTITY>"
 function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props) {
   const [entities, setEntities] = useState<string[]>([])
   const [attributes, setAttributes] = useState<Attribute[]>([])
-  const [output, setOutput] = useState<Config>({
+  const [output, setOutput] = useState<IConfig>({
     entities: [],
     globalAttributes: [],
   })
 
   useEffect(() => {
-    const updatedOutput: Config = {
+    const updatedOutput: IConfig = {
       entities: [],
       globalAttributes: [],
     }
 
     entities.forEach((entity) => {
-      const entityAttributes: ConfigAttribute[] = attributes
+      const entityAttributes: IConfigAttribute[] = attributes
         .filter((attribute) => attribute.entity === entity)
         .map((attribute) => ({
           name: attribute.name,
@@ -233,7 +233,7 @@ function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props)
       })
     })
 
-    const globalAttributes: ConfigAttribute[] = attributes
+    const globalAttributes: IConfigAttribute[] = attributes
       .filter((attribute) => attribute.entity === GLOBAL_ATTRIBUTE_KEY)
       .map((attribute) => ({
         name: attribute.name,
@@ -458,7 +458,7 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
 }
 
 interface PreviewSectionProps {
-  output: Config
+  output: IConfig
 }
 
 function PreviewSection({ output }: PreviewSectionProps) {

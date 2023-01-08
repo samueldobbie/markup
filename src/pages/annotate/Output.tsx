@@ -7,6 +7,7 @@ import { annotationsState, documentIndexState, documentsState, entityColoursStat
 import { SectionProps } from "./Interfaces"
 import JSZip from "jszip"
 import { saveAs } from "file-saver"
+import SmartAssistant from "./SmartAssistant"
 
 type Entity = string
 type AnnotationGroup = Record<Entity, WorkspaceAnnotation[]>
@@ -139,22 +140,8 @@ function Output({ workspace }: SectionProps) {
     <Card shadow="xs" radius={5} p="xl">
       <ScrollArea scrollbarSize={0} sx={{ height: "76vh" }}>
         <Grid>
-          <Grid.Col xs={12}>
-            <Group position="apart" noWrap>
-              <Text size="lg" weight={500}>
-                Suggestions
-              </Text>
-            </Group>
-          </Grid.Col>
-
-          <Grid.Col xs={12}>
-            <Divider />
-          </Grid.Col>
-
-          <Grid.Col xs={12}>
-            <Text color="dimmed">
-              No suggestions
-            </Text>
+          <Grid.Col xs={12} mt={25}>
+            <SmartAssistant />
           </Grid.Col>
 
           <Grid.Col xs={12} mt={25}>

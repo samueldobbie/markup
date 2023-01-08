@@ -2,12 +2,13 @@ import { ActionIcon, Button, Card, Collapse, Divider, Grid, Group, MultiSelect, 
 import { IconCaretDown, IconCaretRight } from "@tabler/icons"
 import { database } from "storage/database/Database"
 import { useState, useEffect } from "react"
-import { useRecoilState } from "recoil"
-import { activeEntityState, entityColoursState, populatedAttributeState, selectedOntologyConceptsState } from "storage/state/Annotate"
+import { useRecoilState, useSetRecoilState } from "recoil"
+import { activeEntityState, configState, entityColoursState, populatedAttributeState, selectedOntologyConceptsState } from "storage/state/Annotate"
 import { SectionProps } from "./Interfaces"
-import { Attribute, parseConfig } from "./ParseStandoffConfig"
+import { Attribute } from "./ParseStandoffConfig"
 import distinctColors from "distinct-colors"
 import { OntologyConcept } from "pages/dashboard/OntologyTable"
+import { IConfig } from "pages/setup/ConfigTable"
 
 interface Data {
   label: string
@@ -15,6 +16,8 @@ interface Data {
 }
 
 function Config({ workspace }: SectionProps) {
+  const setConfig = useSetRecoilState(configState)
+
   const [entities, setEntities] = useState<string[]>([])
   const [entityColours, setEntityColours] = useRecoilState(entityColoursState)
   const [activeEntity, setActiveEntity] = useRecoilState(activeEntityState)
@@ -40,17 +43,42 @@ function Config({ workspace }: SectionProps) {
       .getWorkspaceConfig(workspace.id)
       .then(configs => {
         if (configs.length > 0) {
-          const config = configs[0]
-          const { entities, attributes } = parseConfig(config)
+          const config = JSON.parse(configs[0].content) as IConfig
 
-          setEntities(entities)
+          const { entities, globalAttributes } = config
+
+          setConfig(config)
+          setEntities(entities.map(entity => entity.name))
+
+          const attributes: Attribute[] = []
+          
+          entities.forEach((entity) => {
+            entity.attributes.forEach((attribute) => {
+              attributes.push({
+                name: attribute.name,
+                options: attribute.values,
+                targetEntity: entity.name,
+                isGlobal: false,
+              })
+            })
+          })
+
+          globalAttributes.forEach((attribute) => {
+            attributes.push({
+              name: attribute.name,
+              options: attribute.values,
+              targetEntity: "",
+              isGlobal: true,
+            })
+          })
+
           setAttributes(attributes)
         } else {
           alert("Failed to load workspace config. Try refreshing the page.")
         }
       })
       .catch(alert)
-  }, [workspace.id])
+  }, [setConfig, workspace.id])
 
   useEffect(() => {
     if (entities.length > 0) {
