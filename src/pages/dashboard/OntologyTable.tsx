@@ -307,7 +307,7 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
           </Text>
 
           <Text size={13} color="dimmed" mb={2}>
-            The structure of the ontology must be in the format defined <Anchor href="#">here</Anchor>.
+            Mappings must be a JSON file in the format defined <Anchor href="#">here</Anchor>.
           </Text>
 
           <Dropzone
@@ -317,17 +317,17 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
             accept={[".json"]}
             multiple={false}
           >
-            <Group position="center" spacing="xl" style={{ minHeight: 220, pointerEvents: "none" }}>
+            <Group position="center" style={{ pointerEvents: "none" }}>
               <Dropzone.Accept>
                 <Center>
                   <IconUpload
-                    size={50}
+                    size={40}
                     stroke={1.5}
                     color={theme.colors[theme.primaryColor][theme.colorScheme === "dark" ? 4 : 6]}
                   />
                 </Center>
 
-                <Text size="sm" color="dimmed" mt={7}>
+                <Text size="sm" color="dimmed" mt={5}>
                   {file ? file.name : "No file selected"}
                 </Text>
               </Dropzone.Accept>
@@ -335,36 +335,26 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
               <Dropzone.Reject>
                 <Center>
                   <IconX
-                    size={50}
+                    size={40}
                     stroke={1.5}
                     color={theme.colors.red[theme.colorScheme === "dark" ? 4 : 6]}
                   />
                 </Center>
 
-                <Text size="lg" color="dimmed" mt={7}>
+                <Text size="lg" color="dimmed" mt={5}>
                   {file ? file.name : "No file selected"}
                 </Text>
               </Dropzone.Reject>
 
               <Dropzone.Idle>
                 <Center>
-                  <IconFile size={50} stroke={1.5} />
+                  <IconFile size={40} stroke={1.5} />
                 </Center>
 
-                <Text size="lg" color="dimmed" mt={7}>
+                <Text size="lg" color="dimmed" mt={5}>
                   {file ? file.name : "No file selected"}
                 </Text>
               </Dropzone.Idle>
-
-              <div style={{ textAlign: "center" }}>
-                <Text size="xl" inline>
-                  Drag or click to select ontology file
-                </Text>
-
-                <Text size="sm" color="dimmed" inline mt={7}>
-                  Must be a JSON file that does not exceed 5MB.
-                </Text>
-              </div>
             </Group>
           </Dropzone>
         </Grid.Col>

@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import { useRecoilState } from "recoil"
 import { activeEntityState, entityColoursState, populatedAttributeState, selectedOntologyConceptsState } from "storage/state/Annotate"
 import { SectionProps } from "./Interfaces"
-import { Attribute, parseConfig } from "./Parse"
+import { Attribute, parseConfig } from "./ParseStandoffConfig"
 import distinctColors from "distinct-colors"
 import { OntologyConcept } from "pages/dashboard/OntologyTable"
 
