@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Card, Collapse, Divider, Grid, Group, MultiSelect, Radio, ScrollArea, Text } from "@mantine/core"
+import { ActionIcon, Button, Card, Collapse, Divider, Grid, Group, MultiSelect, Radio, ScrollArea, Select, Text } from "@mantine/core"
 import { IconCaretDown, IconCaretRight } from "@tabler/icons"
 import { database } from "storage/database/Database"
 import { useState, useEffect } from "react"
@@ -211,7 +211,7 @@ function Config({ workspace }: SectionProps) {
                 <Group mb={20}>
                   <Grid sx={{ width: "100%" }}>
                     {shownAttributes.map((attribute, index) => (
-                      <Grid.Col xs={12}>
+                      <Grid.Col xs={12} key={index}>
                         <MultiSelect
                           maxSelectedValues={100}
                           data={attribute.options}
@@ -285,7 +285,7 @@ function Config({ workspace }: SectionProps) {
                       searchable
                       clearable
                       creatable
-                    // onChange={(concepts) => setSelectedOntologyConcepts(concepts)}
+                      // onChange={(concepts) => setSelectedOntologyConcepts(concepts)}
                     />
                   </Grid.Col>
                 </Grid>

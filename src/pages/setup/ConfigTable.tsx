@@ -23,7 +23,6 @@ interface IConfigAttribute {
   name: string
   values: string[]
   allowCustomValues: boolean
-  allowMultipleSelections: boolean
 }
 
 function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: SectionProps) {
@@ -191,14 +190,12 @@ interface Attribute {
   name: string
   values: string[]
   allowCustomValues: boolean
-  allowMultipleSelections: boolean
 }
 
 interface AddAttributeForm {
   entity: string
   name: string
   allowCustomValues: boolean
-  allowMultipleSelections: boolean
 }
 
 const GLOBAL_ATTRIBUTE_KEY = "<ENTITY>"
@@ -224,7 +221,6 @@ function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props)
           name: attribute.name,
           values: attribute.values,
           allowCustomValues: attribute.allowCustomValues,
-          allowMultipleSelections: attribute.allowMultipleSelections,
         }))
 
       updatedOutput.entities.push({
@@ -239,7 +235,6 @@ function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props)
         name: attribute.name,
         values: attribute.values,
         allowCustomValues: attribute.allowCustomValues,
-        allowMultipleSelections: attribute.allowMultipleSelections,
       }))
 
     updatedOutput.globalAttributes = globalAttributes
@@ -351,7 +346,6 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
       entity: "",
       name: "",
       allowCustomValues: false,
-      allowMultipleSelections: false,
     }
   })
 
@@ -361,7 +355,6 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
       name: submitted.name,
       values: attributeValues,
       allowCustomValues: submitted.allowCustomValues,
-      allowMultipleSelections: submitted.allowMultipleSelections,
     }
 
     const isUnique = attributes.filter((attribute) => (
@@ -430,20 +423,6 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
           </>
         }
         {...form.getInputProps("allowCustomValues")}
-      />
-
-      <Checkbox
-        mb={10}
-        label={
-          <>
-            Allow selection of multiple attribute values
-
-            <Text size={12} color="dimmed">
-              Enable users to select multiple values as they annotate.
-            </Text>
-          </>
-        }
-        {...form.getInputProps("allowMultipleSelections")}
       />
 
       <Button

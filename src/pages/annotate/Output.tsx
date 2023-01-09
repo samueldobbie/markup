@@ -160,14 +160,14 @@ function Output({ workspace }: SectionProps) {
             <Divider />
           </Grid.Col>
 
-          {Object.keys(groupedAnnotations).map(entity => (
-            <>
+          {Object.keys(groupedAnnotations).map((entity, index) => (
+            <div key={index}>
               <Grid.Col xs={12}>
                 {entity}
               </Grid.Col>
 
-              {groupedAnnotations[entity].map(annotation => (
-                <Grid.Col xs={12}>
+              {groupedAnnotations[entity].map((annotation, index) => (
+                <Grid.Col xs={12} key={index}>
                   <Card
                     radius={2}
                     p="sm"
@@ -202,8 +202,8 @@ function Output({ workspace }: SectionProps) {
                     </Grid>
 
                     <Collapse in={Object.keys(annotation.attributes).length > 0 && openAnnotations[annotation.id]} mt={10}>
-                      {Object.keys(annotation.attributes).map((attributeType) => (
-                        <Text size={12}>
+                      {Object.keys(annotation.attributes).map((attributeType, index) => (
+                        <Text size={12} key={index}>
                           {attributeType}
 
                           <Text color="dimmed">
@@ -215,7 +215,7 @@ function Output({ workspace }: SectionProps) {
                   </Card>
                 </Grid.Col>
               ))}
-            </>
+            </div>
           ))}
         </Grid>
       </ScrollArea>
