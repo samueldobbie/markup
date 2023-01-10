@@ -34,7 +34,7 @@ function Annotate() {
   }, [id])
 
   return (
-    <Container sx={{ width: "95%", maxWidth: "95%" }}>
+    <Container sx={{ width: "98%", maxWidth: "98%" }}>
       {workspace &&
         <Grid>
           <Grid.Col xs={3}>
