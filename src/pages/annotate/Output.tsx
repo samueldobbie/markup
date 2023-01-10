@@ -1,5 +1,5 @@
-import { Button, Card, Collapse, Divider, Grid, Group, ScrollArea, Text } from "@mantine/core"
-import { IconX } from "@tabler/icons"
+import { Box, Button, Card, Center, Collapse, Divider, Grid, Group, Modal, ScrollArea, SegmentedControl, Text } from "@mantine/core"
+import { IconDownload, IconView360, IconX } from "@tabler/icons"
 import { useEffect, useState } from "react"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { database, WorkspaceAnnotation } from "storage/database"
@@ -22,9 +22,13 @@ function Output({ workspace }: SectionProps) {
   const documents = useRecoilValue(documentsState)
   const documentIndex = useRecoilValue(documentIndexState)
 
+  const [guideline, setGuideline] = useState("")
   const [annotations, setAnnotations] = useRecoilState(annotationsState)
   const [groupedAnnotations, setGroupedAnnotations] = useState<AnnotationGroup>({})
   const [openAnnotations, setOpenAnnotations] = useState<Record<string, boolean>>({})
+  const [suggestionCount, setSuggestionCount] = useState(0)
+  const [segment, setSegment] = useState<"annotations" | "suggestions">("annotations")
+  const [openedViewGuidelineModal, setOpenedViewGuidelineModal] = useState(false)
 
   const exportAnnotations = async () => {
     const outputs = [] as AnnotationOutput[]
@@ -100,6 +104,16 @@ function Output({ workspace }: SectionProps) {
       .join("-")
   }
 
+  const deleteAnnotation = (annotationId: string) => {
+    database
+      .deleteWorkspaceAnnotation(annotationId)
+      .then(() => {
+        const copy = [...annotations]
+        copy[documentIndex] = [...copy[documentIndex].filter(i => i.id !== annotationId)]
+        setAnnotations(copy)
+      })
+  }
+
   useEffect(() => {
     const grouped: AnnotationGroup = {}
 
@@ -126,100 +140,181 @@ function Output({ workspace }: SectionProps) {
     })
   }, [annotations, openAnnotations])
 
-  const deleteAnnotation = (annotationId: string) => {
+  useEffect(() => {
     database
-      .deleteWorkspaceAnnotation(annotationId)
-      .then(() => {
-        const copy = [...annotations]
-        copy[documentIndex] = [...copy[documentIndex].filter(i => i.id !== annotationId)]
-        setAnnotations(copy)
+      .getWorkspaceGuideline(workspace.id)
+      .then((guidelines) => {
+        if (guidelines.length > 0) {
+          setGuideline(guidelines[0].content)
+        }
       })
-  }
+      .catch(alert)
+  }, [workspace.id])
 
   return (
-    <Card shadow="xs" radius={5} p="xl">
-      <ScrollArea scrollbarSize={0} sx={{ height: "76vh" }}>
-        <Grid>
-          <Grid.Col xs={12} mt={25}>
-            <SmartAssistant />
-          </Grid.Col>
+    <>
+      <Card shadow="xs" radius={5} p="xl">
+        <ScrollArea scrollbarSize={0} sx={{ height: "76vh" }}>
+          <Grid>
+            <Grid.Col xs={12} mb={6}>
+              <Group position="apart" noWrap>
+                <Button
+                  variant="subtle"
+                  leftIcon={<IconView360 size={16} />}
+                  onClick={() => setOpenedViewGuidelineModal(true)}
+                >
+                  Guidelines
+                </Button>
 
-          <Grid.Col xs={12} mt={25}>
-            <Group position="apart" noWrap>
-              <Text size="lg" weight={500}>
-                Annotations
-              </Text>
+                <Button
+                  variant="subtle"
+                  leftIcon={<IconDownload size={16} />}
+                  onClick={exportAnnotations}
+                >
+                  Export
+                </Button>
+              </Group>
+            </Grid.Col>
 
-              <Button variant="subtle" onClick={exportAnnotations}>
-                Export
-              </Button>
-            </Group>
-          </Grid.Col>
+            <Grid.Col xs={12}>
+              <Divider />
+            </Grid.Col>
 
-          <Grid.Col xs={12}>
-            <Divider />
-          </Grid.Col>
+            <Grid.Col xs={12}>
+              <SegmentedControl
+                fullWidth
+                value={segment}
+                mb={10}
+                mt={10}
+                onChange={(value) => setSegment(value as "annotations" | "suggestions")}
+                data={[
+                  {
+                    value: "annotations",
+                    label: (
+                      <Center>
+                        <Box ml={10}>
+                          Annotations ({annotations[documentIndex]?.length || 0})
+                        </Box>
+                      </Center>
+                    ),
+                  },
+                  {
+                    value: "suggestions",
+                    label: (
+                      <Center>
+                        <Box ml={10}>
+                          Suggestions ({suggestionCount})
+                        </Box>
+                      </Center>
+                    ),
+                  },
+                ]}
+              />
+            </Grid.Col>
 
-          {Object.keys(groupedAnnotations).map((entity, index) => (
-            <div key={index}>
-              <Grid.Col xs={12}>
-                {entity}
+            {segment === "annotations" && (
+              <>
+                {Object.keys(groupedAnnotations).map((entity, index) => (
+                  <div key={index}>
+                    <Grid.Col xs={12}>
+                      <Text size={16} weight={500}>
+                        {entity}
+                      </Text>
+                    </Grid.Col>
+
+                    {groupedAnnotations[entity].map((annotation, index) => (
+                      <Grid.Col xs={12} key={index}>
+                        <Card
+                          radius={2}
+                          p="sm"
+                          sx={{
+                            backgroundColor: entityColours[annotation.entity],
+                            color: "#333333",
+                            cursor: "pointer"
+                          }}
+                          onClick={() => {
+                            const copy = { ...openAnnotations }
+                            copy[annotation.id] = !copy[annotation.id]
+                            setOpenAnnotations(copy)
+                          }}
+                        >
+                          <Grid>
+                            <Grid.Col xs={2}>
+                              <IconX
+                                size={16}
+                                onClick={() => deleteAnnotation(annotation.id)}
+                              />
+                            </Grid.Col>
+
+                            <Grid.Col xs={10} sx={{ userSelect: "none" }}>
+                              <Text>
+                                {annotation.text}
+                              </Text>
+
+                              <Text color="dimmed" size={12} sx={{ cursor: "pointer" }}>
+                                {Object.keys(annotation.attributes).length} attributes
+                              </Text>
+                            </Grid.Col>
+                          </Grid>
+
+                          <Collapse in={Object.keys(annotation.attributes).length > 0 && openAnnotations[annotation.id]} mt={10}>
+                            {Object.keys(annotation.attributes).map((attributeType, index) => (
+                              <Text size={12} key={index}>
+                                {attributeType}
+
+                                <Text color="dimmed">
+                                  {annotation.attributes[attributeType].join(", ")}
+                                </Text>
+                              </Text>
+                            ))}
+                          </Collapse>
+                        </Card>
+                      </Grid.Col>
+                    ))}
+                  </div>
+                ))}
+              </>
+            )}
+
+            {segment === "suggestions" && (
+              <Grid.Col xs={12} mt={25}>
+                <SmartAssistant setSuggestionCount={setSuggestionCount} />
               </Grid.Col>
+            )}
+          </Grid>
+        </ScrollArea>
+      </Card>
 
-              {groupedAnnotations[entity].map((annotation, index) => (
-                <Grid.Col xs={12} key={index}>
-                  <Card
-                    radius={2}
-                    p="sm"
-                    sx={{
-                      backgroundColor: entityColours[annotation.entity],
-                      color: "#333333",
-                      cursor: "pointer"
-                    }}
-                    onClick={() => {
-                      const copy = { ...openAnnotations }
-                      copy[annotation.id] = !copy[annotation.id]
-                      setOpenAnnotations(copy)
-                    }}
-                  >
-                    <Grid>
-                      <Grid.Col xs={2}>
-                        <IconX
-                          size={16}
-                          onClick={() => deleteAnnotation(annotation.id)}
-                        />
-                      </Grid.Col>
+      <ViewGuidelineModal
+        guideline={guideline}
+        openedModal={openedViewGuidelineModal}
+        setOpenedModal={setOpenedViewGuidelineModal}
+      />
+    </>
+  )
+}
 
-                      <Grid.Col xs={10} sx={{ userSelect: "none" }}>
-                        <Text>
-                          {annotation.text}
-                        </Text>
+interface ViewGuidelineModalProps {
+  guideline: string
+  openedModal: boolean
+  setOpenedModal: (openedModal: boolean) => void
+}
 
-                        <Text color="dimmed" size={12} sx={{ cursor: "pointer" }}>
-                          {Object.keys(annotation.attributes).length} attributes
-                        </Text>
-                      </Grid.Col>
-                    </Grid>
-
-                    <Collapse in={Object.keys(annotation.attributes).length > 0 && openAnnotations[annotation.id]} mt={10}>
-                      {Object.keys(annotation.attributes).map((attributeType, index) => (
-                        <Text size={12} key={index}>
-                          {attributeType}
-
-                          <Text color="dimmed">
-                            {annotation.attributes[attributeType].join(", ")}
-                          </Text>
-                        </Text>
-                      ))}
-                    </Collapse>
-                  </Card>
-                </Grid.Col>
-              ))}
-            </div>
-          ))}
-        </Grid>
+function ViewGuidelineModal({ guideline, openedModal, setOpenedModal }: ViewGuidelineModalProps) {
+  return (
+    <Modal
+      size="xl"
+      opened={openedModal}
+      onClose={() => setOpenedModal(false)}
+      title="Annotation Guidelines"
+      centered
+    >
+      <ScrollArea scrollbarSize={0} sx={{ height: 400 }}>
+        <Text color="dimmed">
+          {guideline}
+        </Text>
       </ScrollArea>
-    </Card>
+    </Modal>
   )
 }
 
