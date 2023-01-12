@@ -1,5 +1,5 @@
-import { ActionIcon, Button, Card, Collapse, Divider, Grid, Group, MultiSelect, Radio, ScrollArea, Text } from "@mantine/core"
-import { IconCaretDown, IconCaretRight } from "@tabler/icons"
+import { ActionIcon, Button, Card, Collapse, Divider, Grid, Group, MultiSelect, Radio, ScrollArea, Text, Tooltip } from "@mantine/core"
+import { IconCaretDown, IconCaretRight, IconInfoCircle } from "@tabler/icons"
 import { database } from "storage/database/Database"
 import { useState, useEffect } from "react"
 import { useRecoilState, useSetRecoilState } from "recoil"
@@ -51,7 +51,7 @@ function Config({ workspace }: SectionProps) {
           setEntities(entities.map(entity => entity.name))
 
           const attributes: Attribute[] = []
-          
+
           entities.forEach((entity) => {
             entity.attributes.forEach((attribute) => {
               attributes.push({
@@ -135,7 +135,8 @@ function Config({ workspace }: SectionProps) {
         <Grid>
           <Grid.Col xs={12}>
             <Title
-              text="Select an entity"
+              text="Select entity"
+              description="Select the entity you want to annotate."
               open={entitySectionOpen}
               setOpen={setEntitySectionOpen}
             />
@@ -285,7 +286,7 @@ function Config({ workspace }: SectionProps) {
                       searchable
                       clearable
                       creatable
-                      // onChange={(concepts) => setSelectedOntologyConcepts(concepts)}
+                    // onChange={(concepts) => setSelectedOntologyConcepts(concepts)}
                     />
                   </Grid.Col>
                 </Grid>
@@ -300,29 +301,36 @@ function Config({ workspace }: SectionProps) {
 
 interface TitleProps {
   text: string
+  description?: string
   open: boolean
   setOpen: (v: boolean) => void
 }
 
-function Title({ text, open, setOpen }: TitleProps) {
+function Title({ text, description, open, setOpen }: TitleProps) {
   return (
-    <Group
-      position="left"
-      noWrap
-      onClick={() => setOpen(!open)}
-      sx={{ cursor: "pointer" }}
-    >
-      <ActionIcon>
-        {open && <IconCaretDown style={{ opacity: 0.8 }} size={18} />}
-        {!open && <IconCaretRight style={{ opacity: 0.8 }} size={18} />}
-      </ActionIcon>
+    <>
+      <Group
+        position="left"
+        onClick={() => setOpen(!open)}
+        sx={{ cursor: "pointer" }}
+        noWrap
+      >
+        <ActionIcon mr={-10}>
+          {open && <IconCaretDown style={{ opacity: 0.8 }} size={18} />}
+          {!open && <IconCaretRight style={{ opacity: 0.8 }} size={18} />}
+        </ActionIcon>
 
-      <Text size="md">
-        {text}
-      </Text>
+        <Text size="md">
+          {text}
+        </Text>
 
-      <Divider mt={10} />
-    </Group>
+        <ActionIcon ml={-15}>
+          <Tooltip label={description}>
+            <IconInfoCircle style={{ opacity: 0.6 }} size={18} />
+          </Tooltip>
+        </ActionIcon>
+      </Group>
+    </>
   )
 }
 
