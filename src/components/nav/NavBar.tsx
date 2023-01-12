@@ -12,7 +12,6 @@ const HEADER_HEIGHT = 60
 const useStyles = createStyles((theme) => ({
   root: {
     position: "relative",
-    zIndex: 1,
   },
   dropdown: {
     position: "absolute",
