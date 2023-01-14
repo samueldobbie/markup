@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Card, Collapse, Divider, Grid, Group, MultiSelect, Radio, ScrollArea, Text, Tooltip } from "@mantine/core"
+import { ActionIcon, Button, Card, Collapse, Grid, Group, MultiSelect, Radio, ScrollArea, Text, Tooltip } from "@mantine/core"
 import { IconCaretDown, IconCaretRight, IconInfoCircle } from "@tabler/icons"
 import { database } from "storage/database/Database"
 import { useState, useEffect } from "react"
@@ -64,6 +64,7 @@ function Config({ workspace }: SectionProps) {
                 name: attribute.name,
                 options: attribute.values,
                 targetEntity: entity.name,
+                allowCustomValues: attribute.allowCustomValues,
                 isGlobal: false,
               })
             })
@@ -73,7 +74,7 @@ function Config({ workspace }: SectionProps) {
             attributes.push({
               name: attribute.name,
               options: attribute.values,
-              targetEntity: "",
+              allowCustomValues: attribute.allowCustomValues,
               isGlobal: true,
             })
           })
@@ -238,7 +239,7 @@ function Config({ workspace }: SectionProps) {
                           }}
                           searchable
                           clearable
-                          creatable
+                          creatable={attribute.allowCustomValues}
                           getCreateLabel={(query) => `+ Create ${query}`}
                         />
                       </Grid.Col>
