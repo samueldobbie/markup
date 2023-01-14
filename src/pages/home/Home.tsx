@@ -178,7 +178,7 @@ function DemoDomainModal({ openedModal, setOpenedModal }: Props) {
       size="xl"
       opened={openedModal}
       onClose={() => setOpenedModal(false)}
-      title="Select type of documents to annotate"
+      title="Select documents to annotate"
       centered
     >
       <Grid>
@@ -191,6 +191,10 @@ function DemoDomainModal({ openedModal, setOpenedModal }: Props) {
             <Card shadow="sm">
               <Text size="xl" weight={500}>
                 {domain.name}
+              </Text>
+
+              <Text size="sm" color="dimmed" style={{ marginTop: 10 }}>
+                {domain.description}
               </Text>
             </Card>
           </Grid.Col>
