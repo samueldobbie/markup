@@ -9,6 +9,7 @@ import { Attribute } from "./ParseStandoffConfig"
 import distinctColors from "distinct-colors"
 import { OntologyConcept } from "pages/dashboard/OntologyTable"
 import { IConfig } from "pages/setup/ConfigTable"
+import { DEMO_DOMAINS } from "utils/Demo"
 
 interface Data {
   label: string
@@ -33,10 +34,15 @@ function Config({ workspace }: SectionProps) {
   const [selectedOntologyIds, setSelectedOntologyIds] = useState<string[]>([])
   const [availableOntologyConcepts, setAvailableOntologyConcepts] = useState<OntologyConcept[]>([])
   const [selectedOntologyConcepts, setSelectedOntologyConcepts] = useRecoilState(selectedOntologyConceptsState)
+  const [isDemoSession, setIsDemoSession] = useState(false)
 
   const clearPopulatedAttributes = () => {
     setPopulatedAttributes({})
   }
+
+  useEffect(() => {
+    setIsDemoSession(DEMO_DOMAINS.map(domain => domain.id).includes(workspace.id))
+  }, [workspace.id])
 
   useEffect(() => {
     database
@@ -262,35 +268,43 @@ function Config({ workspace }: SectionProps) {
 
           <Grid.Col xs={12}>
             <Collapse in={ontologySectionOpen}>
-              <Group mb={20}>
-                <Grid sx={{ width: "100%" }}>
-                  <Grid.Col xs={12}>
-                    <MultiSelect
-                      maxSelectedValues={100}
-                      data={availableOntologies}
-                      placeholder="Ontology"
-                      size="sm"
-                      searchable
-                      clearable
-                      creatable
-                      onChange={(ontologyIds) => setSelectedOntologyIds(ontologyIds)}
-                    />
-                  </Grid.Col>
+              {isDemoSession &&
+                <Text color="dimmed">
+                  Predictive mappings are disabled in demo sessions.
+                </Text>
+              }
 
-                  <Grid.Col xs={12}>
-                    <MultiSelect
-                      maxSelectedValues={100}
-                      data={availableOntologyConcepts.map(concept => `${concept.name} (${concept.code})`)}
-                      placeholder="Concept"
-                      size="sm"
-                      searchable
-                      clearable
-                      creatable
-                    // onChange={(concepts) => setSelectedOntologyConcepts(concepts)}
-                    />
-                  </Grid.Col>
-                </Grid>
-              </Group>
+              {!isDemoSession &&
+                <Group mb={20}>
+                  <Grid sx={{ width: "100%" }}>
+                    <Grid.Col xs={12}>
+                      <MultiSelect
+                        maxSelectedValues={100}
+                        data={availableOntologies}
+                        placeholder="Ontology"
+                        size="sm"
+                        searchable
+                        clearable
+                        creatable
+                        onChange={(ontologyIds) => setSelectedOntologyIds(ontologyIds)}
+                      />
+                    </Grid.Col>
+
+                    <Grid.Col xs={12}>
+                      <MultiSelect
+                        maxSelectedValues={100}
+                        data={availableOntologyConcepts.map(concept => `${concept.name} (${concept.code})`)}
+                        placeholder="Concept"
+                        size="sm"
+                        searchable
+                        clearable
+                        creatable
+                      // onChange={(concepts) => setSelectedOntologyConcepts(concepts)}
+                      />
+                    </Grid.Col>
+                  </Grid>
+                </Group>
+              }
             </Collapse>
           </Grid.Col>
         </Grid>

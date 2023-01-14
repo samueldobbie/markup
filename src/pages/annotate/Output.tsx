@@ -8,6 +8,7 @@ import { SectionProps } from "./Interfaces"
 import JSZip from "jszip"
 import { saveAs } from "file-saver"
 import SmartAssistant from "./SmartAssistant"
+import { DEMO_DOMAINS } from "utils/Demo"
 
 type Entity = string
 type AnnotationGroup = Record<Entity, WorkspaceAnnotation[]>
@@ -29,6 +30,11 @@ function Output({ workspace }: SectionProps) {
   const [suggestionCount, setSuggestionCount] = useState(0)
   const [segment, setSegment] = useState<"annotations" | "suggestions">("annotations")
   const [openedViewGuidelineModal, setOpenedViewGuidelineModal] = useState(false)
+  const [isDemoSession, setIsDemoSession] = useState(false)
+
+  useEffect(() => {
+    setIsDemoSession(DEMO_DOMAINS.map(domain => domain.id).includes(workspace.id))
+  }, [workspace.id])
 
   const exportAnnotations = async () => {
     const outputs = [] as AnnotationOutput[]
@@ -280,7 +286,15 @@ function Output({ workspace }: SectionProps) {
 
             {segment === "suggestions" && (
               <Grid.Col xs={12}>
-                <SmartAssistant setSuggestionCount={setSuggestionCount} />
+                {isDemoSession && (
+                  <Text color="dimmed">
+                    Predictive annotations are disabled in demo sessions.
+                  </Text>
+                )}
+
+                {!isDemoSession && (
+                  <SmartAssistant setSuggestionCount={setSuggestionCount} />
+                )}
               </Grid.Col>
             )}
           </Grid>
