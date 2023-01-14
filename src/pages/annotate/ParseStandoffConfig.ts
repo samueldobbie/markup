@@ -9,10 +9,11 @@ enum Config {
 }
 
 export interface Attribute {
-  name: string,
-  options: string[],
-  targetEntity: string,
-  isGlobal: boolean,
+  name: string
+  options: string[]
+  isGlobal: boolean
+  targetEntity?: string
+  allowCustomValues?: boolean
 }
 
 function parseConfig(config: WorkspaceConfig) {
