@@ -53,6 +53,11 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
       database
         .addWorkspaceConfig(workspace.id, file.name, content)
         .then(insertedConfig => {
+          if (insertedConfig.id === "") {
+            alert("Only one config per workspace is allowed. Remove the existing config first.")
+            return
+          }
+
           const parsedConfig = parseConfig(insertedConfig)
 
           setFile(null)
@@ -60,6 +65,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
           setEntityCount(parsedConfig.entities.length)
           setAttributeCount(parsedConfig.attributes.length)
         })
+        .catch(alert)
     }
 
     func()
