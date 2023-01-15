@@ -23,9 +23,12 @@ const populatedAttributeState = atom<Record<string, string[]>>({
   default: {},
 })
 
-const selectedOntologyConceptsState = atom<OntologyConcept[]>({
-  key: "selectedOntologyConceptsState",
-  default: [],
+const activeOntologyConceptState = atom<OntologyConcept>({
+  key: "activeOntologyConceptState",
+  default: {
+    name: "",
+    code: "",
+  },
 })
 
 const documentsState = atom<WorkspaceDocument[]>({
@@ -50,6 +53,6 @@ export {
   activeEntityState,
   entityColoursState,
   populatedAttributeState,
-  selectedOntologyConceptsState,
+  activeOntologyConceptState as activeOntologyConceptsState,
   annotationsState,
 }

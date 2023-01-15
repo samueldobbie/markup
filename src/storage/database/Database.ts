@@ -549,21 +549,18 @@ async function getOntologies(): Promise<Ontology[]> {
   return data.map(i => i.ontology) as Ontology[]
 }
 
-async function getOntologyConcepts(ontologyIds: string[]): Promise<OntologyConcept[]> {
+async function getOntologyConcepts(ontologyId: string): Promise<OntologyConcept[]> {
   const { data, error } = await supabase
     .from("ontology_concept")
     .select()
-    .in("ontology_id", ontologyIds)
+    .eq("ontology_id", ontologyId)
 
   if (error) {
     console.error(error)
     return []
   }
 
-  return data.map(concept => ({
-    name: concept.name,
-    code: concept.code,
-  }))
+  return data
 }
 
 async function removeDefaultOntology(ontologyId: string): Promise<void> {

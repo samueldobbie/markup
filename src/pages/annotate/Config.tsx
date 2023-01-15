@@ -1,9 +1,9 @@
-import { ActionIcon, Button, Card, Collapse, Grid, Group, MultiSelect, Radio, ScrollArea, Text, Tooltip } from "@mantine/core"
+import { ActionIcon, Button, Card, Collapse, Grid, Group, MultiSelect, Radio, ScrollArea, Select, Text, Tooltip } from "@mantine/core"
 import { IconCaretDown, IconCaretRight, IconInfoCircle } from "@tabler/icons"
 import { database } from "storage/database/Database"
 import { useState, useEffect } from "react"
 import { useRecoilState, useSetRecoilState } from "recoil"
-import { activeEntityState, configState, entityColoursState, populatedAttributeState, selectedOntologyConceptsState } from "storage/state/Annotate"
+import { activeEntityState, configState, entityColoursState, populatedAttributeState, activeOntologyConceptsState } from "storage/state/Annotate"
 import { SectionProps } from "./Interfaces"
 import { Attribute } from "./ParseStandoffConfig"
 import distinctColors from "distinct-colors"
@@ -31,9 +31,9 @@ function Config({ workspace }: SectionProps) {
 
   const [ontologySectionOpen, setOntologySectionOpen] = useState(true)
   const [availableOntologies, setAvailableOntologies] = useState<Data[]>([])
-  const [selectedOntologyIds, setSelectedOntologyIds] = useState<string[]>([])
-  const [availableOntologyConcepts, setAvailableOntologyConcepts] = useState<OntologyConcept[]>([])
-  const [selectedOntologyConcepts, setSelectedOntologyConcepts] = useRecoilState(selectedOntologyConceptsState)
+  const [selectedOntologyId, setSelectedOntologyId] = useState<string | null>(null)
+  const [zelectedOntologyConcepts, setZelectedOntologyConcepts] = useState<OntologyConcept[]>([])
+  const setActiveOntologyConcept = useSetRecoilState(activeOntologyConceptsState)
   const [isDemoSession, setIsDemoSession] = useState(false)
 
   const clearPopulatedAttributes = () => {
@@ -107,10 +107,19 @@ function Config({ workspace }: SectionProps) {
   }, [])
 
   useEffect(() => {
+    if (selectedOntologyId == null) {
+      setZelectedOntologyConcepts([])
+      setActiveOntologyConcept({
+        name: "",
+        code: "",
+      })
+      return
+    }
+
     database
-      .getOntologyConcepts(selectedOntologyIds)
-      .then(setAvailableOntologyConcepts)
-  }, [selectedOntologyIds])
+      .getOntologyConcepts(selectedOntologyId)
+      .then(setZelectedOntologyConcepts)
+  }, [selectedOntologyId, setActiveOntologyConcept])
 
   useEffect(() => {
     const colours: Record<string, string> = {}
@@ -279,28 +288,43 @@ function Config({ workspace }: SectionProps) {
                 <Group mb={20}>
                   <Grid sx={{ width: "100%" }}>
                     <Grid.Col xs={12}>
-                      <MultiSelect
-                        maxSelectedValues={100}
+                      <Select
                         data={availableOntologies}
                         placeholder="Ontology"
                         size="sm"
                         searchable
-                        clearable
-                        creatable
-                        onChange={(ontologyIds) => setSelectedOntologyIds(ontologyIds)}
+                        onChange={setSelectedOntologyId}
                       />
                     </Grid.Col>
 
                     <Grid.Col xs={12}>
-                      <MultiSelect
-                        maxSelectedValues={100}
-                        data={availableOntologyConcepts.map(concept => `${concept.name} (${concept.code})`)}
+                      <Select
+                        data={zelectedOntologyConcepts.map(concept => {
+                          return {
+                            label: `${concept.name} (${concept.code})`,
+                            value: concept.code,
+                          }
+                        })}
                         placeholder="Concept"
                         size="sm"
                         searchable
                         clearable
                         creatable
-                      // onChange={(concepts) => setSelectedOntologyConcepts(concepts)}
+                        onChange={(code) => {
+                          const name = zelectedOntologyConcepts.find(concept => concept.code === code)?.name
+
+                          if (code && name) {
+                            setActiveOntologyConcept({
+                              code,
+                              name,
+                            })
+                          } else {
+                            setActiveOntologyConcept({
+                              code: "",
+                              name: "",
+                            })
+                          }
+                        }}
                       />
                     </Grid.Col>
                   </Grid>
