@@ -32,7 +32,7 @@ function Config({ workspace }: SectionProps) {
   const [ontologySectionOpen, setOntologySectionOpen] = useState(true)
   const [availableOntologies, setAvailableOntologies] = useState<Data[]>([])
   const [selectedOntologyId, setSelectedOntologyId] = useState<string | null>(null)
-  const [zelectedOntologyConcepts, setZelectedOntologyConcepts] = useState<OntologyConcept[]>([])
+  const [selectedOntologyConcepts, setSelectedOntologyConcepts] = useState<OntologyConcept[]>([])
   const setActiveOntologyConcept = useSetRecoilState(activeOntologyConceptsState)
   const [isDemoSession, setIsDemoSession] = useState(false)
 
@@ -81,10 +81,10 @@ function Config({ workspace }: SectionProps) {
 
           setAttributes(attributes)
         } else {
-          alert("Failed to load workspace config. Try refreshing the page.")
+          alert("Failed to load workspace config. Please try again later.")
         }
       })
-      .catch(alert)
+      .catch(() => alert("Failed to load workspace config. Please try again later."))
   }, [setConfig, workspace.id])
 
   useEffect(() => {
@@ -104,11 +104,12 @@ function Config({ workspace }: SectionProps) {
 
         setAvailableOntologies(data)
       })
+      .catch(() => alert("Failed to load ontologies. Please try again later."))
   }, [])
 
   useEffect(() => {
     if (selectedOntologyId == null) {
-      setZelectedOntologyConcepts([])
+      setSelectedOntologyConcepts([])
       setActiveOntologyConcept({
         name: "",
         code: "",
@@ -118,7 +119,8 @@ function Config({ workspace }: SectionProps) {
 
     database
       .getOntologyConcepts(selectedOntologyId)
-      .then(setZelectedOntologyConcepts)
+      .then(setSelectedOntologyConcepts)
+      .catch(() => alert("Failed to load ontology concepts. Please try again later."))
   }, [selectedOntologyId, setActiveOntologyConcept])
 
   useEffect(() => {
@@ -299,7 +301,7 @@ function Config({ workspace }: SectionProps) {
 
                     <Grid.Col xs={12}>
                       <Select
-                        data={zelectedOntologyConcepts.map(concept => {
+                        data={selectedOntologyConcepts.map(concept => {
                           return {
                             label: `${concept.name} (${concept.code})`,
                             value: concept.code,
@@ -311,7 +313,7 @@ function Config({ workspace }: SectionProps) {
                         clearable
                         creatable
                         onChange={(code) => {
-                          const name = zelectedOntologyConcepts.find(concept => concept.code === code)?.name
+                          const name = selectedOntologyConcepts.find(concept => concept.code === code)?.name
 
                           if (code && name) {
                             setActiveOntologyConcept({
