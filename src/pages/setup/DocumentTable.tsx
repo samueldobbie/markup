@@ -13,6 +13,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
     database
       .getWorkspaceDocuments(workspace.id)
       .then(setDocuments)
+      .catch(() => alert("Failed to load documents. Please try again later."))
   }, [workspace.id])
 
   useEffect(() => {
@@ -25,48 +26,46 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
           setDocumentFiles([])
           setDocuments([...documents, ...insertedDocuments])
         })
-        .catch(console.error)
+        .catch(() => alert("Failed to upload documents. Please try again later."))
     }
 
     func()
   }, [documents, documentFiles, workspace.id])
 
-  const uploadAnnotations = (documentId: string, file: File) => {
+  const uploadAnnotations = async (documentId: string, file: File) => {
     const rawAnnotationMap: Record<string, RawAnnotation> = {}
+    const content = await file.text()
+    const lines = content.split("\n")
 
-    file.text().then(content => {
-      const lines = content.split("\n")
+    for (const line of lines) {
+      if (line.startsWith("T")) {
+        const [id, annotation, text] = line.split("\t")
+        const [entity, start, end] = annotation.split(" ")
 
-      for (const line of lines) {
-        if (line.startsWith("T")) {
-          const [id, annotation, text] = line.split("\t")
-          const [entity, start, end] = annotation.split(" ")
+        rawAnnotationMap[id] = {
+          entity,
+          start_index: parseInt(start),
+          end_index: parseInt(end),
+          attributes: {},
+          text,
+        }
+      } else if (line.startsWith("A")) {
+        const [_, attribute] = line.split("\t")
+        const [name, targetId, value] = attribute.split(" ")
 
-          rawAnnotationMap[id] = {
-            entity,
-            start_index: parseInt(start),
-            end_index: parseInt(end),
-            attributes: {},
-            text,
+        if (rawAnnotationMap[targetId]) {
+          if (!rawAnnotationMap[targetId].attributes[name]) {
+            rawAnnotationMap[targetId].attributes[name] = []
           }
-        } else if (line.startsWith("A")) {
-          const [_, attribute] = line.split("\t")
-          const [name, targetId, value] = attribute.split(" ")
 
-          if (rawAnnotationMap[targetId]) {
-            if (!rawAnnotationMap[targetId].attributes[name]) {
-              rawAnnotationMap[targetId].attributes[name] = []
-            }
-
-            rawAnnotationMap[targetId].attributes[name].push(value)
-          }
+          rawAnnotationMap[targetId].attributes[name].push(value)
         }
       }
+    }
 
-      database
-        .addWorkspaceAnnotations(documentId, Object.values(rawAnnotationMap))
-        .catch(console.error)
-    })
+    database
+      .addWorkspaceAnnotations(documentId, Object.values(rawAnnotationMap))
+      .catch(() => alert("Failed to upload annotations. Please try again later."))
   }
 
   useEffect(() => {
@@ -172,7 +171,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                       database
                         .deleteWorkspaceDocument(document.id)
                         .then(() => setDocuments(documents.filter(i => i.id !== document.id)))
-                        .catch(alert)
+                        .catch(() => alert("Failed to delete document. Please try again later."))
                     }}
                   >
                     <IconTrashX
