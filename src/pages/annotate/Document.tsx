@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { SectionProps } from "./Interfaces"
 import { TextAnnotateBlend } from "react-text-annotate-blend"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
-import { activeEntityState, annotationsState, documentIndexState, documentsState, entityColoursState, populatedAttributeState } from "storage/state/Annotate"
+import { activeEntityState, activeOntologyConceptsState, annotationsState, documentIndexState, documentsState, entityColoursState, populatedAttributeState } from "storage/state/Annotate"
 import { useDebouncedState } from "@mantine/hooks"
 import "./Document.css"
 
@@ -20,6 +20,7 @@ function Document({ workspace }: SectionProps) {
   const activeEntity = useRecoilValue(activeEntityState)
   const entityColours = useRecoilValue(entityColoursState)
   const populatedAttributes = useRecoilValue(populatedAttributeState)
+  const activeOntologyConcept = useRecoilValue(activeOntologyConceptsState)
 
   const [documents, setDocuments] = useRecoilState(documentsState)
   const [documentIndex, setDocumentIndex] = useRecoilState(documentIndexState)
@@ -36,12 +37,22 @@ function Document({ workspace }: SectionProps) {
 
     const documentId = documents[documentIndex].id
     const text = documents[documentIndex].content.slice(start, end)
+
+    const allAttributes = {
+      ...populatedAttributes,
+    }
+
+    if (activeOntologyConcept.name && activeOntologyConcept.code) {
+      allAttributes["ontologyName"] = [activeOntologyConcept.name]
+      allAttributes["ontologyCode"] = [activeOntologyConcept.code]
+    }
+
     const rawAnnotation = {
       text,
       entity: tag,
       start_index: start,
       end_index: end,
-      attributes: populatedAttributes,
+      attributes: allAttributes,
     } as RawAnnotation
 
     database
