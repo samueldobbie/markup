@@ -251,6 +251,10 @@ function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props)
     setOutput(updatedOutput)
   }, [entities, attributes])
 
+  useEffect(() => {
+    setAttributes(attributes.filter((attribute) => entities.includes(attribute.entity)))
+  }, [attributes, entities])
+
   const handleExportAndUseConfig = () => {
     const fileName = "annotation.json"
     const fileContent = JSON.stringify(output, null, 2)
@@ -326,7 +330,6 @@ function EntitySection({ entities, setEntities }: EntitySectionProps) {
       </Text>
 
       <MultiSelect
-        nothingFound="Start typing to create an entity"
         placeholder="Start typing to create an entity"
         data={entities}
         searchable
