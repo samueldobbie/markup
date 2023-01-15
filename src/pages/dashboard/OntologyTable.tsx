@@ -9,6 +9,7 @@ import { openConfirmModal } from "@mantine/modals"
 import { useRecoilState } from "recoil"
 import { tutorialProgressState } from "storage/state/Dashboard"
 import { useDebouncedState } from "@mantine/hooks"
+import { useForm } from "@mantine/form"
 
 function OntologyTable() {
   const [openExploreModal, setOpenExploreModal] = useState(false)
@@ -29,8 +30,9 @@ function OntologyTable() {
       database
         .deleteOntology(ontology.id, ontology.is_default)
         .then(() => setOntologies(ontologies.filter(i => i.id !== ontology.id)))
-        .catch(alert)
+        .catch(() => alert("Could not delete ontology. Please try again later."))
     },
+    centered: true,
   })
 
   useEffect(() => {
@@ -41,6 +43,7 @@ function OntologyTable() {
     database
       .getOntologies()
       .then(setOntologies)
+      .catch(() => alert("Could not load ontologies. Please try again later."))
   }
 
   return (
@@ -147,6 +150,7 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal, ontologies, setOn
     database
       .getDefaultOntologies()
       .then(setDefaultOntologies)
+      .catch(() => alert("Could not load default ontologies. Please try again later."))
   }, [])
 
   const addOntology = (ontologyId: string) => {
@@ -156,12 +160,14 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal, ontologies, setOn
         const ontology = defaultOntologies.find(i => i.id === ontologyId)!
         setOntologies([...ontologies, ontology])
       })
+      .catch(() => alert("Could not add ontology. Please try again later."))
   }
 
   const removeOntology = (ontologyId: string) => {
     database
       .removeDefaultOntology(ontologyId)
       .then(() => setOntologies(ontologies.filter(i => i.id !== ontologyId)))
+      .catch(() => alert("Could not remove ontology. Please try again later."))
   }
 
   return (
@@ -227,18 +233,23 @@ export interface OntologyConcept {
 
 function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: ModalProps) {
   const theme = useMantineTheme()
+  const form = useForm({
+    initialValues: {
+      name: "",
+      description: "",
+    }
+  })
 
-  const [name, setName] = useState("")
-  const [description, setDescription] = useState("")
-  const [file, setFile] = useState<File | null>(null)
+  const [mappingFile, setMappingFile] = useState<File | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  const addOntology = async () => {
-    if (file === null) {
-      alert("Please select a file")
+  const handleOntologyUpload = async ({ name, description }: any) => {
+    if (mappingFile === null) {
+      setError("Please select a file containing the concept mappings.")
       return
     }
 
-    const content = JSON.parse(await file.text())
+    const content = JSON.parse(await mappingFile.text())
     const concepts: OntologyConcept[] = []
 
     if (Array.isArray(content)) {
@@ -259,20 +270,20 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
     }
 
     if (concepts.length === 0) {
-      setFile(null)
-      alert("File was empty or invalid. Please select a valid JSON file")
+      setMappingFile(null)
+      setError("File is empty or an invalid format. Please review the docs for more information.")
       return
     }
 
     database
       .addOntology(name, description, concepts)
       .then(() => {
-        setName("")
-        setDescription("")
-        setFile(null)
+        form.reset()
+        setMappingFile(null)
         setOpenedModal(false)
         refreshTable!()
       })
+      .catch(() => alert("Could not upload ontology. Please try again later."))
   }
 
   return (
@@ -282,91 +293,103 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
       title="Upload an ontology"
       centered
     >
-      <Grid>
-        <Grid.Col xs={12}>
-          <TextInput
-            required
-            withAsterisk
-            label="Name"
-            placeholder="UMLS"
-            onChange={(e) => setName(e.currentTarget.value)}
-          />
-        </Grid.Col>
-
-        <Grid.Col xs={12}>
-          <TextInput
-            label="Description"
-            placeholder="Clinical terminology"
-            onChange={(e) => setDescription(e.currentTarget.value)}
-          />
-        </Grid.Col>
-
-        <Grid.Col xs={12}>
-          <Text size={15}>
-            Mappings <span style={{ color: theme.colors.red[theme.colorScheme === "dark" ? 4 : 6] }}>*</span>
-          </Text>
-
-          <Text size={13} color="dimmed" mb={2}>
-            Mappings must be a JSON file in the format defined <Anchor href="#">here</Anchor>.
-          </Text>
-
-          <Dropzone
-            onDrop={(files) => setFile(files[0])}
-            onReject={() => alert("Failed to upload files, please refresh and try again")}
-            maxSize={3 * 1024 ** 2}
-            accept={[".json"]}
-            multiple={false}
-          >
-            <Group position="center" style={{ pointerEvents: "none" }}>
-              <Dropzone.Accept>
-                <Center>
-                  <IconUpload
-                    size={40}
-                    stroke={1.5}
-                    color={theme.colors[theme.primaryColor][theme.colorScheme === "dark" ? 4 : 6]}
-                  />
-                </Center>
-
-                <Text size="sm" color="dimmed" mt={5}>
-                  {file ? file.name : "No file selected"}
+      <form onSubmit={form.onSubmit((values) => handleOntologyUpload(values))}>
+        <Grid>
+          {error && (
+            <Grid.Col xs={12}>
+              <div style={{ backgroundColor: "rgb(255 226 237)", padding: 5, borderRadius: 5 }}>
+                <Text color="red" align="center">
+                  {error}
                 </Text>
-              </Dropzone.Accept>
+              </div>
+            </Grid.Col>
+          )}
 
-              <Dropzone.Reject>
-                <Center>
-                  <IconX
-                    size={40}
-                    stroke={1.5}
-                    color={theme.colors.red[theme.colorScheme === "dark" ? 4 : 6]}
-                  />
-                </Center>
+          <Grid.Col xs={12}>
+            <TextInput
+              required
+              withAsterisk
+              label="Name"
+              placeholder="UMLS"
+              {...form.getInputProps("name")}
+            />
+          </Grid.Col>
 
-                <Text size="lg" color="dimmed" mt={5}>
-                  {file ? file.name : "No file selected"}
-                </Text>
-              </Dropzone.Reject>
+          <Grid.Col xs={12}>
+            <TextInput
+              label="Description"
+              placeholder="Clinical terminology"
+              {...form.getInputProps("description")}
+            />
+          </Grid.Col>
 
-              <Dropzone.Idle>
-                <Center>
-                  <IconFile size={40} stroke={1.5} />
-                </Center>
+          <Grid.Col xs={12}>
+            <Text size={15}>
+              Concept Mappings <span style={{ color: theme.colors.red[theme.colorScheme === "dark" ? 4 : 6] }}>*</span>
+            </Text>
 
-                <Text size="lg" color="dimmed" mt={5}>
-                  {file ? file.name : "No file selected"}
-                </Text>
-              </Dropzone.Idle>
+            <Text size={13} color="dimmed" mb={2}>
+              Mappings must be a JSON file in the format defined <Anchor target="_blank" href="https://www.notion.so/Markup-Docs-91e9c5cfc6dc416fbcf2241d7c84e6c7">here</Anchor>.
+            </Text>
+
+            <Dropzone
+              onDrop={(files) => setMappingFile(files[0])}
+              onReject={() => setError("Failed to upload files, please refresh and try again")}
+              maxSize={3 * 1024 ** 2}
+              accept={[".json"]}
+              multiple={false}
+            >
+              <Group position="center" style={{ pointerEvents: "none" }}>
+                <Dropzone.Accept>
+                  <Center>
+                    <IconUpload
+                      size={40}
+                      stroke={1.5}
+                      color={theme.colors[theme.primaryColor][theme.colorScheme === "dark" ? 4 : 6]}
+                    />
+                  </Center>
+
+                  <Text size="sm" color="dimmed" mt={5}>
+                    {mappingFile ? mappingFile.name : "No file selected"}
+                  </Text>
+                </Dropzone.Accept>
+
+                <Dropzone.Reject>
+                  <Center>
+                    <IconX
+                      size={40}
+                      stroke={1.5}
+                      color={theme.colors.red[theme.colorScheme === "dark" ? 4 : 6]}
+                    />
+                  </Center>
+
+                  <Text size="lg" color="dimmed" mt={5}>
+                    {mappingFile ? mappingFile.name : "No file selected"}
+                  </Text>
+                </Dropzone.Reject>
+
+                <Dropzone.Idle>
+                  <Center>
+                    <IconFile size={40} stroke={1.5} />
+                  </Center>
+
+                  <Text size="lg" color="dimmed" mt={5}>
+                    {mappingFile ? mappingFile.name : "No file selected"}
+                  </Text>
+                </Dropzone.Idle>
+              </Group>
+            </Dropzone>
+          </Grid.Col>
+
+          <Grid.Col xs={12}>
+            <Group position="right">
+              <Button type="submit">
+                Upload
+              </Button>
             </Group>
-          </Dropzone>
-        </Grid.Col>
-
-        <Grid.Col xs={12}>
-          <Group position="right">
-            <Button onClick={addOntology}>
-              Upload
-            </Button>
-          </Group>
-        </Grid.Col>
-      </Grid>
+          </Grid.Col>
+        </Grid>
+      </form>
     </Modal>
   )
 }
