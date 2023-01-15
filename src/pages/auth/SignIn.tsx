@@ -19,14 +19,16 @@ function SignIn(): JSX.Element {
 
   const handleSignIn = async (submitted: SignInForm) => {
     const { email, password } = submitted
-
     const { error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
-      alert(error)
+      form.setErrors({
+        email: error.message,
+        password: error.message,
+      })
+    } else {
+      moveToPage(Path.Dashboard)
     }
-
-    moveToPage(Path.Dashboard)
   }
 
   return (
