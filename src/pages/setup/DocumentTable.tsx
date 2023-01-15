@@ -155,7 +155,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                       >
                         <IconFilePlus
                           size={16}
-                          color="#acf2fa"
+                          color="#0077be"
                         />
                       </ActionIcon>
                     </Tooltip>
