@@ -61,7 +61,7 @@ function Output({ workspace }: SectionProps) {
     zip
       .generateAsync({ type: "blob" })
       .then((content) => saveAs(content, "annotations.zip"))
-      .catch(() => alert("Failed to export annotations. Please try again later."))
+      .catch(() => console.error("Failed to export annotations. Please try again later."))
   }
 
   function buildSingleOutput(name: string, annotations: WorkspaceAnnotation[]): AnnotationOutput {
@@ -117,7 +117,7 @@ function Output({ workspace }: SectionProps) {
         copy[documentIndex] = [...copy[documentIndex].filter(i => i.id !== annotationId)]
         setAnnotations(copy)
       })
-      .catch(() => alert("Failed to delete annotation. Please try again later."))
+      .catch(() => console.error("Failed to delete annotation. Please try again later."))
   }
 
   useEffect(() => {
@@ -154,7 +154,7 @@ function Output({ workspace }: SectionProps) {
           setGuideline(guidelines[0].content)
         }
       })
-      .catch(() => alert("Failed to load guidelines. Please try again later."))
+      .catch(() => console.error("Failed to load guidelines. Please try again later."))
   }, [workspace.id])
 
   return (

@@ -81,10 +81,10 @@ function Config({ workspace }: SectionProps) {
 
           setAttributes(attributes)
         } else {
-          alert("Failed to load workspace config. Please try again later.")
+          console.error("Failed to load workspace config. Please try again later.")
         }
       })
-      .catch(() => alert("Failed to load workspace config. Please try again later."))
+      .catch(() => console.error("Failed to load workspace config. Please try again later."))
   }, [setConfig, workspace.id])
 
   useEffect(() => {
@@ -104,7 +104,7 @@ function Config({ workspace }: SectionProps) {
 
         setAvailableOntologies(data)
       })
-      .catch(() => alert("Failed to load ontologies. Please try again later."))
+      .catch(() => console.error("Failed to load ontologies. Please try again later."))
   }, [])
 
   useEffect(() => {
@@ -120,7 +120,7 @@ function Config({ workspace }: SectionProps) {
     database
       .getOntologyConcepts(selectedOntologyId)
       .then(setSelectedOntologyConcepts)
-      .catch(() => alert("Failed to load ontology concepts. Please try again later."))
+      .catch(() => console.error("Failed to load ontology concepts. Please try again later."))
   }, [selectedOntologyId, setActiveOntologyConcept])
 
   useEffect(() => {

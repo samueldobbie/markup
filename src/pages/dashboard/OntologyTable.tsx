@@ -30,7 +30,7 @@ function OntologyTable() {
       database
         .deleteOntology(ontology.id, ontology.is_default)
         .then(() => setOntologies(ontologies.filter(i => i.id !== ontology.id)))
-        .catch(() => alert("Could not delete ontology. Please try again later."))
+        .catch(() => console.error("Could not delete ontology. Please try again later."))
     },
     centered: true,
   })
@@ -43,7 +43,7 @@ function OntologyTable() {
     database
       .getOntologies()
       .then(setOntologies)
-      .catch(() => alert("Could not load ontologies. Please try again later."))
+      .catch(() => console.error("Could not load ontologies. Please try again later."))
   }
 
   return (
@@ -150,7 +150,7 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal, ontologies, setOn
     database
       .getDefaultOntologies()
       .then(setDefaultOntologies)
-      .catch(() => alert("Could not load default ontologies. Please try again later."))
+      .catch(() => console.error("Could not load default ontologies. Please try again later."))
   }, [])
 
   const addOntology = (ontologyId: string) => {
@@ -160,14 +160,14 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal, ontologies, setOn
         const ontology = defaultOntologies.find(i => i.id === ontologyId)!
         setOntologies([...ontologies, ontology])
       })
-      .catch(() => alert("Could not add ontology. Please try again later."))
+      .catch(() => console.error("Could not add ontology. Please try again later."))
   }
 
   const removeOntology = (ontologyId: string) => {
     database
       .removeDefaultOntology(ontologyId)
       .then(() => setOntologies(ontologies.filter(i => i.id !== ontologyId)))
-      .catch(() => alert("Could not remove ontology. Please try again later."))
+      .catch(() => console.error("Could not remove ontology. Please try again later."))
   }
 
   return (
@@ -283,7 +283,7 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
         setOpenedModal(false)
         refreshTable!()
       })
-      .catch(() => alert("Could not upload ontology. Please try again later."))
+      .catch(() => console.error("Could not upload ontology. Please try again later."))
   }
 
   return (

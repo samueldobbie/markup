@@ -13,10 +13,13 @@ export function AuthProvider({ children }: any) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        setUser(session?.user ?? null)
+        setLoading(false)
+      })
+      .catch(() => console.error("Failed to load user. Please try again later."))
 
     supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
