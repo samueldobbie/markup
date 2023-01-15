@@ -1,6 +1,7 @@
 import { createStyles, Paper, Title, Text, TextInput, Button, Container, Group, Anchor, Center, Box } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { IconArrowLeft } from "@tabler/icons"
+import { useState } from "react"
 import { Path } from "utils/Path"
 import { supabase } from "utils/Supabase"
 
@@ -31,6 +32,7 @@ const useStyles = createStyles((theme) => ({
 
 function ForgotPassword() {
   const { classes } = useStyles()
+  const [sentEmail, setSentEmail] = useState(false)
 
   const form = useForm({
     initialValues: {
@@ -43,7 +45,9 @@ function ForgotPassword() {
     const { error } = await supabase.auth.resetPasswordForEmail(email)
 
     if (error) {
-      alert(error)
+      form.setErrors({ email: error.message })
+    } else {
+      setSentEmail(true)
     }
   }
 
@@ -58,27 +62,36 @@ function ForgotPassword() {
       </Text>
 
       <Paper withBorder shadow="xs" p={30} radius="md" mt="xl">
-      <form onSubmit={form.onSubmit((values) => handleForgotPassword(values))}>
-        <TextInput
-          required
-          withAsterisk
-          label="Your email"
-          placeholder="your@email.com"
-          {...form.getInputProps("email")}
-        />
+        {sentEmail && (
+          <div style={{ backgroundColor: "rgb(226 255 231)", padding: 5, borderRadius: 5, marginBottom: 15 }}>
+            <Text color="darkgreen" align="center">
+              A reset link has been sent to your email
+            </Text>
+          </div>
+        )}
 
-        <Group position="apart" mt="lg" className={classes.controls}>
-          <Anchor color="dimmed" size="sm" className={classes.control} href={Path.SignIn}>
-            <Center inline>
-              <IconArrowLeft size={12} stroke={1.5} />
-              <Box ml={5}>Back to login page</Box>
-            </Center>
-          </Anchor>
+        <form onSubmit={form.onSubmit((values) => handleForgotPassword(values))}>
+          <TextInput
+            required
+            withAsterisk
+            label="Email"
+            type="email"
+            placeholder="your@email.com"
+            {...form.getInputProps("email")}
+          />
 
-          <Button className={classes.control} type="submit">
-            Reset password
-          </Button>
-        </Group>
+          <Group position="apart" mt="lg" className={classes.controls}>
+            <Anchor color="dimmed" size="sm" className={classes.control} href={Path.SignIn}>
+              <Center inline>
+                <IconArrowLeft size={12} stroke={1.5} />
+                <Box ml={5}>Back to login page</Box>
+              </Center>
+            </Anchor>
+
+            <Button className={classes.control} type="submit">
+              Reset password
+            </Button>
+          </Group>
         </form>
       </Paper>
     </Container>
