@@ -36,12 +36,15 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
     database
       .getWorkspaceConfig(workspace.id)
       .then((insertedConfigs) => {
+        if (insertedConfigs.length === 0) return
+
         const parsedConfig = JSON.parse(insertedConfigs[0].content) as IConfig
 
         setConfigs(insertedConfigs)
         setEntityCount(parsedConfig.entities.length)
         setAttributeCount(parsedConfig.globalAttributes.length + parsedConfig.entities.reduce((acc, entity) => acc + entity.attributes.length, 0))
       })
+      .catch(() => alert("Failed to load config. Please try again later."))
   }, [workspace.id])
 
   useEffect(() => {
@@ -65,7 +68,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
           setEntityCount(parsedConfig.entities.length)
           setAttributeCount(parsedConfig.attributes.length)
         })
-        .catch(alert)
+        .catch(() => alert("Failed to upload config. Please try again later."))
     }
 
     func()
@@ -161,7 +164,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
                       database
                         .deleteWorkspaceConfig(config.id)
                         .then(() => setConfigs([]))
-                        .catch(alert)
+                        .catch(() => alert("Failed to delete config. Please try again later."))
                     }}
                   >
                     <IconTrashX
@@ -259,6 +262,7 @@ function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props)
         saveAs(blob, fileName)
         window.location.reload()
       })
+      .catch(() => alert("Failed to use config. Please try again later."))
   }
 
   return (
