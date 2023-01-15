@@ -35,6 +35,7 @@
     "react-scripts": "5.0.1",
     "react-text-annotate": "^0.3.0",
     "react-text-annotate-blend": "^1.1.0",
+    "react-uuid": "^2.0.0",
     "recoil": "^0.7.5",
     "recoil-persist": "^4.2.0",
     "typescript": "^4.8.2"

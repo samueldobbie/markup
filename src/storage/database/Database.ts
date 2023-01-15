@@ -216,10 +216,11 @@ async function deleteWorkspaceGuideline(guidelineId: string): Promise<boolean> {
   return false
 }
 
-async function addWorkspaceConfig(workspaceId: string, name: string, content: string): Promise<WorkspaceConfig> {
+async function addWorkspaceConfig(id: string, workspaceId: string, name: string, content: string): Promise<WorkspaceConfig> {
   const { data: config, error } = await supabase
     .from("workspace_config")
-    .insert({
+    .upsert({
+      id,
       workspace_id: workspaceId,
       name,
       content,

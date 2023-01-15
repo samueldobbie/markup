@@ -1,13 +1,14 @@
 import { Group, Button, ActionIcon, Text, FileButton, Card, Modal, Grid, MultiSelect, Select, TextInput, Divider, ScrollArea, Checkbox } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { IconTrashX } from "@tabler/icons"
+import uuid from "react-uuid"
 import saveAs from "file-saver"
 import { DataTable } from "mantine-datatable"
-import { parseConfig } from "pages/annotate/ParseStandoffConfig"
 import { useEffect, useState } from "react"
 import JSONPretty from "react-json-pretty"
 import { WorkspaceConfig, database } from "storage/database/Database"
 import { SectionProps } from "./Setup"
+import { isValidConfig } from "pages/annotate/ParseJsonConfig"
 
 export interface IConfig {
   entities: IConfigEntity[]
@@ -31,6 +32,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
   const [openedModal, setOpenedModal] = useState(false)
   const [entityCount, setEntityCount] = useState(0)
   const [attributeCount, setAttributeCount] = useState(0)
+  const configId = configs.length > 0 ? configs[0].id : uuid()
 
   useEffect(() => {
     database
@@ -39,10 +41,11 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
         if (insertedConfigs.length === 0) return
 
         const parsedConfig = JSON.parse(insertedConfigs[0].content) as IConfig
+        const { entities, globalAttributes } = parsedConfig
 
         setConfigs(insertedConfigs)
-        setEntityCount(parsedConfig.entities.length)
-        setAttributeCount(parsedConfig.globalAttributes.length + parsedConfig.entities.reduce((acc, entity) => acc + entity.attributes.length, 0))
+        setEntityCount(entities.length)
+        setAttributeCount(globalAttributes.length + entities.reduce((acc, entity) => acc + entity.attributes.length, 0))
       })
       .catch(() => console.error("Failed to load config. Please try again later."))
   }, [workspace.id])
@@ -53,26 +56,31 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
     const func = async () => {
       const content = await file.text()
 
-      database
-        .addWorkspaceConfig(workspace.id, file.name, content)
-        .then(insertedConfig => {
-          if (insertedConfig.id === "") {
-            console.error("Only one config per workspace is allowed. Remove the existing config first.")
-            return
-          }
+      try {
+        const config = JSON.parse(content)
 
-          const parsedConfig = parseConfig(insertedConfig)
+        if (!isValidConfig(config)) {
+          throw new Error("Invalid interface for parsed data.");
+        }
 
-          setFile(null)
-          setConfigs([insertedConfig])
-          setEntityCount(parsedConfig.entities.length)
-          setAttributeCount(parsedConfig.attributes.length)
-        })
-        .catch(() => console.error("Failed to upload config. Please try again later."))
+        database
+          .addWorkspaceConfig(configId, workspace.id, file.name, content)
+          .then((insertedConfig) => {
+            const { entities, globalAttributes } = config as IConfig
+
+            setFile(null)
+            setConfigs([insertedConfig])
+            setEntityCount(entities.length)
+            setAttributeCount(globalAttributes.length + entities.reduce((acc, entity) => acc + entity.attributes.length, 0))
+          })
+          .catch(() => console.error("Failed to upload config. Please check the format."))
+      } catch (e) {
+        console.error("Failed to parse config. Please check the format.")
+      }
     }
 
     func()
-  }, [configs, file, workspace.id])
+  }, [configId, configs, file, workspace.id])
 
   useEffect(() => {
     if (setWorkspaceStatus === undefined) return
@@ -146,7 +154,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
                     Create config
                   </Button>
 
-                  <FileButton onChange={setFile} accept=".conf,.json">
+                  <FileButton onChange={setFile} accept=".json">
                     {(props) => (
                       <Button {...props}>
                         Upload config
@@ -180,6 +188,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
       </Card>
 
       <ConfigCreatorModal
+        configId={configId}
         workspaceId={workspace.id}
         openedModal={openedModal}
         setOpenedModal={setOpenedModal}
@@ -189,6 +198,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
 }
 
 interface Props {
+  configId: string
   workspaceId: string
   openedModal: boolean
   setOpenedModal: (opened: boolean) => void
@@ -209,7 +219,7 @@ interface AddAttributeForm {
 
 const GLOBAL_ATTRIBUTE_KEY = "<ENTITY>"
 
-function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props) {
+function ConfigCreatorModal({ configId, workspaceId, openedModal, setOpenedModal }: Props) {
   const [entities, setEntities] = useState<string[]>([])
   const [attributes, setAttributes] = useState<Attribute[]>([])
   const [output, setOutput] = useState<IConfig>({
@@ -264,7 +274,7 @@ function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props)
     const fileContent = JSON.stringify(output, null, 2)
 
     database
-      .addWorkspaceConfig(workspaceId, fileName, fileContent)
+      .addWorkspaceConfig(configId, workspaceId, fileName, fileContent)
       .then(() => {
         const blob = new Blob([fileContent], { type: "application/json" })
         saveAs(blob, fileName)
