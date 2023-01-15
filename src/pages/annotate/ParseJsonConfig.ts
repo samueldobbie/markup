@@ -39,7 +39,7 @@ function isValidConfigAttribute(data: any): boolean {
     return false
   }
   
-  if (!Array.isArray(data.values)) {
+  if (!Array.isArray(data.values) || !data.values.every((value: any) => typeof value === "string")) {
     return false
   }
   

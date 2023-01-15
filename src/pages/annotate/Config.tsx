@@ -229,32 +229,34 @@ function Config({ workspace }: SectionProps) {
               {shownAttributes.length > 0 &&
                 <Group mb={20}>
                   <Grid sx={{ width: "100%" }}>
-                    {shownAttributes.map((attribute, index) => (
-                      <Grid.Col xs={12} key={index}>
-                        <MultiSelect
-                          maxSelectedValues={100}
-                          data={attribute.options}
-                          placeholder={attribute.name}
-                          size="sm"
-                          key={index + attribute.name}
-                          onChange={(value) => {
-                            const copy = { ...populatedAttributes }
+                    {shownAttributes.map((attribute, index) => {
+                      return (
+                        <Grid.Col xs={12} key={index}>
+                          <MultiSelect
+                            maxSelectedValues={100}
+                            data={attribute.options}
+                            placeholder={attribute.name}
+                            size="sm"
+                            key={index + attribute.name}
+                            onChange={(value) => {
+                              const copy = { ...populatedAttributes }
 
-                            if (value.length > 0) {
-                              copy[attribute.name] = value
-                            } else if (Object.keys(copy).includes(attribute.name)) {
-                              delete copy[attribute.name]
-                            }
+                              if (value.length > 0) {
+                                copy[attribute.name] = value
+                              } else if (Object.keys(copy).includes(attribute.name)) {
+                                delete copy[attribute.name]
+                              }
 
-                            setPopulatedAttributes(copy)
-                          }}
-                          searchable
-                          clearable
-                          creatable={attribute.allowCustomValues}
-                          getCreateLabel={(query) => `+ Create ${query}`}
-                        />
-                      </Grid.Col>
-                    ))}
+                              setPopulatedAttributes(copy)
+                            }}
+                            searchable
+                            clearable
+                            creatable={attribute.allowCustomValues}
+                            getCreateLabel={(query) => `+ Create ${query}`}
+                          />
+                        </Grid.Col>
+                      )
+                    })}
                   </Grid>
                 </Group>
               }
