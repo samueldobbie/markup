@@ -19,6 +19,7 @@ function GuidelinesTable({ workspace }: SectionProps) {
     database
       .getWorkspaceGuideline(workspace.id)
       .then((guidelines) => setGuidelines(guidelines))
+      .catch(() => alert("Failed to load guidelines. Please try again later."))
   }, [workspace.id])
 
   useEffect(() => {
@@ -31,6 +32,7 @@ function GuidelinesTable({ workspace }: SectionProps) {
           setFile(null)
           setGuidelines(guidelines)
         })
+        .catch(() => alert("Failed to upload guidelines. Please try again later."))
     }
 
     func()
@@ -95,7 +97,7 @@ function GuidelinesTable({ workspace }: SectionProps) {
                     database
                       .deleteWorkspaceGuideline(guideline.id)
                       .then(() => setGuidelines([]))
-                      .catch(alert)
+                      .catch(() => alert("Failed to delete guideline. Please try again later."))
                   }}
                 >
                   <IconTrashX
