@@ -62,7 +62,7 @@ function Document({ workspace }: SectionProps) {
         copy[documentIndex] = [...copy[documentIndex], annotation]
         setAnnotations(copy)
       })
-      .catch(() => alert("Failed to add annotation. Please try again later."))
+      .catch(() => console.error("Failed to add annotation. Please try again later."))
   }
 
   useEffect(() => {
@@ -81,7 +81,7 @@ function Document({ workspace }: SectionProps) {
     database
       .getWorkspaceDocuments(workspace.id)
       .then(setDocuments)
-      .catch(() => alert("Failed to load documents. Please try again later."))
+      .catch(() => console.error("Failed to load documents. Please try again later."))
   }, [setDocuments, workspace.id])
 
   useEffect(() => {
@@ -92,7 +92,7 @@ function Document({ workspace }: SectionProps) {
     database
       .getWorkspaceAnnotations(documents.map(i => i.id))
       .then(setAnnotations)
-      .catch(() => alert("Failed to load annotations. Please try again later."))
+      .catch(() => console.error("Failed to load annotations. Please try again later."))
   }, [documents, setAnnotations])
 
   return (
@@ -195,7 +195,7 @@ function Document({ workspace }: SectionProps) {
                     }
 
                     if (activeEntity === "") {
-                      alert("You need to select an entity")
+                      console.error("You need to select an entity")
                       return
                     }
 

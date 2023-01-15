@@ -15,7 +15,7 @@ function Annotate() {
 
   useEffect(() => {
     if (id === undefined) {
-      alert("Workspace doesn't exist, or insufficient permissions")
+      console.error("Workspace doesn't exist, or insufficient permissions")
       moveToPage(Path.Dashboard)
       return
     }
@@ -24,14 +24,14 @@ function Annotate() {
       .getWorkspace(id)
       .then(workspaces => {
         if (workspaces.length === 0) {
-          alert("Workspace doesn't exist, or insufficient permissions")
+          console.error("Workspace doesn't exist, or insufficient permissions")
           moveToPage(Path.Dashboard)
         } else {
           setWorkspace(workspaces[0])
         }
       })
       .catch(() => {
-        alert("Failed to load workspace. Please try again later.")
+        console.error("Failed to load workspace. Please try again later.")
         moveToPage(Path.Dashboard)
       })
   }, [id])

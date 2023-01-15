@@ -44,7 +44,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
         setEntityCount(parsedConfig.entities.length)
         setAttributeCount(parsedConfig.globalAttributes.length + parsedConfig.entities.reduce((acc, entity) => acc + entity.attributes.length, 0))
       })
-      .catch(() => alert("Failed to load config. Please try again later."))
+      .catch(() => console.error("Failed to load config. Please try again later."))
   }, [workspace.id])
 
   useEffect(() => {
@@ -57,7 +57,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
         .addWorkspaceConfig(workspace.id, file.name, content)
         .then(insertedConfig => {
           if (insertedConfig.id === "") {
-            alert("Only one config per workspace is allowed. Remove the existing config first.")
+            console.error("Only one config per workspace is allowed. Remove the existing config first.")
             return
           }
 
@@ -68,7 +68,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
           setEntityCount(parsedConfig.entities.length)
           setAttributeCount(parsedConfig.attributes.length)
         })
-        .catch(() => alert("Failed to upload config. Please try again later."))
+        .catch(() => console.error("Failed to upload config. Please try again later."))
     }
 
     func()
@@ -164,7 +164,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
                       database
                         .deleteWorkspaceConfig(config.id)
                         .then(() => setConfigs([]))
-                        .catch(() => alert("Failed to delete config. Please try again later."))
+                        .catch(() => console.error("Failed to delete config. Please try again later."))
                     }}
                   >
                     <IconTrashX
@@ -262,7 +262,7 @@ function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props)
         saveAs(blob, fileName)
         window.location.reload()
       })
-      .catch(() => alert("Failed to use config. Please try again later."))
+      .catch(() => console.error("Failed to use config. Please try again later."))
   }
 
   return (
@@ -375,7 +375,7 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
     if (isUnique) {
       setAttributes([addedAttribute, ...attributes])
     } else {
-      alert("An attribute with that name already exists for the related entity.")
+      console.error("An attribute with that name already exists for the related entity.")
     }
   }
 
@@ -392,7 +392,13 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
       <Select
         label="Related entity"
         placeholder="Select an entity"
-        data={[...entities, { value: GLOBAL_ATTRIBUTE_KEY, label: "Global (attribute will apply to all entities)" }]}
+        data={[
+          ...entities,
+          {
+            value: GLOBAL_ATTRIBUTE_KEY,
+            label: "Global (attribute will apply to all entities)",
+          },
+        ]}
         mb={15}
         {...form.getInputProps("entity")}
       />
@@ -428,7 +434,7 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
             Allow custom attribute values
 
             <Text size={12} color="dimmed">
-              Enable users to use custom values as they annotate.
+              Enable users to add custom attribute values as they annotate.
             </Text>
           </>
         }

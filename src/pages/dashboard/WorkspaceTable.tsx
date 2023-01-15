@@ -33,7 +33,7 @@ function WorkspaceTable() {
       database
         .deleteWorkspace(workspace.id)
         .then(() => setWorkspaces(workspaces.filter(i => i.id !== workspace.id)))
-        .catch(() => alert("Failed to delete workspace. Please try again later."))
+        .catch(() => console.error("Failed to delete workspace. Please try again later."))
     },
     centered: true,
   })
@@ -49,7 +49,7 @@ function WorkspaceTable() {
         setWorkspaces(workspaces)
         setOwnedWorkspaceIds(ownedWorkspaces.map(i => i.id))
       })
-      .catch(() => alert("Failed to load workspaces. Please try again later."))
+      .catch(() => console.error("Failed to load workspaces. Please try again later."))
   }, [])
 
   return (
@@ -190,7 +190,7 @@ function CreateWorkspaceModal({ openedModal, setOpenedModal }: ModalProps) {
     const { name, description } = form
     const workspaces = await database
       .addWorkspace(name, description || "")
-      .catch(() => alert("Failed to create workspace. Please try again later."))
+      .catch(() => console.error("Failed to create workspace. Please try again later."))
 
     if (workspaces && workspaces.length > 0) {
       moveToPage(toSetupUrl(workspaces[0].id))
@@ -279,14 +279,14 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
     database
       .addWorkspaceCollaborator(workspace.id, email)
       .then((collaborator) => setCollaborators([...collaborators, collaborator]))
-      .catch(() => alert("Failed to add collaborator. Please try again later."))
+      .catch(() => console.error("Failed to add collaborator. Please try again later."))
   }
 
   useEffect(() => {
     database
       .getWorkspaceCollaborators(workspace.id)
       .then(setCollaborators)
-      .catch(() => alert("Failed to get collaborators. Please try again later."))
+      .catch(() => console.error("Failed to get collaborators. Please try again later."))
   }, [workspace.id])
 
   return (

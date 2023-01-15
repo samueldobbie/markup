@@ -13,7 +13,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
     database
       .getWorkspaceDocuments(workspace.id)
       .then(setDocuments)
-      .catch(() => alert("Failed to load documents. Please try again later."))
+      .catch(() => console.error("Failed to load documents. Please try again later."))
   }, [workspace.id])
 
   useEffect(() => {
@@ -26,7 +26,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
           setDocumentFiles([])
           setDocuments([...documents, ...insertedDocuments])
         })
-        .catch(() => alert("Failed to upload documents. Please try again later."))
+        .catch(() => console.error("Failed to upload documents. Please try again later."))
     }
 
     func()
@@ -65,7 +65,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
 
     database
       .addWorkspaceAnnotations(documentId, Object.values(rawAnnotationMap))
-      .catch(() => alert("Failed to upload annotations. Please try again later."))
+      .catch(() => console.error("Failed to upload annotations. Please try again later."))
   }
 
   useEffect(() => {
@@ -171,7 +171,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                       database
                         .deleteWorkspaceDocument(document.id)
                         .then(() => setDocuments(documents.filter(i => i.id !== document.id)))
-                        .catch(() => alert("Failed to delete document. Please try again later."))
+                        .catch(() => console.error("Failed to delete document. Please try again later."))
                     }}
                   >
                     <IconTrashX

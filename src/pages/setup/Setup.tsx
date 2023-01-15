@@ -31,7 +31,7 @@ function Setup() {
 
   useEffect(() => {
     if (id === undefined) {
-      alert("Workspace doesn't exist, or insufficient permissions")
+      console.error("Workspace doesn't exist, or insufficient permissions")
       moveToPage(Path.Dashboard)
       return
     }
@@ -40,7 +40,7 @@ function Setup() {
       .getWorkspace(id)
       .then(workspaces => {
         if (workspaces.length === 0) {
-          alert("Workspace doesn't exist, or insufficient permissions")
+          console.error("Workspace doesn't exist, or insufficient permissions")
           moveToPage(Path.Dashboard)
           return
         } else {
