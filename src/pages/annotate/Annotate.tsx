@@ -26,10 +26,13 @@ function Annotate() {
         if (workspaces.length === 0) {
           alert("Workspace doesn't exist, or insufficient permissions")
           moveToPage(Path.Dashboard)
-          return
         } else {
           setWorkspace(workspaces[0])
         }
+      })
+      .catch(() => {
+        alert("Failed to load workspace. Please try again later.")
+        moveToPage(Path.Dashboard)
       })
   }, [id])
 
