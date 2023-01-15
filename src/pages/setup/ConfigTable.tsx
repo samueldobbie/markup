@@ -252,7 +252,11 @@ function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props)
   }, [entities, attributes])
 
   useEffect(() => {
-    setAttributes(attributes.filter((attribute) => entities.includes(attribute.entity)))
+    const updatedAttributes = attributes.filter((attribute) => entities.includes(attribute.entity))
+
+    if (updatedAttributes.length !== attributes.length) {
+      setAttributes(updatedAttributes)
+    }
   }, [attributes, entities])
 
   const handleExportAndUseConfig = () => {
@@ -272,7 +276,11 @@ function ConfigCreatorModal({ workspaceId, openedModal, setOpenedModal }: Props)
   return (
     <Modal
       opened={openedModal}
-      onClose={() => setOpenedModal(false)}
+      onClose={() => {
+        // setEntities([])
+        // setAttributes([])
+        setOpenedModal(false)
+      }}
       title="Config Creator"
       size={1000}
       centered
@@ -363,6 +371,21 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
   })
 
   const handleAddAttribute = (submitted: AddAttributeForm) => {
+    if (submitted.entity === "") {
+      form.setFieldError("entity", "Please select an entity.")
+      return
+    }
+
+    if (submitted.name === "") {
+      form.setFieldError("name", "Please enter an attribute name.")
+      return
+    }
+
+    if (attributeValues.length === 0 && !submitted.allowCustomValues) {
+      form.setFieldError("allowCustomValues", "Please enter at least one attribute value or allow custom values.")
+      return
+    }
+
     const addedAttribute: Attribute = {
       entity: submitted.entity,
       name: submitted.name,
@@ -377,6 +400,8 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
 
     if (isUnique) {
       setAttributes([addedAttribute, ...attributes])
+      setAttributeValues([])
+      form.reset()
     } else {
       console.error("An attribute with that name already exists for the related entity.")
     }
@@ -419,6 +444,7 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
         nothingFound="Start typing to add attribute values"
         placeholder="Start typing to add attribute values"
         data={attributeValues}
+        value={attributeValues}
         searchable
         creatable
         mb={20}
@@ -432,6 +458,7 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
 
       <Checkbox
         mb={10}
+        checked={form.values.allowCustomValues}
         label={
           <>
             Allow custom attribute values
