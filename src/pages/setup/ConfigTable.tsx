@@ -1,4 +1,4 @@
-import { Group, Button, ActionIcon, Text, FileButton, Card, Modal, Grid, MultiSelect, Select, TextInput, Divider, ScrollArea, Checkbox } from "@mantine/core"
+import { Group, Button, ActionIcon, Text, FileButton, Card, Modal, Grid, MultiSelect, Select, TextInput, Divider, ScrollArea, Checkbox, Tooltip } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { IconTrashX } from "@tabler/icons"
 import uuid from "react-uuid"
@@ -166,20 +166,22 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
               textAlignment: "right",
               render: (config) => (
                 <Group spacing={8} position="right" noWrap>
-                  <ActionIcon
-                    color="primary"
-                    onClick={() => {
-                      database
-                        .deleteWorkspaceConfig(config.id)
-                        .then(() => setConfigs([]))
-                        .catch(() => console.error("Failed to delete config. Please try again later."))
-                    }}
-                  >
-                    <IconTrashX
-                      size={16}
-                      style={{ color: "rgb(217 138 138)" }}
-                    />
-                  </ActionIcon>
+                  <Tooltip label="Delete config">
+                    <ActionIcon
+                      color="primary"
+                      onClick={() => {
+                        database
+                          .deleteWorkspaceConfig(config.id)
+                          .then(() => setConfigs([]))
+                          .catch(() => console.error("Failed to delete config. Please try again later."))
+                      }}
+                    >
+                      <IconTrashX
+                        size={16}
+                        style={{ color: "rgb(217 138 138)" }}
+                      />
+                    </ActionIcon>
+                  </Tooltip>
                 </Group>
               ),
             },

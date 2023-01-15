@@ -148,7 +148,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                   }}
                 >
                   {(props) => (
-                    <Tooltip label="Add existing annotations">
+                    <Tooltip label="Upload existing annotations">
                       <ActionIcon
                         color="primary"
                         {...props}

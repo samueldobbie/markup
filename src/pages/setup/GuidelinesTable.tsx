@@ -1,4 +1,4 @@
-import { Group, Button, ActionIcon, Text, FileButton, Card } from "@mantine/core"
+import { Group, Button, ActionIcon, Text, FileButton, Card, Tooltip } from "@mantine/core"
 import { IconTrashX } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
@@ -91,20 +91,22 @@ function GuidelinesTable({ workspace }: SectionProps) {
             textAlignment: "right",
             render: (guideline) => (
               <Group spacing={8} position="right" noWrap>
-                <ActionIcon
-                  color="primary"
-                  onClick={() => {
-                    database
-                      .deleteWorkspaceGuideline(guideline.id)
-                      .then(() => setGuidelines([]))
-                      .catch(() => console.error("Failed to delete guideline. Please try again later."))
-                  }}
-                >
-                  <IconTrashX
-                    size={16}
-                    style={{ color: "rgb(217 138 138)" }}
-                  />
-                </ActionIcon>
+                <Tooltip label="Delete guidelines">
+                  <ActionIcon
+                    color="primary"
+                    onClick={() => {
+                      database
+                        .deleteWorkspaceGuideline(guideline.id)
+                        .then(() => setGuidelines([]))
+                        .catch(() => console.error("Failed to delete guideline. Please try again later."))
+                    }}
+                  >
+                    <IconTrashX
+                      size={16}
+                      style={{ color: "rgb(217 138 138)" }}
+                    />
+                  </ActionIcon>
+                </Tooltip>
               </Group>
             ),
           },
