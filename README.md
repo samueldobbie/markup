@@ -26,7 +26,7 @@ To install and use Markup on your own machine:
 
 # Usage
 
-TODO
+To get started with Markup, read the [quick start guide](https://www.notion.so/getmarkup/Markup-Docs-91e9c5cfc6dc416fbcf2241d7c84e6c7).
 
 # Contributions
 
@@ -40,7 +40,3 @@ Contributions to Markup are appreciated. If you'd like to contribute, please fol
 # Support
 
 If you have any questions or need assistance with Markup, you can contact me at [sam@getmarkup.com](mailto:sam@getmarkup.com).
-
-# License
-
-TODO
