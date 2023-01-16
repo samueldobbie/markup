@@ -8,6 +8,10 @@ import Output from "./Output"
 import Document from "./Document"
 import Config from "./Config"
 
+export interface SectionProps {
+  workspace: Workspace
+}
+
 function Annotate() {
   const { id } = useParams()
 
