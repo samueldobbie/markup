@@ -7,7 +7,7 @@ import { annotationsState, documentIndexState, documentsState, entityColoursStat
 import { SectionProps } from "./Interfaces"
 import SmartAssistant from "./SmartAssistant"
 import { DEMO_DOMAINS } from "utils/Demo"
-import { exportStandoffAnnotations } from "./ExportStandoffAnnotations"
+import { exportJsonAnnotations } from "./ExportJsonAnnotations"
 
 type Entity = string
 type AnnotationGroup = Record<Entity, WorkspaceAnnotation[]>
@@ -96,7 +96,7 @@ function Output({ workspace }: SectionProps) {
                 <Button
                   variant="subtle"
                   leftIcon={<IconDownload size={16} />}
-                  onClick={() => exportStandoffAnnotations(documents, annotations)}
+                  onClick={() => exportJsonAnnotations(documents, annotations)}
                 >
                   Export
                 </Button>
