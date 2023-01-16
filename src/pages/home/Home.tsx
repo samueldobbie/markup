@@ -101,7 +101,7 @@ function Home(): JSX.Element {
   const theme = useMantineTheme()
   const demoImage = theme.colorScheme === "dark"
     ? "https://markup-storage.s3.eu-west-2.amazonaws.com/annotate.png"
-    : "https://markup-storage.s3.eu-west-2.amazonaws.com/annotate.png"
+    : "https://markup-storage.s3.eu-west-2.amazonaws.com/annotate-light.png"
 
   const [openedDemoDomainModal, setOpenedDemoDomainModal] = useState(false)
 
@@ -151,7 +151,7 @@ function Home(): JSX.Element {
         </div>
 
         <div style={{ marginTop: 150 }}>
-          <Image src={demoImage} radius={5} />
+          <Image src={demoImage} radius={10} />
         </div>
 
         <div style={{ marginTop: 80 }}>
