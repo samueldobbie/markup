@@ -2,7 +2,7 @@ import { ActionIcon, Button, Card, Divider, Grid, Group, Modal, ScrollArea, Sele
 import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight, IconSearch } from "@tabler/icons"
 import { database, RawAnnotation, WorkspaceAnnotation, WorkspaceDocument } from "storage/database/Database"
 import { useEffect, useState } from "react"
-import { SectionProps } from "./Interfaces"
+import { SectionProps } from "./Annotate"
 import { TextAnnotateBlend } from "react-text-annotate-blend"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { activeEntityState, activeOntologyConceptsState, annotationsState, documentIndexState, documentsState, entityColoursState, populatedAttributeState } from "storage/state/Annotate"
