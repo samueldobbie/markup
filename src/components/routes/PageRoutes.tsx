@@ -15,6 +15,7 @@ import Annotate from "pages/annotate/Annotate"
 import Verification from "pages/auth/Verification"
 import Settings from "pages/settings/Settings"
 import { DEMO_PATHS } from "utils/Demo"
+import Docs from "pages/docs/Docs"
 
 function PageRoutes(): JSX.Element {
   return (
@@ -73,6 +74,12 @@ function PageRoutes(): JSX.Element {
       <Route path={Path.Contact} element={
         <DefaultRoute title="Contact - Markup">
           <Contact />
+        </DefaultRoute>
+      } />
+
+      <Route path={Path.Docs} element={
+        <DefaultRoute title="Docs - Markup">
+          <Docs />
         </DefaultRoute>
       } />
 
