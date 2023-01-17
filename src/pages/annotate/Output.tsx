@@ -9,6 +9,10 @@ import SmartAssistant from "./SmartAssistant"
 import { DEMO_DOMAINS } from "utils/Demo"
 import { exportJsonAnnotations } from "./ExportJsonAnnotations"
 
+// Move suggestions to 'Output' from 'SmartAssistant'
+// Show 'no suggestions' on failure (e.g. TypeError: Cannot convert undefined or null to object)
+// Fine-tune
+
 type Entity = string
 type AnnotationGroup = Record<Entity, WorkspaceAnnotation[]>
 
@@ -191,7 +195,7 @@ function Output({ workspace }: SectionProps) {
                                   {attributeType}
 
                                   <Text color="dimmed">
-                                    {annotation.attributes[attributeType].join(", ")}
+                                    {annotation.attributes[attributeType]}
                                   </Text>
                                 </Text>
                               ))}

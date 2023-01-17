@@ -74,9 +74,7 @@ const container = document.getElementById("root") as HTMLElement
 const root = ReactDOM.createRoot(container)
 
 root.render(
-  <React.StrictMode>
-    <RecoilRoot>
-      <App />
-    </RecoilRoot>
-  </React.StrictMode>
+  <RecoilRoot>
+    <App />
+  </RecoilRoot>
 )

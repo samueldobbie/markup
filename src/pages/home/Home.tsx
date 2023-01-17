@@ -1,4 +1,4 @@
-import { createStyles, Title, Text, Button, Container, Image, useMantineTheme, Modal, Card, Divider, Grid, ScrollArea, TextInput } from "@mantine/core"
+import { createStyles, Title, Text, Button, Container, Image, useMantineTheme, Modal, Card, Grid } from "@mantine/core"
 import { useAuth } from "providers"
 import { useState } from "react"
 import { DEMO_DOMAINS } from "utils/Demo"
@@ -47,8 +47,7 @@ const useStyles = createStyles((theme) => ({
     fontFamily: `Greycliff CF, ${theme.fontFamily}`,
 
     "@media (max-width: 520px)": {
-      fontSize: 28,
-      textAlign: "left",
+      fontSize: 40,
     },
   },
 
@@ -60,7 +59,6 @@ const useStyles = createStyles((theme) => ({
     textAlign: "center",
 
     "@media (max-width: 520px)": {
-      textAlign: "left",
       fontSize: theme.fontSizes.md,
     },
   },
@@ -85,9 +83,17 @@ const useStyles = createStyles((theme) => ({
       fontSize: theme.fontSizes.md,
 
       "&:not(:first-of-type)": {
-        marginTop: theme.spacing.md,
+        marginTop: 25,
         marginLeft: 0,
       },
+    },
+  },
+
+  demoImage: {
+    marginTop: 150,
+    
+    "@media (max-width: 500px)": {
+      display: "none",
     },
   },
 }))
@@ -150,7 +156,7 @@ function Home(): JSX.Element {
           </div>
         </div>
 
-        <div style={{ marginTop: 150 }}>
+        <div className={classes.demoImage}>
           <Image src={demoImage} radius={10} />
         </div>
 

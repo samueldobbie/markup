@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Card, Collapse, Grid, Group, MultiSelect, Radio, ScrollArea, Select, Text, Tooltip } from "@mantine/core"
+import { ActionIcon, Button, Card, Collapse, Grid, Group, MultiSelect, Radio, ScrollArea, Select, Text } from "@mantine/core"
 import { IconCaretDown, IconCaretRight, IconInfoCircle } from "@tabler/icons"
 import { database } from "storage/database/Database"
 import { useState, useEffect } from "react"
@@ -368,9 +368,9 @@ function Title({ text, description, open, setOpen }: TitleProps) {
         </Text>
 
         <ActionIcon ml={-15}>
-          <Tooltip label={description}>
+          {/* <Tooltip label={description}> */}
             <IconInfoCircle style={{ opacity: 0.6 }} size={18} />
-          </Tooltip>
+          {/* </Tooltip> */}
         </ActionIcon>
       </Group>
     </>
