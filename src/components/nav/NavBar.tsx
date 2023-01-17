@@ -1,7 +1,7 @@
 import { createStyles, Header, Container, Group, Burger, Paper, Transition, Switch, useMantineTheme, useMantineColorScheme, Image, Center, Menu, Divider, Anchor } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import { Link } from "react-router-dom"
-import { IconSun, IconMoonStars, IconChevronDown } from "@tabler/icons"
+import { IconSun, IconMoonStars, IconChevronDown, IconStar } from "@tabler/icons"
 import { useAuth } from "providers/AuthProvider"
 import { Path } from "utils/Path"
 import GitHubButton from "react-github-btn"
@@ -19,11 +19,10 @@ const useStyles = createStyles((theme) => ({
     top: HEADER_HEIGHT,
     left: 0,
     right: 0,
-    zIndex: 0,
+    zIndex: 10,
     borderTopRightRadius: 0,
     borderTopLeftRadius: 0,
     borderTopWidth: 0,
-    overflow: "hidden",
 
     [theme.fn.largerThan("sm")]: {
       display: "none",
@@ -181,6 +180,88 @@ function Navbar(): JSX.Element {
     </>
   )
 
+  const burgerMenuItems = (
+    <>
+      {user === null &&
+        <>
+          {docNavItem}
+
+          <Link
+            to={Path.SignIn}
+            className={cx(classes.navItem, classes.navItemHover)}
+            onClick={() => close()}
+          >
+            Sign In
+          </Link>
+
+          <Link
+            to={Path.SignUp}
+            className={cx(classes.navItem, classes.navItemHover)}
+            onClick={() => close()}
+          >
+            Sign Up
+          </Link>
+        </>
+      }
+
+      {user !== null &&
+        <>
+          {docNavItem}
+
+          <Link
+            to={Path.Dashboard}
+            className={cx(classes.navItem, classes.navItemHover)}
+            onClick={() => close()}
+          >
+            Dashboard
+          </Link>
+
+          <Link
+            to={Path.Settings}
+            className={cx(classes.navItem, classes.navItemHover)}
+            onClick={() => close()}
+          >
+            Settings
+          </Link>
+
+          <Link
+            to={Path.Contact}
+            className={cx(classes.navItem, classes.navItemHover)}
+            onClick={() => close()}
+          >
+            Help
+          </Link>
+
+          <span
+            className={cx(classes.navItem, classes.navItemHover)}
+            onClick={async () => await supabase.auth.signOut()}
+          >
+            Logout
+          </span>
+        </>
+      }
+
+      <Switch
+        checked={colorScheme === 'dark'}
+        onChange={() => toggleColorScheme()}
+        size="lg"
+        onLabel={<IconSun color={theme.white} size={20} stroke={1.5} />}
+        offLabel={<IconMoonStars color={theme.colors.gray[6]} size={20} stroke={1.5} />}
+        className={cx(classes.navItem)}
+      />
+
+      <Group className={cx(classes.navItem)}>
+        <GitHubButton
+          href="https://github.com/samueldobbie/markup"
+          data-size="large"
+          data-show-count="true"
+        >
+          Star
+        </GitHubButton>
+      </Group>
+    </>
+  )
+
   return (
     <Header height={HEADER_HEIGHT} mb={50} className={classes.root}>
       <Container className={classes.header}>
@@ -197,7 +278,7 @@ function Navbar(): JSX.Element {
         <Transition transition="pop-top-right" duration={200} mounted={opened}>
           {(styles) => (
             <Paper className={classes.dropdown} withBorder style={styles}>
-              {navbarItems}
+              {burgerMenuItems}
             </Paper>
           )}
         </Transition>
