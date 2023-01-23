@@ -1,6 +1,12 @@
 import { useState } from "react"
-import { createStyles, Box, Text, Group, Container, Grid, Card, Collapse } from "@mantine/core"
-import { IconBook2, IconX } from "@tabler/icons"
+import { createStyles, Box, Text, Group, Container, Grid, Card, Collapse, Alert, Anchor, Button } from "@mantine/core"
+import { IconAlertCircle, IconArrowLeft, IconArrowRight, IconBook2, IconX } from "@tabler/icons"
+import { Path } from "utils/Path"
+
+// collab
+// suggestions
+// ontology
+// guidelines
 
 const LINK_HEIGHT = 38
 const INDICATOR_SIZE = 10
@@ -10,16 +16,19 @@ const DOCUMENTATION = [
     label: "What is Markup?",
     link: "#what-is-markup",
     content: <WhatIsMarkup />,
+    order: 1,
   },
   {
     label: "Core concepts",
     link: "#core-concepts",
     content: <CoreConcepts />,
+    order: 1,
   },
   {
     label: "Getting started",
     link: "#getting-started",
     content: <GettingStarted />,
+    order: 1,
   },
 ]
 
@@ -100,7 +109,7 @@ function TableOfContents({ active, setActive }: any) {
       }}
       key={item.label}
       className={cx(classes.link, { [classes.linkActive]: active === index })}
-      sx={{ paddingLeft: 10 }}
+      sx={(theme) => ({ paddingLeft: item.order * theme.spacing.lg })}
     >
       {item.label}
     </Box>
@@ -132,6 +141,22 @@ function Content({ active, setActive }: any) {
   return (
     <>
       {DOCUMENTATION[active].content}
+
+      <Group position="apart" mt={40} mb={40}>
+        <Button
+          variant="subtle"
+          onClick={() => setActive((active + 1) % DOCUMENTATION.length)}
+        >
+          <IconArrowLeft size={20} /> {DOCUMENTATION[(active + 1) % DOCUMENTATION.length].label}
+        </Button>
+
+        <Button
+          variant="subtle"
+          onClick={() => setActive((active + 1) % DOCUMENTATION.length)}
+        >
+          {DOCUMENTATION[(active + 1) % DOCUMENTATION.length].label} <IconArrowRight size={20} />
+        </Button>
+      </Group>
     </>
   )
 }
@@ -149,17 +174,6 @@ function WhatIsMarkup() {
           Markup learns as you annotate to predict and suggest complex
           annotations, and also provides integrated access to common
           and custom ontologies for concept mapping.
-        </Text>
-
-        <br />
-
-        <Text>
-          Say you have a document with a list of people, places, and
-          organizations. Markup can help you annotate these entities
-          with their corresponding concepts from a knowledge graph.
-          For example, you can annotate the word "New York" with the
-          concept "New York City" from Wikidata, or the word "Apple"
-          with the concept "Apple Inc." from DBpedia.
         </Text>
       </>
     )
@@ -316,9 +330,36 @@ function GettingStarted() {
     <Text>
       <h2>Getting started</h2>
 
+      <Alert icon={<IconAlertCircle size={16} />} title="Account Required!">
+        <Group>
+          <Text>
+            This guide assumes you already have a Markup account. <span
+              onClick={() => window.open(Path.SignUp, "_blank")}
+              style={{
+                color: "#6F72E9",
+                cursor: "pointer",
+                fontWeight: "500",
+              }}
+            >
+              Need to create one?
+            </span>
+          </Text>
+        </Group>
+      </Alert>
+
+      <br />
+
       <Text>
-        To get started with Markup, you'll need to create a free account. Once you've
-        created an account, you can create a new workspace and start uploading documents.
+        To start a basic annotation session, you need to:
+
+        <ol>
+          <li>Create a workspace</li>
+          <li>Upload some documents</li>
+          <li>Define your annotation config</li>
+          <li>Start annotating!</li>
+        </ol>
+
+        More advanced users may also want to select/upload an ontology, or add annotation guidelines.
       </Text>
     </Text>
   )
