@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { createStyles, Box, Text, Group, Container, Grid, Card, Collapse, Alert, Button } from "@mantine/core"
+import { createStyles, Box, Text, Group, Container, Grid, Card, Collapse, Alert, Button, Chip, Image } from "@mantine/core"
 import { IconAlertCircle, IconArrowLeft, IconArrowRight, IconBook2, IconX } from "@tabler/icons"
 import { Path } from "utils/Path"
 
@@ -411,7 +411,7 @@ function CoreConcepts() {
 function GettingStarted() {
   return (
     <Text>
-      <h2>Getting started</h2>
+      <h2>Getting Started</h2>
 
       <Alert icon={<IconAlertCircle size={16} />} title="Account Required!">
         <Group>
@@ -454,12 +454,22 @@ function CreateWorkspace() {
       <h2>Create a workspace</h2>
 
       <Text>
-        ...
+        To create a workspace:
+
+        <ol>
+          <li>Open your dashboard</li>
+          <li>Click on <b>Create workspace</b></li>
+          <li>Enter a name and (optionally) a description of the workspace</li>
+        </ol>
       </Text>
 
       <br />
 
-      {/* <Image src={CreateWorkspaceImage} /> */}
+      <Image src="https://markup-storage.s3.eu-west-2.amazonaws.com/create-workspace-one.png" />
+
+      <br />
+
+      <Image src="https://markup-storage.s3.eu-west-2.amazonaws.com/create-workspace-two.png" />
     </Text>
   )
 }
