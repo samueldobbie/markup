@@ -1,12 +1,7 @@
 import { useState } from "react"
-import { createStyles, Box, Text, Group, Container, Grid, Card, Collapse, Alert, Anchor, Button } from "@mantine/core"
+import { createStyles, Box, Text, Group, Container, Grid, Card, Collapse, Alert, Button } from "@mantine/core"
 import { IconAlertCircle, IconArrowLeft, IconArrowRight, IconBook2, IconX } from "@tabler/icons"
 import { Path } from "utils/Path"
-
-// collab
-// suggestions
-// ontology
-// guidelines
 
 const LINK_HEIGHT = 38
 const INDICATOR_SIZE = 10
@@ -28,6 +23,76 @@ const DOCUMENTATION = [
     label: "Getting started",
     link: "#getting-started",
     content: <GettingStarted />,
+    order: 1,
+  },
+  {
+    label: "Create a workspace",
+    link: "#create-a-workspace",
+    content: <CreateWorkspace />,
+    order: 2,
+  },
+  {
+    label: "Add documents",
+    link: "#add-documents",
+    content: <AddDocuments />,
+    order: 2,
+  },
+  {
+    label: "Define annotation config",
+    link: "#define-annotation-config",
+    content: <DefineAnnotationConfig />,
+    order: 2,
+  },
+  {
+    label: "Add annotation guidelines",
+    link: "#add-annotation-guidelines",
+    content: <AddAnnotationGuidelines />,
+    order: 2,
+    isAdvanced: true,
+  },
+  {
+    label: "Add collaborators",
+    link: "#add-collaborators",
+    content: <AddCollaborators />,
+    order: 2,
+    isAdvanced: true,
+  },
+  {
+    label: "Use an ontology",
+    link: "#use-an-ontology",
+    content: <UseOntology />,
+    order: 2,
+    isAdvanced: true,
+  },
+  {
+    label: "Add existing annotations",
+    link: "#add-existing-annotations",
+    content: <AddExistingAnnotations />,
+    order: 2,
+    isAdvanced: true,
+  },
+  {
+    label: "Annotate",
+    link: "#annotate",
+    content: <Annotate />,
+    order: 1,
+  },
+  {
+    label: "Search",
+    link: "#search",
+    content: <Search />,
+    order: 1,
+  },
+  {
+    label: "Export",
+    link: "#export",
+    content: <Export />,
+    order: 1,
+  },
+  {
+    label: "Suggestions",
+    link: "#suggestions",
+    content: <Suggestions />,
     order: 1,
   },
 ]
@@ -109,7 +174,7 @@ function TableOfContents({ active, setActive }: any) {
       }}
       key={item.label}
       className={cx(classes.link, { [classes.linkActive]: active === index })}
-      sx={(theme) => ({ paddingLeft: item.order * theme.spacing.lg })}
+      sx={(theme) => ({ paddingLeft: item.order * theme.spacing.md })}
     >
       {item.label}
     </Box>
@@ -143,19 +208,37 @@ function Content({ active, setActive }: any) {
       {DOCUMENTATION[active].content}
 
       <Group position="apart" mt={40} mb={40}>
-        <Button
-          variant="subtle"
-          onClick={() => setActive((active + 1) % DOCUMENTATION.length)}
-        >
-          <IconArrowLeft size={20} /> {DOCUMENTATION[(active + 1) % DOCUMENTATION.length].label}
-        </Button>
+        {active > 0 ? (
+          <Button
+            variant="subtle"
+            onClick={() => setActive((active - 1) % DOCUMENTATION.length)}
+          >
+            <IconArrowLeft size={20} /> {DOCUMENTATION[(active + - 1) % DOCUMENTATION.length].label}
+          </Button>
+        ) : (
+          <Button
+            variant="subtle"
+            disabled
+          >
+            <IconArrowLeft size={20} /> Previous
+          </Button>
+        )}
 
-        <Button
-          variant="subtle"
-          onClick={() => setActive((active + 1) % DOCUMENTATION.length)}
-        >
-          {DOCUMENTATION[(active + 1) % DOCUMENTATION.length].label} <IconArrowRight size={20} />
-        </Button>
+        {active < DOCUMENTATION.length - 1 ? (
+          <Button
+            variant="subtle"
+            onClick={() => setActive((active + 1) % DOCUMENTATION.length)}
+          >
+            {DOCUMENTATION[(active + 1) % DOCUMENTATION.length].label} <IconArrowRight size={20} />
+          </Button>
+        ) : (
+          <Button
+            variant="subtle"
+            disabled
+          >
+            Next <IconArrowRight size={20} />
+          </Button>
+        )}
       </Group>
     </>
   )
@@ -362,6 +445,142 @@ function GettingStarted() {
         More advanced users may also want to select/upload an ontology, or add annotation guidelines.
       </Text>
     </Text>
+  )
+}
+
+function CreateWorkspace() {
+  return (
+    <Text>
+      <h2>Create a workspace</h2>
+
+      <Text>
+        ...
+      </Text>
+
+      <br />
+
+      {/* <Image src={CreateWorkspaceImage} /> */}
+    </Text>
+  )
+}
+
+function AddDocuments() {
+  return (
+    <Text>
+      <h2>Add documents</h2>
+
+      <Text>
+        ...
+      </Text>
+
+      <br />
+
+      {/* <Image src={AddDocumentsImage} /> */}
+    </Text>
+  )
+}
+
+function DefineAnnotationConfig() {
+  return (
+    <Text>
+      <h2>Define your annotation config</h2>
+
+      <Text>
+        ...
+      </Text>
+
+      <br />
+
+      {/* <Image src={DefineAnnotationConfigImage} /> */}
+    </Text>
+  )
+}
+
+function AddCollaborators() {
+  return (
+    <Text>
+      <h2>Start annotating!</h2>
+
+      <Text>
+        ...
+      </Text>
+
+      <br />
+
+      {/* <Image src={StartAnnotatingImage} /> */}
+    </Text>
+  )
+}
+
+function UseOntology() {
+  return (
+    <Text>
+      <h2>Select an ontology</h2>
+
+      <Text>
+        ...
+      </Text>
+
+      <br />
+
+      {/* <Image src={SelectOntologyImage} /> */}
+    </Text>
+  )
+}
+
+function AddAnnotationGuidelines() {
+  return (
+    <Text>
+      <h2>Add annotation guidelines</h2>
+
+      <Text>
+        ...
+      </Text>
+
+      <br />
+
+      {/* <Image src={AddAnnotationGuidelinesImage} /> */}
+    </Text>
+  )
+}
+
+function AddExistingAnnotations() {
+  return (
+    <Text>
+      <h2>Add existing annotations</h2>
+
+      <Text>
+        ...
+      </Text>
+
+      <br />
+
+      {/* <Image src={AddExistingAnnotationsImage} /> */}
+    </Text>
+  )
+}
+
+function Annotate() {
+  return (
+    <>Annotate</>
+  )
+}
+
+function Search() {
+  return (
+    <>Search</>
+  )
+}
+
+function Export() {
+  return (
+    <>Export</>
+  )
+}
+
+function Suggestions() {
+  return (
+    <>Suggestions</>
   )
 }
 
