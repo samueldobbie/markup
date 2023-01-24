@@ -479,8 +479,25 @@ function AddDocuments() {
     <Text>
       <h2>Add documents</h2>
 
+      <Alert icon={<IconAlertCircle size={16} />} title="File Format!" color="yellow">
+        <Group>
+          <Text>
+            Markup currently only supports plain text (.txt) files. We're working on adding support for
+            other file formats (e.g. .pdf, .docx).
+          </Text>
+        </Group>
+      </Alert>
+
+      <br />
+
       <Text>
-        ...
+        To add documents:
+
+        <ol>
+          <li>Open your workspace</li>
+          <li>Click on <b>Add documents</b></li>
+          <li>Upload one or more documents</li>
+        </ol>
       </Text>
 
       <br />
