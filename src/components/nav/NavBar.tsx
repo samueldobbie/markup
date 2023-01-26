@@ -1,7 +1,7 @@
-import { createStyles, Header, Container, Group, Burger, Paper, Transition, Switch, useMantineTheme, useMantineColorScheme, Image, Center, Menu, Divider, Anchor } from "@mantine/core"
+import { createStyles, Header, Container, Group, Burger, Paper, Transition, Switch, useMantineTheme, useMantineColorScheme, Image, Center, Menu, Divider } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import { Link } from "react-router-dom"
-import { IconSun, IconMoonStars, IconChevronDown, IconStar } from "@tabler/icons"
+import { IconSun, IconMoonStars, IconChevronDown } from "@tabler/icons"
 import { useAuth } from "providers/AuthProvider"
 import { Path } from "utils/Path"
 import GitHubButton from "react-github-btn"
@@ -137,8 +137,8 @@ function Navbar(): JSX.Element {
                 Settings
               </Menu.Item>
 
-              <Menu.Item component="a" href={Path.Contact}>
-                Help
+              <Menu.Item component="a" href={Path.Support}>
+                Support
               </Menu.Item>
 
               <Divider />
@@ -229,11 +229,11 @@ function Navbar(): JSX.Element {
           </Link>
 
           <Link
-            to={Path.Contact}
+            to={Path.Support}
             className={cx(classes.navItem, classes.navItemHover)}
             onClick={() => close()}
           >
-            Help
+            Support
           </Link>
 
           <span
