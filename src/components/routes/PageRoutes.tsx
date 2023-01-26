@@ -6,7 +6,6 @@ import UnprotectedRoute from "./UnprotectedRoute"
 import { Path } from "utils/Path"
 import Home from "pages/home/Home"
 import NotFound from "pages/error/NotFound"
-import Contact from "pages/support/Contact"
 import Dashboard from "pages/dashboard/Dashboard"
 import ProtectedRoute from "./ProtectedRoute"
 import Setup from "pages/setup/Setup"
@@ -16,6 +15,7 @@ import Verification from "pages/auth/Verification"
 import Settings from "pages/settings/Settings"
 import { DEMO_PATHS } from "utils/Demo"
 import Docs from "pages/docs/Docs"
+import Support from "pages/support/Support"
 
 function PageRoutes(): JSX.Element {
   return (
@@ -71,9 +71,9 @@ function PageRoutes(): JSX.Element {
         </ProtectedRoute>
       } />
 
-      <Route path={Path.Contact} element={
-        <DefaultRoute title="Contact - Markup">
-          <Contact />
+      <Route path={Path.Support} element={
+        <DefaultRoute title="Support - Markup">
+          <Support />
         </DefaultRoute>
       } />
 
