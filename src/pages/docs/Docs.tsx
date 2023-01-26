@@ -1,6 +1,6 @@
 import { useState } from "react"
-import { createStyles, Box, Text, Group, Container, Grid, Card, Collapse, Alert, Button, Chip, Image } from "@mantine/core"
-import { IconAlertCircle, IconArrowLeft, IconArrowRight, IconBook2, IconX } from "@tabler/icons"
+import { createStyles, Box, Text, Group, Container, Grid, Card, Collapse, Alert, Button } from "@mantine/core"
+import { IconAlertCircle, IconArrowLeft, IconArrowRight, IconBook2, IconFilePlus, IconUsers, IconX } from "@tabler/icons"
 import { Path } from "utils/Path"
 
 const LINK_HEIGHT = 38
@@ -38,9 +38,9 @@ const DOCUMENTATION = [
     order: 2,
   },
   {
-    label: "Define annotation config",
-    link: "#define-annotation-config",
-    content: <DefineAnnotationConfig />,
+    label: "Add annotation config",
+    link: "#add-annotation-config",
+    content: <AddAnnotationConfig />,
     order: 2,
   },
   {
@@ -58,9 +58,9 @@ const DOCUMENTATION = [
     isAdvanced: true,
   },
   {
-    label: "Use an ontology",
-    link: "#use-an-ontology",
-    content: <UseOntology />,
+    label: "Add an ontology",
+    link: "#add-an-ontology",
+    content: <AddOntology />,
     order: 2,
     isAdvanced: true,
   },
@@ -462,14 +462,6 @@ function CreateWorkspace() {
           <li>Enter a name and (optionally) a description of the workspace</li>
         </ol>
       </Text>
-
-      <br />
-
-      <Image src="https://markup-storage.s3.eu-west-2.amazonaws.com/create-workspace-one.png" />
-
-      <br />
-
-      <Image src="https://markup-storage.s3.eu-west-2.amazonaws.com/create-workspace-two.png" />
     </Text>
   )
 }
@@ -479,7 +471,7 @@ function AddDocuments() {
     <Text>
       <h2>Add documents</h2>
 
-      <Alert icon={<IconAlertCircle size={16} />} title="File Format!" color="yellow">
+      <Alert icon={<IconAlertCircle size={16} />} title="File Format" color="orange">
         <Group>
           <Text>
             Markup currently only supports plain text (.txt) files. We're working on adding support for
@@ -499,58 +491,31 @@ function AddDocuments() {
           <li>Upload one or more documents</li>
         </ol>
       </Text>
-
-      <br />
-
-      {/* <Image src={AddDocumentsImage} /> */}
     </Text>
   )
 }
 
-function DefineAnnotationConfig() {
+function AddAnnotationConfig() {
   return (
     <Text>
-      <h2>Define your annotation config</h2>
+      <h2>Add annotation config</h2>
 
       <Text>
-        ...
+        If you don't already have a config, you can create one on the workspace setup
+        page by clicking <b>Create config</b> and following the guide.
       </Text>
 
       <br />
 
-      {/* <Image src={DefineAnnotationConfigImage} /> */}
-    </Text>
-  )
-}
-
-function AddCollaborators() {
-  return (
-    <Text>
-      <h2>Start annotating!</h2>
-
       <Text>
-        ...
+        To add an existing config:
+
+        <ol>
+          <li>Open your workspace</li>
+          <li>Click on <b>Add coinfig</b></li>
+          <li>Upload your config</li>
+        </ol>
       </Text>
-
-      <br />
-
-      {/* <Image src={StartAnnotatingImage} /> */}
-    </Text>
-  )
-}
-
-function UseOntology() {
-  return (
-    <Text>
-      <h2>Select an ontology</h2>
-
-      <Text>
-        ...
-      </Text>
-
-      <br />
-
-      {/* <Image src={SelectOntologyImage} /> */}
     </Text>
   )
 }
@@ -561,12 +526,50 @@ function AddAnnotationGuidelines() {
       <h2>Add annotation guidelines</h2>
 
       <Text>
-        ...
+        To add annotation guidelines:
+
+        <ol>
+          <li>Open your workspace</li>
+          <li>Click on <b>Add guidelines</b></li>
+          <li>Upload your guidelines</li>
+        </ol>
       </Text>
+    </Text>
+  )
+}
 
-      <br />
+function AddCollaborators() {
+  return (
+    <Text>
+      <h2>Add collaborators</h2>
 
-      {/* <Image src={AddAnnotationGuidelinesImage} /> */}
+      <Text>
+        To add collaborators:
+
+        <ol>
+          <li>Visit your dashboard</li>
+          <li>Click on the collaborator icon (<IconUsers size={16} color="#acf2fa" />) next to the desired workspace</li>
+          <li>Enter the email address of each collaborator</li>
+        </ol>
+      </Text>
+    </Text>
+  )
+}
+
+function AddOntology() {
+  return (
+    <Text>
+      <h2>Add ontology</h2>
+
+      <Text>
+        To add an ontology:
+
+        <ol>
+          <li>Open your dashboard</li>
+          <li>Click <b>Add ontology</b></li>
+          <li>Upload your ontology</li>
+        </ol>
+      </Text>
     </Text>
   )
 }
@@ -577,37 +580,52 @@ function AddExistingAnnotations() {
       <h2>Add existing annotations</h2>
 
       <Text>
-        ...
+        To add existing annotations:
+
+        <ol>
+          <li>Open your workspace</li>
+          <li>Click the annotation icon (<IconFilePlus size={16} color="#acf2fa" />) next to the desired document</li>
+          <li>Upload your annotations</li>
+        </ol>
       </Text>
-
-      <br />
-
-      {/* <Image src={AddExistingAnnotationsImage} /> */}
     </Text>
   )
 }
 
 function Annotate() {
   return (
-    <>Annotate</>
+    <Text>
+      <h2>Annotate</h2>
+
+      <Text>
+        To annotate a document, highlight a span of text, select an entity,
+        and then populate the desired attributes.
+      </Text>
+    </Text>
   )
 }
 
 function Search() {
   return (
-    <>Search</>
+    <Text>
+      <h2>Search</h2>
+    </Text>
   )
 }
 
 function Export() {
   return (
-    <>Export</>
+    <Text>
+      <h2>Export</h2>
+    </Text>
   )
 }
 
 function Suggestions() {
   return (
-    <>Suggestions</>
+    <Text>
+      <h2>Suggestions</h2>
+    </Text>
   )
 }
 
