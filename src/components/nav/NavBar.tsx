@@ -82,24 +82,18 @@ function Navbar(): JSX.Element {
     ? "https://i.imgur.com/XNjFxxn.png"
     : "https://i.imgur.com/9Q9lBeF.png"
 
-  const docNavItem = (
-    <Anchor
-      href="https://www.notion.so/Markup-Docs-91e9c5cfc6dc416fbcf2241d7c84e6c7"
-      className={cx(classes.navItem, classes.navItemHover)}
-      onClick={() => close()}
-      target="_blank"
-      sx={{ textDecoration: "none" }}
-    >
-      Docs
-    </Anchor>
-  )
-
   const navbarItems = (
     <>
+      <Link
+        to={Path.Docs}
+        className={cx(classes.navItem, classes.navItemHover)}
+        onClick={() => close()}
+      >
+        Docs
+      </Link>
+
       {user === null &&
         <>
-          {docNavItem}
-
           <Link
             to={Path.SignIn}
             className={cx(classes.navItem, classes.navItemHover)}
@@ -120,8 +114,6 @@ function Navbar(): JSX.Element {
 
       {user !== null &&
         <>
-          {docNavItem}
-
           <Menu width={200} shadow="xs">
             <Menu.Target>
               <a
@@ -184,7 +176,13 @@ function Navbar(): JSX.Element {
     <>
       {user === null &&
         <>
-          {docNavItem}
+          <Link
+            to={Path.Docs}
+            className={cx(classes.navItem, classes.navItemHover)}
+            onClick={() => close()}
+          >
+            Docs
+          </Link>
 
           <Link
             to={Path.SignIn}
@@ -206,7 +204,13 @@ function Navbar(): JSX.Element {
 
       {user !== null &&
         <>
-          {docNavItem}
+          <Link
+            to={Path.Docs}
+            className={cx(classes.navItem, classes.navItemHover)}
+            onClick={() => close()}
+          >
+            Docs
+          </Link>
 
           <Link
             to={Path.Dashboard}
