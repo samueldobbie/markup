@@ -1,6 +1,5 @@
-import { TextInput, Textarea, SimpleGrid, Group, Title, Button, Container, Grid } from "@mantine/core"
+import { TextInput, Textarea, SimpleGrid, Group, Title, Button, Container } from "@mantine/core"
 import { useForm } from "@mantine/form"
-import Faq from "pages/faq/Faq"
 
 function Support() {
   const form = useForm({
