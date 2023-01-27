@@ -13,57 +13,40 @@ function Faq() {
       </Title>
 
       <Accordion variant="filled" mt="xl">
-        <Accordion.Item value="q1">
+        <Accordion.Item value="foss">
           <Accordion.Control>
-            Question 1?
+            Is Markup free and open source?
           </Accordion.Control>
 
           <Accordion.Panel>
-            Answer 1
+            Yes.
           </Accordion.Panel>
         </Accordion.Item>
 
-        <Accordion.Item value="q2">
+        <Accordion.Item value="data-safety">
           <Accordion.Control>
-            Question 2?
+            Is my data safe?
           </Accordion.Control>
 
           <Accordion.Panel>
-            Answer 2
+            All data is encrypted at rest with AES-256, and encrypted in transit via TLS. However,
+            no one can guarantee 100% security. If you're annotating highly sensitive data, we recommend
+            setting up a local instance of Markup.
           </Accordion.Panel>
         </Accordion.Item>
 
-        <Accordion.Item value="q3">
+        <Accordion.Item value="project-support">
           <Accordion.Control>
-            Question 3?
+            How can I support Markup?
           </Accordion.Control>
 
           <Accordion.Panel>
-            Answer 3
-          </Accordion.Panel>
-        </Accordion.Item>
-
-        <Accordion.Item value="q4">
-          <Accordion.Control>
-            Question 4?
-          </Accordion.Control>
-
-          <Accordion.Panel>
-            Answer 4
-          </Accordion.Panel>
-        </Accordion.Item>
-
-        <Accordion.Item value="q5">
-          <Accordion.Control>
-            Question 5?
-          </Accordion.Control>
-
-          <Accordion.Panel>
-            Answer 5
+            You can support the project by starring Markup on GitHub, or by sponsoring the project
+            via GitHub Sponsors.
           </Accordion.Panel>
         </Accordion.Item>
       </Accordion>
-    </Container>
+    </Container >
   )
 }
 
