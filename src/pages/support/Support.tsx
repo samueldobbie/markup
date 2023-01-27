@@ -1,5 +1,6 @@
-import { TextInput, Textarea, SimpleGrid, Group, Title, Button, Container, Card } from "@mantine/core"
+import { TextInput, Textarea, SimpleGrid, Group, Title, Button, Container, Grid } from "@mantine/core"
 import { useForm } from "@mantine/form"
+import Faq from "pages/faq/Faq"
 
 function Support() {
   const form = useForm({
@@ -17,65 +18,62 @@ function Support() {
   })
 
   return (
-    <Container>
-      <Card>
-        <form onSubmit={form.onSubmit(() => { })}>
-          <Title
-            order={2}
-            size="h1"
-            sx={(theme) => ({ fontFamily: `Greycliff CF, ${theme.fontFamily}` })}
-            weight={900}
-            align="center"
-          >
-            Get in touch
-          </Title>
+    <Container size="sm">
+      <form onSubmit={form.onSubmit(() => { })}>
+        <Title
+          order={2}
+          size="h1"
+          sx={(theme) => ({ fontFamily: `Greycliff CF, ${theme.fontFamily}` })}
+          weight={900}
+        >
+          Get in touch
+        </Title>
 
-          <SimpleGrid cols={2} mt="xl" breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-            <TextInput
-              label="Name"
-              placeholder="Your name"
-              name="name"
-              variant="filled"
-              {...form.getInputProps("name")}
-            />
-
-            <TextInput
-              label="Email"
-              placeholder="Your email"
-              name="email"
-              variant="filled"
-              {...form.getInputProps("email")}
-            />
-          </SimpleGrid>
+        <SimpleGrid cols={2} mt="xl" breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+          <TextInput
+            label="Name"
+            placeholder="Your name"
+            name="name"
+            variant="filled"
+            {...form.getInputProps("name")}
+          />
 
           <TextInput
-            label="Subject"
-            placeholder="Subject"
-            mt="md"
-            name="subject"
+            label="Email"
+            placeholder="Your email"
+            name="email"
             variant="filled"
-            {...form.getInputProps("subject")}
+            {...form.getInputProps("email")}
           />
+        </SimpleGrid>
 
-          <Textarea
-            mt="md"
-            label="Message"
-            placeholder="Your message"
-            maxRows={10}
-            minRows={5}
-            autosize
-            name="message"
-            variant="filled"
-            {...form.getInputProps("subject")}
-          />
+        <TextInput
+          label="Subject"
+          placeholder="Subject"
+          mt="md"
+          name="subject"
+          variant="filled"
+          {...form.getInputProps("subject")}
+        />
 
-          <Group position="center" mt="xl">
-            <Button type="submit" size="md">
-              Send message
-            </Button>
-          </Group>
-        </form>
-      </Card>
+        <Textarea
+          mt="md"
+          label="Message"
+          placeholder="Your message"
+          maxRows={10}
+          minRows={5}
+          autosize
+          name="message"
+          variant="filled"
+          {...form.getInputProps("subject")}
+        />
+
+        <Group mt="xl">
+          <Button type="submit" size="md">
+            Send message
+          </Button>
+        </Group>
+      </form>
     </Container>
   )
 }

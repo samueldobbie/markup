@@ -16,6 +16,7 @@ import Settings from "pages/settings/Settings"
 import { DEMO_PATHS } from "utils/Demo"
 import Docs from "pages/docs/Docs"
 import Support from "pages/support/Support"
+import Faq from "pages/faq/Faq"
 
 function PageRoutes(): JSX.Element {
   return (
@@ -74,6 +75,12 @@ function PageRoutes(): JSX.Element {
       <Route path={Path.Support} element={
         <DefaultRoute title="Support - Markup">
           <Support />
+        </DefaultRoute>
+      } />
+
+      <Route path={Path.Faq} element={
+        <DefaultRoute title="FAQ - Markup">
+          <Faq />
         </DefaultRoute>
       } />
 
