@@ -114,6 +114,14 @@ function Navbar(): JSX.Element {
 
       {user !== null &&
         <>
+          <Link
+            to={Path.Dashboard}
+            className={cx(classes.navItem, classes.navItemHover)}
+            onClick={() => close()}
+          >
+            Dashboard
+          </Link>
+
           <Menu width={200} shadow="xs">
             <Menu.Target>
               <a
@@ -129,16 +137,16 @@ function Navbar(): JSX.Element {
             </Menu.Target>
 
             <Menu.Dropdown>
-              <Menu.Item component="a" href={Path.Dashboard}>
-                Dashboard
-              </Menu.Item>
-
               <Menu.Item component="a" href={Path.Settings}>
                 Settings
               </Menu.Item>
 
               <Menu.Item component="a" href={Path.Support}>
                 Support
+              </Menu.Item>
+
+              <Menu.Item component="a" href={Path.Faq}>
+                FAQ
               </Menu.Item>
 
               <Divider />
@@ -234,6 +242,14 @@ function Navbar(): JSX.Element {
             onClick={() => close()}
           >
             Support
+          </Link>
+
+          <Link
+            to={Path.Faq}
+            className={cx(classes.navItem, classes.navItemHover)}
+            onClick={() => close()}
+          >
+            FAQ
           </Link>
 
           <span

@@ -9,6 +9,7 @@ enum Path {
   Setup = "/workspace/setup/:id",
   Annotate = "/workspace/annotate/:id",
   Support = "/support",
+  Faq = "/faq",
   Settings = "/settings",
   NotFound = "*",
 }

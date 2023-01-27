@@ -16,7 +16,7 @@ function Settings() {
   })
 
   return (
-    <Container>
+    <Container size="sm">
       <Card>
         <form onSubmit={form.onSubmit(() => { })}>
           <Title
