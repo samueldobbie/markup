@@ -1,4 +1,4 @@
-import { TextInput, SimpleGrid, Group, Title, Button, Container, Card } from "@mantine/core"
+import { TextInput, SimpleGrid, Group, Title, Button, Container } from "@mantine/core"
 import { useForm } from "@mantine/form"
 
 function Settings() {
@@ -17,51 +17,49 @@ function Settings() {
 
   return (
     <Container size="sm">
-      <Card>
-        <form onSubmit={form.onSubmit(() => { })}>
-          <Title
-            order={2}
-            size="h1"
-            sx={(theme) => ({ fontFamily: `Greycliff CF, ${theme.fontFamily}` })}
-            weight={900}
-          >
-            Settings
-          </Title>
+      <form onSubmit={form.onSubmit(() => { })}>
+        <Title
+          order={2}
+          size="h1"
+          sx={(theme) => ({ fontFamily: `Greycliff CF, ${theme.fontFamily}` })}
+          weight={900}
+        >
+          Settings
+        </Title>
 
+        <TextInput
+          label="Update email"
+          placeholder="New email"
+          name="email"
+          variant="filled"
+          mt="xl"
+          {...form.getInputProps("email")}
+        />
+
+        <SimpleGrid cols={2} mt="md" breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
           <TextInput
-            label="Update email"
-            placeholder="New email"
+            label="Update Password"
+            placeholder="New password"
             name="email"
             variant="filled"
-            mt="xl"
-            {...form.getInputProps("email")}
+            {...form.getInputProps("password")}
           />
 
-          <SimpleGrid cols={2} mt="md" breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-            <TextInput
-              label="Update Password"
-              placeholder="New password"
-              name="email"
-              variant="filled"
-              {...form.getInputProps("password")}
-            />
+          <TextInput
+            label="Confirm password"
+            placeholder="Confirm new password"
+            name="email"
+            variant="filled"
+            {...form.getInputProps("passwordConf")}
+          />
+        </SimpleGrid>
 
-            <TextInput
-              label="Confirm password"
-              placeholder="Confirm new password"
-              name="email"
-              variant="filled"
-              {...form.getInputProps("passwordConf")}
-            />
-          </SimpleGrid>
-
-          <Group mt="xl">
-            <Button type="submit" size="md">
-              Update settings
-            </Button>
-          </Group>
-        </form>
-      </Card>
+        <Group mt="xl">
+          <Button type="submit" size="md">
+            Update settings
+          </Button>
+        </Group>
+      </form>
     </Container>
   )
 }
