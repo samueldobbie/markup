@@ -44,15 +44,15 @@ function Annotate() {
     <Container sx={{ width: "98%", maxWidth: "98%" }}>
       {workspace &&
         <Grid>
-          <Grid.Col xs={3}>
+          <Grid.Col md={3}>
             <Config workspace={workspace} />
           </Grid.Col>
 
-          <Grid.Col xs={6}>
+          <Grid.Col md={6}>
             <Document workspace={workspace} />
           </Grid.Col>
 
-          <Grid.Col xs={3}>
+          <Grid.Col md={3}>
             <Output workspace={workspace} />
           </Grid.Col>
         </Grid>

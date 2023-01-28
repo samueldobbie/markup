@@ -252,7 +252,7 @@ function ViewGuidelineModal({ guideline, openedModal, setOpenedModal }: ViewGuid
     >
       <ScrollArea scrollbarSize={0} sx={{ height: 400 }}>
         <Text color="dimmed">
-          {guideline || "No guidelines have been set for this workspace."}
+          {guideline || "No guidelines have been added to this workspace."}
         </Text>
       </ScrollArea>
     </Modal>

@@ -1,4 +1,3 @@
-import React from "react"
 import { RecoilRoot, useRecoilState } from "recoil"
 import { AuthProvider } from "providers/AuthProvider"
 import { ColorScheme, ColorSchemeProvider, MantineProvider } from "@mantine/core"
@@ -51,10 +50,7 @@ function App(): JSX.Element {
               "#080809",
             ],
           },
-          primaryShade: {
-            light: 4,
-            dark: 4,
-          },
+          primaryShade: 4,
         }}
       >
         <ModalsProvider>
