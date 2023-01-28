@@ -6,7 +6,6 @@ function Faq() {
       <Title
         order={2}
         size="h1"
-        sx={(theme) => ({ fontFamily: `Greycliff CF, ${theme.fontFamily}` })}
         weight={900}
       >
         FAQ

@@ -22,7 +22,6 @@ function Support() {
         <Title
           order={2}
           size="h1"
-          sx={(theme) => ({ fontFamily: `Greycliff CF, ${theme.fontFamily}` })}
           weight={900}
         >
           Get in touch
@@ -33,7 +32,6 @@ function Support() {
             label="Name"
             placeholder="Your name"
             name="name"
-            variant="filled"
             {...form.getInputProps("name")}
           />
 
@@ -41,7 +39,6 @@ function Support() {
             label="Email"
             placeholder="Your email"
             name="email"
-            variant="filled"
             {...form.getInputProps("email")}
           />
         </SimpleGrid>
@@ -51,7 +48,6 @@ function Support() {
           placeholder="Subject"
           mt="md"
           name="subject"
-          variant="filled"
           {...form.getInputProps("subject")}
         />
 
@@ -63,7 +59,6 @@ function Support() {
           minRows={5}
           autosize
           name="message"
-          variant="filled"
           {...form.getInputProps("subject")}
         />
 
