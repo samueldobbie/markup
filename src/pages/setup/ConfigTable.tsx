@@ -154,7 +154,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
                     Create config
                   </Button>
 
-                  <FileButton onChange={setFile} accept=".json">
+                  <FileButton onChange={setFile} accept=".json" key={uuid()}>
                     {(props) => (
                       <Button {...props}>
                         Upload config

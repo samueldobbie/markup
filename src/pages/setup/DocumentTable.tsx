@@ -2,6 +2,7 @@ import { Group, Button, ActionIcon, Text, FileButton, Tooltip, Card } from "@man
 import { IconFilePlus, IconTrashX } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
+import uuid from "react-uuid"
 import { database, RawAnnotation, WorkspaceDocument } from "storage/database/Database"
 import { SectionProps } from "./Setup"
 
@@ -100,7 +101,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
             accessor: "actions",
             title: (
               <Group position="right">
-                <FileButton onChange={setDocumentFiles} accept=".txt" multiple>
+                <FileButton onChange={setDocumentFiles} accept=".txt" multiple  key={uuid()}>
                   {(props) => (
                     <Button {...props}>
                       Upload documents

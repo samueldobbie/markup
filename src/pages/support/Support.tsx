@@ -30,15 +30,14 @@ function Support() {
         <SimpleGrid cols={2} mt="xl" breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
           <TextInput
             label="Name"
-            placeholder="Your name"
-            name="name"
+            placeholder="Name"
             {...form.getInputProps("name")}
           />
 
           <TextInput
             label="Email"
-            placeholder="Your email"
-            name="email"
+            placeholder="Email"
+            type="email"
             {...form.getInputProps("email")}
           />
         </SimpleGrid>
@@ -47,18 +46,16 @@ function Support() {
           label="Subject"
           placeholder="Subject"
           mt="md"
-          name="subject"
           {...form.getInputProps("subject")}
         />
 
         <Textarea
           mt="md"
           label="Message"
-          placeholder="Your message"
+          placeholder="Message"
           maxRows={10}
           minRows={5}
           autosize
-          name="message"
           {...form.getInputProps("subject")}
         />
 

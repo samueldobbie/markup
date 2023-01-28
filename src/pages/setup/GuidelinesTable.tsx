@@ -2,6 +2,7 @@ import { Group, Button, ActionIcon, Text, FileButton, Card, Tooltip } from "@man
 import { IconTrashX } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
+import uuid from "react-uuid"
 import { database } from "storage/database/Database"
 import { SectionProps } from "./Setup"
 
@@ -79,7 +80,7 @@ function GuidelinesTable({ workspace }: SectionProps) {
             accessor: "actions",
             title: (
               <Group position="right" noWrap>
-                <FileButton onChange={setFile} accept=".txt">
+                <FileButton onChange={setFile} accept=".txt" key={uuid()}>
                   {(props) => (
                     <Button {...props}>
                       Upload guidelines
