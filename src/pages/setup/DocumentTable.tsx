@@ -38,7 +38,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
     const annotations = JSON.parse(content) as RawAnnotation[]
 
     database
-      .addWorkspaceAnnotations(documentId, annotations)
+      .addWorkspaceAnnotations(workspace.id, documentId, annotations)
       .catch(() => console.error("Failed to upload annotations. Please try again later."))
   }
 

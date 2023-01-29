@@ -254,7 +254,10 @@ function Navbar(): JSX.Element {
 
           <span
             className={cx(classes.navItem, classes.navItemHover)}
-            onClick={async () => await supabase.auth.signOut()}
+            onClick={async () => {
+              await supabase.auth.signOut()
+              close()
+            }}
           >
             Logout
           </span>

@@ -56,7 +56,7 @@ function Document({ workspace }: SectionProps) {
     } as RawAnnotation
 
     database
-      .addWorkspaceAnnotation(documentId, rawAnnotation)
+      .addWorkspaceAnnotation(workspace.id, documentId, rawAnnotation)
       .then((annotation) => {
         const copy = [...annotations]
         copy[documentIndex] = [...copy[documentIndex], annotation]

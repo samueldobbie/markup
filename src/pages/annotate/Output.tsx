@@ -9,10 +9,6 @@ import SmartAssistant from "./SmartAssistant"
 import { DEMO_DOMAINS } from "utils/Demo"
 import { exportJsonAnnotations } from "./ExportJsonAnnotations"
 
-// Move suggestions to 'Output' from 'SmartAssistant'
-// Show 'no suggestions' on failure (e.g. TypeError: Cannot convert undefined or null to object)
-// Fine-tune
-
 type Entity = string
 type AnnotationGroup = Record<Entity, WorkspaceAnnotation[]>
 
@@ -211,15 +207,19 @@ function Output({ workspace }: SectionProps) {
 
             {segment === "suggestions" && (
               <Grid.Col xs={12}>
-                {isDemoSession && (
+                <Text color="dimmed">
+                  Predictive annotations are currently disabled.
+                </Text>
+
+                {/* {isDemoSession && (
                   <Text color="dimmed">
                     Predictive annotations are disabled in demo sessions.
                   </Text>
                 )}
 
                 {!isDemoSession && (
-                  <SmartAssistant setSuggestionCount={setSuggestionCount} />
-                )}
+                  <SmartAssistant workspaceId={workspace.id} setSuggestionCount={setSuggestionCount} />
+                )} */}
               </Grid.Col>
             )}
           </Grid>
