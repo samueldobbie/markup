@@ -1,6 +1,7 @@
 import saveAs from "file-saver"
 import JSZip from "jszip"
 import { WorkspaceAnnotation, WorkspaceDocument } from "storage/database"
+import notify from "utils/Notifications"
 
 interface JsonOutput {
   entity: string
@@ -38,7 +39,7 @@ function saveAsZip(outputs: AnnotationOutput2[]): void {
   zip
     .generateAsync({ type: "blob" })
     .then((content) => saveAs(content, "annotations.zip"))
-    .catch(() => console.error("Failed to export annotations. Please try again later."))
+    .catch(() => notify.error("Failed to export annotations. Please try again later."))
 }
 
 function buildSingleOutput(name: string, annotations: WorkspaceAnnotation[]): AnnotationOutput2 {

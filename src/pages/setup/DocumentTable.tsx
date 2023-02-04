@@ -4,6 +4,7 @@ import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import uuid from "react-uuid"
 import { database, RawAnnotation, WorkspaceDocument } from "storage/database/Database"
+import notify from "utils/Notifications"
 import { SectionProps } from "./Setup"
 
 function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: SectionProps) {
@@ -14,7 +15,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
     database
       .getWorkspaceDocuments(workspace.id)
       .then(setDocuments)
-      .catch(() => console.error("Failed to load documents. Please try again later."))
+      .catch(() => notify.error("Failed to load documents. Please try again later."))
   }, [workspace.id])
 
   useEffect(() => {
@@ -27,7 +28,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
           setDocumentFiles([])
           setDocuments([...documents, ...insertedDocuments])
         })
-        .catch(() => console.error("Failed to upload documents. Please try again later."))
+        .catch(() => notify.error("Failed to upload documents. Please try again later."))
     }
 
     func()
@@ -39,7 +40,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
 
     database
       .addWorkspaceAnnotations(workspace.id, documentId, annotations)
-      .catch(() => console.error("Failed to upload annotations. Please try again later."))
+      .catch(() => notify.error("Failed to upload annotations. Please try again later."))
   }
 
   useEffect(() => {
@@ -145,7 +146,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                       database
                         .deleteWorkspaceDocument(document.id)
                         .then(() => setDocuments(documents.filter(i => i.id !== document.id)))
-                        .catch(() => console.error("Failed to delete document. Please try again later."))
+                        .catch(() => notify.error("Failed to delete document. Please try again later."))
                     }}
                   >
                     <IconTrashX
@@ -198,5 +199,5 @@ export default DocumentTable
 
 //   database
 //     .addWorkspaceAnnotations(documentId, Object.values(rawAnnotationMap))
-//     .catch(() => console.error("Failed to upload annotations. Please try again later."))
+//     .catch(() => notify.error("Failed to upload annotations. Please try again later."))
 // }

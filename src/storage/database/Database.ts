@@ -4,6 +4,7 @@ import { OntologyConcept } from "pages/dashboard/OntologyTable"
 import { WorkspaceCollaborator } from "pages/dashboard/WorkspaceTable"
 import { WorkspaceGuideline } from "pages/setup/GuidelinesTable"
 import uuid from "react-uuid"
+import notify from "utils/Notifications"
 
 export type Workspace = definitions["workspace"]
 export type WorkspaceAccess = definitions["workspace_access"]
@@ -29,7 +30,7 @@ async function addWorkspace(name: string, description: string): Promise<Workspac
     })
 
   if (workspaceAccessError) {
-    console.error(workspaceAccessError)
+    notify.error(workspaceAccessError.message ?? "Error")
     return []
   }
 
@@ -43,7 +44,7 @@ async function addWorkspace(name: string, description: string): Promise<Workspac
     .select()
 
   if (workspaceError) {
-    console.error(workspaceError)
+    notify.error(workspaceError.message ?? "Error")
     return []
   }
 
@@ -66,7 +67,7 @@ async function getWorkspaces(): Promise<Record<string, Workspace[]>> {
     .eq("is_demo", false)
 
   if (workspaceAccessError) {
-    console.error(workspaceAccessError)
+    notify.error(workspaceAccessError.message ?? "Error")
     return result
   }
 
@@ -80,7 +81,7 @@ async function getWorkspaces(): Promise<Record<string, Workspace[]>> {
     .in("id", workspaceIds)
 
   if (workspaceError) {
-    console.error(workspaceError)
+    notify.error(workspaceError.message ?? "Error")
     return result
   }
 
@@ -103,7 +104,7 @@ async function getWorkspace(workspaceId: string): Promise<Workspace[]> {
     .select()
     .eq("id", workspaceId)
 
-  workspaceError && console.error(workspaceError)
+  workspaceError && notify.error(workspaceError.message ?? "Error")
 
   return workspaceData ?? []
 }
@@ -115,7 +116,7 @@ async function deleteWorkspace(workspaceId: string): Promise<boolean> {
     .eq("id", workspaceId)
 
   if (error) {
-    console.error(error)
+    notify.error(error?.message ?? "Error")
     return true
   }
 
@@ -139,7 +140,7 @@ async function addWorkspaceDocuments(workspaceId: string, files: File[]): Promis
     .select()
 
   if (error) {
-    console.error(error)
+    notify.error(error?.message ?? "Error")
     return []
   }
 
@@ -153,7 +154,7 @@ async function getWorkspaceDocuments(workspaceId: string): Promise<WorkspaceDocu
     .eq("workspace_id", workspaceId)
 
   if (error) {
-    console.error(error)
+    notify.error(error?.message ?? "Error")
     return []
   }
 
@@ -167,7 +168,7 @@ async function deleteWorkspaceDocument(documentId: string): Promise<boolean> {
     .eq("id", documentId)
 
   if (error) {
-    console.error(error)
+    notify.error(error?.message ?? "Error")
     return true
   }
 
@@ -181,7 +182,7 @@ async function getWorkspaceGuideline(workspaceId: string): Promise<WorkspaceGuid
     .eq("workspace_id", workspaceId)
 
   if (error) {
-    console.error(error)
+    notify.error(error?.message ?? "Error")
     return []
   }
 
@@ -199,7 +200,7 @@ async function addWorkspaceGuideline(workspaceId: string, file: File): Promise<W
     .select()
 
   if (error) {
-    console.error(error)
+    notify.error(error?.message ?? "Error")
     return []
   }
 
@@ -213,7 +214,7 @@ async function deleteWorkspaceGuideline(guidelineId: string): Promise<boolean> {
     .eq("id", guidelineId)
 
   if (error) {
-    console.error(error)
+    notify.error(error?.message ?? "Error")
     return true
   }
 
@@ -232,7 +233,7 @@ async function addWorkspaceConfig(id: string, workspaceId: string, name: string,
     .select()
 
   if (error || config === null || config.length === 0) {
-    console.error(error)
+    notify.error(error?.message ?? "Error")
 
     return {
       id: "",
@@ -253,7 +254,7 @@ async function getWorkspaceConfig(workspaceId: string): Promise<WorkspaceConfig[
     .eq("workspace_id", workspaceId)
 
   if (error) {
-    console.error(error)
+    notify.error(error?.message ?? "Error")
     return []
   }
 
@@ -267,7 +268,7 @@ async function deleteWorkspaceConfig(configId: string): Promise<boolean> {
     .eq("id", configId)
 
   if (error) {
-    console.error(error)
+    notify.error(error?.message ?? "Error")
     return true
   }
 
@@ -293,7 +294,7 @@ async function addWorkspaceAnnotation(
     .select()
 
   if (error || annotation === null || annotation.length === 0) {
-    console.error(error)
+    notify.error(error?.message ?? "Error")
 
     return {
       id: "",
@@ -330,7 +331,7 @@ async function addWorkspaceAnnotations(
     .select()
 
   if (error || annotations === null || annotations.length === 0) {
-    console.error(error)
+    notify.error(error?.message ?? "Error")
   }
 }
 
@@ -341,7 +342,7 @@ async function getWorkspaceAnnotations(documentIds: string[]): Promise<Workspace
     .in("document_id", documentIds)
 
   if (error || annotations === null) {
-    console.error(error)
+    notify.error(error?.message ?? "Error")
     return []
   }
 
@@ -361,7 +362,7 @@ async function deleteWorkspaceAnnotation(annotationId: string): Promise<boolean>
     .eq("id", annotationId)
 
   if (error) {
-    console.error(error)
+    notify.error(error?.message ?? "Error")
     return true
   }
 
@@ -375,7 +376,7 @@ async function addWorkspaceCollaborator(workspaceId: string, email: string): Pro
     .eq("email", email)
 
   if (errorUser || user === null || user.length === 0) {
-    console.error(errorUser)
+    notify.error(errorUser?.message ?? "Error")
     throw new Error("User not found")
   }
 
@@ -388,7 +389,7 @@ async function addWorkspaceCollaborator(workspaceId: string, email: string): Pro
     .select()
 
   if (errorAccess || access === null || access.length === 0) {
-    console.error(errorAccess)
+    notify.error(errorAccess?.message ?? "Error")
     throw new Error("Error adding collaborator")
   }
 
@@ -398,7 +399,7 @@ async function addWorkspaceCollaborator(workspaceId: string, email: string): Pro
     .eq("id", workspaceId)
 
   if (errorWorkspace || workspace === null || workspace.length === 0) {
-    console.error(errorWorkspace)
+    notify.error(errorWorkspace?.message ?? "Error")
     throw new Error("Workspace not found")
   }
 
@@ -410,7 +411,7 @@ async function addWorkspaceCollaborator(workspaceId: string, email: string): Pro
     .eq("id", workspaceId)
 
   if (errorUpdate) {
-    console.error(errorUpdate)
+    notify.error(errorUpdate?.message ?? "Error")
     throw new Error("Error updating workspace")
   }
 
@@ -428,7 +429,7 @@ async function getWorkspaceCollaborators(workspaceId: string): Promise<Workspace
     .eq("workspace_id", workspaceId)
 
   if (error) {
-    console.error(error)
+    notify.error(error?.message ?? "Error")
     return []
   }
 
@@ -441,7 +442,7 @@ async function getWorkspaceCollaborators(workspaceId: string): Promise<Workspace
     .in("id", userIds)
 
   if (errorUsers) {
-    console.error(errorUsers)
+    notify.error(errorUsers?.message ?? "Error")
     return []
   }
 
@@ -470,7 +471,7 @@ async function addOntology(name: string, description: string, rows: OntologyConc
     .select()
 
   if (error) {
-    console.error(error)
+    notify.error(error?.message ?? "Error")
     return
   }
 
@@ -487,7 +488,7 @@ async function addOntology(name: string, description: string, rows: OntologyConc
     })
 
   if (errorAccess) {
-    console.error(errorAccess)
+    notify.error(errorAccess?.message ?? "Error")
     return
   }
 
@@ -502,7 +503,7 @@ async function addOntology(name: string, description: string, rows: OntologyConc
     .insert(concepts)
 
   if (errorRows) {
-    console.error(errorRows)
+    notify.error(errorRows?.message ?? "Error")
     return
   }
 }
@@ -526,7 +527,7 @@ async function getDefaultOntologies(): Promise<Ontology[]> {
     .eq("is_default", true)
 
   if (error) {
-    console.error(error)
+    notify.error(error?.message ?? "Error")
     return []
   }
 
@@ -551,7 +552,7 @@ async function getOntologies(): Promise<Ontology[]> {
     .eq("user_id", userId)
 
   if (error) {
-    console.error(error)
+    notify.error(error?.message ?? "Error")
     return []
   }
 
@@ -565,7 +566,7 @@ async function getOntologyConcepts(ontologyId: string): Promise<OntologyConcept[
     .eq("ontology_id", ontologyId)
 
   if (error) {
-    console.error(error)
+    notify.error(error?.message ?? "Error")
     return []
   }
 
@@ -583,7 +584,7 @@ async function removeDefaultOntology(ontologyId: string): Promise<void> {
     .eq("ontology_id", ontologyId)
 
   if (error) {
-    console.error(error)
+    notify.error(error?.message ?? "Error")
   }
 }
 
@@ -598,7 +599,7 @@ async function deleteOntology(ontologyId: string, isDefault: boolean): Promise<b
       .eq("ontology_id", ontologyId)
 
     if (ontologyConceptError) {
-      console.error(ontologyConceptError)
+      notify.error(ontologyConceptError?.message ?? "Error")
       return true
     }
 
@@ -609,7 +610,7 @@ async function deleteOntology(ontologyId: string, isDefault: boolean): Promise<b
       .eq("user_id", userId)
 
     if (ontologyAccessError) {
-      console.error(ontologyAccessError)
+      notify.error(ontologyAccessError?.message ?? "Error")
       return true
     }
 
@@ -619,7 +620,7 @@ async function deleteOntology(ontologyId: string, isDefault: boolean): Promise<b
       .eq("id", ontologyId)
 
     if (ontologyError) {
-      console.error(ontologyError)
+      notify.error(ontologyError?.message ?? "Error")
       return true
     }
   } else {
@@ -631,7 +632,7 @@ async function deleteOntology(ontologyId: string, isDefault: boolean): Promise<b
       .eq("user_id", userId)
 
     if (ontologyAccessError) {
-      console.error(ontologyAccessError)
+      notify.error(ontologyAccessError?.message ?? "Error")
       return true
     }
   }

@@ -8,6 +8,7 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { activeEntityState, activeOntologyConceptsState, annotationsState, documentIndexState, documentsState, entityColoursState, populatedAttributeState } from "storage/state/Annotate"
 import { useDebouncedState } from "@mantine/hooks"
 import "./Document.css"
+import notify from "utils/Notifications"
 
 interface InlineAnnotation {
   tag: string
@@ -62,7 +63,7 @@ function Document({ workspace }: SectionProps) {
         copy[documentIndex] = [...copy[documentIndex], annotation]
         setAnnotations(copy)
       })
-      .catch(() => console.error("Failed to add annotation. Please try again later."))
+      .catch(() => notify.error("Failed to add annotation. Please try again later."))
   }
 
   useEffect(() => {
@@ -81,7 +82,7 @@ function Document({ workspace }: SectionProps) {
     database
       .getWorkspaceDocuments(workspace.id)
       .then(setDocuments)
-      .catch(() => console.error("Failed to load documents. Please try again later."))
+      .catch(() => notify.error("Failed to load documents. Please try again later."))
   }, [setDocuments, workspace.id])
 
   useEffect(() => {
@@ -92,7 +93,7 @@ function Document({ workspace }: SectionProps) {
     database
       .getWorkspaceAnnotations(documents.map(i => i.id))
       .then(setAnnotations)
-      .catch(() => console.error("Failed to load annotations. Please try again later."))
+      .catch(() => notify.error("Failed to load annotations. Please try again later."))
   }, [documents, setAnnotations])
 
   return (
@@ -195,7 +196,7 @@ function Document({ workspace }: SectionProps) {
                     }
 
                     if (activeEntity === "") {
-                      console.error("You need to select an entity")
+                      notify.error("You need to select an entity")
                       return
                     }
 

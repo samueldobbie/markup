@@ -11,6 +11,7 @@ import { openConfirmModal } from "@mantine/modals"
 import { tutorialProgressState } from "storage/state/Dashboard"
 import { useRecoilState } from "recoil"
 import { supabase } from "utils/Supabase"
+import notify from "utils/Notifications"
 
 function WorkspaceTable() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
@@ -32,8 +33,11 @@ function WorkspaceTable() {
     onConfirm: () => {
       database
         .deleteWorkspace(workspace.id)
-        .then(() => setWorkspaces(workspaces.filter(i => i.id !== workspace.id)))
-        .catch(() => console.error("Failed to delete workspace. Please try again later."))
+        .then(() => {
+          setWorkspaces(workspaces.filter(i => i.id !== workspace.id))
+          notify.success("Workspace deleted")
+        })
+        .catch(() => notify.error("Failed to delete workspace. Please try again later."))
     },
     centered: true,
   })
@@ -49,7 +53,7 @@ function WorkspaceTable() {
         setWorkspaces(workspaces)
         setOwnedWorkspaceIds(ownedWorkspaces.map(i => i.id))
       })
-      .catch(() => console.error("Failed to load workspaces. Please try again later."))
+      .catch(() => notify.error("Failed to load workspaces. Please try again later."))
   }, [])
 
   return (
@@ -190,7 +194,7 @@ function CreateWorkspaceModal({ openedModal, setOpenedModal }: ModalProps) {
     const { name, description } = form
     const workspaces = await database
       .addWorkspace(name, description || "")
-      .catch(() => console.error("Failed to create workspace. Please try again later."))
+      .catch(() => notify.error("Failed to create workspace. Please try again later."))
 
     if (workspaces && workspaces.length > 0) {
       moveToPage(toSetupUrl(workspaces[0].id))
@@ -279,14 +283,14 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
     database
       .addWorkspaceCollaborator(workspace.id, email)
       .then((collaborator) => setCollaborators([...collaborators, collaborator]))
-      .catch(() => console.error("Failed to add collaborator. Please try again later."))
+      .catch(() => notify.error("Failed to add collaborator. Please try again later."))
   }
 
   useEffect(() => {
     database
       .getWorkspaceCollaborators(workspace.id)
       .then(setCollaborators)
-      .catch(() => console.error("Failed to get collaborators. Please try again later."))
+      .catch(() => notify.error("Failed to get collaborators. Please try again later."))
   }, [workspace.id])
 
   return (

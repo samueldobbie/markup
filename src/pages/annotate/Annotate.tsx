@@ -7,6 +7,7 @@ import { database, Workspace } from "storage/database/Database"
 import Output from "./Output"
 import Document from "./Document"
 import Config from "./Config"
+import notify from "utils/Notifications"
 
 export interface SectionProps {
   workspace: Workspace
@@ -19,7 +20,7 @@ function Annotate() {
 
   useEffect(() => {
     if (id === undefined) {
-      console.error("Workspace doesn't exist, or insufficient permissions")
+      notify.error("Workspace doesn't exist, or insufficient permissions")
       moveToPage(Path.Dashboard)
       return
     }
@@ -28,14 +29,14 @@ function Annotate() {
       .getWorkspace(id)
       .then(workspaces => {
         if (workspaces.length === 0) {
-          console.error("Workspace doesn't exist, or insufficient permissions")
+          notify.error("Workspace doesn't exist, or insufficient permissions")
           moveToPage(Path.Dashboard)
         } else {
           setWorkspace(workspaces[0])
         }
       })
       .catch(() => {
-        console.error("Failed to load workspace. Please try again later.")
+        notify.error("Failed to load workspace. Please try again later.")
         moveToPage(Path.Dashboard)
       })
   }, [id])

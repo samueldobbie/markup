@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom"
-import { Container, Grid, Group } from "@mantine/core"
+import { Container, Grid } from "@mantine/core"
 import { moveToPage } from "utils/Location"
 import { Path } from "utils/Path"
 import { useEffect, useState } from "react"
@@ -8,6 +8,7 @@ import ConfigTable from "./ConfigTable"
 import DocumentTable from "./DocumentTable"
 import Header from "./Header"
 import GuidelinesTable from "./GuidelinesTable"
+import notify from "utils/Notifications"
 
 interface WorkspaceStatus {
   hasConfig: boolean
@@ -31,7 +32,7 @@ function Setup() {
 
   useEffect(() => {
     if (id === undefined) {
-      console.error("Workspace doesn't exist, or insufficient permissions")
+      notify.error("Workspace doesn't exist, or insufficient permissions")
       moveToPage(Path.Dashboard)
       return
     }
@@ -40,7 +41,7 @@ function Setup() {
       .getWorkspace(id)
       .then(workspaces => {
         if (workspaces.length === 0) {
-          console.error("Workspace doesn't exist, or insufficient permissions")
+          notify.error("Workspace doesn't exist, or insufficient permissions")
           moveToPage(Path.Dashboard)
           return
         } else {
