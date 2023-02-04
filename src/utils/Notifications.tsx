@@ -1,35 +1,40 @@
 import { showNotification } from "@mantine/notifications"
+import { IconAlertTriangle, IconCheck, IconQuestionMark, IconX } from "@tabler/icons"
 
 class Notification {
-  info(title: string, message: string = "") {
+  info(message: string) {
     showNotification({
-      title,
+      title: "Info",
       message,
       color: "gray",
+      icon: <IconQuestionMark />,
     })
   }
 
-  success(title: string, message: string = "") {
+  success(message: string) {
     showNotification({
-      title,
+      title: "Success",
       message,
       color: "green",
+      icon: <IconCheck />,
     })
   }
 
-  warning(title: string, message: string = "") {
+  warning(message: string) {
     showNotification({
-      title,
+      title: "Warning",
       message,
       color: "yellow",
+      icon: <IconAlertTriangle />,
     })
   }
 
-  error(title: string, message: string = "") {
+  error(message: string) {
     showNotification({
-      title,
+      title: "Error",
       message,
       color: "red",
+      icon: <IconX />,
     })
   }
 }

@@ -39,7 +39,7 @@ function Output({ workspace }: SectionProps) {
         copy[documentIndex] = [...copy[documentIndex].filter(i => i.id !== annotationId)]
         setAnnotations(copy)
       })
-      .catch(() => notify.error("Failed to delete annotation. Please try again later."))
+      .catch(() => notify.error("Failed to delete annotation."))
   }
 
   useEffect(() => {
@@ -76,7 +76,7 @@ function Output({ workspace }: SectionProps) {
           setGuideline(guidelines[0].content)
         }
       })
-      .catch(() => notify.error("Failed to load guidelines. Please try again later."))
+      .catch(() => notify.error("Failed to load guidelines."))
   }, [workspace.id])
 
   return (

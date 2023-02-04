@@ -31,7 +31,7 @@ function saveAsZip(outputs: StandoffOutput[]): void {
   zip
     .generateAsync({ type: "blob" })
     .then((content) => saveAs(content, "annotations.zip"))
-    .catch(() => notify.error("Failed to export annotations. Please try again later."))
+    .catch(() => notify.error("Failed to export annotations."))
 }
 
 function buildSingleOutput(name: string, annotations: WorkspaceAnnotation[]): StandoffOutput {

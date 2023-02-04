@@ -30,8 +30,11 @@ function OntologyTable() {
     onConfirm: () => {
       database
         .deleteOntology(ontology.id, ontology.is_default)
-        .then(() => setOntologies(ontologies.filter(i => i.id !== ontology.id)))
-        .catch(() => notify.error("Could not delete ontology. Please try again later."))
+        .then(() => {
+          setOntologies(ontologies.filter(i => i.id !== ontology.id))
+          notify.success(`Ontology '${ontology.name}' deleted.`)
+        })
+        .catch(() => notify.error("Could not delete ontology."))
     },
     centered: true,
   })
@@ -44,7 +47,7 @@ function OntologyTable() {
     database
       .getOntologies()
       .then(setOntologies)
-      .catch(() => notify.error("Could not load ontologies. Please try again later."))
+      .catch(() => notify.error("Could not load ontologies."))
   }
 
   return (
@@ -151,7 +154,7 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal, ontologies, setOn
     database
       .getDefaultOntologies()
       .then(setDefaultOntologies)
-      .catch(() => notify.error("Could not load default ontologies. Please try again later."))
+      .catch(() => notify.error("Could not load default ontologies."))
   }, [])
 
   const addOntology = (ontologyId: string) => {
@@ -160,15 +163,19 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal, ontologies, setOn
       .then(() => {
         const ontology = defaultOntologies.find(i => i.id === ontologyId)!
         setOntologies([...ontologies, ontology])
+        notify.success(`Ontology '${ontology.name}' added.`)
       })
-      .catch(() => notify.error("Could not add ontology. Please try again later."))
+      .catch(() => notify.error("Could not add ontology."))
   }
 
   const removeOntology = (ontologyId: string) => {
     database
       .removeDefaultOntology(ontologyId)
-      .then(() => setOntologies(ontologies.filter(i => i.id !== ontologyId)))
-      .catch(() => notify.error("Could not remove ontology. Please try again later."))
+      .then(() => {
+        notify.success("Ontology removed.")
+        setOntologies(ontologies.filter(i => i.id !== ontologyId))
+      })
+      .catch(() => notify.error("Could not remove ontology."))
   }
 
   return (
@@ -283,8 +290,9 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
         setMappingFile(null)
         setOpenedModal(false)
         refreshTable!()
+        notify.success(`Ontology '${name}' uploaded.`)
       })
-      .catch(() => notify.error("Could not upload ontology. Please try again later."))
+      .catch(() => notify.error("Could not upload ontology."))
   }
 
   return (

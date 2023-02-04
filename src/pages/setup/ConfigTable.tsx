@@ -48,7 +48,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
         setEntityCount(entities.length)
         setAttributeCount(globalAttributes.length + entities.reduce((acc, entity) => acc + entity.attributes.length, 0))
       })
-      .catch(() => notify.error("Failed to load config. Please try again later."))
+      .catch(() => notify.error("Failed to load config."))
   }, [workspace.id])
 
   useEffect(() => {
@@ -174,7 +174,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
                         database
                           .deleteWorkspaceConfig(config.id)
                           .then(() => setConfigs([]))
-                          .catch(() => notify.error("Failed to delete config. Please try again later."))
+                          .catch(() => notify.error("Failed to delete config."))
                       }}
                     >
                       <IconTrashX
@@ -283,7 +283,7 @@ function ConfigCreatorModal({ configId, workspaceId, openedModal, setOpenedModal
         saveAs(blob, fileName)
         window.location.reload()
       })
-      .catch(() => notify.error("Failed to use config. Please try again later."))
+      .catch(() => notify.error("Failed to use config."))
   }
 
   return (

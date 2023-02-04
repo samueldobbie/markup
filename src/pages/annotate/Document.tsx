@@ -63,7 +63,7 @@ function Document({ workspace }: SectionProps) {
         copy[documentIndex] = [...copy[documentIndex], annotation]
         setAnnotations(copy)
       })
-      .catch(() => notify.error("Failed to add annotation. Please try again later."))
+      .catch(() => notify.error("Failed to add annotation."))
   }
 
   useEffect(() => {
@@ -82,7 +82,7 @@ function Document({ workspace }: SectionProps) {
     database
       .getWorkspaceDocuments(workspace.id)
       .then(setDocuments)
-      .catch(() => notify.error("Failed to load documents. Please try again later."))
+      .catch(() => notify.error("Failed to load documents."))
   }, [setDocuments, workspace.id])
 
   useEffect(() => {
@@ -93,7 +93,7 @@ function Document({ workspace }: SectionProps) {
     database
       .getWorkspaceAnnotations(documents.map(i => i.id))
       .then(setAnnotations)
-      .catch(() => notify.error("Failed to load annotations. Please try again later."))
+      .catch(() => notify.error("Failed to load annotations."))
   }, [documents, setAnnotations])
 
   return (
