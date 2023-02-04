@@ -4,6 +4,7 @@ import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import uuid from "react-uuid"
 import { database } from "storage/database/Database"
+import notify from "utils/Notifications"
 import { SectionProps } from "./Setup"
 
 export interface WorkspaceGuideline {
@@ -20,7 +21,7 @@ function GuidelinesTable({ workspace }: SectionProps) {
     database
       .getWorkspaceGuideline(workspace.id)
       .then((guidelines) => setGuidelines(guidelines))
-      .catch(() => console.error("Failed to load guidelines. Please try again later."))
+      .catch(() => notify.error("Failed to load guidelines. Please try again later."))
   }, [workspace.id])
 
   useEffect(() => {
@@ -33,7 +34,7 @@ function GuidelinesTable({ workspace }: SectionProps) {
           setFile(null)
           setGuidelines(guidelines)
         })
-        .catch(() => console.error("Failed to upload guidelines. Please try again later."))
+        .catch(() => notify.error("Failed to upload guidelines. Please try again later."))
     }
 
     func()
@@ -99,7 +100,7 @@ function GuidelinesTable({ workspace }: SectionProps) {
                       database
                         .deleteWorkspaceGuideline(guideline.id)
                         .then(() => setGuidelines([]))
-                        .catch(() => console.error("Failed to delete guideline. Please try again later."))
+                        .catch(() => notify.error("Failed to delete guideline. Please try again later."))
                     }}
                   >
                     <IconTrashX

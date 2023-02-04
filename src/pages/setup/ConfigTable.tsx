@@ -9,6 +9,7 @@ import JSONPretty from "react-json-pretty"
 import { WorkspaceConfig, database } from "storage/database/Database"
 import { SectionProps } from "./Setup"
 import { isValidConfig } from "pages/annotate/ParseJsonConfig"
+import notify from "utils/Notifications"
 
 export interface IConfig {
   entities: IConfigEntity[]
@@ -47,7 +48,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
         setEntityCount(entities.length)
         setAttributeCount(globalAttributes.length + entities.reduce((acc, entity) => acc + entity.attributes.length, 0))
       })
-      .catch(() => console.error("Failed to load config. Please try again later."))
+      .catch(() => notify.error("Failed to load config. Please try again later."))
   }, [workspace.id])
 
   useEffect(() => {
@@ -73,9 +74,9 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
             setEntityCount(entities.length)
             setAttributeCount(globalAttributes.length + entities.reduce((acc, entity) => acc + entity.attributes.length, 0))
           })
-          .catch(() => console.error("Failed to upload config. Please check the format."))
+          .catch(() => notify.error("Failed to upload config. Please check the format."))
       } catch (e) {
-        console.error("Failed to parse config. Please check the format.")
+        notify.error("Failed to parse config. Please check the format.")
       }
     }
 
@@ -173,7 +174,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
                         database
                           .deleteWorkspaceConfig(config.id)
                           .then(() => setConfigs([]))
-                          .catch(() => console.error("Failed to delete config. Please try again later."))
+                          .catch(() => notify.error("Failed to delete config. Please try again later."))
                       }}
                     >
                       <IconTrashX
@@ -282,7 +283,7 @@ function ConfigCreatorModal({ configId, workspaceId, openedModal, setOpenedModal
         saveAs(blob, fileName)
         window.location.reload()
       })
-      .catch(() => console.error("Failed to use config. Please try again later."))
+      .catch(() => notify.error("Failed to use config. Please try again later."))
   }
 
   return (
@@ -415,7 +416,7 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
       setAttributeValues([])
       form.reset()
     } else {
-      console.error("An attribute with that name already exists for the related entity.")
+      notify.error("An attribute with that name already exists for the related entity.")
     }
   }
 

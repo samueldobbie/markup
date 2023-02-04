@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from "react"
 import { User } from "@supabase/supabase-js"
 import { supabase } from "utils/Supabase"
+import notify from "utils/Notifications"
 
 interface IAuthContext {
   user: User | null
@@ -19,7 +20,7 @@ export function AuthProvider({ children }: any) {
         setUser(session?.user ?? null)
         setLoading(false)
       })
-      .catch(() => console.error("Failed to load user. Please try again later."))
+      .catch(() => notify.error("Failed to load user. Please try again later."))
 
     supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)

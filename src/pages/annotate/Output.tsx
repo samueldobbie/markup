@@ -8,6 +8,7 @@ import { SectionProps } from "./Annotate"
 import SmartAssistant from "./SmartAssistant"
 import { DEMO_DOMAINS } from "utils/Demo"
 import { exportJsonAnnotations } from "./ExportJsonAnnotations"
+import notify from "utils/Notifications"
 
 type Entity = string
 type AnnotationGroup = Record<Entity, WorkspaceAnnotation[]>
@@ -38,7 +39,7 @@ function Output({ workspace }: SectionProps) {
         copy[documentIndex] = [...copy[documentIndex].filter(i => i.id !== annotationId)]
         setAnnotations(copy)
       })
-      .catch(() => console.error("Failed to delete annotation. Please try again later."))
+      .catch(() => notify.error("Failed to delete annotation. Please try again later."))
   }
 
   useEffect(() => {
@@ -75,7 +76,7 @@ function Output({ workspace }: SectionProps) {
           setGuideline(guidelines[0].content)
         }
       })
-      .catch(() => console.error("Failed to load guidelines. Please try again later."))
+      .catch(() => notify.error("Failed to load guidelines. Please try again later."))
   }, [workspace.id])
 
   return (

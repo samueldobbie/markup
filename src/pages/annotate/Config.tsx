@@ -10,6 +10,7 @@ import distinctColors from "distinct-colors"
 import { OntologyConcept } from "pages/dashboard/OntologyTable"
 import { IConfig } from "pages/setup/ConfigTable"
 import { DEMO_DOMAINS } from "utils/Demo"
+import notify from "utils/Notifications"
 
 interface Data {
   label: string
@@ -81,10 +82,10 @@ function Config({ workspace }: SectionProps) {
 
           setAttributes(attributes)
         } else {
-          console.error("Failed to load workspace config. Please try again later.")
+          notify.error("Failed to load workspace config. Please try again later.")
         }
       })
-      .catch(() => console.error("Failed to load workspace config. Please try again later."))
+      .catch(() => notify.error("Failed to load workspace config. Please try again later."))
   }, [setConfig, workspace.id])
 
   useEffect(() => {
@@ -104,7 +105,7 @@ function Config({ workspace }: SectionProps) {
 
         setAvailableOntologies(data)
       })
-      .catch(() => console.error("Failed to load ontologies. Please try again later."))
+      .catch(() => notify.error("Failed to load ontologies. Please try again later."))
   }, [])
 
   useEffect(() => {
@@ -120,7 +121,7 @@ function Config({ workspace }: SectionProps) {
     database
       .getOntologyConcepts(selectedOntologyId)
       .then(setSelectedOntologyConcepts)
-      .catch(() => console.error("Failed to load ontology concepts. Please try again later."))
+      .catch(() => notify.error("Failed to load ontology concepts. Please try again later."))
   }, [selectedOntologyId, setActiveOntologyConcept])
 
   useEffect(() => {
