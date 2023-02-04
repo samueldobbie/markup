@@ -1,6 +1,5 @@
 import { useParams } from "react-router-dom"
 import { Container, Grid } from "@mantine/core"
-import { moveToPage } from "utils/Location"
 import { Path } from "utils/Path"
 import { useEffect, useState } from "react"
 import { database, Workspace } from "storage/database/Database"
@@ -9,6 +8,7 @@ import DocumentTable from "./DocumentTable"
 import Header from "./Header"
 import GuidelinesTable from "./GuidelinesTable"
 import notify from "utils/Notifications"
+import InvalidWorkspace from "pages/error/InvalidWorkspace"
 
 interface WorkspaceStatus {
   hasConfig: boolean
@@ -24,6 +24,7 @@ export interface SectionProps {
 function Setup() {
   const { id } = useParams()
 
+  const [invalidWorkspace, setInvalidWorkspace] = useState(false)
   const [workspace, setWorkspace] = useState<Workspace>()
   const [workspaceStatus, setWorkspaceStatus] = useState({
     hasConfig: false,
@@ -33,7 +34,7 @@ function Setup() {
   useEffect(() => {
     if (id === undefined) {
       notify.error("Workspace doesn't exist, or insufficient permissions")
-      moveToPage(Path.Dashboard)
+      setInvalidWorkspace(true)
       return
     }
 
@@ -42,56 +43,65 @@ function Setup() {
       .then(workspaces => {
         if (workspaces.length === 0) {
           notify.error("Workspace doesn't exist, or insufficient permissions")
-          moveToPage(Path.Dashboard)
-          return
+          setInvalidWorkspace(true)
         } else {
           setWorkspace(workspaces[0])
         }
+      })
+      .catch(error => {
+        notify.error(error)
+        setInvalidWorkspace(true)
       })
   }, [id])
 
   return (
     <>
-      <Container my="md" size="xl">
-        {workspace &&
-          <Grid>
-            <Grid.Col xs={12}>
-              <Header
-                workspace={workspace}
-                workspaceStatus={workspaceStatus}
-              />
-            </Grid.Col>
+      {invalidWorkspace &&
+        <InvalidWorkspace />
+      }
 
-            <Grid.Col xs={12} md={5}>
-              <Grid>
-                <Grid.Col xs={12}>
-                  <ConfigTable
-                    workspace={workspace}
-                    workspaceStatus={workspaceStatus}
-                    setWorkspaceStatus={setWorkspaceStatus}
-                  />
-                </Grid.Col>
+      {!invalidWorkspace &&
+        <Container my="md" size="xl">
+          {workspace &&
+            <Grid>
+              <Grid.Col xs={12}>
+                <Header
+                  workspace={workspace}
+                  workspaceStatus={workspaceStatus}
+                />
+              </Grid.Col>
 
-                <Grid.Col xs={12}>
-                  <GuidelinesTable
-                    workspace={workspace}
-                    workspaceStatus={workspaceStatus}
-                    setWorkspaceStatus={setWorkspaceStatus}
-                  />
-                </Grid.Col>
-              </Grid>
-            </Grid.Col>
+              <Grid.Col xs={12} md={5}>
+                <Grid>
+                  <Grid.Col xs={12}>
+                    <ConfigTable
+                      workspace={workspace}
+                      workspaceStatus={workspaceStatus}
+                      setWorkspaceStatus={setWorkspaceStatus}
+                    />
+                  </Grid.Col>
 
-            <Grid.Col xs={12} md={7}>
-              <DocumentTable
-                workspace={workspace}
-                workspaceStatus={workspaceStatus}
-                setWorkspaceStatus={setWorkspaceStatus}
-              />
-            </Grid.Col>
-          </Grid>
-        }
-      </Container>
+                  <Grid.Col xs={12}>
+                    <GuidelinesTable
+                      workspace={workspace}
+                      workspaceStatus={workspaceStatus}
+                      setWorkspaceStatus={setWorkspaceStatus}
+                    />
+                  </Grid.Col>
+                </Grid>
+              </Grid.Col>
+
+              <Grid.Col xs={12} md={7}>
+                <DocumentTable
+                  workspace={workspace}
+                  workspaceStatus={workspaceStatus}
+                  setWorkspaceStatus={setWorkspaceStatus}
+                />
+              </Grid.Col>
+            </Grid>
+          }
+        </Container>
+      }
     </>
   )
 }

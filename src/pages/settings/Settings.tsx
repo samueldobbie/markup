@@ -55,10 +55,7 @@ function Settings() {
       })
 
       if (error) {
-        form.setErrors({
-          email: error.message,
-        })
-
+        form.setErrors({ email: error.message })
         hasError = true
       }
     }
@@ -85,7 +82,7 @@ function Settings() {
   }
 
   useEffect(() => {
-    const f = async () => {
+    const func = async () => {
       const user = await supabase.auth.getUser()
 
       if (user) {
@@ -93,7 +90,7 @@ function Settings() {
       }
     }
 
-    f()
+    func()
   }, [])
 
   return (

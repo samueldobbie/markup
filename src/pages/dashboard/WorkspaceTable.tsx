@@ -35,9 +35,9 @@ function WorkspaceTable() {
         .deleteWorkspace(workspace.id)
         .then(() => {
           setWorkspaces(workspaces.filter(i => i.id !== workspace.id))
-          notify.success("Workspace deleted")
+          notify.success(`The workspace '${workspace.name}' has been deleted successfully.`)
         })
-        .catch(() => notify.error("Failed to delete workspace. Please try again later."))
+        .catch(() => notify.error(`Failed to delete the workspace '${workspace.name}'.`))
     },
     centered: true,
   })
@@ -53,7 +53,7 @@ function WorkspaceTable() {
         setWorkspaces(workspaces)
         setOwnedWorkspaceIds(ownedWorkspaces.map(i => i.id))
       })
-      .catch(() => notify.error("Failed to load workspaces. Please try again later."))
+      .catch(() => notify.error("Failed to load workspaces."))
   }, [])
 
   return (
@@ -194,7 +194,7 @@ function CreateWorkspaceModal({ openedModal, setOpenedModal }: ModalProps) {
     const { name, description } = form
     const workspaces = await database
       .addWorkspace(name, description || "")
-      .catch(() => notify.error("Failed to create workspace. Please try again later."))
+      .catch(() => notify.error("Failed to create workspace."))
 
     if (workspaces && workspaces.length > 0) {
       moveToPage(toSetupUrl(workspaces[0].id))
@@ -282,15 +282,18 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
   const handleAddCollaborator = async (email: string) => {
     database
       .addWorkspaceCollaborator(workspace.id, email)
-      .then((collaborator) => setCollaborators([...collaborators, collaborator]))
-      .catch(() => notify.error("Failed to add collaborator. Please try again later."))
+      .then((collaborator) => {
+        setCollaborators([...collaborators, collaborator])
+        notify.success(`Added ${email} as a collaborator.`)
+      })
+      .catch(() => notify.error(`Failed to add ${email} as a collaborator.`))
   }
 
   useEffect(() => {
     database
       .getWorkspaceCollaborators(workspace.id)
       .then(setCollaborators)
-      .catch(() => notify.error("Failed to get collaborators. Please try again later."))
+      .catch(() => notify.error("Failed to get collaborators."))
   }, [workspace.id])
 
   return (
