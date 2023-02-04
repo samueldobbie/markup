@@ -14,9 +14,15 @@ function Header({ workspace, workspaceStatus }: SectionProps) {
 
   return (
     <Group position="apart">
-      <Text size={28} sx={{ fontWeight: "bold" }}>
-        {workspace.name}
-      </Text>
+      <div>
+        <Text size={25} sx={{ fontWeight: "bold" }}>
+          {workspace.name}
+        </Text>
+
+        <Text color="dimmed" size={14}>
+          {workspace.description || "No description"}
+        </Text>
+      </div>
 
       <Group>
         <Button
