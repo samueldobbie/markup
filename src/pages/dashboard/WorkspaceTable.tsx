@@ -192,13 +192,11 @@ function CreateWorkspaceModal({ openedModal, setOpenedModal }: ModalProps) {
 
   const handleCreateWorkspace = async (form: CreateWorkspaceForm) => {
     const { name, description } = form
-    const workspaces = await database
+    
+    await database
       .addWorkspace(name, description || "")
+      .then (workspaceId => moveToPage(toSetupUrl(workspaceId)))
       .catch(() => notify.error("Failed to create workspace."))
-
-    if (workspaces && workspaces.length > 0) {
-      moveToPage(toSetupUrl(workspaces[0].id))
-    }
   }
 
   return (
