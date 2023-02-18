@@ -284,7 +284,17 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
         setCollaborators([...collaborators, collaborator])
         notify.success(`Added ${email} as a collaborator.`)
       })
-      .catch(() => notify.error("Failed to add collaborator."))
+      .catch(() => notify.error(`Failed to add  ${email} as a collaborator.`))
+  }
+
+  const handleRemoveCollaborator = async (email: string) => {
+    database
+      .removeWorkspaceCollaborator(workspace.id, email)
+      .then(() => {
+        setCollaborators(collaborators.filter(c => c.email !== email))
+        notify.success(`Removed ${email} as a collaborator.`)
+      })
+      .catch(() => notify.error(`Failed to remove ${email} as a collaborator.`))
   }
 
   useEffect(() => {
@@ -329,6 +339,7 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
                     <ActionIcon
                       variant="subtle"
                       color="red"
+                      onClick={() => handleRemoveCollaborator(collaborator.email)}
                     >
                       <IconTrashX size={16} />
                     </ActionIcon>

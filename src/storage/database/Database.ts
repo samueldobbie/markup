@@ -375,6 +375,19 @@ async function getWorkspaceCollaborators(workspaceId: string): Promise<Workspace
   return collaborators
 }
 
+async function removeWorkspaceCollaborator(workspaceId: string, email: string): Promise<void> {
+  const { error } = await supabase.functions.invoke("remove-collaborator", {
+    body: {
+      workspaceId,
+      email,
+    },
+  })
+
+  if (error) {
+    throw new Error(error.message)
+  }
+}
+
 async function addOntology(name: string, description: string, rows: OntologyConcept[]): Promise<void> {
   const user = await supabase.auth.getUser()
   const userId = user.data.user?.id ?? ""
@@ -569,6 +582,7 @@ export const database = {
 
   addWorkspaceCollaborator,
   getWorkspaceCollaborators,
+  removeWorkspaceCollaborator,
 
   addOntology,
   getOntologies,
