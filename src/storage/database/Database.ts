@@ -349,99 +349,28 @@ async function deleteWorkspaceAnnotation(annotationId: string): Promise<boolean>
 }
 
 async function addWorkspaceCollaborator(workspaceId: string, email: string): Promise<WorkspaceCollaborator> {
-  const { data: user, error: errorUser } = await supabase
-    .from("user")
-    .select()
-    .eq("email", email)
-
-  if (errorUser) {
-    throw new Error(errorUser.message)
-  }
-
-  if (user === null || user.length === 0) {
-    throw new Error("Invalid user")
-  }
-
-  const { data: access, error: errorAccess } = await supabase
-    .from("workspace_access")
-    .insert({
-      workspace_id: workspaceId,
-      user_id: user[0].id,
-    })
-    .select()
-
-  if (errorAccess) {
-    throw new Error(errorAccess.message)
-  }
-
-  if (access === null || access.length === 0) {
-    throw new Error("Invalid workspace access")
-  }
-
-  const { data: workspace, error: errorWorkspace } = await supabase
-    .from("workspace")
-    .select()
-    .eq("id", workspaceId)
-
-  if (errorWorkspace) {
-    throw new Error(errorWorkspace.message)
-  }
-
-  if (workspace === null || workspace.length === 0) {
-    throw new Error("Invalid workspace")
-  }
-
-  const { error: errorUpdate } = await supabase
-    .from("workspace")
-    .update({
-      collaborators: workspace[0].collaborators + 1,
-    })
-    .eq("id", workspaceId)
-
-  if (errorUpdate) {
-    throw new Error(errorUpdate.message)
-  }
-
-  return {
-    access_id: access[0].id,
-    user_id: user[0].id,
-    email: user[0].email,
-  }
-}
-
-async function getWorkspaceCollaborators(workspaceId: string): Promise<WorkspaceCollaborator[]> {
-  const { data: accessData, error } = await supabase
-    .from("workspace_access")
-    .select()
-    .eq("workspace_id", workspaceId)
+  const { data: collaborator, error } = await supabase.functions.invoke("add-collaborator", {
+    body: {
+      workspaceId,
+      email,
+    },
+  })
 
   if (error) {
     throw new Error(error.message)
   }
 
-  const collaborators: WorkspaceCollaborator[] = []
-  const userIds = accessData.map(i => i.user_id)
+  return collaborator
+}
 
-  const { data: userData, error: errorUsers } = await supabase
-    .from("user")
-    .select()
-    .in("id", userIds)
-
-  if (errorUsers) {
-    throw new Error(errorUsers.message)
-  }
-
-  accessData.forEach(i => {
-    const user = userData.find(j => j.id === i.user_id)
-
-    if (user) {
-      collaborators.push({
-        access_id: i.id,
-        user_id: user.id,
-        email: user.email,
-      })
-    }
+async function getWorkspaceCollaborators(workspaceId: string): Promise<WorkspaceCollaborator[]> {
+  const { data: collaborators, error } = await supabase.functions.invoke("get-collaborators", {
+    body: { workspaceId },
   })
+
+  if (error) {
+    throw new Error(error.message)
+  }
 
   return collaborators
 }

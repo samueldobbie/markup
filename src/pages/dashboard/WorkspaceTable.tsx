@@ -278,26 +278,24 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
   })
 
   const handleAddCollaborator = async (email: string) => {
-    const { data, error } = await supabase.functions.invoke("add-collaborator", {
-      body: {
-        workspaceId: workspace.id,
-        email,
-      },
-    })
-
-    if (error) {
-      notify.error(error.message)
-    } else {
-      setCollaborators([...collaborators, data])
-      notify.success(`Added ${email} as a collaborator.`)
-    }
+    database
+      .addWorkspaceCollaborator(workspace.id, email)
+      .then(collaborator => {
+        setCollaborators([...collaborators, collaborator])
+        notify.success(`Added ${email} as a collaborator.`)
+      })
+      .catch(() => notify.error("Failed to add collaborator."))
   }
 
   useEffect(() => {
-    database
-      .getWorkspaceCollaborators(workspace.id)
-      .then(setCollaborators)
-      .catch(() => notify.error("Failed to get collaborators."))
+    const f = async () => {
+      database
+        .getWorkspaceCollaborators(workspace.id)
+        .then(collaborators => setCollaborators(collaborators))
+        .catch(() => notify.error("Failed to get collaborators."))
+    }
+
+    f()
   }, [workspace.id])
 
   return (
