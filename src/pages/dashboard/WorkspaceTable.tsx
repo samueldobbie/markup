@@ -278,13 +278,19 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
   })
 
   const handleAddCollaborator = async (email: string) => {
-    database
-      .addWorkspaceCollaborator(workspace.id, email)
-      .then((collaborator) => {
-        setCollaborators([...collaborators, collaborator])
-        notify.success(`Added ${email} as a collaborator.`)
-      })
-      .catch(() => notify.error(`Failed to add ${email} as a collaborator.`))
+    const { data, error } = await supabase.functions.invoke("add-collaborator", {
+      body: {
+        workspaceId: workspace.id,
+        email,
+      },
+    })
+
+    if (error) {
+      notify.error(error.message)
+    } else {
+      setCollaborators([...collaborators, data])
+      notify.success(`Added ${email} as a collaborator.`)
+    }
   }
 
   useEffect(() => {

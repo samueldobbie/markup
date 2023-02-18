@@ -350,7 +350,7 @@ async function deleteWorkspaceAnnotation(annotationId: string): Promise<boolean>
 
 async function addWorkspaceCollaborator(workspaceId: string, email: string): Promise<WorkspaceCollaborator> {
   const { data: user, error: errorUser } = await supabase
-    .from("users")
+    .from("user")
     .select()
     .eq("email", email)
 
@@ -423,7 +423,7 @@ async function getWorkspaceCollaborators(workspaceId: string): Promise<Workspace
   const userIds = accessData.map(i => i.user_id)
 
   const { data: userData, error: errorUsers } = await supabase
-    .from("users")
+    .from("user")
     .select()
     .in("id", userIds)
 

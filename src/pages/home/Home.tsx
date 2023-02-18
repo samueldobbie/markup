@@ -188,11 +188,12 @@ function DemoDomainModal({ openedModal, setOpenedModal }: Props) {
       centered
     >
       <Grid>
-        {DEMO_DOMAINS.map((domain) => (
+        {DEMO_DOMAINS.map((domain, index) => (
           <Grid.Col
             span={6}
             onClick={() => window.location.href = toAnnotateUrl(domain.id)}
             sx={{ cursor: "pointer" }}
+            key={index}
           >
             <Card shadow="sm">
               <Text size="xl" weight={500}>
