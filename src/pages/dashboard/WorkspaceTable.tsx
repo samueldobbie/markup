@@ -256,20 +256,7 @@ interface ManageCollaboratorsModalProps {
 }
 
 function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: ManageCollaboratorsModalProps) {
-  const [collaborators, setCollaborators] = useState<WorkspaceCollaborator[]>([])
-  const [userId, setUserId] = useState("")
-
-  useEffect(() => {
-    const f = async () => {
-      const { data } = await supabase.auth.getUser()
-
-      if (data && data.user) {
-        setUserId(data.user.id)
-      }
-    }
-
-    f()
-  }, [])
+  const [collaboratorEmails, setCollaboratorEmails] = useState<string[]>([])
 
   const form = useForm({
     initialValues: {
@@ -280,8 +267,8 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
   const handleAddCollaborator = async (email: string) => {
     database
       .addWorkspaceCollaborator(workspace.id, email)
-      .then(collaborator => {
-        setCollaborators([...collaborators, collaborator])
+      .then(() => {
+        setCollaboratorEmails([...collaboratorEmails, email])
         notify.success(`Added ${email} as a collaborator.`)
       })
       .catch(() => notify.error(`Failed to add  ${email} as a collaborator.`))
@@ -291,7 +278,7 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
     database
       .removeWorkspaceCollaborator(workspace.id, email)
       .then(() => {
-        setCollaborators(collaborators.filter(c => c.email !== email))
+        setCollaboratorEmails(collaboratorEmails.filter(c => c !== email))
         notify.success(`Removed ${email} as a collaborator.`)
       })
       .catch(() => notify.error(`Failed to remove ${email} as a collaborator.`))
@@ -300,8 +287,8 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
   useEffect(() => {
     const f = async () => {
       database
-        .getWorkspaceCollaborators(workspace.id)
-        .then(collaborators => setCollaborators(collaborators))
+        .getWorkspaceCollaboratorEmails(workspace.id)
+        .then(emails => setCollaboratorEmails(emails))
         .catch(() => notify.error("Failed to get collaborators."))
     }
 
@@ -317,21 +304,17 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
     >
       <form onSubmit={form.onSubmit((values) => handleAddCollaborator(values.email))}>
         <Grid>
-          {collaborators.map((collaborator, index) => {
-            if (collaborator.user_id === userId) {
-              return null
-            }
-
+          {collaboratorEmails.map((collaboratorEmail, index) => {
             return (
               <Grid.Col xs={12}>
                 <Group position="apart" noWrap>
                   <Group position="left" noWrap>
                     <Avatar key={index} radius="xl" color="primary">
-                      {collaborator.email.slice(0, 2)}
+                      {collaboratorEmail.slice(0, 2)}
                     </Avatar>
 
                     <Text>
-                      {collaborator.email}
+                      {collaboratorEmail}
                     </Text>
                   </Group>
 
@@ -339,7 +322,7 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
                     <ActionIcon
                       variant="subtle"
                       color="red"
-                      onClick={() => handleRemoveCollaborator(collaborator.email)}
+                      onClick={() => handleRemoveCollaborator(collaboratorEmail)}
                     >
                       <IconTrashX size={16} />
                     </ActionIcon>

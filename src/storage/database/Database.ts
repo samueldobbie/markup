@@ -348,25 +348,33 @@ async function deleteWorkspaceAnnotation(annotationId: string): Promise<boolean>
   return false
 }
 
-async function addWorkspaceCollaborator(workspaceId: string, email: string): Promise<WorkspaceCollaborator> {
-  const { data: collaborator, error } = await supabase.functions.invoke("add-collaborator", {
-    body: {
-      workspaceId,
-      email,
-    },
-  })
+async function addWorkspaceCollaborator(workspaceId: string, email: string): Promise<void> {
+  const { error } = await supabase
+    .functions
+    .invoke("add-collaborator", {
+      body: {
+        workspaceId,
+        email,
+      },
+    })
 
   if (error) {
     throw new Error(error.message)
   }
-
-  return collaborator
 }
 
-async function getWorkspaceCollaborators(workspaceId: string): Promise<WorkspaceCollaborator[]> {
-  const { data: collaborators, error } = await supabase.functions.invoke("get-collaborators", {
-    body: { workspaceId },
-  })
+async function getWorkspaceCollaboratorEmails(workspaceId: string): Promise<string[]> {
+  const user = await supabase.auth.getUser()
+  const userId = user.data.user?.id ?? ""
+
+  const { data: collaborators, error } = await supabase
+    .functions
+    .invoke("get-collaborator-emails", {
+      body: {
+        workspaceId,
+        requestingUserId: userId,
+      },
+    })
 
   if (error) {
     throw new Error(error.message)
@@ -376,12 +384,14 @@ async function getWorkspaceCollaborators(workspaceId: string): Promise<Workspace
 }
 
 async function removeWorkspaceCollaborator(workspaceId: string, email: string): Promise<void> {
-  const { error } = await supabase.functions.invoke("remove-collaborator", {
-    body: {
-      workspaceId,
-      email,
-    },
-  })
+  const { error } = await supabase
+    .functions
+    .invoke("remove-collaborator", {
+      body: {
+        workspaceId,
+        email,
+      },
+    })
 
   if (error) {
     throw new Error(error.message)
@@ -581,7 +591,7 @@ export const database = {
   deleteWorkspaceAnnotation,
 
   addWorkspaceCollaborator,
-  getWorkspaceCollaborators,
+  getWorkspaceCollaboratorEmails,
   removeWorkspaceCollaborator,
 
   addOntology,
