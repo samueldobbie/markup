@@ -361,6 +361,30 @@ async function addWorkspaceCollaborator(workspaceId: string, email: string): Pro
   if (error) {
     throw new Error(error.message)
   }
+
+  const { data: workspace, error: workspaceError } = await supabase
+    .from("workspace")
+    .select()
+    .eq("id", workspaceId)
+
+  if (workspaceError) {
+    throw new Error(workspaceError.message)
+  }
+
+  if (workspace === null || workspace.length === 0) {
+    throw new Error("Invalid workspace")
+  }
+
+  const { error: updateError } = await supabase
+    .from("workspace")
+    .update({
+      collaborators: workspace[0].collaborators + 1,
+    })
+    .eq("id", workspaceId)
+
+  if (updateError) {
+    throw new Error(updateError.message)
+  }
 }
 
 async function getWorkspaceCollaboratorEmails(workspaceId: string): Promise<string[]> {
@@ -380,7 +404,7 @@ async function getWorkspaceCollaboratorEmails(workspaceId: string): Promise<stri
     throw new Error(error.message)
   }
 
-  return collaborators
+  return JSON.parse(collaborators)
 }
 
 async function removeWorkspaceCollaborator(workspaceId: string, email: string): Promise<void> {
@@ -395,6 +419,30 @@ async function removeWorkspaceCollaborator(workspaceId: string, email: string): 
 
   if (error) {
     throw new Error(error.message)
+  }
+
+  const { data: workspace, error: workspaceError } = await supabase
+    .from("workspace")
+    .select()
+    .eq("id", workspaceId)
+
+  if (workspaceError) {
+    throw new Error(workspaceError.message)
+  }
+
+  if (workspace === null || workspace.length === 0) {
+    throw new Error("Invalid workspace")
+  }
+
+  const { error: updateError } = await supabase
+    .from("workspace")
+    .update({
+      collaborators: workspace[0].collaborators - 1,
+    })
+    .eq("id", workspaceId)
+
+  if (updateError) {
+    throw new Error(updateError.message)
   }
 }
 

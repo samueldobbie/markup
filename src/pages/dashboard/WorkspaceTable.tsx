@@ -10,7 +10,6 @@ import { toSetupUrl } from "utils/Path"
 import { openConfirmModal } from "@mantine/modals"
 import { tutorialProgressState } from "storage/state/Dashboard"
 import { useRecoilState } from "recoil"
-import { supabase } from "utils/Supabase"
 import notify from "utils/Notifications"
 
 function WorkspaceTable() {
