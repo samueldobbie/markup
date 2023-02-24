@@ -26,7 +26,7 @@ To install and use Markup on your own machine:
 
 # Usage
 
-To get started with Markup, read the [quick start guide](https://www.notion.so/getmarkup/Markup-Docs-91e9c5cfc6dc416fbcf2241d7c84e6c7).
+To get started with Markup, read the [quick start guide](https://getmarkup.com/docs).
 
 # Contributions
 

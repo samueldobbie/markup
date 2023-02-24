@@ -338,7 +338,7 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
             </Text>
 
             <Text size={13} color="dimmed" mb={2}>
-              Mappings must be a JSON file in the format defined <Anchor target="_blank" href="https://www.notion.so/Markup-Docs-91e9c5cfc6dc416fbcf2241d7c84e6c7">here</Anchor>.
+              Mappings must be a JSON file in the format defined <Anchor target="_blank" href="https://getmarkup.com/docs">here</Anchor>.
             </Text>
 
             <Dropzone

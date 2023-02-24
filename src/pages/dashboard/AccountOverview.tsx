@@ -51,7 +51,7 @@ function AccountOverview() {
         label={
           <>
             Read the <Anchor
-              href="https://www.notion.so/Markup-Docs-91e9c5cfc6dc416fbcf2241d7c84e6c7"
+              href="https://getmarkup.com/docs"
               target="_blank"
               onClick={() => {
                 setTutorialProgress({
