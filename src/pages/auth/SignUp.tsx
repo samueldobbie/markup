@@ -39,7 +39,7 @@ function SignUp(): JSX.Element {
     if (error) {
       form.setErrors({ email: error.message })
     } else {
-      moveToPage(Path.Verification)
+      moveToPage(Path.Dashboard)
     }
   }
 
