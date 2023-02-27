@@ -11,6 +11,8 @@ import { tutorialProgressState } from "storage/state/Dashboard"
 import { useDebouncedState } from "@mantine/hooks"
 import { useForm } from "@mantine/form"
 import notify from "utils/Notifications"
+import { Path } from "utils/Path"
+import { Link } from "react-router-dom"
 
 function OntologyTable() {
   const [openExploreModal, setOpenExploreModal] = useState(false)
@@ -338,7 +340,7 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
             </Text>
 
             <Text size={13} color="dimmed" mb={2}>
-              Mappings must be a JSON file in the format defined <Anchor target="_blank" href="https://getmarkup.com/docs">here</Anchor>.
+              Mappings must be a JSON file in the format defined <Link to={Path.Docs} target="_blank">here</Link>.
             </Text>
 
             <Dropzone

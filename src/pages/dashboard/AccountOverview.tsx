@@ -1,6 +1,8 @@
 import { Card, Checkbox, Anchor, createStyles, Text, Group } from "@mantine/core"
+import { Link } from "react-router-dom"
 import { useRecoilState } from "recoil"
 import { tutorialProgressState } from "storage/state/Dashboard"
+import { Path } from "utils/Path"
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -50,8 +52,8 @@ function AccountOverview() {
         checked={tutorialProgress.readDocs}
         label={
           <>
-            Read the <Anchor
-              href="https://getmarkup.com/docs"
+            Read the <Link
+              to={Path.Docs}
               target="_blank"
               onClick={() => {
                 setTutorialProgress({
@@ -59,13 +61,17 @@ function AccountOverview() {
                   "readDocs": true,
                 })
               }}
-              sx={{
-                fontWeight: "bold",
-                textDecoration: "underline",
-              }}
             >
-              Quick Start
-            </Anchor> guide
+              <Text
+                display="inline"
+                sx={{
+                  fontWeight: "bold",
+                  textDecoration: "underline",
+                }}
+              >
+                Quick Start
+              </Text>
+            </Link> guide
           </>
         } />
 
