@@ -86,14 +86,18 @@ function Document({ workspace }: SectionProps) {
   }, [setDocuments, workspace.id])
 
   useEffect(() => {
-    if (documents.length === 0) {
-      return
-    }
+    const interval = setInterval(() => {
+      if (documents.length === 0) {
+        return
+      }
 
-    database
-      .getWorkspaceAnnotations(documents.map(i => i.id))
-      .then(setAnnotations)
-      .catch(() => notify.error("Failed to load annotations."))
+      database
+        .getWorkspaceAnnotations(documents.map(i => i.id))
+        .then(setAnnotations)
+        .catch(() => notify.error("Failed to load annotations."))
+    }, 5000)
+
+    return () => clearInterval(interval)
   }, [documents, setAnnotations])
 
   return (
