@@ -3,7 +3,6 @@ enum Path {
   Docs = "/docs",
   SignUp = "/auth/sign-up",
   SignIn = "/auth/sign-in",
-  Verification = "/auth/verify",
   ForgotPassword = "/auth/forgot-password",
   Dashboard = "/dashboard",
   Setup = "/workspace/setup/:id",

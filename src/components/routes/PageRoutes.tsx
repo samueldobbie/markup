@@ -11,7 +11,6 @@ import ProtectedRoute from "./ProtectedRoute"
 import Setup from "pages/setup/Setup"
 import DefaultRoute from "./DefaultRoute"
 import Annotate from "pages/annotate/Annotate"
-import Verification from "pages/auth/Verification"
 import Settings from "pages/settings/Settings"
 import { DEMO_PATHS } from "utils/Demo"
 import Docs from "pages/docs/Docs"
@@ -30,12 +29,6 @@ function PageRoutes(): JSX.Element {
       <Route path={Path.SignUp} element={
         <UnprotectedRoute title="Sign Up - Markup">
           <SignUp />
-        </UnprotectedRoute>
-      } />
-
-      <Route path={Path.Verification} element={
-        <UnprotectedRoute title="Verify Email - Markup">
-          <Verification />
         </UnprotectedRoute>
       } />
 
