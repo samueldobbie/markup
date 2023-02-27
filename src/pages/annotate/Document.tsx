@@ -95,7 +95,7 @@ function Document({ workspace }: SectionProps) {
         .getWorkspaceAnnotations(documents.map(i => i.id))
         .then(setAnnotations)
         .catch(() => notify.error("Failed to load annotations."))
-    }, 5000)
+    }, 30000)
 
     return () => clearInterval(interval)
   }, [documents, setAnnotations])
