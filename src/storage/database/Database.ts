@@ -1,7 +1,6 @@
 import { definitions } from "./Definitions"
 import { supabase } from "../../utils/Supabase"
 import { OntologyConcept } from "pages/dashboard/OntologyTable"
-import { WorkspaceCollaborator } from "pages/dashboard/WorkspaceTable"
 import { WorkspaceGuideline } from "pages/setup/GuidelinesTable"
 import uuid from "react-uuid"
 
@@ -45,6 +44,20 @@ async function addWorkspace(name: string, description: string): Promise<string> 
   }
 
   return workspaceId
+}
+
+async function updateWorkspace(workspaceId: string, name: string, description: string): Promise<void> {
+  const { error: workspaceError } = await supabase
+    .from("workspace")
+    .update({
+      name,
+      description,
+    })
+    .eq("id", workspaceId)
+
+  if (workspaceError) {
+    throw new Error(workspaceError.message)
+  }
 }
 
 async function getWorkspaces(): Promise<Record<string, Workspace[]>> {
@@ -617,6 +630,7 @@ async function deleteOntology(ontologyId: string, isDefault: boolean): Promise<b
 
 export const database = {
   addWorkspace,
+  updateWorkspace,
   getWorkspaces,
   getWorkspace,
   deleteWorkspace,
