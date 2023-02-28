@@ -27,7 +27,7 @@ function Document({ workspace }: SectionProps) {
   const [documentIndex, setDocumentIndex] = useRecoilState(documentIndexState)
   const [annotations, setAnnotations] = useRecoilState(annotationsState)
   const [openedSearchDocumentModal, setOpenedSearchDocumentModal] = useState(false)
-  
+
   const moveToFirstDocument = () => setDocumentIndex(0)
   const moveToPreviousDocument = () => setDocumentIndex(documentIndex - 1)
   const moveToNextDocument = () => setDocumentIndex(documentIndex + 1)
@@ -241,22 +241,22 @@ interface Props {
 function SearchDocumentModal({ documents, openedModal, setOpenedModal }: Props) {
   const setDocumentIndex = useSetRecoilState(documentIndexState)
 
-  const [availableDocuments, setAvailableDocuments] = useState<WorkspaceDocument[]>(documents)
   const [searchTerm, setSearchTerm] = useDebouncedState("", 200)
+  const [availableDocuments, setAvailableDocuments] = useState<WorkspaceDocument[]>(documents)
 
   useEffect(() => {
     if (searchTerm === "") {
       setAvailableDocuments(documents)
-      return
-    }
+    } else {
+      const filteredDocuments = documents.filter(document => (
+        document
+          .content
+          .toLocaleLowerCase()
+          .includes(searchTerm)
+      ))
 
-    const filteredDocuments = documents.filter(document => {
-      return (
-        document.name.toLocaleLowerCase().includes(searchTerm) ||
-        document.content.toLocaleLowerCase().includes(searchTerm)
-      )
-    })
-    setAvailableDocuments(filteredDocuments)
+      setAvailableDocuments(filteredDocuments)
+    }
   }, [documents, searchTerm])
 
   return (
@@ -270,10 +270,7 @@ function SearchDocumentModal({ documents, openedModal, setOpenedModal }: Props) 
       <TextInput
         placeholder="Enter search term"
         size="md"
-        onChange={(e) => {
-          const searchTerm = e.currentTarget.value.toLocaleLowerCase()
-          setSearchTerm(searchTerm)
-        }}
+        onChange={(e) => setSearchTerm(e.currentTarget.value.toLocaleLowerCase())}
       />
 
       <Divider mt={20} mb={20} />
@@ -289,28 +286,42 @@ function SearchDocumentModal({ documents, openedModal, setOpenedModal }: Props) 
           )}
 
           {availableDocuments.map((document, index) => {
-            let content = (
+            let documentSnippet = (
               <Text color="dimmed">
                 {document.content.slice(0, 250)}
               </Text>
             )
 
             if (searchTerm !== "") {
-              const firstMatch = document.content.search(searchTerm)
-              const before = document.content.slice(Math.max(firstMatch - 250, 0), firstMatch)
-              const after = document.content.slice(firstMatch + searchTerm.length, Math.min(firstMatch + 250, document.content.length))
+              const documentContent = document.content.toLocaleLowerCase()
+              const matchIndex = documentContent.search(searchTerm)
 
-              content = (
+              const preMatchSnippet = document.content.slice(
+                Math.max(matchIndex - 250, 0),
+                matchIndex,
+              )
+
+              const searchTermSnippet = document.content.slice(
+                matchIndex,
+                matchIndex + searchTerm.length,
+              )
+
+              const postMatchSnippet = document.content.slice(
+                matchIndex + searchTerm.length,
+                Math.min(matchIndex + 250, document.content.length),
+              )
+
+              documentSnippet = (
                 <Text color="dimmed">
-                  {document.content.search(searchTerm) > 0 && (
+                  {documentContent.search(searchTerm) > 0 && (
                     <Text>
-                      {before}
+                      {preMatchSnippet}
 
                       <span style={{ backgroundColor: "yellow" }}>
-                        {searchTerm}
+                        {searchTermSnippet}
                       </span>
 
-                      {after}
+                      {postMatchSnippet}
                     </Text>
                   )}
                 </Text>
@@ -331,7 +342,7 @@ function SearchDocumentModal({ documents, openedModal, setOpenedModal }: Props) 
 
                   <Divider mt={10} mb={10} />
 
-                  {content}
+                  {documentSnippet}
                 </Card>
               </Grid.Col>
             )
