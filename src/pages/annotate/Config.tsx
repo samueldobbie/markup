@@ -3,13 +3,13 @@ import { IconCaretDown, IconCaretRight, IconInfoCircle } from "@tabler/icons"
 import { database } from "storage/database/Database"
 import { useState, useEffect } from "react"
 import { useRecoilState, useSetRecoilState } from "recoil"
-import { activeEntityState, configState, entityColoursState, populatedAttributeState, activeOntologyConceptsState } from "storage/state/Annotate"
+import { activeEntityState, configState, entityColoursState, populatedAttributeState, activeOntologyConceptsState, activeTutorialStepState } from "storage/state/Annotate"
 import { SectionProps } from "./Annotate"
 import { Attribute } from "./ParseStandoffConfig"
 import distinctColors from "distinct-colors"
 import { OntologyConcept } from "pages/dashboard/OntologyTable"
 import { IConfig } from "pages/setup/ConfigTable"
-import { DEMO_DOMAINS } from "utils/Demo"
+import { DEMO_IDS } from "utils/Demo"
 import notify from "utils/Notifications"
 
 interface Data {
@@ -24,6 +24,7 @@ function Config({ workspace }: SectionProps) {
   const [entityColours, setEntityColours] = useRecoilState(entityColoursState)
   const [activeEntity, setActiveEntity] = useRecoilState(activeEntityState)
   const [entitySectionOpen, setEntitySectionOpen] = useState(true)
+  const [activeTutorialStep, setActiveTutorialStep] = useRecoilState(activeTutorialStepState)
 
   const [attributes, setAttributes] = useState<Attribute[]>([])
   const [shownAttributes, setShownAttributes] = useState<Attribute[]>([])
@@ -42,7 +43,7 @@ function Config({ workspace }: SectionProps) {
   }
 
   useEffect(() => {
-    setIsDemoSession(DEMO_DOMAINS.map(domain => domain.id).includes(workspace.id))
+    setIsDemoSession(DEMO_IDS.includes(workspace.id))
   }, [workspace.id])
 
   useEffect(() => {
@@ -88,11 +89,11 @@ function Config({ workspace }: SectionProps) {
       .catch(() => notify.error("Failed to load workspace config."))
   }, [setConfig, workspace.id])
 
-  useEffect(() => {
-    if (entities.length > 0) {
-      setActiveEntity(entities[0])
-    }
-  }, [entities, setActiveEntity])
+  // useEffect(() => {
+  //   if (entities.length > 0) {
+  //     setActiveEntity(entities[0])
+  //   }
+  // }, [entities, setActiveEntity])
 
   useEffect(() => {
     database
@@ -167,7 +168,13 @@ function Config({ workspace }: SectionProps) {
                 <Radio.Group
                   name="entities"
                   orientation="horizontal"
-                  onChange={setActiveEntity}
+                  onChange={(e) => {
+                    setActiveEntity(e)
+
+                    if (activeTutorialStep === 0) {
+                      setActiveTutorialStep(1)
+                    }
+                  }}
                   spacing="xs"
                   value={activeEntity}
                 >

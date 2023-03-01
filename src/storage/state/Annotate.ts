@@ -3,6 +3,11 @@ import { IConfig } from "pages/setup/ConfigTable"
 import { atom } from "recoil"
 import { WorkspaceAnnotation, WorkspaceDocument } from "storage/database"
 
+const activeTutorialStepState = atom({
+  key: "activeTutorialStepState",
+  default: 0,
+})
+
 const configState = atom({
   key: "configState",
   default: {} as IConfig,
@@ -47,6 +52,7 @@ const annotationsState = atom<WorkspaceAnnotation[][]>({
 })
 
 export {
+  activeTutorialStepState,
   configState,
   documentsState,
   documentIndexState,

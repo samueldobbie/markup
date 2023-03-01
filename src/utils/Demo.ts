@@ -23,6 +23,7 @@ const DEMO_DOMAINS = [
   },
 ]
 
-const DEMO_PATHS = DEMO_DOMAINS.map((demoDomain) => toAnnotateUrl(demoDomain.id))
+const DEMO_IDS = DEMO_DOMAINS.map((demoDomain) => demoDomain.id)
+const DEMO_PATHS = DEMO_IDS.map((demoId) => toAnnotateUrl(demoId))
 
-export { DEMO_DOMAINS, DEMO_PATHS }
+export { DEMO_DOMAINS, DEMO_IDS, DEMO_PATHS }

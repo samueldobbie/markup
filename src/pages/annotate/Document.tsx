@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { SectionProps } from "./Annotate"
 import { TextAnnotateBlend } from "react-text-annotate-blend"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
-import { activeEntityState, activeOntologyConceptsState, annotationsState, documentIndexState, documentsState, entityColoursState, populatedAttributeState } from "storage/state/Annotate"
+import { activeEntityState, activeOntologyConceptsState, activeTutorialStepState, annotationsState, documentIndexState, documentsState, entityColoursState, populatedAttributeState } from "storage/state/Annotate"
 import { useDebouncedState } from "@mantine/hooks"
 import "./Document.css"
 import notify from "utils/Notifications"
@@ -27,6 +27,7 @@ function Document({ workspace }: SectionProps) {
   const [documentIndex, setDocumentIndex] = useRecoilState(documentIndexState)
   const [annotations, setAnnotations] = useRecoilState(annotationsState)
   const [openedSearchDocumentModal, setOpenedSearchDocumentModal] = useState(false)
+  const [activeTutorialStep, setActiveTutorialStep] = useRecoilState(activeTutorialStepState)
 
   const moveToFirstDocument = () => setDocumentIndex(0)
   const moveToPreviousDocument = () => setDocumentIndex(documentIndex - 1)
@@ -64,6 +65,10 @@ function Document({ workspace }: SectionProps) {
         setAnnotations(copy)
       })
       .catch(() => notify.error("Failed to add annotation."))
+
+    if (activeTutorialStep === 1) {
+      setActiveTutorialStep(3)
+    }
   }
 
   useEffect(() => {
