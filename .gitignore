@@ -27,7 +27,8 @@ yarn-error.log*
 .idea
 .vscode
 
-# Supabase
+# Backend
+firebase-migration/
 supabase/
 
 # Misc.
