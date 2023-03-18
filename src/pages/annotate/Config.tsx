@@ -5,16 +5,23 @@ import { useState, useEffect } from "react"
 import { useRecoilState, useSetRecoilState } from "recoil"
 import { activeEntityState, configState, entityColoursState, populatedAttributeState, activeOntologyConceptsState, activeTutorialStepState } from "storage/state/Annotate"
 import { SectionProps } from "./Annotate"
-import { Attribute } from "./ParseStandoffConfig"
+import { parseConfig } from "pages/annotate/ParseConfig"
 import distinctColors from "distinct-colors"
 import { OntologyConcept } from "pages/dashboard/OntologyTable"
-import { IConfig } from "pages/setup/ConfigTable"
 import { DEMO_IDS } from "utils/Demo"
 import notify from "utils/Notifications"
 
 interface Data {
   label: string
   value: string
+}
+
+interface Attribute {
+  name: string
+  options: string[]
+  isGlobal: boolean
+  targetEntity?: string
+  allowCustomValues?: boolean
 }
 
 function Config({ workspace }: SectionProps) {
@@ -51,16 +58,10 @@ function Config({ workspace }: SectionProps) {
       .getWorkspaceConfig(workspace.id)
       .then(configs => {
         if (configs.length > 0) {
-          const config = JSON.parse(configs[0].content) as IConfig
-
-          const { entities, globalAttributes } = config
-
-          setConfig(config)
-          setEntities(entities.map(entity => entity.name))
-
+          const config = parseConfig(configs[0].content)
           const attributes: Attribute[] = []
 
-          entities.forEach((entity) => {
+          config.entities.forEach((entity) => {
             entity.attributes.forEach((attribute) => {
               attributes.push({
                 name: attribute.name,
@@ -72,7 +73,7 @@ function Config({ workspace }: SectionProps) {
             })
           })
 
-          globalAttributes.forEach((attribute) => {
+          config.globalAttributes.forEach((attribute) => {
             attributes.push({
               name: attribute.name,
               options: attribute.values,
@@ -81,6 +82,8 @@ function Config({ workspace }: SectionProps) {
             })
           })
 
+          setConfig(config)
+          setEntities(config.entities.map(e => e.name))
           setAttributes(attributes)
         } else {
           notify.error("Failed to load workspace config.")

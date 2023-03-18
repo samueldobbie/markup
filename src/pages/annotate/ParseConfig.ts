@@ -1,3 +1,9 @@
+import { IConfig } from "pages/setup/ConfigTable"
+
+function parseConfig(content: string): IConfig {
+  return JSON.parse(content) as IConfig
+}
+
 function isValidConfig(data: any): boolean {
   if (!data || typeof data !== "object") {
     return false
@@ -50,4 +56,4 @@ function isValidConfigAttribute(data: any): boolean {
   return true
 }
 
-export { isValidConfig }
+export { parseConfig, isValidConfig }
