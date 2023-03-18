@@ -8,20 +8,22 @@ import { useEffect, useState } from "react"
 import JSONPretty from "react-json-pretty"
 import { WorkspaceConfig, database } from "storage/database/Database"
 import { SectionProps } from "./Setup"
-import { isValidConfig } from "pages/annotate/ParseJsonConfig"
+import { isValidConfig } from "pages/annotate/ParseConfig"
 import notify from "utils/Notifications"
+import { parseConfig } from "pages/annotate/ParseConfig"
+import { parseStandoffConfig } from "../annotate/ParseStandoffConfig"
 
 export interface IConfig {
   entities: IConfigEntity[]
   globalAttributes: IConfigAttribute[]
 }
 
-interface IConfigEntity {
+export interface IConfigEntity {
   name: string
   attributes: IConfigAttribute[]
 }
 
-interface IConfigAttribute {
+export interface IConfigAttribute {
   name: string
   values: string[]
   allowCustomValues: boolean
@@ -38,17 +40,19 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
   useEffect(() => {
     database
       .getWorkspaceConfig(workspace.id)
-      .then((insertedConfigs) => {
-        if (insertedConfigs.length === 0) return
+      .then((configs) => {
+        if (configs.length > 0) {
+          const { entities, globalAttributes } = parseConfig(configs[0].content)
 
-        const parsedConfig = JSON.parse(insertedConfigs[0].content) as IConfig
-        const { entities, globalAttributes } = parsedConfig
+          const entityCount = entities.length
+          const attributeCount = globalAttributes.length + entities.reduce((acc, entity) => acc + entity.attributes.length, 0)
 
-        setConfigs(insertedConfigs)
-        setEntityCount(entities.length)
-        setAttributeCount(globalAttributes.length + entities.reduce((acc, entity) => acc + entity.attributes.length, 0))
+          setConfigs(configs)
+          setEntityCount(entityCount)
+          setAttributeCount(attributeCount)
+        }
       })
-      .catch(() => notify.error("Failed to load config."))
+      .catch(() => notify.error("Failed to load workspace config."))
   }, [workspace.id])
 
   useEffect(() => {
@@ -58,14 +62,19 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
       const content = await file.text()
 
       try {
-        const config = JSON.parse(content)
+        const format = file.name.split(".").pop()
+        const config = format === "json"
+          ? parseConfig(content)
+          : parseStandoffConfig(content)
 
         if (!isValidConfig(config)) {
           throw new Error("Invalid interface for parsed data.");
         }
 
+        const json = JSON.stringify(config, null, 2)
+
         database
-          .addWorkspaceConfig(configId, workspace.id, file.name, content)
+          .addWorkspaceConfig(configId, workspace.id, file.name, json)
           .then((insertedConfig) => {
             const { entities, globalAttributes } = config as IConfig
 
@@ -155,7 +164,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
                     Create config
                   </Button>
 
-                  <FileButton onChange={setFile} accept=".json" key={uuid()}>
+                  <FileButton onChange={setFile} accept=".conf,.json" key={uuid()}>
                     {(props) => (
                       <Button {...props}>
                         Upload config
