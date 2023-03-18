@@ -1,4 +1,4 @@
-import { WorkspaceConfig } from "storage/database/Database"
+import { IConfig, IConfigEntity, IConfigAttribute } from "pages/setup/ConfigTable"
 
 enum Config {
   GlobalAttributeKey = "<ENTITY>",
@@ -8,28 +8,19 @@ enum Config {
   AttributeValueSeparator = "|",
 }
 
-export interface Attribute {
-  name: string
-  options: string[]
-  isGlobal: boolean
-  targetEntity?: string
-  allowCustomValues?: boolean
-}
+function parseStandoffConfig(content: string): IConfig {
+  const entities = [] as IConfigEntity[]
+  const globalAttributes = [] as IConfigAttribute[]
 
-function parseConfig(config: WorkspaceConfig) {
-  return {
-    entities: parseEntities(config.content),
-    attributes: parseAttributes(config.content),
-  }
-}
-
-function parseEntities(content: string) {
-  return parseSection(content, "entities")
-}
-
-function parseAttributes(content: string): Attribute[] {
+  const rawEntities = parseSection(content, "entities")
   const rawAttributes = parseSection(content, "attributes")
-  const parsedAttribute: Attribute[] = []
+
+  rawEntities.forEach((rawEntity: string) => {
+    entities.push({
+      name: rawEntity,
+      attributes: [] as IConfigAttribute[],
+    })
+  })
 
   rawAttributes.forEach((rawAttribute: string) => {
     const attributeName = rawAttribute
@@ -49,40 +40,54 @@ function parseAttributes(content: string): Attribute[] {
 
     const isGlobal = targetEntity.toUpperCase() === Config.GlobalAttributeKey
 
-    parsedAttribute.push({
-      name: attributeName,
-      options: attributeOptions,
-      targetEntity: targetEntity,
-      isGlobal: isGlobal,
-    })
-  })
+    if (isGlobal) {
+      globalAttributes.push({
+        name: attributeName,
+        values: attributeOptions,
+        allowCustomValues: false,
+      })
+    } else {
+      const targetEntityIndex = entities.findIndex(e => e.name === targetEntity)
 
-  return parsedAttribute
-}
-
-function parseSection(content: string, category: string): string[] {
-  const entities: string[] = []
-
-  const lines = content.split("\n")
-  let takeNextLine = false
-
-  lines.forEach((line) => {
-    const isHeader = isSectionHeader(line)
-
-    if (isHeader && isTargetSectionHeader(line, category)) {
-      takeNextLine = true
-    } else if (isHeader) {
-      takeNextLine = false
-    } else if (takeNextLine) {
-      const entity = line.trim()
-
-      if (entity) {
-        entities.push(entity)
+      if (targetEntityIndex > -1) {
+        entities[targetEntityIndex].attributes.push({
+          name: attributeName,
+          values: attributeOptions,
+          allowCustomValues: false,
+        })
       }
     }
   })
 
-  return entities
+  return {
+    entities,
+    globalAttributes,
+  }
+}
+
+function parseSection(content: string, category: string): string[] {
+  const targetLines = [] as string[]
+
+  let takeNextLine = false
+
+  content.split("\n").forEach((line) => {
+    const isHeader = isSectionHeader(line)
+    const isTargetHeader = isTargetSectionHeader(line, category)
+
+    if (isHeader && isTargetHeader) {
+      takeNextLine = true
+    } else if (isHeader) {
+      takeNextLine = false
+    } else if (takeNextLine) {
+      const targetLine = line.trim()
+
+      if (targetLine) {
+        targetLines.push(targetLine)
+      }
+    }
+  })
+
+  return targetLines
 }
 
 function isSectionHeader(line: string): boolean {
@@ -97,4 +102,4 @@ function isTargetSectionHeader(line: string, category: string): boolean {
   return line.slice(1, line.length - 1).toLocaleLowerCase() === category
 }
 
-export { parseConfig }
+export { parseStandoffConfig }
