@@ -69,6 +69,8 @@ async function getWorkspaces(): Promise<Record<string, Workspace[]>> {
     collaborator: [] as Workspace[],
   }
 
+  // TODO - drop request to workspace_access
+
   const { data: workspaceAccessData, error: workspaceAccessError } = await supabase
     .from("workspace_access")
     .select()
@@ -528,22 +530,26 @@ async function getDefaultOntologies(): Promise<Ontology[]> {
   return data
 }
 
-async function getOntologies(): Promise<Ontology[]> {
-  const user = await supabase.auth.getUser()
-  const userId = user.data.user?.id ?? ""
+async function getUserOntologies(): Promise<Ontology[]> {
+  return []
+}
+
+async function getWorkspaceOntologies(workspaceId: string): Promise<Ontology[]> {
+  const { data: workspaceOntologyData, error: workspaceOntologyError } = await supabase
+    .from("workspace_ontology")
+    .select()
+    .eq("workspace_id", workspaceId)
+
+  if (workspaceOntologyError) {
+    throw new Error(workspaceOntologyError.message)
+  }
+
+  const workspaceOntologyIds = workspaceOntologyData.map(i => i.ontology_id)
 
   const { data, error } = await supabase
-    .from("ontology_access")
-    .select(`
-      ontology (
-        id,
-        created_at,
-        name,
-        description,
-        is_default
-      )
-    `)
-    .eq("user_id", userId)
+    .from("ontology")
+    .select()
+    .in("id", workspaceOntologyIds)
 
   if (error) {
     throw new Error(error.message)
@@ -657,7 +663,8 @@ export const database = {
   removeWorkspaceCollaborator,
 
   addOntology,
-  getOntologies,
+  getUserOntologies,
+  getWorkspaceOntologies,
   getOntologyConcepts,
   useDefaultOntology,
   getDefaultOntologies,
