@@ -1,6 +1,8 @@
 import { showNotification } from "@mantine/notifications"
 import { IconAlertTriangle, IconCheck, IconQuestionMark, IconX } from "@tabler/icons"
 
+const OUTPUT_ERROR_TO_CONSOLE = true
+
 class Notification {
   info(message: string) {
     showNotification({
@@ -30,8 +32,8 @@ class Notification {
   }
 
   error(message: string, error?: Error) {
-    if (error) {
-      console.error(error)
+    if (error && OUTPUT_ERROR_TO_CONSOLE) {
+      console.error(error.message)
     }
 
     showNotification({
