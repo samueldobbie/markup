@@ -64,7 +64,7 @@ function Document({ workspace }: SectionProps) {
         copy[documentIndex] = [...copy[documentIndex], annotation]
         setAnnotations(copy)
       })
-      .catch(() => notify.error("Failed to add annotation."))
+      .catch((e) => notify.error("Failed to add annotation.", e))
 
     if (activeTutorialStep === 1) {
       setActiveTutorialStep(3)
@@ -87,7 +87,7 @@ function Document({ workspace }: SectionProps) {
     database
       .getWorkspaceDocuments(workspace.id)
       .then(setDocuments)
-      .catch(() => notify.error("Failed to load documents."))
+      .catch((e) => notify.error("Failed to load documents.", e))
   }, [setDocuments, workspace.id])
 
   useEffect(() => {
@@ -99,7 +99,7 @@ function Document({ workspace }: SectionProps) {
       database
         .getWorkspaceAnnotations(documents.map(i => i.id))
         .then(setAnnotations)
-        .catch(() => notify.error("Failed to load annotations."))
+        .catch((e) => notify.error("Failed to load annotations.", e))
     }, 30000)
 
     return () => clearInterval(interval)

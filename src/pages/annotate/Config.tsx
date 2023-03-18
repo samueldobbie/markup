@@ -89,7 +89,7 @@ function Config({ workspace }: SectionProps) {
           notify.error("Failed to load workspace config.")
         }
       })
-      .catch(() => notify.error("Failed to load workspace config."))
+      .catch((e) => notify.error("Failed to load workspace config.", e))
   }, [setConfig, workspace.id])
 
   // useEffect(() => {
@@ -100,7 +100,7 @@ function Config({ workspace }: SectionProps) {
 
   useEffect(() => {
     database
-      .getOntologies()
+      .getWorkspaceOntologies(workspace.id)
       .then((ontologies) => {
         const data = ontologies.map(ontology => ({
           label: ontology.name,
@@ -109,8 +109,8 @@ function Config({ workspace }: SectionProps) {
 
         setAvailableOntologies(data)
       })
-      .catch(() => notify.error("Failed to load ontologies."))
-  }, [])
+      .catch((e) => notify.error("Failed to load ontologies.", e))
+  }, [workspace.id])
 
   useEffect(() => {
     if (selectedOntologyId == null) {
@@ -125,7 +125,7 @@ function Config({ workspace }: SectionProps) {
     database
       .getOntologyConcepts(selectedOntologyId)
       .then(setSelectedOntologyConcepts)
-      .catch(() => notify.error("Failed to load ontology concepts."))
+      .catch((e) => notify.error("Failed to load ontology concepts.", e))
   }, [selectedOntologyId, setActiveOntologyConcept])
 
   useEffect(() => {

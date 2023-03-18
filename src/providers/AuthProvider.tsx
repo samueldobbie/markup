@@ -20,7 +20,7 @@ export function AuthProvider({ children }: any) {
         setUser(session?.user ?? null)
         setLoading(false)
       })
-      .catch(() => notify.error("Failed to load user."))
+      .catch((e) => notify.error("Failed to load user.", e))
 
     supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)

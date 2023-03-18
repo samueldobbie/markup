@@ -1,4 +1,4 @@
-import { Group, Button, ActionIcon, Grid, Modal, TextInput, useMantineTheme, Text, Card, Table, Anchor, Center, Tooltip } from "@mantine/core"
+import { Group, Button, ActionIcon, Grid, Modal, TextInput, useMantineTheme, Text, Card, Table, Center, Tooltip } from "@mantine/core"
 import { Dropzone } from "@mantine/dropzone"
 import { IconFile, IconUpload, IconX, IconSearch, IconCheck, IconPlus, IconTrashX } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
@@ -36,7 +36,7 @@ function OntologyTable() {
           setOntologies(ontologies.filter(i => i.id !== ontology.id))
           notify.success(`Ontology '${ontology.name}' deleted.`)
         })
-        .catch(() => notify.error("Could not delete ontology."))
+        .catch((e) => notify.error("Could not delete ontology.", e))
     },
     centered: true,
   })
@@ -47,9 +47,9 @@ function OntologyTable() {
 
   const refreshTable = () => {
     database
-      .getOntologies()
+      .getUserOntologies()
       .then(setOntologies)
-      .catch(() => notify.error("Could not load ontologies."))
+      .catch((e) => notify.error("Could not load ontologies.", e))
   }
 
   return (
@@ -156,7 +156,7 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal, ontologies, setOn
     database
       .getDefaultOntologies()
       .then(setDefaultOntologies)
-      .catch(() => notify.error("Could not load default ontologies."))
+      .catch((e) => notify.error("Could not load default ontologies.", e))
   }, [])
 
   const addOntology = (ontologyId: string) => {
@@ -167,7 +167,7 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal, ontologies, setOn
         setOntologies([...ontologies, ontology])
         notify.success(`Ontology '${ontology.name}' added.`)
       })
-      .catch(() => notify.error("Could not add ontology."))
+      .catch((e) => notify.error("Could not add ontology.", e))
   }
 
   const removeOntology = (ontologyId: string) => {
@@ -177,7 +177,7 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal, ontologies, setOn
         notify.success("Ontology removed.")
         setOntologies(ontologies.filter(i => i.id !== ontologyId))
       })
-      .catch(() => notify.error("Could not remove ontology."))
+      .catch((e) => notify.error("Could not remove ontology.", e))
   }
 
   return (
@@ -294,7 +294,7 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
         refreshTable!()
         notify.success(`Ontology '${name}' uploaded.`)
       })
-      .catch(() => notify.error("Could not upload ontology."))
+      .catch((e) => notify.error("Could not upload ontology.", e))
   }
 
   return (

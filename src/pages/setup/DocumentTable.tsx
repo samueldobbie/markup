@@ -15,7 +15,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
     database
       .getWorkspaceDocuments(workspace.id)
       .then(setDocuments)
-      .catch(() => notify.error("Failed to load documents."))
+      .catch((e) => notify.error("Failed to load documents.", e))
   }, [workspace.id])
 
   useEffect(() => {
@@ -28,7 +28,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
           setDocumentFiles([])
           setDocuments([...documents, ...insertedDocuments])
         })
-        .catch(() => notify.error("Failed to upload documents."))
+        .catch((e) => notify.error("Failed to upload documents.", e))
     }
 
     func()
@@ -40,7 +40,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
 
     database
       .addWorkspaceAnnotations(workspace.id, documentId, annotations)
-      .catch(() => notify.error("Failed to upload annotations."))
+      .catch((e) => notify.error("Failed to upload annotations.", e))
   }
 
   useEffect(() => {
@@ -146,7 +146,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                       database
                         .deleteWorkspaceDocument(document.id)
                         .then(() => setDocuments(documents.filter(i => i.id !== document.id)))
-                        .catch(() => notify.error("Failed to delete document."))
+                        .catch((e) => notify.error("Failed to delete document.", e))
                     }}
                   >
                     <IconTrashX
@@ -199,5 +199,5 @@ export default DocumentTable
 
 //   database
 //     .addWorkspaceAnnotations(documentId, Object.values(rawAnnotationMap))
-//     .catch(() => notify.error("Failed to upload annotations."))
+//     .catch((e) => notify.error("Failed to upload annotations.", e))
 // }

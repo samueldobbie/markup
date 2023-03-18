@@ -87,7 +87,7 @@ function EditWorkspaceModal({ workspace, openedModal, setOpenedModal }: any) {
     await database
       .updateWorkspace(workspace.id, name, description || "")
       .then(() => window.location.reload())
-      .catch(() => notify.error("Failed to update workspace details."))
+      .catch((e) => notify.error("Failed to update workspace details.", e))
   }
 
   return (

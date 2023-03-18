@@ -52,7 +52,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
           setAttributeCount(attributeCount)
         }
       })
-      .catch(() => notify.error("Failed to load workspace config."))
+      .catch((e) => notify.error("Failed to load workspace config.", e))
   }, [workspace.id])
 
   useEffect(() => {
@@ -83,7 +83,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
             setEntityCount(entities.length)
             setAttributeCount(globalAttributes.length + entities.reduce((acc, entity) => acc + entity.attributes.length, 0))
           })
-          .catch(() => notify.error("Failed to upload config. Please check the format."))
+          .catch((e) => notify.error("Failed to upload config. Please check the format.", e))
       } catch (e) {
         notify.error("Failed to parse config. Please check the format.")
       }
@@ -183,7 +183,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
                         database
                           .deleteWorkspaceConfig(config.id)
                           .then(() => setConfigs([]))
-                          .catch(() => notify.error("Failed to delete config."))
+                          .catch((e) => notify.error("Failed to delete config.", e))
                       }}
                     >
                       <IconTrashX
@@ -292,7 +292,7 @@ function ConfigCreatorModal({ configId, workspaceId, openedModal, setOpenedModal
         saveAs(blob, fileName)
         window.location.reload()
       })
-      .catch(() => notify.error("Failed to use config."))
+      .catch((e) => notify.error("Failed to use config.", e))
   }
 
   return (

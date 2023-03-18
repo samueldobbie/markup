@@ -36,7 +36,7 @@ function WorkspaceTable() {
           setWorkspaces(workspaces.filter(i => i.id !== workspace.id))
           notify.success(`The workspace '${workspace.name}' has been deleted successfully.`)
         })
-        .catch(() => notify.error(`Failed to delete the workspace '${workspace.name}'.`))
+        .catch((e) => notify.error(`Failed to delete the workspace '${workspace.name}'.`, e))
     },
     centered: true,
   })
@@ -52,7 +52,7 @@ function WorkspaceTable() {
         setWorkspaces(workspaces)
         setOwnedWorkspaceIds(ownedWorkspaces.map(i => i.id))
       })
-      .catch(() => notify.error("Failed to load workspaces."))
+      .catch((e) => notify.error("Failed to load workspaces.", e))
   }, [])
 
   return (
@@ -195,7 +195,7 @@ function CreateWorkspaceModal({ openedModal, setOpenedModal }: ModalProps) {
     await database
       .addWorkspace(name, description || "")
       .then (workspaceId => moveToPage(toSetupUrl(workspaceId)))
-      .catch(() => notify.error("Failed to create workspace."))
+      .catch((e) => notify.error("Failed to create workspace.", e))
   }
 
   return (
@@ -270,7 +270,7 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
         setCollaboratorEmails([...collaboratorEmails, email])
         notify.success(`Added ${email} as a collaborator.`)
       })
-      .catch(() => notify.error(`Failed to add  ${email} as a collaborator.`))
+      .catch((e) => notify.error(`Failed to add  ${email} as a collaborator.`, e))
   }
 
   const handleRemoveCollaborator = async (email: string) => {
@@ -280,7 +280,7 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
         setCollaboratorEmails(collaboratorEmails.filter(c => c !== email))
         notify.success(`Removed ${email} as a collaborator.`)
       })
-      .catch(() => notify.error(`Failed to remove ${email} as a collaborator.`))
+      .catch((e) => notify.error(`Failed to remove ${email} as a collaborator.`, e))
   }
 
   useEffect(() => {
@@ -288,7 +288,7 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
       database
         .getWorkspaceCollaboratorEmails(workspace.id)
         .then(emails => setCollaboratorEmails(emails))
-        .catch(() => notify.error("Failed to get collaborators."))
+        .catch((e) => notify.error("Failed to get collaborators.", e))
     }
 
     f()
