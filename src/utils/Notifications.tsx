@@ -29,7 +29,11 @@ class Notification {
     })
   }
 
-  error(message: string) {
+  error(message: string, error?: Error) {
+    if (error) {
+      console.error(error)
+    }
+
     showNotification({
       title: "Error",
       message,
