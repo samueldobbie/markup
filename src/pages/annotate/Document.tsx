@@ -45,8 +45,8 @@ function Document({ workspace }: SectionProps) {
     }
 
     if (activeOntologyConcept.name && activeOntologyConcept.code) {
-      allAttributes["ontologyName"] = [activeOntologyConcept.name]
-      allAttributes["ontologyCode"] = [activeOntologyConcept.code]
+      allAttributes["ontologyName"] = activeOntologyConcept.name
+      allAttributes["ontologyCode"] = activeOntologyConcept.code
     }
 
     const rawAnnotation = {

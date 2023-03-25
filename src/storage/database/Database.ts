@@ -555,7 +555,7 @@ async function getWorkspaceOntologies(workspaceId: string): Promise<Ontology[]> 
     throw new Error(error.message)
   }
 
-  return data.map(i => i.ontology) as Ontology[]
+  return data
 }
 
 async function getOntologyConcepts(ontologyId: string): Promise<OntologyConcept[]> {

@@ -8,7 +8,7 @@ function Tutorial(): JSX.Element {
   const active = useRecoilValue(activeTutorialStepState)
 
   return (
-    <Card>
+    <Card shadow="xs" radius={5} p="xl">
       <Stepper active={active} allowNextStepsSelect={false}>
         <Stepper.Step
           label="Define the annotated concept"

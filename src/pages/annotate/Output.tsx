@@ -192,7 +192,7 @@ function Output({ workspace }: SectionProps) {
                                   {attributeType}
 
                                   <Text color="dimmed">
-                                    {annotation.attributes[attributeType].join(", ")}
+                                    {annotation.attributes[attributeType]}
                                   </Text>
                                 </Text>
                               ))}

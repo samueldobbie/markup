@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Card, Collapse, Grid, Group, MultiSelect, Radio, ScrollArea, Select, Text } from "@mantine/core"
+import { ActionIcon, Button, Card, Collapse, Grid, Group, Radio, ScrollArea, Select, Text } from "@mantine/core"
 import { IconCaretDown, IconCaretRight, IconInfoCircle } from "@tabler/icons"
 import { database } from "storage/database/Database"
 import { useState, useEffect } from "react"
@@ -8,7 +8,6 @@ import { SectionProps } from "./Annotate"
 import { parseConfig } from "pages/annotate/ParseConfig"
 import distinctColors from "distinct-colors"
 import { OntologyConcept } from "pages/dashboard/OntologyTable"
-import { DEMO_IDS } from "utils/Demo"
 import notify from "utils/Notifications"
 
 interface Data {
@@ -24,6 +23,13 @@ interface Attribute {
   allowCustomValues?: boolean
 }
 
+interface AttributeOption {
+  [key: string]: {
+    value: string,
+    label: string,
+  }[],
+}
+
 function Config({ workspace }: SectionProps) {
   const setConfig = useSetRecoilState(configState)
 
@@ -34,6 +40,7 @@ function Config({ workspace }: SectionProps) {
   const [activeTutorialStep, setActiveTutorialStep] = useRecoilState(activeTutorialStepState)
 
   const [attributes, setAttributes] = useState<Attribute[]>([])
+  const [attributeOptions, setAttributeOptions] = useState<AttributeOption>({})
   const [shownAttributes, setShownAttributes] = useState<Attribute[]>([])
   const [populatedAttributes, setPopulatedAttributes] = useRecoilState(populatedAttributeState)
   const [attributeSectionOpen, setAttributeSectionOpen] = useState(true)
@@ -43,15 +50,10 @@ function Config({ workspace }: SectionProps) {
   const [selectedOntologyId, setSelectedOntologyId] = useState<string | null>(null)
   const [selectedOntologyConcepts, setSelectedOntologyConcepts] = useState<OntologyConcept[]>([])
   const setActiveOntologyConcept = useSetRecoilState(activeOntologyConceptsState)
-  const [isDemoSession, setIsDemoSession] = useState(false)
 
   const clearPopulatedAttributes = () => {
     setPopulatedAttributes({})
   }
-
-  useEffect(() => {
-    setIsDemoSession(DEMO_IDS.includes(workspace.id))
-  }, [workspace.id])
 
   useEffect(() => {
     database
@@ -82,21 +84,27 @@ function Config({ workspace }: SectionProps) {
             })
           })
 
+          const attributeOptions: AttributeOption = {}
+
+          attributes.forEach((attribute) => {
+            attributeOptions[attribute.name] = attribute
+              .options
+              .map((option) => ({
+                value: option,
+                label: option,
+              }))
+          })
+
           setConfig(config)
           setEntities(config.entities.map(e => e.name))
           setAttributes(attributes)
+          setAttributeOptions(attributeOptions)
         } else {
           notify.error("Failed to load workspace config.")
         }
       })
       .catch((e) => notify.error("Failed to load workspace config.", e))
   }, [setConfig, workspace.id])
-
-  // useEffect(() => {
-  //   if (entities.length > 0) {
-  //     setActiveEntity(entities[0])
-  //   }
-  // }, [entities, setActiveEntity])
 
   useEffect(() => {
     database
@@ -243,16 +251,15 @@ function Config({ workspace }: SectionProps) {
                     {shownAttributes.map((attribute, index) => {
                       return (
                         <Grid.Col xs={12} key={index}>
-                          <MultiSelect
-                            maxSelectedValues={100}
-                            data={attribute.options}
+                          <Select
+                            data={attributeOptions[attribute.name]}
                             placeholder={attribute.name}
                             size="sm"
                             key={index + attribute.name}
                             onChange={(value) => {
                               const copy = { ...populatedAttributes }
 
-                              if (value.length > 0) {
+                              if (value) {
                                 copy[attribute.name] = value
                               } else if (Object.keys(copy).includes(attribute.name)) {
                                 delete copy[attribute.name]
@@ -262,8 +269,22 @@ function Config({ workspace }: SectionProps) {
                             }}
                             searchable
                             clearable
-                            creatable={attribute.allowCustomValues}
+                            creatable={attribute.allowCustomValues ?? false}
                             getCreateLabel={(query) => `+ Create ${query}`}
+                            onCreate={(query) => {
+                              const item = { value: query, label: query }
+                              const copy = { ...attributeOptions }
+
+                              if (Object.keys(copy).includes(attribute.name)) {
+                                copy[attribute.name].push(item)
+                              } else {
+                                copy[attribute.name] = [item]
+                              }
+
+                              setAttributeOptions(copy)
+
+                              return item
+                            }}
                           />
                         </Grid.Col>
                       )
@@ -293,58 +314,50 @@ function Config({ workspace }: SectionProps) {
 
           <Grid.Col xs={12}>
             <Collapse in={ontologySectionOpen}>
-              {isDemoSession &&
-                <Text color="dimmed">
-                  Predictive mappings are disabled in demo sessions.
-                </Text>
-              }
+              <Group mb={20}>
+                <Grid sx={{ width: "100%" }}>
+                  <Grid.Col xs={12}>
+                    <Select
+                      data={availableOntologies}
+                      placeholder="Ontology"
+                      size="sm"
+                      searchable
+                      onChange={setSelectedOntologyId}
+                    />
+                  </Grid.Col>
 
-              {!isDemoSession &&
-                <Group mb={20}>
-                  <Grid sx={{ width: "100%" }}>
-                    <Grid.Col xs={12}>
-                      <Select
-                        data={availableOntologies}
-                        placeholder="Ontology"
-                        size="sm"
-                        searchable
-                        onChange={setSelectedOntologyId}
-                      />
-                    </Grid.Col>
+                  <Grid.Col xs={12}>
+                    <Select
+                      data={selectedOntologyConcepts.map(concept => {
+                        return {
+                          label: `${concept.name} (${concept.code})`,
+                          value: concept.code,
+                        }
+                      })}
+                      placeholder="Concept"
+                      size="sm"
+                      searchable
+                      clearable
+                      creatable
+                      onChange={(code) => {
+                        const name = selectedOntologyConcepts.find(concept => concept.code === code)?.name
 
-                    <Grid.Col xs={12}>
-                      <Select
-                        data={selectedOntologyConcepts.map(concept => {
-                          return {
-                            label: `${concept.name} (${concept.code})`,
-                            value: concept.code,
-                          }
-                        })}
-                        placeholder="Concept"
-                        size="sm"
-                        searchable
-                        clearable
-                        creatable
-                        onChange={(code) => {
-                          const name = selectedOntologyConcepts.find(concept => concept.code === code)?.name
-
-                          if (code && name) {
-                            setActiveOntologyConcept({
-                              code,
-                              name,
-                            })
-                          } else {
-                            setActiveOntologyConcept({
-                              code: "",
-                              name: "",
-                            })
-                          }
-                        }}
-                      />
-                    </Grid.Col>
-                  </Grid>
-                </Group>
-              }
+                        if (code && name) {
+                          setActiveOntologyConcept({
+                            code,
+                            name,
+                          })
+                        } else {
+                          setActiveOntologyConcept({
+                            code: "",
+                            name: "",
+                          })
+                        }
+                      }}
+                    />
+                  </Grid.Col>
+                </Grid>
+              </Group>
             </Collapse>
           </Grid.Col>
         </Grid>
@@ -380,7 +393,7 @@ function Title({ text, description, open, setOpen }: TitleProps) {
 
         <ActionIcon ml={-15}>
           {/* <Tooltip label={description}> */}
-            <IconInfoCircle style={{ opacity: 0.6 }} size={18} />
+          <IconInfoCircle style={{ opacity: 0.6 }} size={18} />
           {/* </Tooltip> */}
         </ActionIcon>
       </Group>

@@ -23,7 +23,7 @@ const entityColoursState = atom<Record<string, string>>({
   default: {},
 })
 
-const populatedAttributeState = atom<Record<string, string[]>>({
+const populatedAttributeState = atom<Record<string, string>>({
   key: "populatedAttributeState",
   default: {},
 })
