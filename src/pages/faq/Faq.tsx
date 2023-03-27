@@ -1,4 +1,5 @@
-import { Accordion, Container, Title } from "@mantine/core";
+import { Accordion, Container, Title } from "@mantine/core"
+import { IconStar } from "@tabler/icons"
 
 function Faq() {
   return (
@@ -40,8 +41,13 @@ function Faq() {
           </Accordion.Control>
 
           <Accordion.Panel>
-            You can support the project by starring Markup on GitHub, or by sponsoring the project
-            via GitHub Sponsors.
+            You can support Markup by hitting <IconStar size={16} color="yellow" /> on <a
+              href="https://github.com/samueldobbie/markup"
+              target="_blank"
+              rel="noreferrer"
+            >
+              GitHub
+            </a>
           </Accordion.Panel>
         </Accordion.Item>
       </Accordion>
