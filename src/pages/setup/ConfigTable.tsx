@@ -5,13 +5,14 @@ import uuid from "react-uuid"
 import saveAs from "file-saver"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
-import JSONPretty from "react-json-pretty"
 import { WorkspaceConfig, database } from "storage/database/Database"
 import { SectionProps } from "./Setup"
 import { isValidConfig } from "pages/annotate/ParseConfig"
 import notify from "utils/Notifications"
 import { parseConfig } from "pages/annotate/ParseConfig"
 import { parseStandoffConfig } from "../annotate/ParseStandoffConfig"
+import EntityConfig from "components/annotate/EntityConfig"
+import AttributeConfig from "components/annotate/AttributeConfig"
 
 export interface IConfig {
   entities: IConfigEntity[]
@@ -234,13 +235,13 @@ const GLOBAL_ATTRIBUTE_KEY = "<ENTITY>"
 function ConfigCreatorModal({ configId, workspaceId, openedModal, setOpenedModal }: Props) {
   const [entities, setEntities] = useState<string[]>([])
   const [attributes, setAttributes] = useState<Attribute[]>([])
-  const [output, setOutput] = useState<IConfig>({
+  const [config, setConfig] = useState<IConfig>({
     entities: [],
     globalAttributes: [],
   })
 
   useEffect(() => {
-    const updatedOutput: IConfig = {
+    const updatedConfig: IConfig = {
       entities: [],
       globalAttributes: [],
     }
@@ -254,7 +255,7 @@ function ConfigCreatorModal({ configId, workspaceId, openedModal, setOpenedModal
           allowCustomValues: attribute.allowCustomValues,
         }))
 
-      updatedOutput.entities.push({
+      updatedConfig.entities.push({
         name: entity,
         attributes: entityAttributes,
       })
@@ -268,9 +269,9 @@ function ConfigCreatorModal({ configId, workspaceId, openedModal, setOpenedModal
         allowCustomValues: attribute.allowCustomValues,
       }))
 
-    updatedOutput.globalAttributes = globalAttributes
+    updatedConfig.globalAttributes = globalAttributes
 
-    setOutput(updatedOutput)
+    setConfig(updatedConfig)
   }, [entities, attributes])
 
   useEffect(() => {
@@ -283,7 +284,7 @@ function ConfigCreatorModal({ configId, workspaceId, openedModal, setOpenedModal
 
   const handleExportAndUseConfig = () => {
     const fileName = "annotation.json"
-    const fileContent = JSON.stringify(output, null, 2)
+    const fileContent = JSON.stringify(config, null, 2)
 
     database
       .addWorkspaceConfig(configId, workspaceId, fileName, fileContent)
@@ -330,7 +331,7 @@ function ConfigCreatorModal({ configId, workspaceId, openedModal, setOpenedModal
         <Divider orientation="vertical" ml={10} mr={10} />
 
         <Grid.Col md={5}>
-          <PreviewSection output={output} />
+          <PreviewSection config={config} />
         </Grid.Col>
       </Grid>
 
@@ -505,26 +506,46 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
 }
 
 interface PreviewSectionProps {
-  output: IConfig
+  config: IConfig
 }
 
-function PreviewSection({ output }: PreviewSectionProps) {
+function PreviewSection({ config }: PreviewSectionProps) {
   return (
     <>
       <Text size={16}>
-        Config Preview
+        Live Preview
       </Text>
 
-      <ScrollArea sx={{
-        height: 500,
-        width: "110%",
-        backgroundColor: "rgba(0, 0, 0, 0.05)",
-        padding: 10,
-        borderRadius: 5,
-      }}>
-        <Text size={14} mt={15} color="dimmed">
-          <JSONPretty data={output} />
-        </Text>
+      <ScrollArea sx= {{ height: 500 }}>
+        <Grid>
+          <Grid.Col xs={12}>
+            <Text size="md">
+              Entities
+            </Text>
+
+            <Text color="dimmed" size={14}>
+              These are the high-level concepts you intend to capture.
+            </Text>
+          </Grid.Col>
+
+          <Grid.Col xs={12}>
+            <EntityConfig config={config} />
+          </Grid.Col>
+
+          <Grid.Col xs={12}>
+            <Text size="md">
+              Attributes
+            </Text>
+
+            <Text color="dimmed" size={14}>
+              These are the granular details that describe each entity.
+            </Text>
+          </Grid.Col>
+
+          <Grid.Col xs={12}>
+            <AttributeConfig config={config} />
+          </Grid.Col>
+        </Grid>
       </ScrollArea>
     </>
   )
