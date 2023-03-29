@@ -1,15 +1,22 @@
 import { Group, Button, ActionIcon, Text, FileButton, Tooltip, Card } from "@mantine/core"
 import { IconFilePlus, IconTrashX } from "@tabler/icons"
 import { DataTable } from "mantine-datatable"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import uuid from "react-uuid"
-import { database, RawAnnotation, WorkspaceDocument } from "storage/database/Database"
+import { database, WorkspaceDocument } from "storage/database/Database"
 import notify from "utils/Notifications"
 import { SectionProps } from "./Setup"
 
 function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: SectionProps) {
   const [documents, setDocuments] = useState<WorkspaceDocument[]>([])
   const [documentFiles, setDocumentFiles] = useState<File[]>([])
+  const [annotationFiles, setAnnotationFiles] = useState<File[]>([])
+
+  const uploadAnnotations = useCallback(async (documentId: string, file: File) => {
+    database
+      .addWorkspaceAnnotations(workspace.id, documentId, file)
+      .catch((e) => notify.error("Failed to upload annotations.", e))
+  }, [workspace.id])
 
   useEffect(() => {
     database
@@ -34,14 +41,20 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
     func()
   }, [documents, documentFiles, workspace.id])
 
-  const uploadAnnotations = async (documentId: string, file: File) => {
-    const content = await file.text()
-    const annotations = JSON.parse(content) as RawAnnotation[]
+  useEffect(() => {
+    annotationFiles.forEach(annotationFile => {
+      const document = documents.find(document => {
+        const documentFileName = document.name.split(".").slice(0, -1).join(".")
+        const annotationFileName = annotationFile.name.split(".").slice(0, -1).join(".")
 
-    database
-      .addWorkspaceAnnotations(workspace.id, documentId, annotations)
-      .catch((e) => notify.error("Failed to upload annotations.", e))
-  }
+        return documentFileName === annotationFileName
+      })
+
+      if (document) {
+        uploadAnnotations(document.id, annotationFile)
+      }
+    })
+  }, [annotationFiles, documents, uploadAnnotations, workspace.id])
 
   useEffect(() => {
     if (setWorkspaceStatus === undefined) return
@@ -102,6 +115,14 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
             accessor: "actions",
             title: (
               <Group position="right">
+                <FileButton onChange={setAnnotationFiles} accept=".json,.ann" multiple  key={uuid()}>
+                  {(props) => (
+                    <Button {...props} variant="light">
+                      Upload annotations
+                    </Button>
+                  )}
+                </FileButton>
+
                 <FileButton onChange={setDocumentFiles} accept=".txt" multiple  key={uuid()}>
                   {(props) => (
                     <Button {...props}>
