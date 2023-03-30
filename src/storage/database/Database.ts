@@ -305,11 +305,8 @@ async function addWorkspaceAnnotation(
 async function addWorkspaceAnnotations(
   workspaceId: string,
   documentId: string,
-  file: File,
+  rawAnnotations: RawAnnotation[],
 ): Promise<void> {
-  const content = await file.text()
-  const rawAnnotations = JSON.parse(content) as RawAnnotation[]
-
   const { data: annotations, error } = await supabase
     .from("workspace_annotation")
     .insert(

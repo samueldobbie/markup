@@ -5,6 +5,8 @@ import { useCallback, useEffect, useState } from "react"
 import uuid from "react-uuid"
 import { database, WorkspaceDocument } from "storage/database/Database"
 import notify from "utils/Notifications"
+import { parseJsonAnnotation } from "./ParseJsonAnnotations"
+import { parseStandoffAnnotations } from "./ParseStandoffAnnotations"
 import { SectionProps } from "./Setup"
 
 function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: SectionProps) {
@@ -13,8 +15,15 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
   const [annotationFiles, setAnnotationFiles] = useState<File[]>([])
 
   const uploadAnnotations = useCallback(async (documentId: string, file: File) => {
+    const format = file.name.split(".").pop()
+    const content = await file.text()
+  
+    const rawAnnotations = format === "json"
+      ? parseJsonAnnotation(content)
+      : parseStandoffAnnotations(content)
+  
     database
-      .addWorkspaceAnnotations(workspace.id, documentId, file)
+      .addWorkspaceAnnotations(workspace.id, documentId, rawAnnotations)
       .catch((e) => notify.error("Failed to upload annotations.", e))
   }, [workspace.id])
 
@@ -136,7 +145,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
             render: (document) => (
               <Group spacing={8} position="right" noWrap>
                 <FileButton
-                  accept=".json"
+                  accept=".json,.ann"
                   onChange={(file) => {
                     if (file) {
                       uploadAnnotations(document.id, file)
@@ -186,39 +195,3 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
 }
 
 export default DocumentTable
-
-// const uploadAnnotations = async (documentId: string, file: File) => {
-//   const rawAnnotationMap: Record<string, RawAnnotation> = {}
-//   const content = await file.text()
-//   const lines = content.split("\n")
-
-//   for (const line of lines) {
-//     if (line.startsWith("T")) {
-//       const [id, annotation, text] = line.split("\t")
-//       const [entity, start, end] = annotation.split(" ")
-
-//       rawAnnotationMap[id] = {
-//         entity,
-//         start_index: parseInt(start),
-//         end_index: parseInt(end),
-//         attributes: {},
-//         text,
-//       }
-//     } else if (line.startsWith("A")) {
-//       const [_, attribute] = line.split("\t")
-//       const [name, targetId, value] = attribute.split(" ")
-
-//       if (rawAnnotationMap[targetId]) {
-//         if (!rawAnnotationMap[targetId].attributes[name]) {
-//           rawAnnotationMap[targetId].attributes[name] = []
-//         }
-
-//         rawAnnotationMap[targetId].attributes[name].push(value)
-//       }
-//     }
-//   }
-
-//   database
-//     .addWorkspaceAnnotations(documentId, Object.values(rawAnnotationMap))
-//     .catch((e) => notify.error("Failed to upload annotations.", e))
-// }

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useSetRecoilState } from "recoil"
 import { activeOntologyConceptsState, populatedAttributeState } from "storage/state/Annotate"
 import { SectionProps } from "./Annotate"
-import { parseConfig } from "pages/annotate/ParseConfig"
+import { parseJsonConfig } from "pages/annotate/ParseJsonConfig"
 import { OntologyConcept } from "pages/dashboard/OntologyTable"
 import notify from "utils/Notifications"
 import Title from "components/title/Title"
@@ -29,7 +29,7 @@ function Config({ workspace }: SectionProps) {
       .getWorkspaceConfig(workspace.id)
       .then(configs => {
         if (configs.length > 0) {
-          const config = parseConfig(configs[0].content)
+          const config = parseJsonConfig(configs[0].content)
 
           setConfig(config)
         } else {

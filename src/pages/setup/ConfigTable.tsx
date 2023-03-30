@@ -7,9 +7,9 @@ import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import { WorkspaceConfig, database } from "storage/database/Database"
 import { SectionProps } from "./Setup"
-import { isValidConfig } from "pages/annotate/ParseConfig"
+import { isValidConfig } from "pages/annotate/ParseJsonConfig"
 import notify from "utils/Notifications"
-import { parseConfig } from "pages/annotate/ParseConfig"
+import { parseJsonConfig } from "pages/annotate/ParseJsonConfig"
 import { parseStandoffConfig } from "../annotate/ParseStandoffConfig"
 import EntityConfig from "components/annotate/EntityConfig"
 import AttributeConfig from "components/annotate/AttributeConfig"
@@ -43,7 +43,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
       .getWorkspaceConfig(workspace.id)
       .then((configs) => {
         if (configs.length > 0) {
-          const { entities, globalAttributes } = parseConfig(configs[0].content)
+          const { entities, globalAttributes } = parseJsonConfig(configs[0].content)
 
           const entityCount = entities.length
           const attributeCount = globalAttributes.length + entities.reduce((acc, entity) => acc + entity.attributes.length, 0)
@@ -65,7 +65,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
       try {
         const format = file.name.split(".").pop()
         const config = format === "json"
-          ? parseConfig(content)
+          ? parseJsonConfig(content)
           : parseStandoffConfig(content)
 
         if (!isValidConfig(config)) {
@@ -165,7 +165,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
                     Create config
                   </Button>
 
-                  <FileButton onChange={setFile} accept=".json" key={uuid()}>
+                  <FileButton onChange={setFile} accept=".json,.conf" key={uuid()}>
                     {(props) => (
                       <Button {...props}>
                         Upload config

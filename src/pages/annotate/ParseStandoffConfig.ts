@@ -9,6 +9,8 @@ enum Config {
 }
 
 function parseStandoffConfig(content: string): IConfig {
+  console.log(content)
+
   const entities = [] as IConfigEntity[]
   const globalAttributes = [] as IConfigAttribute[]
 

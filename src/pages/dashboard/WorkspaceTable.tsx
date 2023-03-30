@@ -122,7 +122,7 @@ function WorkspaceTable() {
                   </Tooltip>
                 )}
 
-                {ownedWorkspaceIds.includes(workspace.id) && (
+                {/* {ownedWorkspaceIds.includes(workspace.id) && (
                   <Tooltip label="Manage collaborators">
                     <ActionIcon
                       color="primary"
@@ -138,7 +138,7 @@ function WorkspaceTable() {
                       />
                     </ActionIcon>
                   </Tooltip>
-                )}
+                )} */}
 
                 <Tooltip label="Annotate">
                   <ActionIcon

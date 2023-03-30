@@ -1,6 +1,6 @@
 import { IConfig } from "pages/setup/ConfigTable"
 
-function parseConfig(content: string): IConfig {
+function parseJsonConfig(content: string): IConfig {
   return JSON.parse(content) as IConfig
 }
 
@@ -56,4 +56,4 @@ function isValidConfigAttribute(data: any): boolean {
   return true
 }
 
-export { parseConfig, isValidConfig }
+export { parseJsonConfig, isValidConfig }
