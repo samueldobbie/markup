@@ -16,6 +16,7 @@ import { DEMO_PATHS } from "utils/Demo"
 import Docs from "pages/docs/Docs"
 import Support from "pages/support/Support"
 import Faq from "pages/faq/Faq"
+import ResetPassword from "pages/auth/ResetPassword"
 
 function PageRoutes(): JSX.Element {
   return (
@@ -39,9 +40,15 @@ function PageRoutes(): JSX.Element {
       } />
 
       <Route path={Path.ForgotPassword} element={
-        <UnprotectedRoute title="Sign In - Markup">
+        <UnprotectedRoute title="Forgot Password - Markup">
           <ForgotPassword />
         </UnprotectedRoute>
+      } />
+
+      <Route path={Path.ResetPassword} element={
+        <ProtectedRoute title="Reset Password - Markup">
+          <ResetPassword />
+        </ProtectedRoute>
       } />
 
       <Route path={Path.Dashboard} element={

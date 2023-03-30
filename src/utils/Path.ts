@@ -4,6 +4,7 @@ enum Path {
   SignUp = "/auth/sign-up",
   SignIn = "/auth/sign-in",
   ForgotPassword = "/auth/forgot-password",
+  ResetPassword = "/auth/reset-password",
   Dashboard = "/dashboard",
   Setup = "/workspace/setup/:id",
   Annotate = "/workspace/annotate/:id",

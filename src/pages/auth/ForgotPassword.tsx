@@ -42,7 +42,9 @@ function ForgotPassword() {
 
   const handleForgotPassword = async (submitted: ForgotPasswordForm) => {
     const { email } = submitted
-    const { error } = await supabase.auth.resetPasswordForEmail(email)
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `https://www.getmarkup.com${Path.ResetPassword}`,
+    })
 
     if (error) {
       form.setErrors({ email: error.message })
