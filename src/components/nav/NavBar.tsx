@@ -109,6 +109,14 @@ function Navbar(): JSX.Element {
           >
             Sign Up
           </Link>
+
+          <Link
+            to={Path.Support}
+            className={cx(classes.navItem, classes.navItemHover)}
+            onClick={() => close()}
+          >
+            Support
+          </Link>
         </>
       }
 
