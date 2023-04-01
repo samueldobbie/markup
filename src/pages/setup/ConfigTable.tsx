@@ -119,19 +119,35 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
           sx={{ minHeight: "225px" }}
           records={configs}
           rowExpansion={{
-            content: (config) => (
-              <Text
-                p={20}
-                mb={20}
-                color="dimmed"
-                sx={{
-                  whiteSpace: "pre-line",
-                  overflowX: "hidden",
-                }}
-              >
-                {config.record.content}
-              </Text>
-            )
+            content: (config) => {
+              const parsedConfig = parseJsonConfig(config.record.content)
+
+              return (
+                <ScrollArea>
+                  <Grid px={25} py={10}>
+                    <Grid.Col xs={12}>
+                      <Text size="md">
+                        Entities
+                      </Text>
+                    </Grid.Col>
+
+                    <Grid.Col xs={12}>
+                      <EntityConfig config={parsedConfig} />
+                    </Grid.Col>
+
+                    <Grid.Col xs={12}>
+                      <Text size="md">
+                        Attributes
+                      </Text>
+                    </Grid.Col>
+
+                    <Grid.Col xs={12}>
+                      <AttributeConfig config={parsedConfig} />
+                    </Grid.Col>
+                  </Grid>
+                </ScrollArea>
+              )
+            }
           }}
           columns={[
             {
@@ -452,7 +468,7 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
           ...entities,
           {
             value: GLOBAL_ATTRIBUTE_KEY,
-            label: "Global (attribute will apply to all entities)",
+            label: "Global (shared across all entities)",
           },
         ]}
         mb={15}
