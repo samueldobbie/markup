@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { createStyles, Box, Text, Group, Container, Grid, Card, Collapse, Alert, Button } from "@mantine/core"
+import { createStyles, Box, Text, Group, Container, Grid, Card, Collapse, Alert, Button, Code } from "@mantine/core"
 import { IconAlertCircle, IconArrowLeft, IconArrowRight, IconBook2, IconFilePlus, IconUsers, IconX } from "@tabler/icons"
 import { Path } from "utils/Path"
 
@@ -38,9 +38,9 @@ const DOCUMENTATION = [
     order: 2,
   },
   {
-    label: "Add annotation config",
-    link: "#add-annotation-config",
-    content: <AddAnnotationConfig />,
+    label: "Add config",
+    link: "#add-config",
+    content: <AddConfig />,
     order: 2,
   },
   {
@@ -76,25 +76,25 @@ const DOCUMENTATION = [
     link: "#annotate",
     content: <Annotate />,
     order: 1,
-  },
-  {
-    label: "Search",
-    link: "#search",
-    content: <Search />,
-    order: 1,
-  },
-  {
-    label: "Export",
-    link: "#export",
-    content: <Export />,
-    order: 1,
-  },
-  {
-    label: "Suggestions",
-    link: "#suggestions",
-    content: <Suggestions />,
-    order: 1,
-  },
+  }
+  // {
+  //   label: "Search",
+  //   link: "#search",
+  //   content: <Search />,
+  //   order: 1,
+  // },
+  // {
+  //   label: "Export",
+  //   link: "#export",
+  //   content: <Export />,
+  //   order: 1,
+  // },
+  // {
+  //   label: "Suggestions",
+  //   link: "#suggestions",
+  //   content: <Suggestions />,
+  //   order: 1,
+  // },
 ]
 
 const useStyles = createStyles((theme) => ({
@@ -315,7 +315,7 @@ function CoreConcepts() {
 
           An annotation is a subset of a document that has been annotated with
           an entity, and any number of attributes. Here's an example of an annotation that has
-          a <b>Company</b> entity and some attributes. Click on the card to view the attributes!
+          a <b>Company</b> entity and some attributes. Try clicking on the card to view the attributes!
 
           <br />
           <br />
@@ -386,10 +386,10 @@ function CoreConcepts() {
 
         <Card mb={20} mt={20}>
           <p>
-            <b>Annotation Config</b>
+            <b>Config</b>
           </p>
 
-          Each workspace has an annotation config that defines the entities and attributes that
+          Each workspace has a config that defines the entities and attributes that
           can be used whilst annotating documents.
         </Card>
 
@@ -398,7 +398,7 @@ function CoreConcepts() {
             <b>Ontologies</b>
           </p>
 
-          Ontologies (sometimes called terminologies) are sets of mappings between concepts and
+          Ontologies (often called terminologies) are sets of mappings between concepts and
           codes. For example, a medical ontology may map the concept <b>Flu</b> to the
           code <b>C0004096</b>. Markup provides in-built access to a number of common ontologies (e.g. UMLS),
           and also allows you to upload your own custom ontologies.
@@ -438,7 +438,7 @@ function GettingStarted() {
         <ol>
           <li>Create a workspace</li>
           <li>Upload some documents</li>
-          <li>Define your annotation config</li>
+          <li>Define your config</li>
           <li>Start annotating!</li>
         </ol>
 
@@ -495,10 +495,10 @@ function AddDocuments() {
   )
 }
 
-function AddAnnotationConfig() {
+function AddConfig() {
   return (
     <Text>
-      <h2>Add annotation config</h2>
+      <h2>Add config</h2>
 
       <Text>
         If you don't already have a config, you can create one on the workspace setup
@@ -543,6 +543,17 @@ function AddCollaborators() {
     <Text>
       <h2>Add collaborators</h2>
 
+      <Alert icon={<IconAlertCircle size={16} />} title="Existing Users" color="orange">
+        <Group>
+          <Text>
+            The collaborator email you share your workspace with must already be registered
+            to an existing Markup account.
+          </Text>
+        </Group>
+      </Alert>
+
+      <br />
+
       <Text>
         To add collaborators:
 
@@ -557,6 +568,19 @@ function AddCollaborators() {
 }
 
 function AddOntology() {
+  const json = `
+    [
+      {
+        "code": "1",
+        "name": "flu"
+      },
+      {
+        "code": "2",
+        "name": "delta"
+      }
+    ]
+  `
+
   return (
     <Text>
       <h2>Add ontology</h2>
@@ -569,6 +593,15 @@ function AddOntology() {
           <li>Click <b>Add ontology</b></li>
           <li>Upload your ontology</li>
         </ol>
+
+        Ontology files must be in the <b>JSON</b> format, and must be structured as follows:
+
+        <br />
+        <br />
+
+        <Code block>
+          {json}
+        </Code>
       </Text>
     </Text>
   )
