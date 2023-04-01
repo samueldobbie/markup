@@ -45,7 +45,7 @@ function Header({ workspace, workspaceStatus }: SectionProps) {
             variant="subtle"
             onClick={() => setOpenedEditWorkspaceModal(true)}
           >
-            Workspace settings
+            Settings
           </Button>
 
           <Button

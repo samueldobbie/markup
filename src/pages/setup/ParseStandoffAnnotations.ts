@@ -2,7 +2,9 @@ import { RawAnnotation } from "storage/database"
 
 function parseStandoffAnnotations(content: string) {
   const rawAnnotationMap: Record<string, RawAnnotation> = {}
-  const lines = content.split("\n")
+  const lines = content
+    .split("\n")
+    .map((line) => line.trim())
 
   for (const line of lines) {
     if (line.startsWith("T")) {
