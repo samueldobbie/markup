@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react"
 import uuid from "react-uuid"
 import { database, WorkspaceDocument } from "storage/database/Database"
 import notify from "utils/Notifications"
-import { parseJsonAnnotation } from "./ParseJsonAnnotations"
+import { parseJsonAnnotations } from "./ParseJsonAnnotations"
 import { parseStandoffAnnotations } from "./ParseStandoffAnnotations"
 import { SectionProps } from "./Setup"
 
@@ -13,17 +13,19 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
   const [documents, setDocuments] = useState<WorkspaceDocument[]>([])
   const [documentFiles, setDocumentFiles] = useState<File[]>([])
   const [annotationFiles, setAnnotationFiles] = useState<File[]>([])
+  const [documentToAnnotationCount, setDocumentToAnnotationCount] = useState<Record<string, number>>({})
 
   const uploadAnnotations = useCallback(async (documentId: string, file: File) => {
     const format = file.name.split(".").pop()
     const content = await file.text()
-  
+
     const rawAnnotations = format === "json"
-      ? parseJsonAnnotation(content)
+      ? parseJsonAnnotations(content)
       : parseStandoffAnnotations(content)
-  
+
     database
       .addWorkspaceAnnotations(workspace.id, documentId, rawAnnotations)
+      .then(() => notify.success(`${rawAnnotations} annotations uploaded.`))
       .catch((e) => notify.error("Failed to upload annotations.", e))
   }, [workspace.id])
 
@@ -43,6 +45,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
         .then(insertedDocuments => {
           setDocumentFiles([])
           setDocuments([...documents, ...insertedDocuments])
+          notify.success(`${insertedDocuments.length} documents uploaded.`)
         })
         .catch((e) => notify.error("Failed to upload documents.", e))
     }
@@ -81,6 +84,27 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
     }
   }, [documents, workspaceStatus, setWorkspaceStatus])
 
+  useEffect(() => {
+    const documentIds = documents.map(document => document.id)
+
+    database
+      .getWorkspaceAnnotations(documentIds)
+      .then(documentAnnotations => {
+        const documentToAnnotationCount = {} as Record<string, number>
+
+        documentAnnotations.forEach(documentAnnotation => {
+          if (documentAnnotation.length > 0) {
+            const documentId = documentAnnotation[0].document_id
+
+            documentToAnnotationCount[documentId] = documentAnnotation.length
+          }
+        })
+
+        setDocumentToAnnotationCount(documentToAnnotationCount)
+      })
+      .catch((e) => notify.error("Failed to load annotations.", e))
+  }, [documents])
+
   return (
     <Card shadow="xs" radius={5}>
       <DataTable
@@ -114,9 +138,17 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                   {document.name}
                 </Text>
 
-                <Text size="sm" color="dimmed">
-                  No annotations
-                </Text>
+                {documentToAnnotationCount[document.id] && (
+                  <Text size="sm" color="dimmed">
+                    {documentToAnnotationCount[document.id]} annotations
+                  </Text>
+                )}
+
+                {!documentToAnnotationCount[document.id] && (
+                  <Text size="sm" color="dimmed">
+                    No annotations
+                  </Text>
+                )}
               </>
             ),
           },
@@ -124,7 +156,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
             accessor: "actions",
             title: (
               <Group position="right">
-                <FileButton onChange={setAnnotationFiles} accept=".json,.ann" multiple  key={uuid()}>
+                <FileButton onChange={setAnnotationFiles} accept=".json,.ann" multiple key={uuid()}>
                   {(props) => (
                     <Button {...props} variant="light">
                       Upload annotations
@@ -132,7 +164,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                   )}
                 </FileButton>
 
-                <FileButton onChange={setDocumentFiles} accept=".txt" multiple  key={uuid()}>
+                <FileButton onChange={setDocumentFiles} accept=".txt" multiple key={uuid()}>
                   {(props) => (
                     <Button {...props}>
                       Upload documents

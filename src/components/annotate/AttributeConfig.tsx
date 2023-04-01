@@ -44,10 +44,6 @@ function AttributeConfig({ config }: Props): JSX.Element {
     setAttributeValues(attributeValues)
   }, [shownAttributes])
 
-  const clearPopulatedAttributes = () => {
-    setPopulatedAttributes({})
-  }
-
   return (
     <>
       {activeEntity === "" && shownAttributes.length === 0 &&

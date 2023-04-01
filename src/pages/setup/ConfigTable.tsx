@@ -275,7 +275,10 @@ function ConfigCreatorModal({ configId, workspaceId, openedModal, setOpenedModal
   }, [entities, attributes])
 
   useEffect(() => {
-    const updatedAttributes = attributes.filter((attribute) => entities.includes(attribute.entity))
+    const updatedAttributes = attributes.filter((attribute) => (
+      entities.includes(attribute.entity) ||
+      attribute.entity === GLOBAL_ATTRIBUTE_KEY
+    ))
 
     if (updatedAttributes.length !== attributes.length) {
       setAttributes(updatedAttributes)
@@ -395,17 +398,17 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
 
   const handleAddAttribute = (submitted: AddAttributeForm) => {
     if (submitted.entity === "") {
-      form.setFieldError("entity", "Please select an entity.")
+      form.setFieldError("entity", "You must select an entity.")
       return
     }
 
     if (submitted.name === "") {
-      form.setFieldError("name", "Please enter an attribute name.")
+      form.setFieldError("name", "You must enter an attribute name.")
       return
     }
 
     if (attributeValues.length === 0 && !submitted.allowCustomValues) {
-      form.setFieldError("allowCustomValues", "Please enter at least one attribute value or allow custom values.")
+      form.setFieldError("allowCustomValues", "You must enter at least one attribute value, or allow custom attribute values.")
       return
     }
 
@@ -416,10 +419,12 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
       allowCustomValues: submitted.allowCustomValues,
     }
 
-    const isUnique = attributes.filter((attribute) => (
-      attribute.entity === addedAttribute.entity &&
-      attribute.name === addedAttribute.name
-    )).length === 0
+    const isUnique = attributes
+      .filter((attribute) => (
+        attribute.entity === addedAttribute.entity &&
+        attribute.name === addedAttribute.name
+      ))
+      .length === 0
 
     if (isUnique) {
       setAttributes([addedAttribute, ...attributes])
