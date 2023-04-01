@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { createStyles, Box, Text, Group, Container, Grid, Card, Collapse, Alert, Button, Code } from "@mantine/core"
 import { IconAlertCircle, IconArrowLeft, IconArrowRight, IconBook2, IconFilePlus, IconUsers, IconX } from "@tabler/icons"
 import { Path } from "utils/Path"
@@ -139,6 +139,15 @@ const useStyles = createStyles((theme) => ({
 
 function Docs() {
   const [active, setActive] = useState(0)
+
+  useEffect(() => {
+    const hash = window.location.hash
+    const index = DOCUMENTATION.findIndex((item) => item.link === hash)
+
+    if (index !== -1) {
+      setActive(index)
+    }
+  }, [])
 
   return (
     <Container>
@@ -576,7 +585,7 @@ function AddOntology() {
       },
       {
         "code": "2",
-        "name": "delta"
+        "name": "paracetamol"
       }
     ]
   `
@@ -591,10 +600,11 @@ function AddOntology() {
         <ol>
           <li>Open your dashboard</li>
           <li>Click <b>Add ontology</b></li>
-          <li>Upload your ontology</li>
+          <li>Give your ontology a name and (optionally) a description</li>
+          <li>Upload concept mappings</li>
         </ol>
 
-        Ontology files must be in the <b>JSON</b> format, and must be structured as follows:
+        Concept mappings must be in the <b>JSON</b> format, and be structured as follows:
 
         <br />
         <br />

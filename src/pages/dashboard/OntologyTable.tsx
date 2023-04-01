@@ -340,7 +340,7 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
             </Text>
 
             <Text size={13} color="dimmed" mb={2}>
-              Mappings must be a JSON file in the format defined <Link to={Path.Docs} target="_blank">here</Link>.
+              Mappings must be a JSON file in the format defined <Link to={Path.Docs + "#add-an-ontology"} target="_blank">here</Link>.
             </Text>
 
             <Dropzone
