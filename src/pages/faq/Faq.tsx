@@ -41,8 +41,8 @@ function Faq() {
           </Accordion.Control>
 
           <Accordion.Panel>
-            You can support Markup by hitting <IconStar size={16} color="yellow" /> on <a
-              href="https://github.com/samueldobbie/markup"
+            You can support Markup by hitting <IconStar size={16} color="#d1e32d" /> on <a
+              href="https://github.com/samueldobbie/markup/stargazers"
               target="_blank"
               rel="noreferrer"
             >
