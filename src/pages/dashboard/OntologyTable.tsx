@@ -196,7 +196,17 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal, ontologies, setOn
 
       <Table>
         <tbody>
-          {defaultOntologies
+          {defaultOntologies.length === 0 && (
+            <tr>
+              <td colSpan={3}>
+                <Text size="sm" color="dimmed">
+                  No common ontologies added yet (coming soon).
+                </Text>
+              </td>
+            </tr>
+          )}
+
+          {defaultOntologies.length > 0 && defaultOntologies
             .filter(i => i.name.toLowerCase().includes(search.toLowerCase()))
             .map((defaultOntology) => {
               const isActive = ontologies.some(i => i.id === defaultOntology.id)
