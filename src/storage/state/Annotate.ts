@@ -8,9 +8,12 @@ const activeTutorialStepState = atom({
   default: 0,
 })
 
-const configState = atom({
+const configState = atom<IConfig>({
   key: "configState",
-  default: {} as IConfig,
+  default: {
+    entities: [],
+    globalAttributes: [],
+  },
 })
 
 const activeEntityState = atom({
