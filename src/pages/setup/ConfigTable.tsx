@@ -32,26 +32,25 @@ export interface IConfigAttribute {
 
 function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: SectionProps) {
   const [file, setFile] = useState<File | null>(null)
-  const [configs, setConfigs] = useState<WorkspaceConfig[]>([])
+  const [configRecord, setConfigRecord] = useState<WorkspaceConfig | null>(null)
   const [openedModal, setOpenedModal] = useState(false)
   const [entityCount, setEntityCount] = useState(0)
   const [attributeCount, setAttributeCount] = useState(0)
-  const configId = configs.length > 0 ? configs[0].id : uuid()
+
+  const configId = configRecord ? configRecord.id : uuid()
 
   useEffect(() => {
     database
       .getWorkspaceConfig(workspace.id)
-      .then((configs) => {
-        if (configs.length > 0) {
-          const { entities, globalAttributes } = parseJsonConfig(configs[0].content)
+      .then((config) => {
+        const { entities, globalAttributes } = parseJsonConfig(config.content)
 
-          const entityCount = entities.length
-          const attributeCount = globalAttributes.length + entities.reduce((acc, entity) => acc + entity.attributes.length, 0)
+        const entityCount = entities.length
+        const attributeCount = globalAttributes.length + entities.reduce((acc, entity) => acc + entity.attributes.length, 0)
 
-          setConfigs(configs)
-          setEntityCount(entityCount)
-          setAttributeCount(attributeCount)
-        }
+        setConfigRecord(config)
+        setEntityCount(entityCount)
+        setAttributeCount(attributeCount)
       })
       .catch((e) => notify.error("Failed to load workspace config.", e))
   }, [workspace.id])
@@ -76,11 +75,11 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
 
         database
           .addWorkspaceConfig(configId, workspace.id, file.name, json)
-          .then((insertedConfig) => {
-            const { entities, globalAttributes } = config as IConfig
+          .then((config) => {
+            const { entities, globalAttributes } = parseJsonConfig(config.content)
 
             setFile(null)
-            setConfigs([insertedConfig])
+            setConfigRecord(config)
             setEntityCount(entities.length)
             setAttributeCount(globalAttributes.length + entities.reduce((acc, entity) => acc + entity.attributes.length, 0))
           })
@@ -91,23 +90,23 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
     }
 
     func()
-  }, [configId, configs, file, workspace.id])
+  }, [configId, configRecord, file, workspace.id])
 
   useEffect(() => {
     if (setWorkspaceStatus === undefined) return
 
-    if (configs.length === 0 && workspaceStatus.hasConfig) {
+    if (!configRecord && workspaceStatus.hasConfig) {
       setWorkspaceStatus({
         ...workspaceStatus,
         hasConfig: false,
       })
-    } else if (configs.length > 0 && !workspaceStatus.hasConfig) {
+    } else if (configRecord && !workspaceStatus.hasConfig) {
       setWorkspaceStatus({
         ...workspaceStatus,
         hasConfig: true,
       })
     }
-  }, [configs, workspaceStatus, setWorkspaceStatus])
+  }, [configRecord, workspaceStatus, setWorkspaceStatus])
 
   return (
     <>
@@ -117,10 +116,10 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
           emptyState="Upload or create a config"
           borderRadius={5}
           sx={{ minHeight: "225px" }}
-          records={configs}
+          records={configRecord ? [configRecord] : []}
           rowExpansion={{
-            content: (config) => {
-              const parsedConfig = parseJsonConfig(config.record.content)
+            content: ({ record }) => {
+              const parsedConfig = parseJsonConfig(record.content)
 
               return (
                 <ScrollArea>
@@ -178,7 +177,8 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
               title: (
                 <Group position="right" noWrap>
                   <Button variant="subtle" onClick={() => setOpenedModal(true)}>
-                    Create config
+                    {!configRecord && <>Create config</>}
+                    {configRecord && <>Edit config</>}
                   </Button>
 
                   <FileButton onChange={setFile} accept=".json,.conf" key={uuid()}>
@@ -199,7 +199,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
                       onClick={() => {
                         database
                           .deleteWorkspaceConfig(config.id)
-                          .then(() => setConfigs([]))
+                          .then(() => setConfigRecord(null))
                           .catch((e) => notify.error("Failed to delete config.", e))
                       }}
                     >
@@ -218,6 +218,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
 
       <ConfigCreatorModal
         configId={configId}
+        configRecord={configRecord}
         workspaceId={workspace.id}
         openedModal={openedModal}
         setOpenedModal={setOpenedModal}
@@ -228,6 +229,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
 
 interface Props {
   configId: string
+  configRecord?: WorkspaceConfig | null
   workspaceId: string
   openedModal: boolean
   setOpenedModal: (opened: boolean) => void
@@ -248,13 +250,48 @@ interface AddAttributeForm {
 
 const GLOBAL_ATTRIBUTE_KEY = "<ENTITY>"
 
-function ConfigCreatorModal({ configId, workspaceId, openedModal, setOpenedModal }: Props) {
+function ConfigCreatorModal({ configId, configRecord, workspaceId, openedModal, setOpenedModal }: Props) {
   const [entities, setEntities] = useState<string[]>([])
   const [attributes, setAttributes] = useState<Attribute[]>([])
   const [config, setConfig] = useState<IConfig>({
     entities: [],
     globalAttributes: [],
   })
+
+  useEffect(() => {
+    if (configRecord) {
+      const parsedConfig = parseJsonConfig(configRecord.content)
+
+      const { entities, globalAttributes } = parsedConfig
+
+      const parsedEntities = entities.map(i => i.name)
+      const parsedAttributes = [] as Attribute[]
+
+      entities.forEach(entity => {
+        const parsedEntityAttributes = entity.attributes.map(attribute => ({
+          entity: entity.name,
+          name: attribute.name,
+          values: attribute.values,
+          allowCustomValues: attribute.allowCustomValues,
+        }))
+
+        parsedAttributes.push(...parsedEntityAttributes)
+      })
+
+      const parsedGlobalAttributes = globalAttributes.map(globalAttribute => ({
+        entity: GLOBAL_ATTRIBUTE_KEY,
+        name: globalAttribute.name,
+        values: globalAttribute.values,
+        allowCustomValues: globalAttribute.allowCustomValues,
+      }))
+
+      parsedAttributes.push(...parsedGlobalAttributes)
+
+      setConfig(parsedConfig)
+      setEntities(parsedEntities)
+      setAttributes(parsedAttributes)
+    }
+  }, [configRecord])
 
   useEffect(() => {
     const updatedConfig: IConfig = {
@@ -382,6 +419,7 @@ function EntitySection({ entities, setEntities }: EntitySectionProps) {
       <MultiSelect
         placeholder="Start typing to create an entity"
         data={entities}
+        defaultValue={entities}
         searchable
         creatable
         onChange={(values) => setEntities(values)}
@@ -537,7 +575,7 @@ function PreviewSection({ config }: PreviewSectionProps) {
         Live Preview
       </Text>
 
-      <ScrollArea sx= {{ height: 500 }}>
+      <ScrollArea sx={{ height: 500 }}>
         <Grid>
           <Grid.Col xs={12}>
             <Text size="md">
