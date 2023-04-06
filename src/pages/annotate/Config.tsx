@@ -1,8 +1,8 @@
 import { Button, Card, Collapse, Grid, Group, ScrollArea, Select } from "@mantine/core"
 import { database } from "storage/database/Database"
 import { useState, useEffect } from "react"
-import { useSetRecoilState } from "recoil"
-import { activeOntologyConceptsState, populatedAttributeState } from "storage/state/Annotate"
+import { useRecoilState, useSetRecoilState } from "recoil"
+import { activeOntologyConceptsState, configState, populatedAttributeState } from "storage/state/Annotate"
 import { SectionProps } from "./Annotate"
 import { parseJsonConfig } from "pages/annotate/ParseJsonConfig"
 import { OntologyConcept } from "pages/dashboard/OntologyTable"
@@ -10,10 +10,9 @@ import notify from "utils/Notifications"
 import Title from "components/title/Title"
 import EntityConfig from "components/annotate/EntityConfig"
 import AttributeConfig, { SelectData } from "components/annotate/AttributeConfig"
-import { IConfig } from "pages/setup/ConfigTable"
 
 function Config({ workspace }: SectionProps) {
-  const [config, setConfig] = useState<IConfig>({ entities: [], globalAttributes: [] })
+  const [config, setConfig] = useRecoilState(configState)
   const [entitySectionOpen, setEntitySectionOpen] = useState(true)
   const [attributeSectionOpen, setAttributeSectionOpen] = useState(true)
   const [ontologySectionOpen, setOntologySectionOpen] = useState(true)
@@ -27,14 +26,9 @@ function Config({ workspace }: SectionProps) {
   useEffect(() => {
     database
       .getWorkspaceConfig(workspace.id)
-      .then(configs => {
-        if (configs.length > 0) {
-          const config = parseJsonConfig(configs[0].content)
-
-          setConfig(config)
-        } else {
-          notify.error("Failed to load workspace config.")
-        }
+      .then(config => {
+        const parsedConfig = parseJsonConfig(config.content)
+        setConfig(parsedConfig)
       })
       .catch((e) => notify.error("Failed to load workspace config.", e))
   }, [setConfig, workspace.id])
