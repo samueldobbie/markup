@@ -247,7 +247,7 @@ async function addWorkspaceConfig(id: string, workspaceId: string, name: string,
   return config[0]
 }
 
-async function getWorkspaceConfig(workspaceId: string): Promise<WorkspaceConfig[]> {
+async function getWorkspaceConfig(workspaceId: string): Promise<WorkspaceConfig> {
   const { data: config, error } = await supabase
     .from("workspace_config")
     .select()
@@ -257,7 +257,11 @@ async function getWorkspaceConfig(workspaceId: string): Promise<WorkspaceConfig[
     throw new Error(error.message)
   }
 
-  return config
+  if (config === null || config.length === 0) {
+    throw new Error("Invalid workspace config")
+  }
+
+  return config[0]
 }
 
 async function deleteWorkspaceConfig(configId: string): Promise<boolean> {
