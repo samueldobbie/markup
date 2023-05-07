@@ -1,6 +1,6 @@
-import { createStyles, Paper, Title, Text, TextInput, Button, Container, Group, Anchor, Center, Box, Grid, Alert } from "@mantine/core"
+import { createStyles, Paper, Title, Text, TextInput, Button, Container, Group, Grid, Alert } from "@mantine/core"
 import { useForm } from "@mantine/form"
-import { IconArrowRight, IconCheck } from "@tabler/icons"
+import { IconCheck } from "@tabler/icons"
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Path } from "utils/Path"
