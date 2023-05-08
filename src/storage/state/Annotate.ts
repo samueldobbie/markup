@@ -1,3 +1,4 @@
+import { InlineAnnotation } from "pages/annotate/Document"
 import { OntologyConcept } from "pages/dashboard/OntologyTable"
 import { IConfig } from "pages/setup/ConfigTable"
 import { atom } from "recoil"
@@ -54,6 +55,11 @@ const annotationsState = atom<WorkspaceAnnotation[][]>({
   default: [],
 })
 
+const proposedAnnotationState = atom<InlineAnnotation | null>({
+  key: "proposedAnnotationState",
+  default: null,
+})
+
 export {
   activeTutorialStepState,
   configState,
@@ -64,4 +70,5 @@ export {
   populatedAttributeState,
   activeOntologyConceptState as activeOntologyConceptsState,
   annotationsState,
+  proposedAnnotationState,
 }

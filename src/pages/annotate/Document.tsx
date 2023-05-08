@@ -1,16 +1,16 @@
 import { ActionIcon, Button, Card, Divider, Grid, Group, Modal, ScrollArea, Select, TextInput, Text } from "@mantine/core"
 import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight, IconSearch } from "@tabler/icons"
-import { database, RawAnnotation, WorkspaceAnnotation, WorkspaceDocument } from "storage/database/Database"
+import { database, WorkspaceAnnotation, WorkspaceDocument } from "storage/database/Database"
 import { useEffect, useState } from "react"
 import { SectionProps } from "./Annotate"
 import { TextAnnotateBlend } from "react-text-annotate-blend"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
-import { activeEntityState, activeOntologyConceptsState, activeTutorialStepState, annotationsState, documentIndexState, documentsState, entityColoursState, populatedAttributeState } from "storage/state/Annotate"
+import { activeEntityState, annotationsState, documentIndexState, documentsState, entityColoursState, proposedAnnotationState } from "storage/state/Annotate"
 import { useDebouncedState } from "@mantine/hooks"
-import "./Document.css"
 import notify from "utils/Notifications"
+import "./Document.css"
 
-interface InlineAnnotation {
+export interface InlineAnnotation {
   tag: string
   start: number
   end: number
@@ -20,56 +20,17 @@ interface InlineAnnotation {
 function Document({ workspace }: SectionProps) {
   const activeEntity = useRecoilValue(activeEntityState)
   const entityColours = useRecoilValue(entityColoursState)
-  const populatedAttributes = useRecoilValue(populatedAttributeState)
-  const activeOntologyConcept = useRecoilValue(activeOntologyConceptsState)
+  const setProposedAnnotation = useSetRecoilState(proposedAnnotationState)
 
   const [documents, setDocuments] = useRecoilState(documentsState)
   const [documentIndex, setDocumentIndex] = useRecoilState(documentIndexState)
   const [annotations, setAnnotations] = useRecoilState(annotationsState)
   const [openedSearchDocumentModal, setOpenedSearchDocumentModal] = useState(false)
-  const [activeTutorialStep, setActiveTutorialStep] = useRecoilState(activeTutorialStepState)
 
   const moveToFirstDocument = () => setDocumentIndex(0)
   const moveToPreviousDocument = () => setDocumentIndex(documentIndex - 1)
   const moveToNextDocument = () => setDocumentIndex(documentIndex + 1)
   const moveToLastDocument = () => setDocumentIndex(documents.length - 1)
-
-  const addAnnotation = (inlineAnnotation: InlineAnnotation) => {
-    const { tag, start, end } = inlineAnnotation
-
-    const documentId = documents[documentIndex].id
-    const text = documents[documentIndex].content.slice(start, end)
-
-    const allAttributes = {
-      ...populatedAttributes,
-    }
-
-    if (activeOntologyConcept.name && activeOntologyConcept.code) {
-      allAttributes["ontologyName"] = activeOntologyConcept.name
-      allAttributes["ontologyCode"] = activeOntologyConcept.code
-    }
-
-    const rawAnnotation = {
-      text,
-      entity: tag,
-      start_index: start,
-      end_index: end,
-      attributes: allAttributes,
-    } as RawAnnotation
-
-    database
-      .addWorkspaceAnnotation(workspace.id, documentId, rawAnnotation)
-      .then((annotation) => {
-        const copy = [...annotations]
-        copy[documentIndex] = [...copy[documentIndex], annotation]
-        setAnnotations(copy)
-      })
-      .catch((e) => notify.error("Failed to add annotation.", e))
-
-    if (activeTutorialStep === 1) {
-      setActiveTutorialStep(3)
-    }
-  }
 
   useEffect(() => {
     const newAnnotations: WorkspaceAnnotation[][] = []
@@ -193,25 +154,17 @@ function Document({ workspace }: SectionProps) {
                     return inlineAnnotation
                   })}
                   onChange={(updated) => {
-                    if (
-                      annotations[documentIndex].length >= updated.length ||
-                      updated.length === 0
-                    ) {
+                    if (annotations[documentIndex].length >= updated.length || updated.length === 0) {
                       return
                     }
 
-                    if (activeEntity === "") {
-                      notify.error("You need to select an entity")
-                      return
-                    }
-
-                    addAnnotation(updated[updated.length - 1])
+                    setProposedAnnotation(updated[updated.length - 1])
                   }}
                   getSpan={(span) => ({
-                    tag: activeEntity,
-                    color: entityColours[activeEntity],
-                    start: span.start,
-                    end: span.end,
+                      tag: activeEntity,
+                      color: entityColours[activeEntity],
+                      start: span.start,
+                      end: span.end,
                   })}
                   style={{
                     fontSize: "1.1rem",

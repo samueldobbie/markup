@@ -27,7 +27,7 @@ function Title({ text, description, open, setOpen }: TitleProps) {
         </Text>
 
         <ActionIcon ml={-15}>
-          <IconInfoCircle style={{ opacity: 0.6 }} size={18} />
+          <IconInfoCircle style={{ opacity: 0.4 }} size={18} />
         </ActionIcon>
       </Group>
     </>
