@@ -1,8 +1,8 @@
-import { Button, Card, Code, Collapse, Container, Grid, Group, ScrollArea, Select, Text } from "@mantine/core"
+import { Button, Card, Code, Grid, Group, ScrollArea, Select, Text } from "@mantine/core"
 import { RawAnnotation, database } from "storage/database/Database"
 import { useState, useEffect } from "react"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
-import { activeEntityState, activeOntologyConceptsState, activeTutorialStepState, annotationsState, configState, documentIndexState, documentsState, entityColoursState, populatedAttributeState, proposedAnnotationState } from "storage/state/Annotate"
+import { activeEntityState, activeOntologyConceptsState, activeTutorialStepState, annotationsState, configState, documentIndexState, documentsState, populatedAttributeState, proposedAnnotationState } from "storage/state/Annotate"
 import { SectionProps } from "./Annotate"
 import { parseJsonConfig } from "pages/annotate/ParseJsonConfig"
 import { OntologyConcept } from "pages/dashboard/OntologyTable"
@@ -12,7 +12,7 @@ import EntityConfig from "components/annotate/EntityConfig"
 import AttributeConfig, { SelectData } from "components/annotate/AttributeConfig"
 import { IconNumber1, IconNumber2, IconNumber3, IconNumber4 } from "@tabler/icons"
 
-const API_URL = "https://p5vh54dmnjalmywytymzlzsqki0bcjkn.lambda-url.eu-west-2.on.aws/"
+const SUGGEST_ENTITY_API_URL = "https://vior5kmthct3a7wzlpc4r6yy2i0iqfnc.lambda-url.eu-west-2.on.aws/"
 const SUGGEST_ATTRIBUTES_API_URL = "https://r6k5pux3iwubbplreajwa6ppoe0apqpf.lambda-url.eu-west-2.on.aws/"
 
 function Config({ workspace }: SectionProps) {
@@ -82,19 +82,22 @@ function Config({ workspace }: SectionProps) {
       const text = documents[documentIndex].content.slice(start, end)
 
       setSelectedText(text)
+      setActiveEntity("")
+      setSuggestedEntity("")
+      setSuggestedAttributes({})
     }
-  }, [proposedAnnotation, documents, documentIndex, config])
+  }, [proposedAnnotation, documents, documentIndex, config, setActiveEntity])
 
   useEffect(() => {
     if (selectedText !== "") {
-      fetch(API_URL, {
+      fetch(SUGGEST_ENTITY_API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          config,
           selectedText,
+          availableEntities: config.entities.map(entity => entity.name),
         }),
       })
         .then((response) => response.json())
@@ -103,7 +106,6 @@ function Config({ workspace }: SectionProps) {
             const parsedData = JSON.parse(data)
 
             setSuggestedEntity(parsedData["entity"])
-            // setSuggestedAttributes(parsedData["attributes"])
           } catch (e) { }
         })
     }
@@ -132,23 +134,12 @@ function Config({ workspace }: SectionProps) {
       .then((response) => response.json())
       .then((data) => {
         try {
-          console.log(data)
           const parsedData = JSON.parse(data)
 
           setSuggestedAttributes(parsedData)
         } catch (e) { }
       })
   }, [activeEntity, selectedText, config])
-
-  const clearPopulatedAttributes = () => {
-    setPopulatedAttributes({})
-  }
-
-  const clearPopulatedOntologyConcepts = () => {
-    setSelectedOntologyId(null)
-    setSelectedOntologyConcepts([])
-    setActiveOntologyConcept({ name: "", code: "" })
-  }
 
   const addAnnotation = () => {
     if (!proposedAnnotation) {
