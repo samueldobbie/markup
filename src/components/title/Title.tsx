@@ -1,36 +1,32 @@
-import { Group, ActionIcon, Text } from "@mantine/core"
-import { IconCaretDown, IconCaretRight, IconInfoCircle } from "@tabler/icons"
+import { Group, ActionIcon, Text, Stack } from "@mantine/core"
+import { IconCaretDown, IconCaretRight, IconInfoCircle, IconNumber1, IconNumber2 } from "@tabler/icons"
 
 interface TitleProps {
   text: string
   description?: string
   open: boolean
   setOpen: (v: boolean) => void
+  number: JSX.Element
 }
 
-function Title({ text, description, open, setOpen }: TitleProps) {
+function Title({ text, description, open, setOpen, number }: TitleProps) {
   return (
-    <>
-      <Group
-        position="left"
-        onClick={() => setOpen(!open)}
-        sx={{ cursor: "pointer" }}
-        noWrap
-      >
-        <ActionIcon mr={-10}>
-          {open && <IconCaretDown style={{ opacity: 0.8 }} size={18} />}
-          {!open && <IconCaretRight style={{ opacity: 0.8 }} size={18} />}
-        </ActionIcon>
-
+    <Group
+      position="apart"
+      onClick={() => setOpen(!open)}
+      sx={{ cursor: "pointer" }}
+      noWrap
+    >
+      <Stack spacing={0}>
         <Text size="md">
-          {text}
+          {number} {text}
         </Text>
 
-        <ActionIcon ml={-15}>
-          <IconInfoCircle style={{ opacity: 0.4 }} size={18} />
-        </ActionIcon>
-      </Group>
-    </>
+        <Text size="xs" color="dimmed">
+          {description}
+        </Text>
+      </Stack>
+    </Group>
   )
 }
 
