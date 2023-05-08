@@ -8,6 +8,7 @@ import { SectionProps } from "./Annotate"
 import { DEMO_DOMAINS } from "utils/Demo"
 import { exportJsonAnnotations } from "./ExportJsonAnnotations"
 import notify from "utils/Notifications"
+import SmartAssistant from "./SmartAssistant"
 
 type Entity = string
 type AnnotationGroup = Record<Entity, WorkspaceAnnotation[]>
@@ -130,7 +131,7 @@ function Output({ workspace }: SectionProps) {
                     label: (
                       <Center>
                         <Box ml={10}>
-                          Suggestions ({suggestionCount})
+                          Suggested ({suggestionCount})
                         </Box>
                       </Center>
                     ),
@@ -207,19 +208,10 @@ function Output({ workspace }: SectionProps) {
 
             {segment === "suggestions" && (
               <Grid.Col xs={12}>
-                <Text color="dimmed">
-                  Predictive annotations are currently disabled.
-                </Text>
-
-                {/* {isDemoSession && (
-                  <Text color="dimmed">
-                    Predictive annotations are disabled in demo sessions.
-                  </Text>
-                )}
-
-                {!isDemoSession && (
-                  <SmartAssistant workspaceId={workspace.id} setSuggestionCount={setSuggestionCount} />
-                )} */}
+                <SmartAssistant
+                  workspaceId={workspace.id}
+                  setSuggestionCount={setSuggestionCount}
+                />
               </Grid.Col>
             )}
           </Grid>
