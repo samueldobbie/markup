@@ -20,12 +20,13 @@ export interface InlineAnnotation {
 function Document({ workspace }: SectionProps) {
   const activeEntity = useRecoilValue(activeEntityState)
   const entityColours = useRecoilValue(entityColoursState)
-  const setProposedAnnotation = useSetRecoilState(proposedAnnotationState)
+  const [proposedAnnotation, setProposedAnnotation] = useRecoilState(proposedAnnotationState)
 
   const [documents, setDocuments] = useRecoilState(documentsState)
   const [documentIndex, setDocumentIndex] = useRecoilState(documentIndexState)
   const [annotations, setAnnotations] = useRecoilState(annotationsState)
   const [openedSearchDocumentModal, setOpenedSearchDocumentModal] = useState(false)
+  const [inlineAnnotations, setInlineAnnotations] = useState<InlineAnnotation[]>([])
 
   const moveToFirstDocument = () => setDocumentIndex(0)
   const moveToPreviousDocument = () => setDocumentIndex(documentIndex - 1)
@@ -61,6 +62,30 @@ function Document({ workspace }: SectionProps) {
       .then(setAnnotations)
       .catch((e) => notify.error("Failed to load annotations.", e))
   }, [documents, setAnnotations])
+
+  useEffect(() => {
+    const inlineAnnotations = annotations[documentIndex]?.map(annotation => {
+      const inlineAnnotation: InlineAnnotation = {
+        tag: "",
+        start: annotation.start_index,
+        end: annotation.end_index,
+        color: entityColours[annotation.entity],
+      }
+
+      return inlineAnnotation
+    })
+
+    if (proposedAnnotation) {
+      inlineAnnotations?.push({
+        tag: "",
+        start: proposedAnnotation.start,
+        end: proposedAnnotation.end,
+        color: "#6F72E9",
+      })
+    }
+
+    setInlineAnnotations(inlineAnnotations || [])
+  }, [annotations, documentIndex, entityColours, proposedAnnotation])
 
   return (
     <>
@@ -143,16 +168,7 @@ function Document({ workspace }: SectionProps) {
               <Grid.Col xs={12}>
                 <TextAnnotateBlend
                   content={documents[documentIndex].content}
-                  value={annotations[documentIndex]?.map(annotation => {
-                    const inlineAnnotation: InlineAnnotation = {
-                      tag: "",
-                      start: annotation.start_index,
-                      end: annotation.end_index,
-                      color: entityColours[annotation.entity],
-                    }
-
-                    return inlineAnnotation
-                  })}
+                  value={inlineAnnotations}
                   onChange={(updated) => {
                     if (annotations[documentIndex].length >= updated.length || updated.length === 0) {
                       return
@@ -161,10 +177,10 @@ function Document({ workspace }: SectionProps) {
                     setProposedAnnotation(updated[updated.length - 1])
                   }}
                   getSpan={(span) => ({
-                      tag: activeEntity,
-                      color: entityColours[activeEntity],
-                      start: span.start,
-                      end: span.end,
+                    tag: activeEntity,
+                    color: entityColours[activeEntity],
+                    start: span.start,
+                    end: span.end,
                   })}
                   style={{
                     fontSize: "1.1rem",
