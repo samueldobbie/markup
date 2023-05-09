@@ -223,7 +223,7 @@ function Config({ workspace }: SectionProps) {
 
           <Grid.Col xs={12}>
             <Text sx={{ padding: 5 }}>
-              <Code sx={{ fontSize: 15 }}>
+              <Code sx={{ fontSize: 15 }} color="rgb(111, 114, 233)">
                 {selectedText === "" ? "Highlight the text you want to annotate." : selectedText}
               </Code>
             </Text>

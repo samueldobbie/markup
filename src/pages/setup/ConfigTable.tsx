@@ -5,7 +5,7 @@ import uuid from "react-uuid"
 import saveAs from "file-saver"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
-import { WorkspaceConfig, database } from "storage/database/Database"
+import { Workspace, WorkspaceConfig, database } from "storage/database/Database"
 import { SectionProps } from "./Setup"
 import { isValidConfig } from "pages/annotate/ParseJsonConfig"
 import notify from "utils/Notifications"
@@ -219,7 +219,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
       <ConfigCreatorModal
         configId={configId}
         configRecord={configRecord}
-        workspaceId={workspace.id}
+        workspace={workspace}
         openedModal={openedModal}
         setOpenedModal={setOpenedModal}
       />
@@ -230,7 +230,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
 interface Props {
   configId: string
   configRecord?: WorkspaceConfig | null
-  workspaceId: string
+  workspace: Workspace
   openedModal: boolean
   setOpenedModal: (opened: boolean) => void
 }
@@ -250,7 +250,7 @@ interface AddAttributeForm {
 
 const GLOBAL_ATTRIBUTE_KEY = "<ENTITY>"
 
-function ConfigCreatorModal({ configId, configRecord, workspaceId, openedModal, setOpenedModal }: Props) {
+function ConfigCreatorModal({ configId, configRecord, workspace, openedModal, setOpenedModal }: Props) {
   const [entities, setEntities] = useState<string[]>([])
   const [attributes, setAttributes] = useState<Attribute[]>([])
   const [config, setConfig] = useState<IConfig>({
@@ -339,17 +339,27 @@ function ConfigCreatorModal({ configId, configRecord, workspaceId, openedModal, 
   }, [attributes, entities])
 
   const handleExportAndUseConfig = () => {
-    const fileName = "annotation.json"
+    const fileName = generateFileName()
     const fileContent = JSON.stringify(config, null, 2)
 
     database
-      .addWorkspaceConfig(configId, workspaceId, fileName, fileContent)
+      .addWorkspaceConfig(configId, workspace.id, fileName, fileContent)
       .then(() => {
         const blob = new Blob([fileContent], { type: "application/json" })
         saveAs(blob, fileName)
         window.location.reload()
       })
       .catch((e) => notify.error("Failed to use config.", e))
+  }
+
+  const generateFileName = () => {
+    const workspaceName = workspace
+      .name
+      .toLowerCase()
+      .split(" ")
+      .join("-")
+
+    return `${workspaceName}-config.json`
   }
 
   return (
