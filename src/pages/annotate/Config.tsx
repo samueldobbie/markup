@@ -28,7 +28,7 @@ function Config({ workspace }: SectionProps) {
   const setPopulatedAttributes = useSetRecoilState(populatedAttributeState)
   const setActiveOntologyConcept = useSetRecoilState(activeOntologyConceptsState)
 
-  const proposedAnnotation = useRecoilValue(proposedAnnotationState)
+  const [proposedAnnotation, setProposedAnnotation] = useRecoilState(proposedAnnotationState)
   const populatedAttributes = useRecoilValue(populatedAttributeState)
   const activeOntologyConcept = useRecoilValue(activeOntologyConceptsState)
   const documents = useRecoilValue(documentsState)
@@ -102,15 +102,9 @@ function Config({ workspace }: SectionProps) {
       })
         .then((response) => response.json())
         .then((data) => {
-          try {
-            const parsedData = JSON.parse(data)
-
-            if (parsedData["entity"]) {
-              setSuggestedEntity(parsedData["entity"])
-            } else {
-              setSuggestedEntity("")
-            }
-          } catch (e) {
+          if (data["entity"]) {
+            setSuggestedEntity(data["entity"])
+          } else {
             setSuggestedEntity("")
           }
         })
@@ -140,13 +134,13 @@ function Config({ workspace }: SectionProps) {
     })
       .then((response) => response.json())
       .then((data) => {
-        try {
-          const parsedData = JSON.parse(data)
+        Object.keys(data).forEach((key) => {
+          if (data[key] === "") {
+            delete data[key]
+          }
+        })
 
-          setSuggestedAttributes(parsedData)
-        } catch (e) {
-          setSuggestedAttributes({})
-        }
+        setSuggestedAttributes(data)
       })
   }, [activeEntity, selectedText, config])
 
@@ -195,6 +189,13 @@ function Config({ workspace }: SectionProps) {
     if (activeTutorialStep === 1) {
       setActiveTutorialStep(3)
     }
+
+    setSelectedText("")
+    setActiveEntity("")
+    setSuggestedEntity("")
+    setSuggestedAttributes({})
+    setPopulatedAttributes({})
+    setProposedAnnotation(null)
   }
 
   useEffect(() => {
