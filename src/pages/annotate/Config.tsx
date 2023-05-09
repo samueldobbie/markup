@@ -105,14 +105,21 @@ function Config({ workspace }: SectionProps) {
           try {
             const parsedData = JSON.parse(data)
 
-            setSuggestedEntity(parsedData["entity"])
-          } catch (e) { }
+            if (parsedData["entity"]) {
+              setSuggestedEntity(parsedData["entity"])
+            } else {
+              setSuggestedEntity("")
+            }
+          } catch (e) {
+            setSuggestedEntity("")
+          }
         })
     }
-  }, [config, selectedText])
+  }, [config, selectedText, setSuggestedEntity])
 
   useEffect(() => {
     if (activeEntity === "") {
+      setSuggestedAttributes({})
       return
     }
 
@@ -137,7 +144,9 @@ function Config({ workspace }: SectionProps) {
           const parsedData = JSON.parse(data)
 
           setSuggestedAttributes(parsedData)
-        } catch (e) { }
+        } catch (e) {
+          setSuggestedAttributes({})
+        }
       })
   }, [activeEntity, selectedText, config])
 
@@ -188,6 +197,13 @@ function Config({ workspace }: SectionProps) {
     }
   }
 
+  useEffect(() => {
+    setActiveEntity("")
+    setSuggestedEntity("")
+    setSuggestedAttributes({})
+    setPopulatedAttributes({})
+  }, [documentIndex, selectedText, setActiveEntity, setPopulatedAttributes])
+
   return (
     <Card shadow="xs" radius={5} p="xl">
       <ScrollArea scrollbarSize={0} sx={{ height: "76vh" }}>
@@ -226,6 +242,10 @@ function Config({ workspace }: SectionProps) {
 
           <Grid.Col xs={12}>
             <Group position="left" spacing={4} mb={10}>
+              <Text size="xs">
+                Suggested:
+              </Text>
+
               <Button
                 variant="subtle"
                 size="xs"
@@ -236,7 +256,7 @@ function Config({ workspace }: SectionProps) {
                   }
                 }}
               >
-                {suggestedEntity === "" ? "No suggested entity" : suggestedEntity}
+                {suggestedEntity === "" ? "NA" : suggestedEntity}
               </Button>
             </Group>
 
@@ -257,6 +277,20 @@ function Config({ workspace }: SectionProps) {
 
           <Grid.Col xs={12}>
             <Group position="left" spacing={4} mb={10}>
+              <Text size="xs">
+                Suggested:
+              </Text>
+
+              {Object.keys(suggestedAttributes).length === 0 && (
+                <Button
+                  variant="subtle"
+                  size="xs"
+                  p={0}
+                >
+                  NA
+                </Button>
+              )}
+
               {Object.keys(suggestedAttributes).map((attribute) => (
                 <Button
                   key={attribute}

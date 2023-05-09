@@ -1,6 +1,7 @@
 import { Group, Grid, Select, Text } from "@mantine/core"
 import { IConfig, IConfigAttribute } from "pages/setup/ConfigTable"
 import { useState, useEffect } from "react"
+import uuid from "react-uuid"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { activeEntityState, populatedAttributeState } from "storage/state"
 
@@ -62,13 +63,26 @@ function AttributeConfig({ config }: Props): JSX.Element {
         <Group mb={20}>
           <Grid sx={{ width: "100%" }}>
             {shownAttributes.map((attribute, index) => {
+              const predictedValue = populatedAttributes[attribute.name]
+
+              if (predictedValue && !attributeValues[attribute.name].map(value => value.value).includes(predictedValue)) {
+                const copy = { ...attributeValues }
+                const item = {
+                  value: predictedValue,
+                  label: predictedValue,
+                }
+
+                copy[attribute.name].push(item)
+                setAttributeValues(copy)
+              }
+
               return (
                 <Grid.Col xs={12} key={index}>
                   <Select
+                    key={uuid()}
                     data={attributeValues[attribute.name] ?? []}
                     placeholder={attribute.name}
                     size="sm"
-                    key={index + attribute.name}
                     onChange={(value) => {
                       const copy = { ...populatedAttributes }
 
@@ -101,6 +115,7 @@ function AttributeConfig({ config }: Props): JSX.Element {
 
                       return item
                     }}
+                    value={populatedAttributes[attribute.name] ?? null}
                   />
                 </Grid.Col>
               )
