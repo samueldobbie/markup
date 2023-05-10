@@ -2,6 +2,7 @@ import { TextInput, SimpleGrid, Group, Title, Button, Container, Alert, Text, Co
 import { useForm } from "@mantine/form"
 import { IconCheck } from "@tabler/icons"
 import { useEffect, useState } from "react"
+import notify from "utils/Notifications"
 import { supabase } from "utils/Supabase"
 
 interface SettingsForm {
@@ -12,7 +13,6 @@ interface SettingsForm {
 
 function Settings() {
   const [email, setEmail] = useState("")
-  const [accountUpdated, setAccountUpdated] = useState(false)
 
   const form = useForm({
     initialValues: {
@@ -57,6 +57,8 @@ function Settings() {
       if (error) {
         form.setErrors({ email: error.message })
         hasError = true
+      } else {
+        notify.success("Please check your email to verify your new email address")
       }
     }
 
@@ -72,12 +74,13 @@ function Settings() {
         })
 
         hasError = true
+      } else {
+        notify.success("Password updated")
       }
     }
 
     if (!hasError) {
       form.reset()
-      setAccountUpdated(true)
     }
   }
 
@@ -102,14 +105,6 @@ function Settings() {
       >
         Settings
       </Title>
-
-      {accountUpdated && (
-        <Alert icon={<IconCheck size={16} />} title="Updated" color="green" mt="xl">
-          <Text>
-            Your account has been updated.
-          </Text>
-        </Alert>
-      )}
 
       <Text mt="xl" color="dimmed">
         Your current email is <Code display="inline" p={5}>{email}</Code>
