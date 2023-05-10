@@ -9,6 +9,7 @@ import { activeEntityState, annotationsState, documentIndexState, documentsState
 import { useDebouncedState } from "@mantine/hooks"
 import notify from "utils/Notifications"
 import "./Document.css"
+import uuid from "react-uuid"
 
 export interface InlineAnnotation {
   tag: string
@@ -212,20 +213,32 @@ function SearchDocumentModal({ documents, openedModal, setOpenedModal }: Props) 
   const setDocumentIndex = useSetRecoilState(documentIndexState)
 
   const [searchTerm, setSearchTerm] = useDebouncedState("", 200)
-  const [availableDocuments, setAvailableDocuments] = useState<WorkspaceDocument[]>(documents)
+  const [availableDocuments, setAvailableDocuments] = useState<Record<number, WorkspaceDocument>>({})
 
   useEffect(() => {
     if (searchTerm === "") {
-      setAvailableDocuments(documents)
+      const availableDocuments: Record<number, WorkspaceDocument> = {}
+
+      documents.forEach((document, index) => {
+        availableDocuments[index] = document
+      })
+
+      setAvailableDocuments(availableDocuments)
     } else {
-      const filteredDocuments = documents.filter(document => (
-        document
+      const availableDocuments: Record<number, WorkspaceDocument> = {}
+
+      documents.forEach((document, index) => {
+        const isMatch = document
           .content
           .toLocaleLowerCase()
           .includes(searchTerm)
-      ))
 
-      setAvailableDocuments(filteredDocuments)
+        if (isMatch) {
+          availableDocuments[index] = document
+        }
+      })
+
+      setAvailableDocuments(availableDocuments)
     }
   }, [documents, searchTerm])
 
@@ -234,7 +247,15 @@ function SearchDocumentModal({ documents, openedModal, setOpenedModal }: Props) 
       size="xl"
       opened={openedModal}
       onClose={() => setOpenedModal(false)}
-      title="Document Finder"
+      title={
+        <Group position="left" spacing={5}>
+          <IconSearch size={16} />
+
+          <Text>
+            Search documents
+          </Text>
+        </Group>
+      }
       centered
     >
       <TextInput
@@ -247,7 +268,7 @@ function SearchDocumentModal({ documents, openedModal, setOpenedModal }: Props) 
 
       <ScrollArea scrollbarSize={0} sx={{ height: 400 }}>
         <Grid>
-          {availableDocuments.length === 0 && (
+          {Object.keys(availableDocuments).length === 0 && (
             <Grid.Col xs={12}>
               <Text color="dimmed">
                 No matching documents found
@@ -255,7 +276,10 @@ function SearchDocumentModal({ documents, openedModal, setOpenedModal }: Props) 
             </Grid.Col>
           )}
 
-          {availableDocuments.map((document, index) => {
+          {Object.keys(availableDocuments).map((documentIndex) => {
+            const parsedDocumentIndex = parseInt(documentIndex)
+            const document = availableDocuments[parsedDocumentIndex]
+
             let documentSnippet = (
               <Text color="dimmed">
                 {document.content.slice(0, 250)}
@@ -263,47 +287,38 @@ function SearchDocumentModal({ documents, openedModal, setOpenedModal }: Props) 
             )
 
             if (searchTerm !== "") {
-              const documentContent = document.content.toLocaleLowerCase()
-              const matchIndex = documentContent.search(searchTerm)
+              // highlight search term (case insensitive) in yellow
+              const searchTermRegex = new RegExp(searchTerm, "gi")
+              const highlightedContent = document.content.replace(searchTermRegex, (match) => (
+                `<span style="background-color: #FDE047">${match}</span>`
+              ))
 
-              const preMatchSnippet = document.content.slice(
-                Math.max(matchIndex - 250, 0),
-                matchIndex,
-              )
+              // show up to 125 characters before and after the search term
+              const searchTermIndex = highlightedContent.indexOf(`<span style="background-color: #FDE047">`)
+              let snippetStartIndex = Math.max(0, searchTermIndex - 125)
+              let snippetEndIndex = Math.min(highlightedContent.length, searchTermIndex + 125)
 
-              const searchTermSnippet = document.content.slice(
-                matchIndex,
-                matchIndex + searchTerm.length,
-              )
-
-              const postMatchSnippet = document.content.slice(
-                matchIndex + searchTerm.length,
-                Math.min(matchIndex + 250, document.content.length),
-              )
+              // if the search term is at the start or end of the document, show more characters
+              if (snippetStartIndex === 0) {
+                snippetEndIndex = Math.min(highlightedContent.length, snippetEndIndex + 125)
+              } else if (snippetEndIndex === highlightedContent.length) {
+                snippetStartIndex = Math.max(0, snippetStartIndex - 125)
+              }
 
               documentSnippet = (
-                <Text color="dimmed">
-                  {documentContent.search(searchTerm) > 0 && (
-                    <Text>
-                      {preMatchSnippet}
-
-                      <span style={{ backgroundColor: "yellow" }}>
-                        {searchTermSnippet}
-                      </span>
-
-                      {postMatchSnippet}
-                    </Text>
-                  )}
-                </Text>
+                <Text
+                  dangerouslySetInnerHTML={{ __html: highlightedContent.slice(snippetStartIndex, snippetEndIndex) }}
+                  color="dimmed"
+                />
               )
             }
 
             return (
               <Grid.Col
                 xs={12}
-                key={index}
+                key={uuid()}
                 onClick={() => {
-                  setDocumentIndex(index)
+                  setDocumentIndex(parsedDocumentIndex)
                   setOpenedModal(false)
                 }}
               >
