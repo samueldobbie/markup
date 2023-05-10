@@ -6,7 +6,7 @@ const { persistAtom } = recoilPersist()
 
 const themeState = atom<ColorScheme>({
   key: "themeState",
-  default: "light",
+  default: "dark",
   effects: [persistAtom],
 })
 
