@@ -1,6 +1,5 @@
 import { useParams } from "react-router-dom"
 import { Container, Grid } from "@mantine/core"
-import { Path } from "utils/Path"
 import { useEffect, useState } from "react"
 import { database, Workspace } from "storage/database/Database"
 import ConfigTable from "./ConfigTable"

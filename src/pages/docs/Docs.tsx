@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
 import { createStyles, Box, Text, Group, Container, Grid, Card, Collapse, Alert, Button, Code } from "@mantine/core"
-import { IconAlertCircle, IconArrowLeft, IconArrowRight, IconBook2, IconFilePlus, IconUsers, IconX } from "@tabler/icons"
+import { IconAlertCircle, IconArrowLeft, IconArrowRight, IconBook2, IconFilePlus, IconPlayerPlay, IconUsers, IconX } from "@tabler/icons"
 import { Path } from "utils/Path"
+import { toKebabCase } from "utils/Text"
 
 const LINK_HEIGHT = 38
 const INDICATOR_SIZE = 10
@@ -9,93 +10,83 @@ const INDICATOR_OFFSET = (LINK_HEIGHT - INDICATOR_SIZE) / 2
 const DOCUMENTATION = [
   {
     label: "What is Markup?",
-    link: "#what-is-markup",
     content: <WhatIsMarkup />,
     order: 1,
   },
   {
     label: "Core concepts",
-    link: "#core-concepts",
     content: <CoreConcepts />,
     order: 1,
   },
   {
-    label: "Getting started",
-    link: "#getting-started",
-    content: <GettingStarted />,
+    label: "Basic usage",
+    content: <BasicUsage />,
     order: 1,
   },
   {
     label: "Create a workspace",
-    link: "#create-a-workspace",
     content: <CreateWorkspace />,
     order: 2,
   },
   {
-    label: "Add documents",
-    link: "#add-documents",
-    content: <AddDocuments />,
+    label: "Setup a config",
+    content: <SetupConfig />,
     order: 2,
   },
   {
-    label: "Add config",
-    link: "#add-config",
-    content: <AddConfig />,
+    label: "Upload documents",
+    content: <UploadDocuments />,
     order: 2,
   },
   {
-    label: "Add annotation guidelines",
-    link: "#add-annotation-guidelines",
-    content: <AddAnnotationGuidelines />,
+    label: "Add an annotation",
+    content: <AddAnnotation />,
     order: 2,
-    isAdvanced: true,
   },
   {
-    label: "Add collaborators",
-    link: "#add-collaborators",
-    content: <AddCollaborators />,
+    label: "Additional features",
+    content: <AdditionalFeatures />,
+    order: 1,
+  },
+  {
+    label: "AI-assisted annotation",
+    content: <AssistedAnnotation />,
     order: 2,
-    isAdvanced: true,
+  },
+  {
+    label: "Upload existing annotations",
+    content: <UploadExistingAnnotations />,
+    order: 2,
+  },
+  {
+    label: "Set annotation guidelines",
+    content: <SetAnnotationGuidelines />,
+    order: 2,
   },
   {
     label: "Add an ontology",
-    link: "#add-an-ontology",
     content: <AddOntology />,
     order: 2,
-    isAdvanced: true,
   },
   {
-    label: "Add existing annotations",
-    link: "#add-existing-annotations",
-    content: <AddExistingAnnotations />,
+    label: "Search documents",
+    content: <SearchDocuments />,
     order: 2,
-    isAdvanced: true,
   },
   {
-    label: "Annotate",
-    link: "#annotate",
-    content: <Annotate />,
-    order: 1,
-  }
-  // {
-  //   label: "Search",
-  //   link: "#search",
-  //   content: <Search />,
-  //   order: 1,
-  // },
-  // {
-  //   label: "Export",
-  //   link: "#export",
-  //   content: <Export />,
-  //   order: 1,
-  // },
-  // {
-  //   label: "Suggestions",
-  //   link: "#suggestions",
-  //   content: <Suggestions />,
-  //   order: 1,
-  // },
-]
+    label: "Export annotations",
+    content: <ExportAnnotations />,
+    order: 2,
+  },
+  {
+    label: "Collaborate",
+    content: <Collaborate />,
+    order: 2,
+  },
+].map((item) => ({
+  ...item,
+  link: `#${toKebabCase(item.label)}`,
+}))
 
 const useStyles = createStyles((theme) => ({
   link: {
@@ -267,6 +258,14 @@ function WhatIsMarkup() {
           annotations, and also provides integrated access to common
           and custom ontologies for concept mapping.
         </Text>
+
+        <br />
+
+        <Text>
+          Markup uses GPT-3.5 to predict and suggest entities and attributes
+          to speed up the annotation process and reduce the amount of manual
+          input required.
+        </Text>
       </>
     )
   )
@@ -381,8 +380,8 @@ function CoreConcepts() {
             <b>Entities</b>
           </p>
 
-          Entites are the high-level concepts that you want to capture within your documents. These
-          are typically nouns (e.g. <b>Company</b>, <b>Person</b>, <b>Location</b>).
+          Entities represent the key concepts you aim to identify within documents,
+          usually taking the form of nouns (e.g. <b>Company</b>, <b>Person</b>, <b>Location</b>).
         </Card>
 
         <Card mb={20} mt={20}>
@@ -390,7 +389,7 @@ function CoreConcepts() {
             <b>Attributes</b>
           </p>
 
-          Attributes provide more detailed information about an entity (e.g. You may have a <b>Street Address</b> attribute for a <b>Location</b> entity).
+          Attributes are more detailed bits of information about an entity (e.g. a <b>Street Address</b> attribute for a <b>Location</b> entity).
         </Card>
 
         <Card mb={20} mt={20}>
@@ -407,22 +406,21 @@ function CoreConcepts() {
             <b>Ontologies</b>
           </p>
 
-          Ontologies (often called terminologies) are sets of mappings between concepts and
-          codes. For example, a medical ontology may map the concept <b>Flu</b> to the
-          code <b>C0004096</b>. Markup provides in-built access to a number of common ontologies (e.g. UMLS),
-          and also allows you to upload your own custom ontologies.
+
+          Ontologies, or terminologies, consist of concept-to-code mappings (e.g. a medical ontology may link <b>Flu</b> to the code <b>C0004096</b>).
+          Markup offers built-in access to common ontologies (e.g. UMLS), and allows you to upload your own custom ontologies.
         </Card>
-      </ >
+      </>
     )
   )
 }
 
-function GettingStarted() {
+function BasicUsage() {
   return (
     <Text>
-      <h2>Getting Started</h2>
+      <h2>Basic Usage</h2>
 
-      <Alert icon={<IconAlertCircle size={16} />} title="Account Required!">
+      <Alert icon={<IconAlertCircle size={16} />} title="Account required">
         <Group>
           <Text>
             This guide assumes you already have a Markup account. <span
@@ -442,17 +440,17 @@ function GettingStarted() {
       <br />
 
       <Text>
-        To start a basic annotation session, you need to:
+        To setup a basic annotation session, you need to:
 
         <ol>
           <li>Create a workspace</li>
-          <li>Upload some documents</li>
-          <li>Define your config</li>
-          <li>Start annotating!</li>
+          <li>Setup a config</li>
+          <li>Upload documents</li>
+          <li>Add your annotations 🥳</li>
         </ol>
-
-        More advanced users may also want to select/upload an ontology, or add annotation guidelines.
       </Text>
+
+      Ready? Let's get started!
     </Text>
   )
 }
@@ -475,12 +473,90 @@ function CreateWorkspace() {
   )
 }
 
-function AddDocuments() {
+function SetupConfig() {
   return (
     <Text>
-      <h2>Add documents</h2>
+      <h2>Setup a config</h2>
 
-      <Alert icon={<IconAlertCircle size={16} />} title="File Format" color="orange">
+      <Alert icon={<IconAlertCircle size={16} />} title="Don't have a config?">
+        <Group>
+          <Text>
+            If you don't have a config, you can create one on the workspace setup
+            page by clicking <b>Create config</b> and following the instructions.
+          </Text>
+        </Group>
+      </Alert>
+
+      <br />
+
+      <Text>
+        To add an existing config:
+
+        <ol>
+          <li>Open your workspace</li>
+          <li>Click on <b>Add config</b></li>
+          <li>Upload your config</li>
+        </ol>
+      </Text>
+
+      <Text>
+        After creating or uploading a config, you can make changes by clicking <b>Edit config</b>.
+      </Text>
+
+      <br />
+
+      <Text>
+        Under the hood, configs are JSON files in the following format:
+      </Text>
+
+      <br />
+
+      <Code block>
+{`{
+  "entities": [
+    {
+      "name": "Company",
+      "attributes": [
+        {
+          "name": "Name",
+          "values": [
+            "Apple",
+            "Google",
+            "Microsoft"
+          ],
+          "allowCustomValues": true
+        },
+        {
+          "name": "Location",
+          "values": [
+            "California",
+            "New York",
+            "Washington"
+          ],
+          "allowCustomValues": false
+        }
+      ]
+    }
+  ],
+  "globalAttributes": [
+    {
+      "name": "Date",
+      "values": [],
+      "allowCustomValues": true
+    }
+  ]
+}`}
+      </Code>
+    </Text>
+  )
+}
+
+function UploadDocuments() {
+  return (
+    <Text>
+      <h2>Upload documents</h2>
+
+      <Alert icon={<IconAlertCircle size={16} />} title="File format" color="orange">
         <Group>
           <Text>
             Markup currently only supports plain text (.txt) files. We're working on adding support for
@@ -492,50 +568,131 @@ function AddDocuments() {
       <br />
 
       <Text>
-        To add documents:
+        To upload documents:
 
         <ol>
           <li>Open your workspace</li>
           <li>Click on <b>Add documents</b></li>
-          <li>Upload one or more documents</li>
+          <li>Select one or more documents</li>
         </ol>
       </Text>
     </Text>
   )
 }
 
-function AddConfig() {
+function AddAnnotation() {
   return (
     <Text>
-      <h2>Add config</h2>
+      <h2>Add an annotation</h2>
 
       <Text>
-        If you don't already have a config, you can create one on the workspace setup
-        page by clicking <b>Create config</b> and following the guide.
+        To add an annotation to a document:
+
+        <ol>
+          <li>Open your workspace</li>
+          <li>Click on <b>Annotate</b></li>
+          <li>Highlight the span of text you want to annotate within the document</li>
+          <li>Select the entity you want to annotate the span of text with</li>
+          <li>Optionally, select the attributes you want to annotate the span of text with</li>
+          <li>Click <b>Add annotation</b></li>
+        </ol>
+      </Text>
+    </Text>
+  )
+}
+
+function AdditionalFeatures() {
+  return (
+    <Text>
+      <h2>Additional features</h2>
+
+      <Text>
+        There are numerous additional features that Markup offers to make your annotation experience
+        as seamless as possible, including the use of GPT-3.5 for AI-assisted annotation, the
+        ability to add collaborators and define annotation guidelines for each workspace, and more.
+      </Text>
+    </Text>
+  )
+}
+
+function AssistedAnnotation() {
+  return (
+    <Text>
+      <h2>AI-assisted annotation</h2>
+
+      <Text>
+        Each time you highlight a span of text during an annotation session, Markup will
+        automatically suggest the most relevant entity and attributes for that span.
+
+        Clicking on a suggested entity or attribute will automatically add it to your annotation,
+        although you will always have the option to change it or add additional values.
+      </Text>
+    </Text>
+  )
+}
+
+function UploadExistingAnnotations() {
+  return (
+    <Text>
+      <h2>Upload existing annotations</h2>
+
+      <Text>
+        To upload existing annotations for a single document:
+
+        <ol>
+          <li>Open your workspace</li>
+          <li>Click the annotation icon (<IconFilePlus size={16} color="#acf2fa" />) next to the target document</li>
+          <li>Upload your annotations</li>
+        </ol>
+      </Text>
+
+      <Text>
+        To upload existing annotations for multiple documents:
+
+        <ol>
+          <li>Open your workspace</li>
+          <li>Click on <b>Upload annotations</b></li>
+          <li>Upload your annotations</li>
+        </ol>
+
+        The name of each annotation file must match the name of the corresponding document file, other than the file extension.
+        For example, if you have a document named <b>document1.txt</b>, the corresponding annotation file must be
+        named <b>document1.json</b> in order for Markup to match the two files.
       </Text>
 
       <br />
 
       <Text>
-        To add an existing config:
+        Annotations must be JSON files in the following format:
 
-        <ol>
-          <li>Open your workspace</li>
-          <li>Click on <b>Add coinfig</b></li>
-          <li>Upload your config</li>
-        </ol>
+        <br />
+        <br />
+
+        <Code block>
+{`[
+  {
+    "entity": "Patient",
+    "start_index": 353,
+    "end_index": 387,
+    "text": "temporal lobe onset focal seizures",
+    "attributes": {
+      "Date": "2021-01-01"
+    }
+  }
+]`}
+        </Code>
       </Text>
     </Text>
   )
 }
 
-function AddAnnotationGuidelines() {
+function SetAnnotationGuidelines() {
   return (
     <Text>
-      <h2>Add annotation guidelines</h2>
+      <h2>Set annotation guidelines</h2>
 
       <Text>
-        To add annotation guidelines:
+        To set annotation guidelines:
 
         <ol>
           <li>Open your workspace</li>
@@ -543,14 +700,91 @@ function AddAnnotationGuidelines() {
           <li>Upload your guidelines</li>
         </ol>
       </Text>
+
+      Currently, guidelines must be plain text (.txt) files.
     </Text>
   )
 }
 
-function AddCollaborators() {
+
+function AddOntology() {
   return (
     <Text>
-      <h2>Add collaborators</h2>
+      <h2>Add ontology</h2>
+
+      <Text>
+        To add an ontology:
+
+        <ol>
+          <li>Open your dashboard</li>
+          <li>Click <b>Add ontology</b></li>
+          <li>Give your ontology a name and (optionally) a description</li>
+          <li>Upload concept mappings</li>
+        </ol>
+
+        Concept mappings must be in the <b>JSON</b> format, and be structured as follows:
+
+        <br />
+        <br />
+
+        <Code block>
+{`[
+  {
+    "code": "1",
+    "name": "flu"
+  },
+  {
+    "code": "2",
+    "name": "paracetamol"
+  }
+]`}
+        </Code>
+      </Text>
+    </Text>
+  )
+}
+
+function SearchDocuments() {
+  return (
+    <Text>
+      <h2>Search document</h2>
+
+      <Text>
+        During an annotation session, you can search for a document by name by
+        clicking <b>Search documents</b>. Currently this only does a basic search
+        of document content, but we plan to add more advanced search capabilities such
+        as the ability to perform semantic searches and search by entity/attribute in
+        the near future.
+      </Text>
+    </Text>
+  )
+}
+
+function ExportAnnotations() {
+  return (
+    <Text>
+      <h2>Export annotations</h2>
+
+      <Text>
+        To export annotations for your workspace:
+
+        <ol>
+          <li>Open your workspace</li>
+          <li>Click on <b>Annotate</b></li>
+          <li>Click <b>Export</b></li>
+        </ol>
+
+        Annotations will be exported as .zip file containing a .json file for each document
+        in your workspace.
+      </Text>
+    </Text>
+  )
+}
+
+function Collaborate() {
+  return (
+    <Text>
+      <h2>Collaborate</h2>
 
       <Alert icon={<IconAlertCircle size={16} />} title="Existing Users" color="orange">
         <Group>
@@ -572,102 +806,6 @@ function AddCollaborators() {
           <li>Enter the email address of each collaborator</li>
         </ol>
       </Text>
-    </Text>
-  )
-}
-
-function AddOntology() {
-  const json = `
-    [
-      {
-        "code": "1",
-        "name": "flu"
-      },
-      {
-        "code": "2",
-        "name": "paracetamol"
-      }
-    ]
-  `
-
-  return (
-    <Text>
-      <h2>Add ontology</h2>
-
-      <Text>
-        To add an ontology:
-
-        <ol>
-          <li>Open your dashboard</li>
-          <li>Click <b>Add ontology</b></li>
-          <li>Give your ontology a name and (optionally) a description</li>
-          <li>Upload concept mappings</li>
-        </ol>
-
-        Concept mappings must be in the <b>JSON</b> format, and be structured as follows:
-
-        <br />
-        <br />
-
-        <Code block>
-          {json}
-        </Code>
-      </Text>
-    </Text>
-  )
-}
-
-function AddExistingAnnotations() {
-  return (
-    <Text>
-      <h2>Add existing annotations</h2>
-
-      <Text>
-        To add existing annotations:
-
-        <ol>
-          <li>Open your workspace</li>
-          <li>Click the annotation icon (<IconFilePlus size={16} color="#acf2fa" />) next to the desired document</li>
-          <li>Upload your annotations</li>
-        </ol>
-      </Text>
-    </Text>
-  )
-}
-
-function Annotate() {
-  return (
-    <Text>
-      <h2>Annotate</h2>
-
-      <Text>
-        To annotate a document, highlight a span of text, select an entity,
-        and then populate the desired attributes.
-      </Text>
-    </Text>
-  )
-}
-
-function Search() {
-  return (
-    <Text>
-      <h2>Search</h2>
-    </Text>
-  )
-}
-
-function Export() {
-  return (
-    <Text>
-      <h2>Export</h2>
-    </Text>
-  )
-}
-
-function Suggestions() {
-  return (
-    <Text>
-      <h2>Suggestions</h2>
     </Text>
   )
 }
