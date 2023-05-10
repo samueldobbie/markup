@@ -11,22 +11,23 @@ function Tutorial(): JSX.Element {
     <Card shadow="xs" radius={5} p="xl">
       <Stepper active={active} allowNextStepsSelect={false}>
         <Stepper.Step
-          label="Define the annotated concept"
+          label="Select text to annotate"
           description={
             <>
-              Using the panel on the left, select an entity that describes the
-              category of text you want to annotate, and populate any number of
-              attributes to describe the concept.
+              Highlight the span of text you want to annotate in the
+              document by clicking-and-dragging your mouse.
             </>
           }
         />
 
         <Stepper.Step
-          label="Select text to annotate"
+          label="Describe what you're annotating"
           description={
             <>
-              Using the central panel, select the text you want to annotate. You
-              can select a single word, a phrase, or a whole paragraph.
+              Within the left panel, select an entity that describes the
+              type of concept you're annotating (e.g. "Person"), and populate
+              any number of attributes to describe the details of the concept
+              you're annotating (e.g. "Name", "Age").
             </>
           }
         />
