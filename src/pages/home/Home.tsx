@@ -106,8 +106,8 @@ function Home(): JSX.Element {
   const primaryButtonText = user === null ? "Get started" : "Go to dashboard"
   const theme = useMantineTheme()
   const demoImage = theme.colorScheme === "dark"
-    ? "https://markup-storage.s3.eu-west-2.amazonaws.com/annotate.png"
-    : "https://markup-storage.s3.eu-west-2.amazonaws.com/annotate-light.png"
+    ? "https://markup-storage.s3.eu-west-2.amazonaws.com/annotate-dark-v2.png"
+    : "https://markup-storage.s3.eu-west-2.amazonaws.com/annotate-light-v2.png"
 
   const [openedDemoDomainModal, setOpenedDemoDomainModal] = useState(false)
 
