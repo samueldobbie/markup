@@ -82,10 +82,13 @@ function Config({ workspace }: SectionProps) {
       const text = documents[documentIndex].content.slice(start, end)
 
       setSelectedText(text)
-      setActiveEntity("")
-      setSuggestedEntity("")
-      setSuggestedAttributes({})
+    } else {
+      setSelectedText("")
     }
+
+    setActiveEntity("")
+    setSuggestedEntity("")
+    setSuggestedAttributes({})
   }, [proposedAnnotation, documents, documentIndex, config, setActiveEntity])
 
   useEffect(() => {

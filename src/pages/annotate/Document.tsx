@@ -88,6 +88,10 @@ function Document({ workspace }: SectionProps) {
     setInlineAnnotations(inlineAnnotations || [])
   }, [annotations, documentIndex, entityColours, proposedAnnotation])
 
+  useEffect(() => {
+    setProposedAnnotation(null)
+  }, [documentIndex, setProposedAnnotation])
+
   return (
     <>
       {documents.length > 0 &&
