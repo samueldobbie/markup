@@ -153,6 +153,19 @@ function Home(): JSX.Element {
               {primaryButtonText}
             </Button>
           </div>
+
+          <div className={classes.controls} style={{ marginTop: 50 }}>
+            <a
+              href="https://www.producthunt.com/posts/markup-document-annotation"
+              target="_blank"
+            >
+              <img
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=394277&theme=light"
+                width="250"
+                height="54"
+              />
+            </a>
+          </div>
         </div>
 
         <div className={classes.demoImage}>
