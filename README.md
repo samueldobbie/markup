@@ -1,6 +1,6 @@
 # Markup Annotation Tool for ML and NLP
 
-![](https://markup-storage.s3.eu-west-2.amazonaws.com/annotate.png)
+![](https://markup-storage.s3.eu-west-2.amazonaws.com/annotate-dark-v2.png)
 
 Markup is an online annotation tool that can be used to transform unstructured documents into structured formats for NLP and ML tasks, such as named-entity recognition. Markup learns as you annotate to predict and suggest complex annotations, and also provides integrated access to common and custom ontologies for concept mapping.
 
