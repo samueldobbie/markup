@@ -16,12 +16,13 @@ Markup is an online annotation tool that can be used to transform unstructured d
 
 # Installation
 
-To install and use Markup on your own machine:
+To install and run Markup locally:
 
-1. Clone the repository, `git clone https://github.com/samueldobbie/markup`
-1. Navigate to the directory, `cd markup`
-1. Install dependencies, `yarn install`
-1. Start the development server, `yarn start`
+1. Clone the repository and install dependencies, `git clone https://github.com/samueldobbie/markup && cd markup && yarn install`
+1. Install the [Supabase CLI](https://supabase.com/docs/guides/cli)
+1. Start Supabase, `supabase start`. This will generate and output an API URL and anon key. Add both to the `.env.local` file
+1. Add an [OpenAI API key](https://platform.openai.com/account/api-keys) to the `.env.local` file (Optional)
+1. Run the development server, `yarn start`
 1. Open Markup in your web browser, `http://localhost:3000`
 
 # Usage
