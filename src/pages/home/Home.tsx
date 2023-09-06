@@ -128,7 +128,7 @@ function Home(): JSX.Element {
 
           <Container p={20} size={600}>
             <Text size="lg" color="dimmed" className={classes.description}>
-              Markup is an annotation tool for rapidly building structured<br />datasets from free-text for NLP and ML. Powered by GPT-3.
+              Markup is an annotation tool for rapidly building structured<br />datasets from free-text for NLP and ML. Powered by GPT-4.
             </Text>
           </Container>
 
