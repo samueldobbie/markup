@@ -43,18 +43,28 @@ export async function completeJson(args: CompleteArgs): Promise<unknown> {
     let response: Response
 
     try {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      }
+
+      if (args.apiKey) {
+        headers.Authorization = `Bearer ${args.apiKey}`
+      }
+
+      const body: Record<string, unknown> = {
+        temperature: 0,
+        messages,
+        ...extra,
+      }
+
+      if (args.model) {
+        body.model = args.model
+      }
+
       response = await fetch(url, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${args.apiKey}`,
-        },
-        body: JSON.stringify({
-          model: args.model,
-          temperature: 0,
-          messages,
-          ...extra,
-        }),
+        headers,
+        body: JSON.stringify(body),
         signal: AbortSignal.timeout(45_000),
       })
     } catch (error) {
