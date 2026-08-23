@@ -19,8 +19,8 @@ function Navbar() {
   const [opened, { toggle, close }] = useDisclosure(false)
 
   const logo = colorScheme === "dark"
-    ? "https://i.imgur.com/XNjFxxn.png"
-    : "https://i.imgur.com/9Q9lBeF.png"
+    ? "/logo-dark.svg"
+    : "/logo-light.svg"
 
   const navbarItems = (
     <>
@@ -237,7 +237,7 @@ function Navbar() {
     <Box component="header" h={HEADER_HEIGHT} mb={50} className={classes.root}>
       <Container className={classes.header}>
         <Link to={Path.Home} style={{ textDecoration: "none" }}>
-          <Image src={logo} h={22} w="auto" />
+          <Image src={logo} h={36} w="auto" />
         </Link>
 
         <Group gap={5} className={classes.navItems}>
