@@ -388,7 +388,7 @@ function BasicUsage() {
             This guide assumes you already have a Markup account. <span
               onClick={() => window.open(Path.SignUp, "_blank")}
               style={{
-                color: "#6F72E9",
+                color: "light-dark(#6F72E9, #AAACF2)",
                 cursor: "pointer",
                 fontWeight: "500",
               }}

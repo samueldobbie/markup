@@ -103,8 +103,9 @@ function Document({ workspace }: SectionProps) {
               <Grid.Col span={12}>
                 <Group gap={0} justify="center" wrap="nowrap">
                   <ActionIcon
+                    className="document-nav-arrow"
                     size="lg"
-                    color="x"
+                    color="brand"
                     variant="transparent"
                     onClick={moveToFirstDocument}
                     disabled={documentIndex <= 0}
@@ -113,8 +114,9 @@ function Document({ workspace }: SectionProps) {
                   </ActionIcon>
 
                   <ActionIcon
+                    className="document-nav-arrow"
                     size="lg"
-                    color="x"
+                    color="brand"
                     variant="transparent"
                     onClick={moveToPreviousDocument}
                     disabled={documentIndex <= 0}
@@ -137,8 +139,9 @@ function Document({ workspace }: SectionProps) {
                   />
 
                   <ActionIcon
+                    className="document-nav-arrow"
                     size="lg"
-                    color="x"
+                    color="brand"
                     variant="transparent"
                     onClick={moveToNextDocument}
                     disabled={documentIndex >= documents.length - 1}
@@ -147,8 +150,9 @@ function Document({ workspace }: SectionProps) {
                   </ActionIcon>
 
                   <ActionIcon
+                    className="document-nav-arrow"
                     size="lg"
-                    color="x"
+                    color="brand"
                     variant="transparent"
                     onClick={moveToLastDocument}
                     disabled={documentIndex >= documents.length - 1}
@@ -160,6 +164,7 @@ function Document({ workspace }: SectionProps) {
 
                   <Button
                     variant="subtle"
+                    color="brand"
                     leftSection={<IconSearch size={16} />}
                     onClick={() => setOpenedSearchDocumentModal(true)}
                   >
