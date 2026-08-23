@@ -26,19 +26,19 @@
 .title {
   text-align: center;
   font-weight: 800;
-  font-size: 50px;
+  font-size: 50px !important;
   letter-spacing: -1px;
   color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
   margin-bottom: var(--mantine-spacing-xs);
   font-family: Greycliff CF, var(--mantine-font-family);
 
   @media (max-width: 520px) {
-    font-size: 40px;
+    font-size: 40px !important;
   }
 }
 
 .highlight {
-  color: light-dark(#6F72E9, #AAACF2);
+  color: #8688f0;
 }
 
 .description {

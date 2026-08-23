@@ -1,3 +1,11 @@
+.row {
+  opacity: 0.45;
+}
+
+.logo {
+  filter: grayscale(1);
+}
+
 .nhsImage {
   width: 180px !important;
   margin-right: 250px !important;
@@ -16,8 +24,14 @@
 
 .sailImage {
   width: 450px !important;
+  /* Artwork is white; invert so it reads on a light page. */
+  filter: grayscale(1) invert(1);
 
   @media (max-width: 456px) {
     width: 300px !important;
   }
+}
+
+:global([data-mantine-color-scheme="dark"]) .sailImage {
+  filter: grayscale(1);
 }

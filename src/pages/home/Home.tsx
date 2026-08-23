@@ -29,9 +29,9 @@ function Home() {
         <div className={classes.inner}>
           <Title className={classes.title}>
             Turn text into{" "}
-            <Text component="span" className={classes.highlight} inherit>
+            <span className={classes.highlight}>
               structured data
-            </Text>,<br />without the hassle.
+            </span>,<br />without the hassle.
           </Title>
 
           <Container p={20} size={600}>
@@ -45,7 +45,6 @@ function Home() {
               className={classes.control}
               size="lg"
               variant="default"
-              c="gray"
               component="a"
               onClick={() => setOpenedDemoDomainModal(true)}
             >
