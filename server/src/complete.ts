@@ -16,6 +16,7 @@ interface CompleteArgs {
   apiKey: string
   model: string
   prompt: string
+  timeoutMs?: number
 }
 
 export async function completeJson(args: CompleteArgs): Promise<unknown> {
@@ -65,7 +66,7 @@ export async function completeJson(args: CompleteArgs): Promise<unknown> {
         method: "POST",
         headers,
         body: JSON.stringify(body),
-        signal: AbortSignal.timeout(45_000),
+        signal: AbortSignal.timeout(args.timeoutMs ?? 45_000),
       })
     } catch (error) {
       console.error("Workspace model request failed", error)

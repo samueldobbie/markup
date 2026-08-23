@@ -34,3 +34,40 @@ Entity: ${selectedEntity}
 Available attributes types: ${JSON.stringify(availableAttributes)}
 Parsed attributes:`
 }
+
+export function documentAnnotationsPrompt(
+  document: string,
+  config: unknown,
+  annotations: unknown,
+  guidelines?: string,
+): string {
+  const guidelinesBlock = guidelines?.trim()
+    ? `
+Guidelines (follow these if they do not conflict with the rules below):
+${guidelines.trim()}
+`
+    : ""
+
+  return `You're an expert document annotator. Suggest annotations for a document using a provided config of allowed entities and attributes.
+
+Example:
+Document: Dr. Gupta prescribed 10mg of Sodium Valporate twice a day. Her mother has also been prescribed Sodium Valporate at 50mg.
+Config: {"entities":[{"name":"Prescription","attributes":[{"name":"Frequency","values":[],"allowCustomValues":true},{"name":"Unit","values":["g","mg","ml"],"allowCustomValues":true},{"name":"Dose","values":[],"allowCustomValues":true},{"name":"Name","values":[],"allowCustomValues":true}]}],"globalAttributes":[]}
+Current annotations: []
+Suggestion: {"annotations":[{"entity":"Prescription","text_span":"10mg of Sodium Valporate twice a day","attributes":{"Frequency":"twice a day","Unit":"mg","Dose":"10","Name":"Sodium Valporate"}},{"entity":"Prescription","text_span":"Sodium Valporate at 50mg","attributes":{"Unit":"mg","Dose":"50","Name":"Sodium Valporate"}}]}
+
+Rules:
+- Respond with valid JSON only: {"annotations":[{"entity":"<name>","text_span":"<exact substring>","attributes":{}}]}
+- The suggested entity must be in the config.
+- Each attribute key must belong to that entity or to global attributes.
+- Each attribute value must appear inside the corresponding text_span.
+- text_span must be copied exactly from the document (an exact substring).
+- Do not suggest spans that overlap current annotations.
+- Prefer fewer high-quality annotations over many weak ones.
+- If nothing fits, respond with {"annotations":[]}.
+${guidelinesBlock}
+Document: ${document}
+Config: ${JSON.stringify(config)}
+Current annotations: ${JSON.stringify(annotations)}
+Suggestion:`
+}

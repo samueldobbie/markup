@@ -25,7 +25,7 @@ To install and run Markup locally:
 1. Run the web app and API: `pnpm dev` and `pnpm dev:api`
 1. Open Markup in your web browser at `http://localhost:3000`
 
-To use AI suggestions, open a workspace, click **Settings**, and add an OpenAI-compatible base URL. Model name and API key are optional. Highlighting text in the annotate view will then suggest an entity and attributes.
+To use AI suggestions, open a workspace, click **Settings**, and add an OpenAI-compatible base URL. Model name and API key are optional. Highlighting text in the annotate view will suggest an entity and attributes. The **Suggested** tab asks the same model for document-level annotations you can accept or dismiss.
 
 # Custom AI endpoints
 
@@ -77,7 +77,7 @@ Expected response:
 }
 ```
 
-Entity suggestions parse `{"entity": "<name>"}`. Attribute suggestions parse a flat object of string values, for example `{"Dose": "10", "Unit": "mg"}`. Anything not in the workspace config, or whose value is not in the highlighted span, is dropped.
+Entity suggestions parse `{"entity": "<name>"}`. Attribute suggestions parse a flat object of string values, for example `{"Dose": "10", "Unit": "mg"}`. Document-level suggestions parse `{"annotations":[{"entity":"<name>","text_span":"<exact substring>","attributes":{}}]}`. Markup resolves `text_span` against the document and drops anything not in the workspace config, not present in the span, or overlapping an existing annotation.
 
 Examples:
 

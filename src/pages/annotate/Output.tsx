@@ -205,7 +205,8 @@ function Output({ workspace }: SectionProps) {
             {segment === "suggestions" && (
               <Grid.Col span={12}>
                 <SmartAssistant
-                  workspaceId={workspace.id}
+                  workspace={workspace}
+                  guideline={guideline}
                   setSuggestionCount={setSuggestionCount}
                 />
               </Grid.Col>

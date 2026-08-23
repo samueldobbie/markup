@@ -35,3 +35,32 @@ export function suggestAttributes(
     signal,
   })
 }
+
+export interface DocumentAnnotationSuggestion {
+  id: string
+  entity: string
+  text: string
+  start_index: number
+  end_index: number
+  attributes: Record<string, string>
+}
+
+export function suggestDocumentAnnotations(
+  workspaceId: string,
+  input: {
+    document: string
+    annotations: Array<{ entity: string, text: string, start_index: number, end_index: number }>
+    config: unknown
+    guidelines?: string
+  },
+  signal?: AbortSignal,
+): Promise<{ suggestions: DocumentAnnotationSuggestion[] }> {
+  return apiFetch("/api/suggest/document", {
+    method: "POST",
+    body: JSON.stringify({
+      workspaceId,
+      ...input,
+    }),
+    signal,
+  })
+}
