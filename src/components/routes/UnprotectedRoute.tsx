@@ -3,7 +3,7 @@ import { useAuth } from "providers/AuthProvider"
 import { Navigate } from "react-router-dom"
 import { Path } from "utils/Path"
 
-function UnprotectedRoute({ children, title }: any): JSX.Element {
+function UnprotectedRoute({ children, title }: any) {
   useDocumentTitle(title)
 
   const { user } = useAuth()

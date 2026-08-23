@@ -1,7 +1,6 @@
-import { Group, Button, ActionIcon, Text, FileButton, Card, Modal, Grid, MultiSelect, Select, TextInput, Divider, ScrollArea, Checkbox, Tooltip } from "@mantine/core"
+import { Group, Button, ActionIcon, Text, FileButton, Card, Modal, Grid, TagsInput, Select, TextInput, Divider, ScrollArea, Checkbox, Tooltip } from "@mantine/core"
 import { useForm } from "@mantine/form"
-import { IconTrashX } from "@tabler/icons"
-import uuid from "react-uuid"
+import { IconTrashX } from "@tabler/icons-react"
 import saveAs from "file-saver"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
@@ -37,7 +36,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
   const [entityCount, setEntityCount] = useState(0)
   const [attributeCount, setAttributeCount] = useState(0)
 
-  const configId = configRecord ? configRecord.id : uuid()
+  const configId = configRecord ? configRecord.id : crypto.randomUUID()
 
   useEffect(() => {
     database
@@ -84,7 +83,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
             setAttributeCount(globalAttributes.length + entities.reduce((acc, entity) => acc + entity.attributes.length, 0))
           })
           .catch((e) => notify.error("Failed to upload config. Please check the format.", e))
-      } catch (e) {
+      } catch {
         notify.error("Failed to parse config. Please check the format.")
       }
     }
@@ -112,10 +111,10 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
     <>
       <Card shadow="xs" radius={5}>
         <DataTable
-          withBorder={false}
+          withTableBorder={false}
           emptyState="Upload or create a config"
           borderRadius={5}
-          sx={{ minHeight: "225px" }}
+          style={{ minHeight: "225px" }}
           records={configRecord ? [configRecord] : []}
           rowExpansion={{
             content: ({ record }) => {
@@ -124,23 +123,23 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
               return (
                 <ScrollArea>
                   <Grid px={25} py={10}>
-                    <Grid.Col xs={12}>
+                    <Grid.Col span={12}>
                       <Text size="md">
                         Entities
                       </Text>
                     </Grid.Col>
 
-                    <Grid.Col xs={12}>
+                    <Grid.Col span={12}>
                       <EntityConfig config={parsedConfig} />
                     </Grid.Col>
 
-                    <Grid.Col xs={12}>
+                    <Grid.Col span={12}>
                       <Text size="md">
                         Attributes
                       </Text>
                     </Grid.Col>
 
-                    <Grid.Col xs={12}>
+                    <Grid.Col span={12}>
                       <AttributeConfig config={parsedConfig} />
                     </Grid.Col>
                   </Grid>
@@ -152,10 +151,10 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
             {
               accessor: "name",
               title: (
-                <Text size={16}>
+                <Text fz={16}>
                   Config
 
-                  <Text size={13} color="dimmed">
+                  <Text fz={13} c="dimmed">
                     Required
                   </Text>
                 </Text>
@@ -166,7 +165,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
                     {config.name}
                   </Text>
 
-                  <Text size="sm" color="dimmed">
+                  <Text size="sm" c="dimmed">
                     {entityCount} entities - {attributeCount} attributes
                   </Text>
                 </>
@@ -175,13 +174,13 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
             {
               accessor: "actions",
               title: (
-                <Group position="right" noWrap>
+                <Group justify="flex-end" wrap="nowrap">
                   <Button variant="subtle" onClick={() => setOpenedModal(true)}>
                     {!configRecord && <>Create config</>}
                     {configRecord && <>Edit config</>}
                   </Button>
 
-                  <FileButton onChange={setFile} accept=".json,.conf" key={uuid()}>
+                  <FileButton onChange={setFile} accept=".json,.conf" key={crypto.randomUUID()}>
                     {(props) => (
                       <Button {...props}>
                         Upload config
@@ -190,12 +189,12 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
                   </FileButton>
                 </Group>
               ),
-              textAlignment: "right",
+              textAlign: "right",
               render: (config) => (
-                <Group spacing={8} position="right" noWrap>
+                <Group gap={8} justify="flex-end" wrap="nowrap">
                   <Tooltip label="Delete config">
                     <ActionIcon
-                      color="primary"
+                      color="brand"
                       onClick={() => {
                         database
                           .deleteWorkspaceConfig(config.id)
@@ -375,9 +374,9 @@ function ConfigCreatorModal({ configId, configRecord, workspace, openedModal, se
       centered
     >
       <Grid>
-        <Grid.Col md={6}>
+        <Grid.Col span={{ md: 6 }}>
           <Grid>
-            <Grid.Col xs={12}>
+            <Grid.Col span={12}>
               <EntitySection
                 entities={entities}
                 setEntities={setEntities}
@@ -396,12 +395,12 @@ function ConfigCreatorModal({ configId, configRecord, workspace, openedModal, se
 
         <Divider orientation="vertical" ml={10} mr={10} />
 
-        <Grid.Col md={5}>
+        <Grid.Col span={{ md: 5 }}>
           <PreviewSection config={config} />
         </Grid.Col>
       </Grid>
 
-      <Group position="right">
+      <Group justify="flex-end">
         <Button onClick={handleExportAndUseConfig}>
           Export & Use
         </Button>
@@ -418,26 +417,19 @@ interface EntitySectionProps {
 function EntitySection({ entities, setEntities }: EntitySectionProps) {
   return (
     <>
-      <Text size={16}>
+      <Text fz={16}>
         Entities
       </Text>
 
-      <Text size={12} mb={10} color="dimmed">
+      <Text fz={12} mb={10} c="dimmed">
         The high-level nouns/categories of information you want to capture during annotation (e.g. 'Person' and 'Prescription').
       </Text>
 
-      <MultiSelect
+      <TagsInput
         placeholder="Start typing to create an entity"
         data={entities}
-        defaultValue={entities}
-        searchable
-        creatable
+        value={entities}
         onChange={(values) => setEntities(values)}
-        getCreateLabel={(query) => `+ Create ${query}`}
-        onCreate={(query) => {
-          setEntities([...entities, query])
-          return query
-        }}
       />
     </>
   )
@@ -501,11 +493,11 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
 
   return (
     <form onSubmit={form.onSubmit(handleAddAttribute)}>
-      <Text size={16}>
+      <Text fz={16}>
         Attributes <span style={{ opacity: 0.5 }}>(optional)</span>
       </Text>
 
-      <Text size={12} mb={10} color="dimmed">
+      <Text fz={12} mb={10} c="dimmed">
         The properties of an entity (e.g. 'Name' and 'Date of Birth' for the 'Person' entity).
       </Text>
 
@@ -530,22 +522,14 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
         {...form.getInputProps("name")}
       />
 
-      <MultiSelect
+      <TagsInput
         label="Attribute values"
         description="The possible values this attribute can have (e.g. 'mg' and 'ml' for a 'Drug Dose' attribute)."
-        nothingFound="Start typing to add attribute values"
         placeholder="Start typing to add attribute values"
         data={attributeValues}
         value={attributeValues}
-        searchable
-        creatable
         mb={20}
         onChange={(values) => setAttributeValues(values)}
-        getCreateLabel={(query) => `+ Create ${query}`}
-        onCreate={(query) => {
-          setAttributeValues([...attributeValues, query])
-          return query
-        }}
       />
 
       <Checkbox
@@ -555,7 +539,7 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
           <>
             Allow custom attribute values
 
-            <Text size={12} color="dimmed">
+            <Text fz={12} c="dimmed">
               Enable users to add custom attribute values as they annotate.
             </Text>
           </>
@@ -581,37 +565,37 @@ interface PreviewSectionProps {
 function PreviewSection({ config }: PreviewSectionProps) {
   return (
     <>
-      <Text size={16}>
+      <Text fz={16}>
         Live Preview
       </Text>
 
-      <ScrollArea sx={{ height: 500 }}>
+      <ScrollArea style={{ height: 500 }}>
         <Grid>
-          <Grid.Col xs={12}>
+          <Grid.Col span={12}>
             <Text size="md">
               Entities
             </Text>
 
-            <Text color="dimmed" size={14}>
+            <Text c="dimmed" fz={14}>
               These are the high-level concepts you intend to capture.
             </Text>
           </Grid.Col>
 
-          <Grid.Col xs={12}>
+          <Grid.Col span={12}>
             <EntityConfig config={config} />
           </Grid.Col>
 
-          <Grid.Col xs={12}>
+          <Grid.Col span={12}>
             <Text size="md">
               Attributes
             </Text>
 
-            <Text color="dimmed" size={14}>
+            <Text c="dimmed" fz={14}>
               These are the granular details that describe each entity.
             </Text>
           </Grid.Col>
 
-          <Grid.Col xs={12}>
+          <Grid.Col span={12}>
             <AttributeConfig config={config} />
           </Grid.Col>
         </Grid>

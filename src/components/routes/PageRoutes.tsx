@@ -18,7 +18,7 @@ import Support from "pages/support/Support"
 import Faq from "pages/faq/Faq"
 import ResetPassword from "pages/auth/ResetPassword"
 
-function PageRoutes(): JSX.Element {
+function PageRoutes() {
   return (
     <Routes>
       <Route path={Path.Home} element={

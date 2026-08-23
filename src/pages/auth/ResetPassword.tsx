@@ -1,40 +1,18 @@
-import { createStyles, Paper, Title, Text, TextInput, Button, Container, Group, Grid, Alert } from "@mantine/core"
+import { Paper, Title, Text, TextInput, Button, Container, Group, Grid, Alert } from "@mantine/core"
 import { useForm } from "@mantine/form"
-import { IconCheck } from "@tabler/icons"
+import { IconCheck } from "@tabler/icons-react"
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Path } from "utils/Path"
 import { supabase } from "utils/Supabase"
+import classes from "./AuthForm.module.css"
 
 interface ResetPasswordForm {
   password: string
   passwordConf: string
 }
 
-const useStyles = createStyles((theme) => ({
-  title: {
-    fontSize: 26,
-    fontWeight: 900,
-    fontFamily: `Greycliff CF, ${theme.fontFamily}`,
-  },
-
-  controls: {
-    [theme.fn.smallerThan("xs")]: {
-      flexDirection: "column-reverse",
-    },
-  },
-
-  control: {
-    [theme.fn.smallerThan("xs")]: {
-      width: "100%",
-      textAlign: "center",
-    },
-  },
-}))
-
 function ResetPassword() {
-  const { classes } = useStyles()
-
   const [accountUpdated, setAccountUpdated] = useState(false)
 
   const form = useForm({
@@ -79,11 +57,11 @@ function ResetPassword() {
 
   return (
     <Container size={460} my={30}>
-      <Title className={classes.title} align="center">
+      <Title className={classes.title} ta="center">
         Reset Your Password
       </Title>
 
-      <Text color="dimmed" size="sm" align="center">
+      <Text c="dimmed" size="sm" ta="center">
         Enter your updated password
       </Text>
 
@@ -91,8 +69,8 @@ function ResetPassword() {
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Grid>
             {accountUpdated && (
-              <Grid.Col xs={12}>
-                <Alert icon={<IconCheck size={16} />} color="green">
+              <Grid.Col span={12}>
+                <Alert icon={<IconCheck size={16} />} c="green">
                   <Text>
                     Your password has been updated.
                   </Text>
@@ -106,7 +84,7 @@ function ResetPassword() {
               </Grid.Col>
             )}
 
-            <Grid.Col xs={12}>
+            <Grid.Col span={12}>
               <TextInput
                 label="New password"
                 placeholder="Password"
@@ -116,7 +94,7 @@ function ResetPassword() {
               />
             </Grid.Col>
 
-            <Grid.Col xs={12}>
+            <Grid.Col span={12}>
               <TextInput
                 label="Confirm new password"
                 placeholder="Password"
@@ -127,7 +105,7 @@ function ResetPassword() {
             </Grid.Col>
           </Grid>
 
-          <Group position="apart" mt="lg" className={classes.controls}>
+          <Group justify="space-between" mt="lg" className={classes.controls}>
             <Button className={classes.control} type="submit">
               Update password
             </Button>

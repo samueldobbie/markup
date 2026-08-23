@@ -59,22 +59,24 @@ function Annotate() {
       }
 
       {!invalidWorkspace &&
-        <Container sx={{ width: "98%", maxWidth: "98%" }}>
+        <Container style={{ width: "98%", maxWidth: "98%" }}>
           {workspace &&
             <Grid>
-              <Grid.Col xs={12} hidden={!isDemoWorkspace}>
-                <Tutorial />
-              </Grid.Col>
+              {isDemoWorkspace && (
+                <Grid.Col span={12}>
+                  <Tutorial />
+                </Grid.Col>
+              )}
 
-              <Grid.Col md={3}>
+              <Grid.Col span={{ md: 3 }}>
                 <Config workspace={workspace} />
               </Grid.Col>
 
-              <Grid.Col md={6}>
+              <Grid.Col span={{ md: 6 }}>
                 <Document workspace={workspace} />
               </Grid.Col>
 
-              <Grid.Col md={3}>
+              <Grid.Col span={{ md: 3 }}>
                 <Output workspace={workspace} />
               </Grid.Col>
             </Grid>

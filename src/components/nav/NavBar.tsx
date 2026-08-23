@@ -1,84 +1,24 @@
-import { createStyles, Header, Container, Group, Burger, Paper, Transition, Switch, useMantineTheme, useMantineColorScheme, Image, Center, Menu, Divider } from "@mantine/core"
+import { Box, Container, Group, Burger, Paper, Transition, Switch, Image, Center, Menu, Divider, useComputedColorScheme } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import { Link } from "react-router-dom"
-import { IconSun, IconMoonStars, IconChevronDown } from "@tabler/icons"
+import { IconSun, IconMoonStars, IconChevronDown } from "@tabler/icons-react"
 import { useAuth } from "providers/AuthProvider"
 import { Path } from "utils/Path"
 import GitHubButton from "react-github-btn"
 import { supabase } from "utils/Supabase"
+import { useThemeStore } from "storage/state"
+import clsx from "clsx"
+import classes from "./NavBar.module.css"
 
 const HEADER_HEIGHT = 60
 
-const useStyles = createStyles((theme) => ({
-  root: {
-    position: "relative",
-    zIndex: 10,
-  },
-  dropdown: {
-    position: "absolute",
-    top: HEADER_HEIGHT,
-    left: 0,
-    right: 0,
-    zIndex: 10,
-    borderTopRightRadius: 0,
-    borderTopLeftRadius: 0,
-    borderTopWidth: 0,
-
-    [theme.fn.largerThan("sm")]: {
-      display: "none",
-    },
-  },
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    height: "100%",
-  },
-  burger: {
-    [theme.fn.largerThan("sm")]: {
-      display: "none",
-    },
-  },
-  navItems: {
-    [theme.fn.smallerThan("sm")]: {
-      display: "none",
-    },
-  },
-  navItem: {
-    display: "block",
-    lineHeight: 1,
-    padding: "8px 12px",
-    borderRadius: theme.radius.sm,
-    textDecoration: "none",
-    color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.colors.gray[7],
-    fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
-
-    [theme.fn.smallerThan("sm")]: {
-      borderRadius: 0,
-      padding: theme.spacing.md,
-    },
-
-    "&:focus, &:hover, &:visited, &:link, &:active": {
-      textDecoration: "none",
-    }
-  },
-  navItemHover: {
-    "&:hover": {
-      backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0],
-      color: theme.fn.variant({ variant: "light", color: theme.primaryColor }).color,
-    },
-  },
-}))
-
-function Navbar(): JSX.Element {
-  const theme = useMantineTheme()
-  const { colorScheme, toggleColorScheme } = useMantineColorScheme()
-  const { classes, cx } = useStyles()
+function Navbar() {
+  const colorScheme = useComputedColorScheme("dark")
+  const toggleColorScheme = useThemeStore((s) => s.toggleColorScheme)
   const { user } = useAuth()
   const [opened, { toggle, close }] = useDisclosure(false)
 
-  const logo = theme.colorScheme === "dark"
+  const logo = colorScheme === "dark"
     ? "https://i.imgur.com/XNjFxxn.png"
     : "https://i.imgur.com/9Q9lBeF.png"
 
@@ -86,7 +26,7 @@ function Navbar(): JSX.Element {
     <>
       <Link
         to={Path.Docs}
-        className={cx(classes.navItem, classes.navItemHover)}
+        className={clsx(classes.navItem, classes.navItemHover)}
         onClick={() => close()}
       >
         Docs
@@ -96,7 +36,7 @@ function Navbar(): JSX.Element {
         <>
           <Link
             to={Path.SignIn}
-            className={cx(classes.navItem, classes.navItemHover)}
+            className={clsx(classes.navItem, classes.navItemHover)}
             onClick={() => close()}
           >
             Sign In
@@ -104,7 +44,7 @@ function Navbar(): JSX.Element {
 
           <Link
             to={Path.SignUp}
-            className={cx(classes.navItem, classes.navItemHover)}
+            className={clsx(classes.navItem, classes.navItemHover)}
             onClick={() => close()}
           >
             Sign Up
@@ -112,7 +52,7 @@ function Navbar(): JSX.Element {
 
           <Link
             to={Path.Support}
-            className={cx(classes.navItem, classes.navItemHover)}
+            className={clsx(classes.navItem, classes.navItemHover)}
             onClick={() => close()}
           >
             Support
@@ -124,7 +64,7 @@ function Navbar(): JSX.Element {
         <>
           <Link
             to={Path.Dashboard}
-            className={cx(classes.navItem, classes.navItemHover)}
+            className={clsx(classes.navItem, classes.navItemHover)}
             onClick={() => close()}
           >
             Dashboard
@@ -134,7 +74,7 @@ function Navbar(): JSX.Element {
             <Menu.Target>
               <a
                 href="/"
-                className={cx(classes.navItem, classes.navItemHover)}
+                className={clsx(classes.navItem, classes.navItemHover)}
                 onClick={(event) => event.preventDefault()}
               >
                 <Center>
@@ -168,15 +108,15 @@ function Navbar(): JSX.Element {
       }
 
       <Switch
-        checked={colorScheme === 'dark'}
+        checked={colorScheme === "dark"}
         onChange={() => toggleColorScheme()}
         size="lg"
-        onLabel={<IconSun color={theme.white} size={20} stroke={1.5} />}
-        offLabel={<IconMoonStars color={theme.colors.gray[6]} size={20} stroke={1.5} />}
-        className={cx(classes.navItem)}
+        onLabel={<IconSun color="white" size={20} stroke={1.5} />}
+        offLabel={<IconMoonStars color="gray" size={20} stroke={1.5} />}
+        className={classes.navItem}
       />
 
-      <Group className={cx(classes.navItem)}>
+      <Group className={classes.navItem}>
         <GitHubButton
           href="https://github.com/samueldobbie/markup"
           data-size="large"
@@ -194,7 +134,7 @@ function Navbar(): JSX.Element {
         <>
           <Link
             to={Path.Docs}
-            className={cx(classes.navItem, classes.navItemHover)}
+            className={clsx(classes.navItem, classes.navItemHover)}
             onClick={() => close()}
           >
             Docs
@@ -202,7 +142,7 @@ function Navbar(): JSX.Element {
 
           <Link
             to={Path.SignIn}
-            className={cx(classes.navItem, classes.navItemHover)}
+            className={clsx(classes.navItem, classes.navItemHover)}
             onClick={() => close()}
           >
             Sign In
@@ -210,7 +150,7 @@ function Navbar(): JSX.Element {
 
           <Link
             to={Path.SignUp}
-            className={cx(classes.navItem, classes.navItemHover)}
+            className={clsx(classes.navItem, classes.navItemHover)}
             onClick={() => close()}
           >
             Sign Up
@@ -222,7 +162,7 @@ function Navbar(): JSX.Element {
         <>
           <Link
             to={Path.Docs}
-            className={cx(classes.navItem, classes.navItemHover)}
+            className={clsx(classes.navItem, classes.navItemHover)}
             onClick={() => close()}
           >
             Docs
@@ -230,7 +170,7 @@ function Navbar(): JSX.Element {
 
           <Link
             to={Path.Dashboard}
-            className={cx(classes.navItem, classes.navItemHover)}
+            className={clsx(classes.navItem, classes.navItemHover)}
             onClick={() => close()}
           >
             Dashboard
@@ -238,7 +178,7 @@ function Navbar(): JSX.Element {
 
           <Link
             to={Path.Settings}
-            className={cx(classes.navItem, classes.navItemHover)}
+            className={clsx(classes.navItem, classes.navItemHover)}
             onClick={() => close()}
           >
             Settings
@@ -246,7 +186,7 @@ function Navbar(): JSX.Element {
 
           <Link
             to={Path.Support}
-            className={cx(classes.navItem, classes.navItemHover)}
+            className={clsx(classes.navItem, classes.navItemHover)}
             onClick={() => close()}
           >
             Support
@@ -254,14 +194,14 @@ function Navbar(): JSX.Element {
 
           <Link
             to={Path.Faq}
-            className={cx(classes.navItem, classes.navItemHover)}
+            className={clsx(classes.navItem, classes.navItemHover)}
             onClick={() => close()}
           >
             FAQ
           </Link>
 
           <span
-            className={cx(classes.navItem, classes.navItemHover)}
+            className={clsx(classes.navItem, classes.navItemHover)}
             onClick={async () => {
               await supabase.auth.signOut()
               close()
@@ -273,15 +213,15 @@ function Navbar(): JSX.Element {
       }
 
       <Switch
-        checked={colorScheme === 'dark'}
+        checked={colorScheme === "dark"}
         onChange={() => toggleColorScheme()}
         size="lg"
-        onLabel={<IconSun color={theme.white} size={20} stroke={1.5} />}
-        offLabel={<IconMoonStars color={theme.colors.gray[6]} size={20} stroke={1.5} />}
-        className={cx(classes.navItem)}
+        onLabel={<IconSun color="white" size={20} stroke={1.5} />}
+        offLabel={<IconMoonStars color="gray" size={20} stroke={1.5} />}
+        className={classes.navItem}
       />
 
-      <Group className={cx(classes.navItem)}>
+      <Group className={classes.navItem}>
         <GitHubButton
           href="https://github.com/samueldobbie/markup"
           data-size="large"
@@ -294,13 +234,13 @@ function Navbar(): JSX.Element {
   )
 
   return (
-    <Header height={HEADER_HEIGHT} mb={50} className={classes.root}>
+    <Box component="header" h={HEADER_HEIGHT} mb={50} className={classes.root}>
       <Container className={classes.header}>
         <Link to={Path.Home} style={{ textDecoration: "none" }}>
-          <Image src={logo} height={22} />
+          <Image src={logo} h={22} w="auto" />
         </Link>
 
-        <Group spacing={5} className={classes.navItems}>
+        <Group gap={5} className={classes.navItems}>
           {navbarItems}
         </Group>
 
@@ -314,7 +254,7 @@ function Navbar(): JSX.Element {
           )}
         </Transition>
       </Container>
-    </Header>
+    </Box>
   )
 }
 

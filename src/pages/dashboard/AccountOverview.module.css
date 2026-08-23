@@ -1,0 +1,13 @@
+.card {
+  background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
+}
+
+.title {
+  line-height: 1;
+}
+
+.linkText {
+  font-weight: 700;
+  text-decoration: underline;
+  display: inline;
+}

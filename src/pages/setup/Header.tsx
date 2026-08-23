@@ -1,6 +1,6 @@
-import { Group, Button, Text, ActionIcon, Grid, Modal, TextInput } from "@mantine/core"
+import { Group, Button, Text, Grid, Modal, TextInput } from "@mantine/core"
 import { useForm } from "@mantine/form"
-import { IconArrowRight, IconDotsVertical, IconEdit, IconSettings } from "@tabler/icons"
+import { IconArrowRight } from "@tabler/icons-react"
 import { useState } from "react"
 import { useParams } from "react-router-dom"
 import { database } from "storage/database"
@@ -20,14 +20,14 @@ function Header({ workspace, workspaceStatus }: SectionProps) {
 
   return (
     <>
-      <Group position="apart">
-        <Group position="left">
+      <Group justify="space-between">
+        <Group justify="flex-start">
           <div>
-            <Text size={25} sx={{ fontWeight: "bold" }}>
+            <Text fz={25} style={{ fontWeight: "bold" }}>
               {workspace.name}
             </Text>
 
-            <Text color="dimmed" size={14}>
+            <Text c="dimmed" fz={14}>
               {workspace.description || "No description"}
             </Text>
           </div>
@@ -52,7 +52,7 @@ function Header({ workspace, workspaceStatus }: SectionProps) {
             disabled={!workspaceStatus.hasConfig || !workspaceStatus.hasDocument}
             onClick={() => moveToPage(toAnnotateUrl(id))}
             variant="light"
-            color="green"
+            c="green"
           >
             Annotate <IconArrowRight size={19} />
           </Button>
@@ -99,7 +99,7 @@ function EditWorkspaceModal({ workspace, openedModal, setOpenedModal }: any) {
     >
       <form onSubmit={form.onSubmit((values) => handleUpdateWorkspace(values))}>
         <Grid>
-          <Grid.Col xs={12}>
+          <Grid.Col span={12}>
             <TextInput
               required
               withAsterisk
@@ -109,7 +109,7 @@ function EditWorkspaceModal({ workspace, openedModal, setOpenedModal }: any) {
             />
           </Grid.Col>
 
-          <Grid.Col xs={12}>
+          <Grid.Col span={12}>
             <TextInput
               label="Description"
               placeholder="500 letters provided by LSE hospital"
@@ -117,7 +117,7 @@ function EditWorkspaceModal({ workspace, openedModal, setOpenedModal }: any) {
             />
           </Grid.Col>
 
-          <Grid.Col xs={12}>
+          <Grid.Col span={12}>
             <Button type="submit">
               Update
             </Button>

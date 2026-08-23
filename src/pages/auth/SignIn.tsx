@@ -9,7 +9,7 @@ interface SignInForm {
   password: string
 }
 
-function SignIn(): JSX.Element {
+function SignIn() {
   const form = useForm({
     initialValues: {
       email: "",
@@ -34,13 +34,13 @@ function SignIn(): JSX.Element {
   return (
     <Container size={420} my={40}>
       <Title
-        align="center"
-        sx={(theme) => ({ fontFamily: `Greycliff CF, ${theme.fontFamily}`, fontWeight: 900 })}
+        ta="center"
+        style={{ fontFamily: "Greycliff CF, var(--mantine-font-family)", fontWeight: 900 }}
       >
         Welcome back!
       </Title>
 
-      <Text color="dimmed" size="sm" align="center" mt={5}>
+      <Text c="dimmed" size="sm" ta="center" mt={5}>
         Do not have an account yet?{" "}
         <Anchor<"a"> href={Path.SignUp} size="sm">
           Create account
@@ -68,7 +68,7 @@ function SignIn(): JSX.Element {
             {...form.getInputProps("password")}
           />
 
-          <Group position="apart" mt="md">
+          <Group justify="space-between" mt="md">
             <Checkbox label="Remember me" />
             <Anchor href={Path.ForgotPassword} size="sm">
               Forgot password?

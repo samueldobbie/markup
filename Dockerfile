@@ -1,17 +1,15 @@
-FROM node:latest AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
-COPY package.json .
-COPY yarn.lock .
-RUN yarn install
+RUN corepack enable
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 COPY . .
-RUN yarn build
+RUN pnpm build
 
-# Bundle static assets with nginx
-FROM nginx:1.21.0-alpine as production
+FROM nginx:1.27-alpine
 
-ENV NODE_ENV production
-COPY --from=builder /app/build /usr/share/nginx/html
+COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 8080
 

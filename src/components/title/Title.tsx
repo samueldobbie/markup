@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Group, Text, Stack } from "@mantine/core"
 
 interface TitleProps {
@@ -5,23 +6,23 @@ interface TitleProps {
   description?: string
   open: boolean
   setOpen: (v: boolean) => void
-  number: JSX.Element
+  number: ReactNode
 }
 
 function Title({ text, description, open, setOpen, number }: TitleProps) {
   return (
     <Group
-      position="apart"
+      justify="space-between"
       onClick={() => setOpen(!open)}
-      sx={{ cursor: "pointer" }}
-      noWrap
+      style={{ cursor: "pointer" }}
+      wrap="nowrap"
     >
-      <Stack spacing={0}>
+      <Stack gap={0}>
         <Text size="md">
           {number} {text}
         </Text>
 
-        <Text size="xs" color="dimmed">
+        <Text size="xs" c="dimmed">
           {description}
         </Text>
       </Stack>

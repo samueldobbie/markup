@@ -1,6 +1,8 @@
+import classes from "./Docs.module.css"
+import clsx from "clsx"
 import { useEffect, useState } from "react"
-import { createStyles, Box, Text, Group, Container, Grid, Card, Collapse, Alert, Button, Code } from "@mantine/core"
-import { IconAlertCircle, IconArrowLeft, IconArrowRight, IconBook2, IconFilePlus, IconPlayerPlay, IconUsers, IconX } from "@tabler/icons"
+import { Box, Text, Group, Container, Grid, Card, Collapse, Alert, Button, Code } from "@mantine/core"
+import { IconAlertCircle, IconArrowLeft, IconArrowRight, IconBook2, IconFilePlus, IconUsers, IconX } from "@tabler/icons-react"
 import { Path } from "utils/Path"
 import { toKebabCase } from "utils/Text"
 
@@ -88,46 +90,6 @@ const DOCUMENTATION = [
   link: `#${toKebabCase(item.label)}`,
 }))
 
-const useStyles = createStyles((theme) => ({
-  link: {
-    ...theme.fn.focusStyles(),
-    display: "block",
-    textDecoration: "none",
-    color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.black,
-    lineHeight: `${LINK_HEIGHT}px`,
-    fontSize: theme.fontSizes.sm,
-    height: LINK_HEIGHT,
-    borderTopRightRadius: theme.radius.sm,
-    borderBottomRightRadius: theme.radius.sm,
-    borderLeft: `2px solid ${theme.colorScheme === "dark" ? theme.colors.dark[4] : theme.colors.gray[2]
-      }`,
-
-    "&:hover": {
-      backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0],
-    },
-  },
-
-  linkActive: {
-    fontWeight: 500,
-    color: theme.colors[theme.primaryColor][theme.colorScheme === "dark" ? 3 : 7],
-  },
-
-  links: {
-    position: "relative",
-  },
-
-  indicator: {
-    transition: "transform 150ms ease",
-    border: `2px solid ${theme.colors[theme.primaryColor][theme.colorScheme === "dark" ? 3 : 7]}`,
-    backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
-    height: INDICATOR_SIZE,
-    width: INDICATOR_SIZE,
-    borderRadius: INDICATOR_SIZE,
-    position: "absolute",
-    left: -INDICATOR_SIZE / 2 + 1,
-  },
-}))
-
 function Docs() {
   const [active, setActive] = useState(0)
 
@@ -143,14 +105,14 @@ function Docs() {
   return (
     <Container>
       <Grid>
-        <Grid.Col xs={3}>
+        <Grid.Col span={3}>
           <TableOfContents
             active={active}
             setActive={setActive}
           />
         </Grid.Col>
 
-        <Grid.Col xs={9}>
+        <Grid.Col span={9}>
           <Content
             active={active}
             setActive={setActive}
@@ -162,7 +124,7 @@ function Docs() {
 }
 
 function TableOfContents({ active, setActive }: any) {
-  const { classes, cx } = useStyles()
+  
 
   const items = DOCUMENTATION.map((item, index) => (
     <Box<"a">
@@ -173,8 +135,8 @@ function TableOfContents({ active, setActive }: any) {
         setActive(index)
       }}
       key={item.label}
-      className={cx(classes.link, { [classes.linkActive]: active === index })}
-      sx={(theme) => ({ paddingLeft: item.order * theme.spacing.md })}
+      className={clsx(classes.link, { [classes.linkActive]: active === index })}
+      style={{ paddingLeft: `calc(${item.order} * var(--mantine-spacing-md))` }}
     >
       {item.label}
     </Box>
@@ -185,7 +147,7 @@ function TableOfContents({ active, setActive }: any) {
       <Group mb="md">
         <IconBook2 size={16} />
 
-        <Text weight="bold">
+        <Text fw={700}>
           Docs
         </Text>
       </Group>
@@ -207,7 +169,7 @@ function Content({ active, setActive }: any) {
     <>
       {DOCUMENTATION[active].content}
 
-      <Group position="apart" mt={40} mb={40}>
+      <Group justify="space-between" mt={40} mb={40}>
         {active > 0 ? (
           <Button
             variant="subtle"
@@ -331,7 +293,7 @@ function CoreConcepts() {
           <Card
             radius={2}
             p="sm"
-            sx={{
+            style={{
               backgroundColor: "#85f1e5",
               color: "#333333",
               cursor: "pointer",
@@ -340,7 +302,7 @@ function CoreConcepts() {
             onClick={() => setOpen(!open)}
           >
             <Grid>
-              <Grid.Col xs={2}>
+              <Grid.Col span={2}>
                 <IconX
                   size={16}
                   onClick={(e) => {
@@ -350,12 +312,12 @@ function CoreConcepts() {
                 />
               </Grid.Col>
 
-              <Grid.Col xs={10} sx={{ userSelect: "none" }}>
+              <Grid.Col span={10} style={{ userSelect: "none" }}>
                 <Text>
                   Apple Inc.
                 </Text>
 
-                <Text color="dimmed" size={12} sx={{ cursor: "pointer" }}>
+                <Text c="dimmed" fz={12} style={{ cursor: "pointer" }}>
                   {attributes.length} attributes
                 </Text>
               </Grid.Col>
@@ -363,10 +325,10 @@ function CoreConcepts() {
 
             <Collapse in={open} mt={10}>
               {attributes.map((attribute, index) => (
-                <Text size={12} key={index}>
+                <Text fz={12} key={index}>
                   {attribute.name}
 
-                  <Text color="dimmed">
+                  <Text c="dimmed">
                     {attribute.value}
                   </Text>
                 </Text>
@@ -556,7 +518,7 @@ function UploadDocuments() {
     <Text>
       <h2>Upload documents</h2>
 
-      <Alert icon={<IconAlertCircle size={16} />} title="File format" color="orange">
+      <Alert icon={<IconAlertCircle size={16} />} title="File format" c="orange">
         <Group>
           <Text>
             Markup currently only supports plain text (.txt) files. We're working on adding support for
@@ -786,7 +748,7 @@ function Collaborate() {
     <Text>
       <h2>Collaborate</h2>
 
-      <Alert icon={<IconAlertCircle size={16} />} title="Existing Users" color="orange">
+      <Alert icon={<IconAlertCircle size={16} />} title="Existing Users" c="orange">
         <Group>
           <Text>
             The collaborator email you share your workspace with must already be registered

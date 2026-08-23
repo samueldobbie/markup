@@ -1,5 +1,5 @@
 import { Accordion, Container, Title } from "@mantine/core"
-import { IconStar } from "@tabler/icons"
+import { IconStar } from "@tabler/icons-react"
 
 function Faq() {
   return (
@@ -7,7 +7,7 @@ function Faq() {
       <Title
         order={2}
         size="h1"
-        weight={900}
+        fw={900}
       >
         FAQ
       </Title>

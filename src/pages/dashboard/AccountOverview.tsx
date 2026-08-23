@@ -1,48 +1,22 @@
-import { Card, Checkbox, Anchor, createStyles, Text, Group } from "@mantine/core"
+import { Card, Checkbox, Text, Group } from "@mantine/core"
 import { Link } from "react-router-dom"
-import { useRecoilState } from "recoil"
-import { tutorialProgressState } from "storage/state/Dashboard"
+import { useDashboardStore } from "storage/state/Dashboard"
 import { Path } from "utils/Path"
-
-const useStyles = createStyles((theme) => ({
-  card: {
-    backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
-  },
-
-  item: {
-    "& + &": {
-      paddingTop: theme.spacing.sm,
-      marginTop: theme.spacing.sm,
-      borderTop: `1px solid ${theme.colorScheme === "dark" ? theme.colors.dark[4] : theme.colors.gray[2]
-        }`,
-    },
-  },
-
-  switch: {
-    "& *": {
-      cursor: "pointer",
-    },
-  },
-
-  title: {
-    lineHeight: 1,
-  },
-}))
+import classes from "./AccountOverview.module.css"
 
 function AccountOverview() {
-  const { classes } = useStyles()
-
-  const [tutorialProgress, setTutorialProgress] = useRecoilState(tutorialProgressState)
+  const tutorialProgress = useDashboardStore((s) => s.tutorialProgress)
+  const setTutorialProgress = useDashboardStore((s) => s.setTutorialProgress)
 
   return (
-    <Card shadow="xs" radius={5} p="xl">
-      <Group position="apart">
-        <Text size="lg" className={classes.title} weight={500}>
+    <Card shadow="xs" radius={5} p="xl" className={classes.card}>
+      <Group justify="space-between">
+        <Text size="lg" className={classes.title} fw={500}>
           Welcome to Markup!
         </Text>
       </Group>
 
-      <Text size="md" color="dimmed" mt={10} mb="xl">
+      <Text size="md" c="dimmed" mt={10} mb="xl">
         You're currently on the dashboard where you can manage workspaces and ontologies.
         Ready to get started? Follow the steps below:
       </Text>
@@ -58,17 +32,11 @@ function AccountOverview() {
               onClick={() => {
                 setTutorialProgress({
                   ...tutorialProgress,
-                  "readDocs": true,
+                  readDocs: true,
                 })
               }}
             >
-              <Text
-                display="inline"
-                sx={{
-                  fontWeight: "bold",
-                  textDecoration: "underline",
-                }}
-              >
+              <Text display="inline" className={classes.linkText}>
                 Quick Start
               </Text>
             </Link> guide

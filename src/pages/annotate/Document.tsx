@@ -1,15 +1,13 @@
+import { useAnnotateStore } from "storage/state/Annotate"
 import { ActionIcon, Button, Card, Divider, Grid, Group, Modal, ScrollArea, Select, TextInput, Text } from "@mantine/core"
-import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight, IconSearch } from "@tabler/icons"
+import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight, IconSearch } from "@tabler/icons-react"
 import { database, WorkspaceAnnotation, WorkspaceDocument } from "storage/database/Database"
 import { useEffect, useState } from "react"
 import { SectionProps } from "./Annotate"
 import { TextAnnotateBlend } from "react-text-annotate-blend"
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
-import { activeEntityState, annotationsState, documentIndexState, documentsState, entityColoursState, proposedAnnotationState } from "storage/state/Annotate"
 import { useDebouncedState } from "@mantine/hooks"
 import notify from "utils/Notifications"
 import "./Document.css"
-import uuid from "react-uuid"
 
 export interface InlineAnnotation {
   tag: string
@@ -19,13 +17,17 @@ export interface InlineAnnotation {
 }
 
 function Document({ workspace }: SectionProps) {
-  const activeEntity = useRecoilValue(activeEntityState)
-  const entityColours = useRecoilValue(entityColoursState)
-  const [proposedAnnotation, setProposedAnnotation] = useRecoilState(proposedAnnotationState)
+  const activeEntity = useAnnotateStore((s) => s.activeEntity)
+  const entityColours = useAnnotateStore((s) => s.entityColours)
+  const proposedAnnotation = useAnnotateStore((s) => s.proposedAnnotation)
+  const setProposedAnnotation = useAnnotateStore((s) => s.setProposedAnnotation)
 
-  const [documents, setDocuments] = useRecoilState(documentsState)
-  const [documentIndex, setDocumentIndex] = useRecoilState(documentIndexState)
-  const [annotations, setAnnotations] = useRecoilState(annotationsState)
+  const documents = useAnnotateStore((s) => s.documents)
+  const setDocuments = useAnnotateStore((s) => s.setDocuments)
+  const documentIndex = useAnnotateStore((s) => s.documentIndex)
+  const setDocumentIndex = useAnnotateStore((s) => s.setDocumentIndex)
+  const annotations = useAnnotateStore((s) => s.annotations)
+  const setAnnotations = useAnnotateStore((s) => s.setAnnotations)
   const [openedSearchDocumentModal, setOpenedSearchDocumentModal] = useState(false)
   const [inlineAnnotations, setInlineAnnotations] = useState<InlineAnnotation[]>([])
 
@@ -96,10 +98,10 @@ function Document({ workspace }: SectionProps) {
     <>
       {documents.length > 0 &&
         <Card shadow="xs" radius={5} p="xl">
-          <ScrollArea scrollbarSize={0} sx={{ height: "76vh" }}>
+          <ScrollArea scrollbarSize={0} style={{ height: "76vh" }}>
             <Grid>
-              <Grid.Col xs={12}>
-                <Group spacing={0} position="center" noWrap>
+              <Grid.Col span={12}>
+                <Group gap={0} justify="center" wrap="nowrap">
                   <ActionIcon
                     size="lg"
                     color="x"
@@ -158,7 +160,7 @@ function Document({ workspace }: SectionProps) {
 
                   <Button
                     variant="subtle"
-                    leftIcon={<IconSearch size={16} />}
+                    leftSection={<IconSearch size={16} />}
                     onClick={() => setOpenedSearchDocumentModal(true)}
                   >
                     Search documents
@@ -166,11 +168,11 @@ function Document({ workspace }: SectionProps) {
                 </Group>
               </Grid.Col>
 
-              <Grid.Col xs={12}>
+              <Grid.Col span={12}>
                 <Divider />
               </Grid.Col>
 
-              <Grid.Col xs={12}>
+              <Grid.Col span={12}>
                 <TextAnnotateBlend
                   content={documents[documentIndex].content}
                   value={inlineAnnotations}
@@ -214,7 +216,7 @@ interface Props {
 }
 
 function SearchDocumentModal({ documents, openedModal, setOpenedModal }: Props) {
-  const setDocumentIndex = useSetRecoilState(documentIndexState)
+  const setDocumentIndex = useAnnotateStore((s) => s.setDocumentIndex)
 
   const [searchTerm, setSearchTerm] = useDebouncedState("", 200)
   const [availableDocuments, setAvailableDocuments] = useState<Record<number, WorkspaceDocument>>({})
@@ -252,7 +254,7 @@ function SearchDocumentModal({ documents, openedModal, setOpenedModal }: Props) 
       opened={openedModal}
       onClose={() => setOpenedModal(false)}
       title={
-        <Group position="left" spacing={5}>
+        <Group justify="flex-start" gap={5}>
           <IconSearch size={16} />
 
           <Text>
@@ -270,11 +272,11 @@ function SearchDocumentModal({ documents, openedModal, setOpenedModal }: Props) 
 
       <Divider mt={20} mb={20} />
 
-      <ScrollArea scrollbarSize={0} sx={{ height: 400 }}>
+      <ScrollArea scrollbarSize={0} style={{ height: 400 }}>
         <Grid>
           {Object.keys(availableDocuments).length === 0 && (
-            <Grid.Col xs={12}>
-              <Text color="dimmed">
+            <Grid.Col span={12}>
+              <Text c="dimmed">
                 No matching documents found
               </Text>
             </Grid.Col>
@@ -285,7 +287,7 @@ function SearchDocumentModal({ documents, openedModal, setOpenedModal }: Props) 
             const document = availableDocuments[parsedDocumentIndex]
 
             let documentSnippet = (
-              <Text color="dimmed">
+              <Text c="dimmed">
                 {document.content.slice(0, 250)}
               </Text>
             )
@@ -312,16 +314,13 @@ function SearchDocumentModal({ documents, openedModal, setOpenedModal }: Props) 
               documentSnippet = (
                 <Text
                   dangerouslySetInnerHTML={{ __html: highlightedContent.slice(snippetStartIndex, snippetEndIndex) }}
-                  color="dimmed"
+                  c="dimmed"
                 />
               )
             }
 
             return (
-              <Grid.Col
-                xs={12}
-                key={uuid()}
-                onClick={() => {
+              <Grid.Col span={12} key={crypto.randomUUID()} onClick={() => {
                   setDocumentIndex(parsedDocumentIndex)
                   setOpenedModal(false)
                 }}

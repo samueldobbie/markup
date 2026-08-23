@@ -1,4 +1,6 @@
-export interface DotsProps extends React.ComponentPropsWithoutRef<'svg'> {
+import type { ComponentPropsWithoutRef } from "react"
+
+export interface DotsProps extends ComponentPropsWithoutRef<"svg"> {
   size?: number
   radius?: number
 }

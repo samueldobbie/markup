@@ -1,6 +1,5 @@
-import { TextInput, SimpleGrid, Group, Title, Button, Container, Alert, Text, Code } from "@mantine/core"
+import { TextInput, SimpleGrid, Group, Title, Button, Container, Text, Code } from "@mantine/core"
 import { useForm } from "@mantine/form"
-import { IconCheck } from "@tabler/icons"
 import { useEffect, useState } from "react"
 import notify from "utils/Notifications"
 import { supabase } from "utils/Supabase"
@@ -101,12 +100,12 @@ function Settings() {
       <Title
         order={2}
         size="h1"
-        weight={900}
+        fw={900}
       >
         Settings
       </Title>
 
-      <Text mt="xl" color="dimmed">
+      <Text mt="xl" c="dimmed">
         Your current email is <Code display="inline" p={5}>{email}</Code>
       </Text>
 
@@ -120,7 +119,7 @@ function Settings() {
           {...form.getInputProps("email")}
         />
 
-        <SimpleGrid cols={2} mt="md" breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+        <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
           <TextInput
             label="New password"
             placeholder="Password"
