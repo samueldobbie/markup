@@ -5,4 +5,5 @@ npm-debug.log
 .coverage
 .coverage.*
 .env
+.env.local
 .aws

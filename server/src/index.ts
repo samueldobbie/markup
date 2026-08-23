@@ -1,4 +1,6 @@
+import { existsSync } from "node:fs"
 import { serve } from "@hono/node-server"
+import { serveStatic } from "@hono/node-server/serve-static"
 import { Hono } from "hono"
 import { cors } from "hono/cors"
 import { HTTPException } from "hono/http-exception"
@@ -10,6 +12,7 @@ import {
   toPublicModel,
   upsertWorkspaceModel,
 } from "./model.js"
+import { suggestRoutes } from "./suggest.js"
 
 const app = new Hono()
 
@@ -62,7 +65,14 @@ api.put("/workspaces/:workspaceId/model", async (c) => {
   return c.json(saved)
 })
 
+api.route("/suggest", suggestRoutes)
+
 app.route("/api", api)
+
+if (existsSync("dist/index.html")) {
+  app.use("/*", serveStatic({ root: "./dist" }))
+  app.get("*", serveStatic({ path: "./dist/index.html" }))
+}
 
 serve({
   fetch: app.fetch,
