@@ -1,28 +1,27 @@
+import { useDashboardStore } from "storage/state/Dashboard"
 import { Container, Grid } from "@mantine/core"
-import { useRecoilValue } from "recoil"
-import { showTutorialState } from "storage/state/Dashboard"
 import AccountOverview from "./AccountOverview"
 import OntologyTable from "./OntologyTable"
 import WorkspaceTable from "./WorkspaceTable"
 
 function Dashboard() {
-  const showTutorial = useRecoilValue(showTutorialState)
+  const showTutorial = useDashboardStore((s) => s.showTutorial)
 
   return (
     <>
       <Container my="md" size="xl">
         <Grid>
           {showTutorial && 
-            <Grid.Col xs={12}>
+            <Grid.Col span={12}>
               <AccountOverview />
             </Grid.Col>
           }
 
-          <Grid.Col xs={12} md={6}>
+          <Grid.Col span={{ base: 12, md: 6 }}>
             <WorkspaceTable />
           </Grid.Col>
 
-          <Grid.Col xs={12} md={6}>
+          <Grid.Col span={{ base: 12, md: 6 }}>
             <OntologyTable />
           </Grid.Col>
         </Grid>

@@ -1,13 +1,12 @@
-import { Group, Button, ActionIcon, Grid, Modal, TextInput, useMantineTheme, Text, Card, Table, Center, Tooltip } from "@mantine/core"
+import { useDashboardStore } from "storage/state/Dashboard"
+import { Group, Button, ActionIcon, Grid, Modal, TextInput, useMantineTheme, useComputedColorScheme, Text, Card, Table, Center, Tooltip } from "@mantine/core"
 import { Dropzone } from "@mantine/dropzone"
-import { IconFile, IconUpload, IconX, IconSearch, IconCheck, IconPlus, IconTrashX } from "@tabler/icons"
+import { IconFile, IconUpload, IconX, IconSearch, IconCheck, IconPlus, IconTrashX } from "@tabler/icons-react"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import { database, Ontology } from "storage/database/Database"
 import { ModalProps } from "./Interfaces"
 import { openConfirmModal } from "@mantine/modals"
-import { useRecoilState } from "recoil"
-import { tutorialProgressState } from "storage/state/Dashboard"
 import { useDebouncedState } from "@mantine/hooks"
 import { useForm } from "@mantine/form"
 import notify from "utils/Notifications"
@@ -17,13 +16,14 @@ import { Link } from "react-router-dom"
 function OntologyTable() {
   const [openExploreModal, setOpenExploreModal] = useState(false)
   const [openUploadModal, setOpenUploadModal] = useState(false)
-  const [tutorialProgress, setTutorialProgress] = useRecoilState(tutorialProgressState)
+  const tutorialProgress = useDashboardStore((s) => s.tutorialProgress)
+  const setTutorialProgress = useDashboardStore((s) => s.setTutorialProgress)
   const [ontologies, setOntologies] = useState<Ontology[]>([])
 
   const openConfirmDelete = (ontology: Ontology) => openConfirmModal({
     title: <>Are you sure you want to delete the '{ontology.name}' ontology?</>,
     children: (
-      <Text size="sm" color="dimmed">
+      <Text size="sm" c="dimmed">
         All data associated with this ontology will be
         irreversible deleted for all collaborators.
       </Text>
@@ -55,20 +55,20 @@ function OntologyTable() {
   return (
     <Card shadow="xs" radius={5}>
       <DataTable
-        withBorder={false}
+        withTableBorder={false}
         highlightOnHover
         emptyState="Upload an ontology or add an existing one"
         borderRadius={5}
-        sx={{ minHeight: "400px" }}
+        style={{ minHeight: "400px" }}
         records={ontologies}
         columns={[
           {
             accessor: "name",
             title: (
-              <Text size={16}>
+              <Text fz={16}>
                 Ontology
 
-                <Text size={13} color="dimmed">
+                <Text fz={13} c="dimmed">
                   Terminologies for mapping
                 </Text>
               </Text>
@@ -79,7 +79,7 @@ function OntologyTable() {
                   {ontology.name}
                 </Text>
 
-                <Text size="sm" color="dimmed">
+                <Text size="sm" c="dimmed">
                   {ontology.description}
                 </Text>
               </>
@@ -88,7 +88,7 @@ function OntologyTable() {
           {
             accessor: "actions",
             title: (
-              <Group spacing={8} position="right" noWrap>
+              <Group gap={8} justify="flex-end" wrap="nowrap">
                 <Button variant="subtle" onClick={() => {
                   setOpenExploreModal(true)
                   setTutorialProgress({
@@ -104,12 +104,12 @@ function OntologyTable() {
                 </Button>
               </Group>
             ),
-            textAlignment: "right",
+            textAlign: "right",
             render: (ontology) => (
-              <Group spacing={8} position="right" noWrap>
+              <Group gap={8} justify="flex-end" wrap="nowrap">
                 <Tooltip label="Delete ontology">
                   <ActionIcon
-                    color="primary"
+                    color="brand"
                     variant="subtle"
                     onClick={() => openConfirmDelete(ontology)}
                   >
@@ -189,7 +189,7 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal, ontologies, setOn
     >
       <TextInput
         placeholder="Search for an ontology"
-        icon={<IconSearch />}
+        leftSection={<IconSearch size={16} />}
         mb={10}
         onChange={(e) => setSearch(e.currentTarget.value)}
       />
@@ -199,7 +199,7 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal, ontologies, setOn
           {defaultOntologies.length === 0 && (
             <tr>
               <td colSpan={3}>
-                <Text size="sm" color="dimmed">
+                <Text size="sm" c="dimmed">
                   No common ontologies added yet (coming soon).
                 </Text>
               </td>
@@ -229,7 +229,7 @@ function ExploreOntologiesModal({ openedModal, setOpenedModal, ontologies, setOn
                     {isActive && (
                       <Button
                         variant="subtle"
-                        color="green"
+                        c="green"
                         onClick={() => removeOntology(defaultOntology.id)}
                         fullWidth
                       >
@@ -253,6 +253,7 @@ export interface OntologyConcept {
 
 function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: ModalProps) {
   const theme = useMantineTheme()
+  const colorScheme = useComputedColorScheme("dark")
   const form = useForm({
     initialValues: {
       name: "",
@@ -317,16 +318,16 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
       <form onSubmit={form.onSubmit((values) => handleOntologyUpload(values))}>
         <Grid>
           {error && (
-            <Grid.Col xs={12}>
+            <Grid.Col span={12}>
               <div style={{ backgroundColor: "rgb(255 226 237)", padding: 5, borderRadius: 5 }}>
-                <Text color="red" align="center">
+                <Text c="red" ta="center">
                   {error}
                 </Text>
               </div>
             </Grid.Col>
           )}
 
-          <Grid.Col xs={12}>
+          <Grid.Col span={12}>
             <TextInput
               required
               withAsterisk
@@ -336,7 +337,7 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
             />
           </Grid.Col>
 
-          <Grid.Col xs={12}>
+          <Grid.Col span={12}>
             <TextInput
               label="Description"
               placeholder="Clinical terminology"
@@ -344,12 +345,12 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
             />
           </Grid.Col>
 
-          <Grid.Col xs={12}>
-            <Text size={15}>
-              Concept Mappings <span style={{ color: theme.colors.red[theme.colorScheme === "dark" ? 4 : 6] }}>*</span>
+          <Grid.Col span={12}>
+            <Text fz={15}>
+              Concept Mappings <span style={{ color: theme.colors.red[colorScheme === "dark" ? 4 : 6] }}>*</span>
             </Text>
 
-            <Text size={13} color="dimmed" mb={2}>
+            <Text fz={13} c="dimmed" mb={2}>
               Mappings must be a JSON file in the format defined <Link to={Path.Docs + "#add-an-ontology"} target="_blank">here</Link>.
             </Text>
 
@@ -360,17 +361,17 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
               accept={[".json"]}
               multiple={false}
             >
-              <Group position="center" style={{ pointerEvents: "none" }}>
+              <Group justify="center" style={{ pointerEvents: "none" }}>
                 <Dropzone.Accept>
                   <Center>
                     <IconUpload
                       size={40}
                       stroke={1.5}
-                      color={theme.colors[theme.primaryColor][theme.colorScheme === "dark" ? 4 : 6]}
+                      color={theme.colors[theme.primaryColor][colorScheme === "dark" ? 4 : 6]}
                     />
                   </Center>
 
-                  <Text size="sm" color="dimmed" mt={5}>
+                  <Text size="sm" c="dimmed" mt={5}>
                     {mappingFile ? mappingFile.name : "No file selected"}
                   </Text>
                 </Dropzone.Accept>
@@ -380,11 +381,11 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
                     <IconX
                       size={40}
                       stroke={1.5}
-                      color={theme.colors.red[theme.colorScheme === "dark" ? 4 : 6]}
+                      color={theme.colors.red[colorScheme === "dark" ? 4 : 6]}
                     />
                   </Center>
 
-                  <Text size="lg" color="dimmed" mt={5}>
+                  <Text size="lg" c="dimmed" mt={5}>
                     {mappingFile ? mappingFile.name : "No file selected"}
                   </Text>
                 </Dropzone.Reject>
@@ -394,7 +395,7 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
                     <IconFile size={40} stroke={1.5} />
                   </Center>
 
-                  <Text size="lg" color="dimmed" mt={5}>
+                  <Text size="lg" c="dimmed" mt={5}>
                     {mappingFile ? mappingFile.name : "No file selected"}
                   </Text>
                 </Dropzone.Idle>
@@ -402,8 +403,8 @@ function UploadOntologyModal({ openedModal, setOpenedModal, refreshTable }: Moda
             </Dropzone>
           </Grid.Col>
 
-          <Grid.Col xs={12}>
-            <Group position="right">
+          <Grid.Col span={12}>
+            <Group justify="flex-end">
               <Button type="submit">
                 Upload
               </Button>

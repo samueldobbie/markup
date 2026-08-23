@@ -1,111 +1,19 @@
-import { createStyles, Title, Text, Button, Container, Image, useMantineTheme, Modal, Card, Grid } from "@mantine/core"
+import { Title, Text, Button, Container, Image, useComputedColorScheme, Modal, Card, Grid } from "@mantine/core"
 import { useAuth } from "providers"
 import { useState } from "react"
 import { DEMO_DOMAINS } from "utils/Demo"
 import { Path, toAnnotateUrl } from "utils/Path"
 import Dots from "./Dots"
 import SocialProof from "./SocialProof"
+import classes from "./Home.module.css"
 
-const useStyles = createStyles((theme) => ({
-  wrapper: {
-    position: "relative",
-    paddingTop: 120,
-    paddingBottom: 80,
-
-    "@media (max-width: 755px)": {
-      paddingTop: 80,
-      paddingBottom: 60,
-    },
-  },
-
-  inner: {
-    position: "relative",
-    zIndex: 1,
-  },
-
-  dots: {
-    position: "absolute",
-    color: theme.colorScheme === "dark" ? theme.colors.dark[5] : theme.colors.gray[1],
-
-    "@media (max-width: 755px)": {
-      display: "none",
-    },
-  },
-
-  dotsLeft: {
-    left: 0,
-    top: 0,
-  },
-
-  title: {
-    textAlign: "center",
-    fontWeight: 800,
-    fontSize: 50,
-    letterSpacing: -1,
-    color: theme.colorScheme === "dark" ? theme.white : theme.black,
-    marginBottom: theme.spacing.xs,
-    fontFamily: `Greycliff CF, ${theme.fontFamily}`,
-
-    "@media (max-width: 520px)": {
-      fontSize: 40,
-    },
-  },
-
-  highlight: {
-    color: theme.colors[theme.primaryColor][theme.colorScheme === "dark" ? 4 : 6],
-  },
-
-  description: {
-    textAlign: "center",
-
-    "@media (max-width: 520px)": {
-      fontSize: theme.fontSizes.md,
-    },
-  },
-
-  controls: {
-    marginTop: theme.spacing.lg,
-    display: "flex",
-    justifyContent: "center",
-
-    "@media (max-width: 520px)": {
-      flexDirection: "column",
-    },
-  },
-
-  control: {
-    "&:not(:first-of-type)": {
-      marginLeft: theme.spacing.md,
-    },
-
-    "@media (max-width: 520px)": {
-      height: 42,
-      fontSize: theme.fontSizes.md,
-
-      "&:not(:first-of-type)": {
-        marginTop: 25,
-        marginLeft: 0,
-      },
-    },
-  },
-
-  demoImage: {
-    marginTop: 150,
-
-    "@media (max-width: 500px)": {
-      display: "none",
-    },
-  },
-}))
-
-function Home(): JSX.Element {
-  const { classes } = useStyles()
+function Home() {
   const { user } = useAuth()
 
   const primaryButtonLink = user === null ? Path.SignUp : Path.Dashboard
   const primaryButtonText = user === null ? "Get started" : "Go to dashboard"
-  const theme = useMantineTheme()
-  const demoImage = theme.colorScheme === "dark"
+  const colorScheme = useComputedColorScheme("dark")
+  const demoImage = colorScheme === "dark"
     ? "https://markup-storage.s3.eu-west-2.amazonaws.com/annotate-dark-v2.png"
     : "https://markup-storage.s3.eu-west-2.amazonaws.com/annotate-light-v2.png"
 
@@ -127,7 +35,7 @@ function Home(): JSX.Element {
           </Title>
 
           <Container p={20} size={600}>
-            <Text size="lg" color="dimmed" className={classes.description}>
+            <Text size="lg" c="dimmed" className={classes.description}>
               Markup is an annotation tool for rapidly building structured<br />datasets from free-text for NLP and ML. Powered by GPT-4.
             </Text>
           </Container>
@@ -137,7 +45,7 @@ function Home(): JSX.Element {
               className={classes.control}
               size="lg"
               variant="default"
-              color="gray"
+              c="gray"
               component="a"
               onClick={() => setOpenedDemoDomainModal(true)}
             >
@@ -191,15 +99,15 @@ function DemoDomainModal({ openedModal, setOpenedModal }: Props) {
           <Grid.Col
             span={6}
             onClick={() => window.location.href = toAnnotateUrl(domain.id)}
-            sx={{ cursor: "pointer" }}
+            style={{ cursor: "pointer" }}
             key={index}
           >
             <Card shadow="sm">
-              <Text size="xl" weight={500}>
+              <Text size="xl" fw={500}>
                 {domain.name}
               </Text>
 
-              <Text size="sm" color="dimmed" style={{ marginTop: 10 }}>
+              <Text size="sm" c="dimmed" style={{ marginTop: 10 }}>
                 {domain.description}
               </Text>
             </Card>

@@ -1,8 +1,7 @@
 import { Group, Button, ActionIcon, Text, FileButton, Card, Tooltip } from "@mantine/core"
-import { IconTrashX } from "@tabler/icons"
+import { IconTrashX } from "@tabler/icons-react"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
-import uuid from "react-uuid"
 import { database } from "storage/database/Database"
 import notify from "utils/Notifications"
 import { SectionProps } from "./Setup"
@@ -43,18 +42,18 @@ function GuidelinesTable({ workspace }: SectionProps) {
   return (
     <Card shadow="xs" radius={5}>
       <DataTable
-        withBorder={false}
+        withTableBorder={false}
         emptyState="Upload annotation guidelines"
         borderRadius={5}
-        sx={{ minHeight: "225px" }}
+        style={{ minHeight: "225px" }}
         records={guidelines}
         rowExpansion={{
           content: (guideline) => (
             <Text
               p={20}
               mb={20}
-              color="dimmed"
-              sx={{
+              c="dimmed"
+              style={{
                 whiteSpace: "pre-line",
                 overflowX: "hidden",
               }}
@@ -67,10 +66,10 @@ function GuidelinesTable({ workspace }: SectionProps) {
           {
             accessor: "name",
             title: (
-              <Text size={16}>
+              <Text fz={16}>
                 Annotation Guidelines
 
-                <Text size={13} color="dimmed">
+                <Text fz={13} c="dimmed">
                   Optional
                 </Text>
               </Text>
@@ -80,8 +79,8 @@ function GuidelinesTable({ workspace }: SectionProps) {
           {
             accessor: "actions",
             title: (
-              <Group position="right" noWrap>
-                <FileButton onChange={setFile} accept=".txt" key={uuid()}>
+              <Group justify="flex-end" wrap="nowrap">
+                <FileButton onChange={setFile} accept=".txt" key={crypto.randomUUID()}>
                   {(props) => (
                     <Button {...props}>
                       Upload guidelines
@@ -90,12 +89,12 @@ function GuidelinesTable({ workspace }: SectionProps) {
                 </FileButton>
               </Group>
             ),
-            textAlignment: "right",
+            textAlign: "right",
             render: (guideline) => (
-              <Group spacing={8} position="right" noWrap>
+              <Group gap={8} justify="flex-end" wrap="nowrap">
                 <Tooltip label="Delete guidelines">
                   <ActionIcon
-                    color="primary"
+                    color="brand"
                     onClick={() => {
                       database
                         .deleteWorkspaceGuideline(guideline.id)

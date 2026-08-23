@@ -1,11 +1,10 @@
+import { useAnnotateStore } from "storage/state/Annotate"
 import { Card, Stepper } from "@mantine/core"
 import { Link } from "react-router-dom"
-import { useRecoilValue } from "recoil"
-import { activeTutorialStepState } from "storage/state"
 import { Path } from "utils/Path"
 
-function Tutorial(): JSX.Element {
-  const active = useRecoilValue(activeTutorialStepState)
+function Tutorial() {
+  const active = useAnnotateStore((s) => s.activeTutorialStep)
 
   return (
     <Card shadow="xs" radius={5} p="xl">

@@ -63,16 +63,16 @@ function Setup() {
         <Container my="md" size="xl">
           {workspace &&
             <Grid>
-              <Grid.Col xs={12}>
+              <Grid.Col span={12}>
                 <Header
                   workspace={workspace}
                   workspaceStatus={workspaceStatus}
                 />
               </Grid.Col>
 
-              <Grid.Col xs={12} md={5}>
+              <Grid.Col span={{ base: 12, md: 5 }}>
                 <Grid>
-                  <Grid.Col xs={12}>
+                  <Grid.Col span={12}>
                     <ConfigTable
                       workspace={workspace}
                       workspaceStatus={workspaceStatus}
@@ -80,7 +80,7 @@ function Setup() {
                     />
                   </Grid.Col>
 
-                  <Grid.Col xs={12}>
+                  <Grid.Col span={12}>
                     <GuidelinesTable
                       workspace={workspace}
                       workspaceStatus={workspaceStatus}
@@ -90,7 +90,7 @@ function Setup() {
                 </Grid>
               </Grid.Col>
 
-              <Grid.Col xs={12} md={7}>
+              <Grid.Col span={{ base: 12, md: 7 }}>
                 <DocumentTable
                   workspace={workspace}
                   workspaceStatus={workspaceStatus}

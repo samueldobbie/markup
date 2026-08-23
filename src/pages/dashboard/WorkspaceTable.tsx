@@ -1,6 +1,7 @@
+import { useDashboardStore } from "storage/state/Dashboard"
 import { Group, Button, ActionIcon, Text, Grid, Modal, TextInput, Card, Tooltip, Avatar } from "@mantine/core"
 import { useForm } from "@mantine/form"
-import { IconPlayerPlay, IconTrashX, IconUsers } from "@tabler/icons"
+import { IconPlayerPlay, IconTrashX, IconUsers } from "@tabler/icons-react"
 import { DataTable } from "mantine-datatable"
 import { useEffect, useState } from "react"
 import { database, Workspace } from "storage/database/Database"
@@ -8,8 +9,6 @@ import { moveToPage } from "utils/Location"
 import { ModalProps } from "./Interfaces"
 import { toSetupUrl } from "utils/Path"
 import { openConfirmModal } from "@mantine/modals"
-import { tutorialProgressState } from "storage/state/Dashboard"
-import { useRecoilState } from "recoil"
 import notify from "utils/Notifications"
 
 function WorkspaceTable() {
@@ -23,7 +22,7 @@ function WorkspaceTable() {
   const openConfirmDeleteModal = (workspace: Workspace) => openConfirmModal({
     title: <>Are you sure you want to delete the '{workspace.name}' workspace?</>,
     children: (
-      <Text size="sm" color="dimmed">
+      <Text size="sm" c="dimmed">
         All data associated with this workspace will be
         irreversible deleted for all collaborators.
       </Text>
@@ -58,19 +57,19 @@ function WorkspaceTable() {
   return (
     <Card shadow="xs" radius={5}>
       <DataTable
-        withBorder={false}
+        withTableBorder={false}
         emptyState="Create a workspace to start annotating"
         borderRadius={5}
-        sx={{ minHeight: "400px" }}
+        style={{ minHeight: "400px" }}
         records={workspaces}
         columns={[
           {
             accessor: "name",
             title: (
-              <Text size={16}>
+              <Text fz={16}>
                 Workspaces
 
-                <Text size={13} color="dimmed">
+                <Text fz={13} c="dimmed">
                   Your annotation sessions
                 </Text>
               </Text>
@@ -81,7 +80,7 @@ function WorkspaceTable() {
                   {workspace.name}
                 </Text>
 
-                <Text size="sm" color="dimmed">
+                <Text size="sm" c="dimmed">
                   {ownedWorkspaceIds.includes(workspace.id) && (
                     <>
                       {workspace.description || "No description"} - {workspace.collaborators} collaborators
@@ -104,13 +103,13 @@ function WorkspaceTable() {
                 Create workspace
               </Button>
             ),
-            textAlignment: "right",
+            textAlign: "right",
             render: (workspace) => (
-              <Group spacing={8} position="right" noWrap>
+              <Group gap={8} justify="flex-end" wrap="nowrap">
                 {ownedWorkspaceIds.includes(workspace.id) && (
                   <Tooltip label="Delete workspace">
                     <ActionIcon
-                      color="primary"
+                      color="brand"
                       variant="subtle"
                       onClick={() => openConfirmDeleteModal(workspace)}
                     >
@@ -125,7 +124,7 @@ function WorkspaceTable() {
                 {ownedWorkspaceIds.includes(workspace.id) && (
                   <Tooltip label="Manage collaborators">
                     <ActionIcon
-                      color="primary"
+                      color="brand"
                       variant="subtle"
                       onClick={() => {
                         setWorkspace(workspace)
@@ -142,7 +141,7 @@ function WorkspaceTable() {
 
                 <Tooltip label="Annotate">
                   <ActionIcon
-                    color="primary"
+                    color="brand"
                     variant="subtle"
                     onClick={() => moveToPage(toSetupUrl(workspace.id))}
                   >
@@ -180,7 +179,8 @@ interface CreateWorkspaceForm {
 }
 
 function CreateWorkspaceModal({ openedModal, setOpenedModal }: ModalProps) {
-  const [tutorialProgress, setTutorialProgress] = useRecoilState(tutorialProgressState)
+  const tutorialProgress = useDashboardStore((s) => s.tutorialProgress)
+  const setTutorialProgress = useDashboardStore((s) => s.setTutorialProgress)
 
   const form = useForm({
     initialValues: {
@@ -213,7 +213,7 @@ function CreateWorkspaceModal({ openedModal, setOpenedModal }: ModalProps) {
         })
       })}>
         <Grid>
-          <Grid.Col xs={12}>
+          <Grid.Col span={12}>
             <TextInput
               required
               withAsterisk
@@ -223,7 +223,7 @@ function CreateWorkspaceModal({ openedModal, setOpenedModal }: ModalProps) {
             />
           </Grid.Col>
 
-          <Grid.Col xs={12}>
+          <Grid.Col span={12}>
             <TextInput
               label="Description"
               placeholder="500 letters provided by LSE hospital"
@@ -231,7 +231,7 @@ function CreateWorkspaceModal({ openedModal, setOpenedModal }: ModalProps) {
             />
           </Grid.Col>
 
-          <Grid.Col xs={12}>
+          <Grid.Col span={12}>
             <Button type="submit">
               Create
             </Button>
@@ -305,10 +305,10 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
         <Grid>
           {collaboratorEmails.map((collaboratorEmail, index) => {
             return (
-              <Grid.Col xs={12}>
-                <Group position="apart" noWrap>
-                  <Group position="left" noWrap>
-                    <Avatar key={index} radius="xl" color="primary">
+              <Grid.Col span={12}>
+                <Group justify="space-between" wrap="nowrap">
+                  <Group justify="flex-start" wrap="nowrap">
+                    <Avatar key={index} radius="xl" color="brand">
                       {collaboratorEmail.slice(0, 2)}
                     </Avatar>
 
@@ -317,10 +317,10 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
                     </Text>
                   </Group>
 
-                  <Group position="right" noWrap>
+                  <Group justify="flex-end" wrap="nowrap">
                     <ActionIcon
                       variant="subtle"
-                      color="red"
+                      c="red"
                       onClick={() => handleRemoveCollaborator(collaboratorEmail)}
                     >
                       <IconTrashX size={16} />
@@ -331,7 +331,7 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
             )
           })}
 
-          <Grid.Col xs={12}>
+          <Grid.Col span={12}>
             <Group>
               <TextInput
                 label="Add collaborator"

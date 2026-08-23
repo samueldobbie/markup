@@ -1,11 +1,9 @@
+import { useAnnotateStore } from "storage/state/Annotate"
 import { Box, Button, Card, Center, Collapse, Divider, Grid, Group, Modal, ScrollArea, SegmentedControl, Text } from "@mantine/core"
-import { IconDownload, IconView360, IconX } from "@tabler/icons"
+import { IconDownload, IconView360, IconX } from "@tabler/icons-react"
 import { useEffect, useState } from "react"
-import { useRecoilState, useRecoilValue } from "recoil"
 import { database, WorkspaceAnnotation } from "storage/database"
-import { annotationsState, documentIndexState, documentsState, entityColoursState } from "storage/state/Annotate"
 import { SectionProps } from "./Annotate"
-import { DEMO_DOMAINS } from "utils/Demo"
 import { exportJsonAnnotations } from "./ExportJsonAnnotations"
 import notify from "utils/Notifications"
 import SmartAssistant from "./SmartAssistant"
@@ -14,22 +12,18 @@ type Entity = string
 type AnnotationGroup = Record<Entity, WorkspaceAnnotation[]>
 
 function Output({ workspace }: SectionProps) {
-  const entityColours = useRecoilValue(entityColoursState)
-  const documents = useRecoilValue(documentsState)
-  const documentIndex = useRecoilValue(documentIndexState)
+  const entityColours = useAnnotateStore((s) => s.entityColours)
+  const documents = useAnnotateStore((s) => s.documents)
+  const documentIndex = useAnnotateStore((s) => s.documentIndex)
 
   const [guideline, setGuideline] = useState("")
-  const [annotations, setAnnotations] = useRecoilState(annotationsState)
+  const annotations = useAnnotateStore((s) => s.annotations)
+  const setAnnotations = useAnnotateStore((s) => s.setAnnotations)
   const [groupedAnnotations, setGroupedAnnotations] = useState<AnnotationGroup>({})
   const [openAnnotations, setOpenAnnotations] = useState<Record<string, boolean>>({})
   const [suggestionCount, setSuggestionCount] = useState(0)
   const [segment, setSegment] = useState<"annotations" | "suggestions">("annotations")
   const [openedViewGuidelineModal, setOpenedViewGuidelineModal] = useState(false)
-  const [isDemoSession, setIsDemoSession] = useState(false)
-
-  useEffect(() => {
-    setIsDemoSession(DEMO_DOMAINS.map(domain => domain.id).includes(workspace.id))
-  }, [workspace.id])
 
   const deleteAnnotation = (annotationId: string) => {
     database
@@ -82,13 +76,13 @@ function Output({ workspace }: SectionProps) {
   return (
     <>
       <Card shadow="xs" radius={5} p="xl">
-        <ScrollArea scrollbarSize={0} sx={{ height: "76vh" }}>
+        <ScrollArea scrollbarSize={0} style={{ height: "76vh" }}>
           <Grid>
-            <Grid.Col xs={12} mb={6}>
-              <Group position="apart" noWrap>
+            <Grid.Col span={12} mb={6}>
+              <Group justify="space-between" wrap="nowrap">
                 <Button
                   variant="subtle"
-                  leftIcon={<IconView360 size={16} />}
+                  leftSection={<IconView360 size={16} />}
                   onClick={() => setOpenedViewGuidelineModal(true)}
                 >
                   Guidelines
@@ -96,7 +90,7 @@ function Output({ workspace }: SectionProps) {
 
                 <Button
                   variant="subtle"
-                  leftIcon={<IconDownload size={16} />}
+                  leftSection={<IconDownload size={16} />}
                   onClick={() => exportJsonAnnotations(documents, annotations)}
                 >
                   Export
@@ -104,11 +98,11 @@ function Output({ workspace }: SectionProps) {
               </Group>
             </Grid.Col>
 
-            <Grid.Col xs={12}>
+            <Grid.Col span={12}>
               <Divider />
             </Grid.Col>
 
-            <Grid.Col xs={12}>
+            <Grid.Col span={12}>
               <SegmentedControl
                 fullWidth
                 value={segment}
@@ -141,22 +135,22 @@ function Output({ workspace }: SectionProps) {
             </Grid.Col>
 
             {segment === "annotations" && (
-              <Grid.Col xs={12}>
+              <Grid.Col span={12}>
                 {
                   Object.keys(groupedAnnotations).map((entity, index) => (
                     <div key={index}>
-                      <Grid.Col xs={12}>
-                        <Text size={16} weight={500}>
+                      <Grid.Col span={12}>
+                        <Text fz={16} fw={500}>
                           {entity}
                         </Text>
                       </Grid.Col>
 
                       {groupedAnnotations[entity].map((annotation, index) => (
-                        <Grid.Col xs={12} key={index}>
+                        <Grid.Col span={12} key={index}>
                           <Card
                             radius={2}
                             p="sm"
-                            sx={{
+                            style={{
                               backgroundColor: entityColours[annotation.entity],
                               color: "#333333",
                               cursor: "pointer"
@@ -168,19 +162,19 @@ function Output({ workspace }: SectionProps) {
                             }}
                           >
                             <Grid>
-                              <Grid.Col xs={2}>
+                              <Grid.Col span={2}>
                                 <IconX
                                   size={16}
                                   onClick={() => deleteAnnotation(annotation.id)}
                                 />
                               </Grid.Col>
 
-                              <Grid.Col xs={10} sx={{ userSelect: "none" }}>
+                              <Grid.Col span={10} style={{ userSelect: "none" }}>
                                 <Text>
                                   {annotation.text}
                                 </Text>
 
-                                <Text color="dimmed" size={12} sx={{ cursor: "pointer" }}>
+                                <Text c="dimmed" fz={12} style={{ cursor: "pointer" }}>
                                   {Object.keys(annotation.attributes).length} attributes
                                 </Text>
                               </Grid.Col>
@@ -188,10 +182,10 @@ function Output({ workspace }: SectionProps) {
 
                             <Collapse in={Object.keys(annotation.attributes).length > 0 && openAnnotations[annotation.id]} mt={10}>
                               {Object.keys(annotation.attributes).map((attributeType, index) => (
-                                <Text size={12} key={index}>
+                                <Text fz={12} key={index}>
                                   {attributeType}
 
-                                  <Text color="dimmed">
+                                  <Text c="dimmed">
                                     {annotation.attributes[attributeType]}
                                   </Text>
                                 </Text>
@@ -207,7 +201,7 @@ function Output({ workspace }: SectionProps) {
             )}
 
             {segment === "suggestions" && (
-              <Grid.Col xs={12}>
+              <Grid.Col span={12}>
                 <SmartAssistant
                   workspaceId={workspace.id}
                   setSuggestionCount={setSuggestionCount}
@@ -242,8 +236,8 @@ function ViewGuidelineModal({ guideline, openedModal, setOpenedModal }: ViewGuid
       title="Annotation Guidelines"
       centered
     >
-      <ScrollArea scrollbarSize={0} sx={{ height: 400 }}>
-        <Text color="dimmed">
+      <ScrollArea scrollbarSize={0} style={{ height: 400 }}>
+        <Text c="dimmed">
           {guideline || "No guidelines have been added to this workspace."}
         </Text>
       </ScrollArea>

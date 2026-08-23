@@ -10,7 +10,7 @@ interface SignUpForm {
   passwordConf: string
 }
 
-function SignUp(): JSX.Element {
+function SignUp() {
   const form = useForm({
     initialValues: {
       email: "",
@@ -46,13 +46,13 @@ function SignUp(): JSX.Element {
   return (
     <Container size={420} my={40}>
       <Title
-        align="center"
-        sx={(theme) => ({ fontFamily: `Greycliff CF, ${theme.fontFamily}`, fontWeight: 900 })}
+        ta="center"
+        style={{ fontFamily: "Greycliff CF, var(--mantine-font-family)", fontWeight: 900 }}
       >
         Welcome to Markup!
       </Title>
 
-      <Text color="dimmed" size="sm" align="center" mt={5}>
+      <Text c="dimmed" size="sm" ta="center" mt={5}>
         Already have an account?{" "}
         <Anchor<"a"> href={Path.SignIn} size="sm">
           Sign in

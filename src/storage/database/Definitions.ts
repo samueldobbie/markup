@@ -932,7 +932,7 @@ export interface definitions {
      * Format: uuid
      * @description Note:
      * This is a Primary Key.<pk/>
-     * @default gen_random_uuid()
+     * @default gen_random_crypto.randomUUID()
      */
     id: string;
     /**
@@ -968,7 +968,7 @@ export interface definitions {
      * Format: uuid
      * @description Note:
      * This is a Primary Key.<pk/>
-     * @default gen_random_uuid()
+     * @default gen_random_crypto.randomUUID()
      */
     id: string;
     /**
@@ -992,7 +992,7 @@ export interface definitions {
      * Format: uuid
      * @description Note:
      * This is a Primary Key.<pk/>
-     * @default gen_random_uuid()
+     * @default gen_random_crypto.randomUUID()
      */
     id: string;
     /**
@@ -1024,7 +1024,7 @@ export interface definitions {
      * Format: uuid
      * @description Note:
      * This is a Primary Key.<pk/>
-     * @default gen_random_uuid()
+     * @default gen_random_crypto.randomUUID()
      */
     id: string;
     /**
@@ -1048,7 +1048,7 @@ export interface definitions {
      * Format: uuid
      * @description Note:
      * This is a Primary Key.<pk/>
-     * @default gen_random_uuid()
+     * @default gen_random_crypto.randomUUID()
      */
     id: string;
     /**
@@ -1072,7 +1072,7 @@ export interface definitions {
      * Format: uuid
      * @description Note:
      * This is a Primary Key.<pk/>
-     * @default gen_random_uuid()
+     * @default gen_random_crypto.randomUUID()
      */
     id: string;
     /**
@@ -1095,7 +1095,7 @@ export interface definitions {
      * Format: uuid
      * @description Note:
      * This is a Primary Key.<pk/>
-     * @default gen_random_uuid()
+     * @default gen_random_crypto.randomUUID()
      */
     id: string;
     /**
@@ -1123,7 +1123,7 @@ export interface definitions {
      * Format: uuid
      * @description Note:
      * This is a Primary Key.<pk/>
-     * @default gen_random_uuid()
+     * @default gen_random_crypto.randomUUID()
      */
     id: string;
     /**
@@ -1147,7 +1147,7 @@ export interface definitions {
      * Format: uuid
      * @description Note:
      * This is a Primary Key.<pk/>
-     * @default gen_random_uuid()
+     * @default gen_random_crypto.randomUUID()
      */
     id: string;
     /**

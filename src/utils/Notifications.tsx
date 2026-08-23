@@ -1,11 +1,11 @@
-import { showNotification } from "@mantine/notifications"
-import { IconAlertTriangle, IconCheck, IconQuestionMark, IconX } from "@tabler/icons"
+import { notifications } from "@mantine/notifications"
+import { IconAlertTriangle, IconCheck, IconQuestionMark, IconX } from "@tabler/icons-react"
 
 const OUTPUT_ERROR_TO_CONSOLE = true
 
 class Notification {
   info(message: string) {
-    showNotification({
+    notifications.show({
       title: "Info",
       message,
       color: "gray",
@@ -14,7 +14,7 @@ class Notification {
   }
 
   success(message: string) {
-    showNotification({
+    notifications.show({
       title: "Success",
       message,
       color: "green",
@@ -23,7 +23,7 @@ class Notification {
   }
 
   warning(message: string) {
-    showNotification({
+    notifications.show({
       title: "Warning",
       message,
       color: "yellow",
@@ -36,7 +36,7 @@ class Notification {
       console.error(error.message)
     }
 
-    showNotification({
+    notifications.show({
       title: "Error",
       message,
       color: "red",

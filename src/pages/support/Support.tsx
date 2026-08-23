@@ -6,7 +6,7 @@ function Support() {
       <Title
         order={2}
         size="h1"
-        weight={900}
+        fw={900}
       >
         Get in touch
       </Title>

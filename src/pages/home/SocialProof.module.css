@@ -1,0 +1,23 @@
+.nhsImage {
+  width: 180px !important;
+  margin-right: 250px !important;
+
+  @media (max-width: 456px) {
+    width: 110px !important;
+    margin-right: 0 !important;
+    margin-bottom: 20px !important;
+  }
+
+  @media (min-width: 457px) and (max-width: 920px) {
+    width: 110px !important;
+    margin-right: 0 !important;
+  }
+}
+
+.sailImage {
+  width: 450px !important;
+
+  @media (max-width: 456px) {
+    width: 300px !important;
+  }
+}

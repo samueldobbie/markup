@@ -19,7 +19,7 @@ function parseStandoffAnnotations(content: string) {
         text,
       }
     } else if (line.startsWith("A")) {
-      const [_, attribute] = line.split("\t")
+      const [, attribute] = line.split("\t")
       const [name, targetId, value] = attribute.split(" ")
 
       if (rawAnnotationMap[targetId]) {

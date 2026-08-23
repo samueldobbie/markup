@@ -1,13 +1,23 @@
-import { atom } from "recoil"
-import { recoilPersist } from "recoil-persist"
-import { ColorScheme } from "@mantine/core"
+import { create } from "zustand"
+import { persist } from "zustand/middleware"
+import type { MantineColorScheme } from "@mantine/core"
 
-const { persistAtom } = recoilPersist()
+interface ThemeStore {
+  colorScheme: MantineColorScheme
+  setColorScheme: (colorScheme: MantineColorScheme) => void
+  toggleColorScheme: (value?: MantineColorScheme) => void
+}
 
-const themeState = atom<ColorScheme>({
-  key: "themeState",
-  default: "dark",
-  effects: [persistAtom],
-})
-
-export { themeState }
+export const useThemeStore = create<ThemeStore>()(
+  persist(
+    (set, get) => ({
+      colorScheme: "dark",
+      setColorScheme: (colorScheme) => set({ colorScheme }),
+      toggleColorScheme: (value) =>
+        set({
+          colorScheme: value ?? (get().colorScheme === "dark" ? "light" : "dark"),
+        }),
+    }),
+    { name: "markup-theme" },
+  ),
+)

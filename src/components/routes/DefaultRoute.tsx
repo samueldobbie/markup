@@ -1,6 +1,6 @@
 import { useDocumentTitle } from "@mantine/hooks"
 
-function DefaultRoute({ children, title }: any): JSX.Element {
+function DefaultRoute({ children, title }: any) {
   useDocumentTitle(title)
 
   return (

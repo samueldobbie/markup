@@ -5,12 +5,12 @@ interface Props {
   setSuggestionCount: (count: number) => void
 }
 
-function SmartAssistant({ workspaceId, setSuggestionCount }: Props) {
+function SmartAssistant({ workspaceId: _workspaceId, setSuggestionCount: _setSuggestionCount }: Props) {
   return (
     <Grid>
-      <Grid.Col xs={12}>
+      <Grid.Col span={12}>
         <Center>
-          <Text color="dimmed">
+          <Text c="dimmed">
             Predictive annotations are currently in beta. Please check back later.
           </Text>
         </Center>

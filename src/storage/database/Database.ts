@@ -2,7 +2,6 @@ import { definitions } from "./Definitions"
 import { supabase } from "../../utils/Supabase"
 import { OntologyConcept } from "pages/dashboard/OntologyTable"
 import { WorkspaceGuideline } from "pages/setup/GuidelinesTable"
-import uuid from "react-uuid"
 
 export type Workspace = definitions["workspace"]
 export type WorkspaceAccess = definitions["workspace_access"]
@@ -17,7 +16,7 @@ export type OntologyAccess = definitions["ontology_access"]
 async function addWorkspace(name: string, description: string): Promise<string> {
   const user = await supabase.auth.getUser()
   const userId = user.data.user?.id ?? ""
-  const workspaceId = uuid()
+  const workspaceId = crypto.randomUUID()
 
   const { error: workspaceError } = await supabase
     .from("workspace")
@@ -468,7 +467,7 @@ async function removeWorkspaceCollaborator(workspaceId: string, email: string): 
 async function addOntology(name: string, description: string, rows: OntologyConcept[]): Promise<void> {
   const user = await supabase.auth.getUser()
   const userId = user.data.user?.id ?? ""
-  const ontologyId = uuid()
+  const ontologyId = crypto.randomUUID()
 
   const { error: ontologyError } = await supabase
     .from("ontology")

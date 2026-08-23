@@ -1,8 +1,7 @@
+import { useAnnotateStore } from "storage/state/Annotate"
 import { Button, Card, Code, Grid, Group, ScrollArea, Select, Text } from "@mantine/core"
 import { RawAnnotation, database } from "storage/database/Database"
 import { useState, useEffect } from "react"
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
-import { activeEntityState, activeOntologyConceptsState, activeTutorialStepState, annotationsState, configState, documentIndexState, documentsState, populatedAttributeState, proposedAnnotationState } from "storage/state/Annotate"
 import { SectionProps } from "./Annotate"
 import { parseJsonConfig } from "pages/annotate/ParseJsonConfig"
 import { OntologyConcept } from "pages/dashboard/OntologyTable"
@@ -10,32 +9,37 @@ import notify from "utils/Notifications"
 import Title from "components/title/Title"
 import EntityConfig from "components/annotate/EntityConfig"
 import AttributeConfig, { SelectData } from "components/annotate/AttributeConfig"
-import { IconNumber1, IconNumber2, IconNumber3, IconNumber4 } from "@tabler/icons"
+import { IconNumber1, IconNumber2, IconNumber3, IconNumber4 } from "@tabler/icons-react"
 
 const SUGGEST_ENTITY_API_URL = "https://vior5kmthct3a7wzlpc4r6yy2i0iqfnc.lambda-url.eu-west-2.on.aws/"
 const SUGGEST_ATTRIBUTES_API_URL = "https://r6k5pux3iwubbplreajwa6ppoe0apqpf.lambda-url.eu-west-2.on.aws/"
 
 function Config({ workspace }: SectionProps) {
-  const [config, setConfig] = useRecoilState(configState)
+  const config = useAnnotateStore((s) => s.config)
+  const setConfig = useAnnotateStore((s) => s.setConfig)
   const [entitySectionOpen, setEntitySectionOpen] = useState(true)
   const [attributeSectionOpen, setAttributeSectionOpen] = useState(true)
   const [ontologySectionOpen, setOntologySectionOpen] = useState(true)
   const [availableOntologies, setAvailableOntologies] = useState<SelectData[]>([])
   const [selectedOntologyId, setSelectedOntologyId] = useState<string | null>(null)
   const [selectedOntologyConcepts, setSelectedOntologyConcepts] = useState<OntologyConcept[]>([])
-  const [activeEntity, setActiveEntity] = useRecoilState(activeEntityState)
+  const activeEntity = useAnnotateStore((s) => s.activeEntity)
+  const setActiveEntity = useAnnotateStore((s) => s.setActiveEntity)
 
-  const setPopulatedAttributes = useSetRecoilState(populatedAttributeState)
-  const setActiveOntologyConcept = useSetRecoilState(activeOntologyConceptsState)
+  const setPopulatedAttributes = useAnnotateStore((s) => s.setPopulatedAttributes)
+  const setActiveOntologyConcept = useAnnotateStore((s) => s.setActiveOntologyConcept)
 
-  const [proposedAnnotation, setProposedAnnotation] = useRecoilState(proposedAnnotationState)
-  const populatedAttributes = useRecoilValue(populatedAttributeState)
-  const activeOntologyConcept = useRecoilValue(activeOntologyConceptsState)
-  const documents = useRecoilValue(documentsState)
-  const documentIndex = useRecoilValue(documentIndexState)
+  const proposedAnnotation = useAnnotateStore((s) => s.proposedAnnotation)
+  const setProposedAnnotation = useAnnotateStore((s) => s.setProposedAnnotation)
+  const populatedAttributes = useAnnotateStore((s) => s.populatedAttributes)
+  const activeOntologyConcept = useAnnotateStore((s) => s.activeOntologyConcept)
+  const documents = useAnnotateStore((s) => s.documents)
+  const documentIndex = useAnnotateStore((s) => s.documentIndex)
 
-  const [annotations, setAnnotations] = useRecoilState(annotationsState)
-  const [activeTutorialStep, setActiveTutorialStep] = useRecoilState(activeTutorialStepState)
+  const annotations = useAnnotateStore((s) => s.annotations)
+  const setAnnotations = useAnnotateStore((s) => s.setAnnotations)
+  const activeTutorialStep = useAnnotateStore((s) => s.activeTutorialStep)
+  const setActiveTutorialStep = useAnnotateStore((s) => s.setActiveTutorialStep)
   const [selectedText, setSelectedText] = useState("")
   const [suggestedEntity, setSuggestedEntity] = useState("")
   const [suggestedAttributes, setSuggestedAttributes] = useState<Record<string, string>>({})
@@ -210,10 +214,10 @@ function Config({ workspace }: SectionProps) {
 
   return (
     <Card shadow="xs" radius={5} p="xl">
-      <ScrollArea scrollbarSize={0} sx={{ height: "76vh" }}>
+      <ScrollArea scrollbarSize={0} style={{ height: "76vh" }}>
         <Grid>
-          <Grid.Col xs={12}>
-            <Group position="apart">
+          <Grid.Col span={12}>
+            <Group justify="space-between">
               <Title
                 text="Select text"
                 description="Highlight the document text you want to annotate."
@@ -224,16 +228,16 @@ function Config({ workspace }: SectionProps) {
             </Group>
           </Grid.Col>
 
-          <Grid.Col xs={12}>
-            <Text sx={{ padding: 5 }}>
-              <Code sx={{ fontSize: 15 }} color="rgb(111, 114, 233)">
+          <Grid.Col span={12}>
+            <Text style={{ padding: 5 }}>
+              <Code style={{ fontSize: 15 }} color="rgb(111, 114, 233)">
                 {selectedText === "" ? "Highlight the text you want to annotate." : selectedText}
               </Code>
             </Text>
           </Grid.Col>
 
-          <Grid.Col xs={12} pb={0}>
-            <Group position="apart">
+          <Grid.Col span={12} pb={0}>
+            <Group justify="space-between">
               <Title
                 text="Select entity"
                 description="The high-level concept you are annotating."
@@ -244,8 +248,8 @@ function Config({ workspace }: SectionProps) {
             </Group>
           </Grid.Col>
 
-          <Grid.Col xs={12}>
-            <Group position="left" spacing={4} mb={10}>
+          <Grid.Col span={12}>
+            <Group justify="flex-start" gap={4} mb={10}>
               <Text size="xs">
                 Suggested:
               </Text>
@@ -267,8 +271,8 @@ function Config({ workspace }: SectionProps) {
             <EntityConfig config={config} />
           </Grid.Col>
 
-          <Grid.Col xs={12} pb={0}>
-            <Group position="apart">
+          <Grid.Col span={12} pb={0}>
+            <Group justify="space-between">
               <Title
                 text="Add attributes"
                 description="The specific properties of the entity."
@@ -279,8 +283,8 @@ function Config({ workspace }: SectionProps) {
             </Group>
           </Grid.Col>
 
-          <Grid.Col xs={12}>
-            <Group position="left" spacing={4} mb={10}>
+          <Grid.Col span={12}>
+            <Group justify="flex-start" gap={4} mb={10}>
               <Text size="xs">
                 Suggested:
               </Text>
@@ -316,8 +320,8 @@ function Config({ workspace }: SectionProps) {
             <AttributeConfig config={config} />
           </Grid.Col>
 
-          <Grid.Col xs={12}>
-            <Group position="apart">
+          <Grid.Col span={12}>
+            <Group justify="space-between">
               <Title
                 text="Ontology"
                 description="The concept you want to map to the entity."
@@ -328,10 +332,10 @@ function Config({ workspace }: SectionProps) {
             </Group>
           </Grid.Col>
 
-          <Grid.Col xs={12}>
+          <Grid.Col span={12}>
             <Group mb={20}>
-              <Grid sx={{ width: "100%" }}>
-                <Grid.Col xs={12}>
+              <Grid style={{ width: "100%" }}>
+                <Grid.Col span={12}>
                   <Select
                     data={availableOntologies}
                     placeholder="Ontology"
@@ -341,7 +345,7 @@ function Config({ workspace }: SectionProps) {
                   />
                 </Grid.Col>
 
-                <Grid.Col xs={12}>
+                <Grid.Col span={12}>
                   <Select
                     data={selectedOntologyConcepts.map(concept => {
                       return {
@@ -353,7 +357,6 @@ function Config({ workspace }: SectionProps) {
                     size="sm"
                     searchable
                     clearable
-                    creatable
                     onChange={(code) => {
                       const name = selectedOntologyConcepts.find(concept => concept.code === code)?.name
 
@@ -368,7 +371,7 @@ function Config({ workspace }: SectionProps) {
             </Group>
           </Grid.Col>
 
-          <Grid.Col xs={12}>
+          <Grid.Col span={12}>
             <Button fullWidth onClick={() => addAnnotation()}>
               Add annotation
             </Button>

@@ -1,8 +1,7 @@
 import { Group, Button, ActionIcon, Text, FileButton, Tooltip, Card } from "@mantine/core"
-import { IconFilePlus, IconTrashX } from "@tabler/icons"
+import { IconFilePlus, IconTrashX } from "@tabler/icons-react"
 import { DataTable } from "mantine-datatable"
 import { useCallback, useEffect, useState } from "react"
-import uuid from "react-uuid"
 import { database, WorkspaceDocument } from "storage/database/Database"
 import notify from "utils/Notifications"
 import { parseJsonAnnotations } from "./ParseJsonAnnotations"
@@ -33,7 +32,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
         setDocumentToAnnotationCount(copy)
       })
       .catch((e) => notify.error("Failed to upload annotations.", e))
-  }, [workspace.id])
+  }, [documentToAnnotationCount, workspace.id])
 
   useEffect(() => {
     database
@@ -114,14 +113,14 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
   return (
     <Card shadow="xs" radius={5}>
       <DataTable
-        withBorder={false}
+        withTableBorder={false}
         emptyState="Upload documents to annotate"
         borderRadius={5}
-        sx={{ minHeight: "500px" }}
+        style={{ minHeight: "500px" }}
         records={documents}
         rowExpansion={{
           content: (document) => (
-            <Text p={20} color="dimmed" mb={20}>
+            <Text p={20} c="dimmed" mb={20}>
               {document.record.content}
             </Text>
           )
@@ -130,10 +129,10 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
           {
             accessor: "name",
             title: (
-              <Text size={16}>
+              <Text fz={16}>
                 Documents
 
-                <Text size={13} color="dimmed">
+                <Text fz={13} c="dimmed">
                   Required
                 </Text>
               </Text>
@@ -145,13 +144,13 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                 </Text>
 
                 {documentToAnnotationCount[document.id] && (
-                  <Text size="sm" color="dimmed">
+                  <Text size="sm" c="dimmed">
                     {documentToAnnotationCount[document.id]} annotations
                   </Text>
                 )}
 
                 {!documentToAnnotationCount[document.id] && (
-                  <Text size="sm" color="dimmed">
+                  <Text size="sm" c="dimmed">
                     No annotations
                   </Text>
                 )}
@@ -161,8 +160,8 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
           {
             accessor: "actions",
             title: (
-              <Group position="right">
-                <FileButton onChange={setAnnotationFiles} accept=".json,.ann" multiple key={uuid()}>
+              <Group justify="flex-end">
+                <FileButton onChange={setAnnotationFiles} accept=".json,.ann" multiple key={crypto.randomUUID()}>
                   {(props) => (
                     <Button {...props} variant="light">
                       Upload annotations
@@ -170,7 +169,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                   )}
                 </FileButton>
 
-                <FileButton onChange={setDocumentFiles} accept=".txt" multiple key={uuid()}>
+                <FileButton onChange={setDocumentFiles} accept=".txt" multiple key={crypto.randomUUID()}>
                   {(props) => (
                     <Button {...props}>
                       Upload documents
@@ -179,9 +178,9 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                 </FileButton>
               </Group>
             ),
-            textAlignment: "right",
+            textAlign: "right",
             render: (document) => (
-              <Group spacing={8} position="right" noWrap>
+              <Group gap={8} justify="flex-end" wrap="nowrap">
                 <FileButton
                   accept=".json,.ann"
                   onChange={(file) => {
@@ -193,7 +192,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                   {(props) => (
                     <Tooltip label="Upload existing annotations">
                       <ActionIcon
-                        color="primary"
+                        color="brand"
                         {...props}
                       >
                         <IconFilePlus
@@ -207,7 +206,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
 
                 <Tooltip label="Delete document">
                   <ActionIcon
-                    color="primary"
+                    color="brand"
                     onClick={(event: any) => {
                       event.stopPropagation()
 

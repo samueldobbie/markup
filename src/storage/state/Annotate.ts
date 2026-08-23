@@ -1,74 +1,57 @@
+import { create } from "zustand"
 import { InlineAnnotation } from "pages/annotate/Document"
 import { OntologyConcept } from "pages/dashboard/OntologyTable"
 import { IConfig } from "pages/setup/ConfigTable"
-import { atom } from "recoil"
 import { WorkspaceAnnotation, WorkspaceDocument } from "storage/database"
 
-const activeTutorialStepState = atom({
-  key: "activeTutorialStepState",
-  default: 0,
-})
+interface AnnotateStore {
+  activeTutorialStep: number
+  config: IConfig
+  activeEntity: string
+  entityColours: Record<string, string>
+  populatedAttributes: Record<string, string>
+  activeOntologyConcept: OntologyConcept
+  documents: WorkspaceDocument[]
+  documentIndex: number
+  annotations: WorkspaceAnnotation[][]
+  proposedAnnotation: InlineAnnotation | null
+  setActiveTutorialStep: (activeTutorialStep: number) => void
+  setConfig: (config: IConfig) => void
+  setActiveEntity: (activeEntity: string) => void
+  setEntityColours: (entityColours: Record<string, string>) => void
+  setPopulatedAttributes: (populatedAttributes: Record<string, string>) => void
+  setActiveOntologyConcept: (activeOntologyConcept: OntologyConcept) => void
+  setDocuments: (documents: WorkspaceDocument[]) => void
+  setDocumentIndex: (documentIndex: number) => void
+  setAnnotations: (annotations: WorkspaceAnnotation[][]) => void
+  setProposedAnnotation: (proposedAnnotation: InlineAnnotation | null) => void
+}
 
-const configState = atom<IConfig>({
-  key: "configState",
-  default: {
+export const useAnnotateStore = create<AnnotateStore>((set) => ({
+  activeTutorialStep: 0,
+  config: {
     entities: [],
     globalAttributes: [],
   },
-})
-
-const activeEntityState = atom({
-  key: "activeEntityState",
-  default: "",
-})
-
-const entityColoursState = atom<Record<string, string>>({
-  key: "entityColoursState",
-  default: {},
-})
-
-const populatedAttributeState = atom<Record<string, string>>({
-  key: "populatedAttributeState",
-  default: {},
-})
-
-const activeOntologyConceptState = atom<OntologyConcept>({
-  key: "activeOntologyConceptState",
-  default: {
+  activeEntity: "",
+  entityColours: {},
+  populatedAttributes: {},
+  activeOntologyConcept: {
     name: "",
     code: "",
   },
-})
-
-const documentsState = atom<WorkspaceDocument[]>({
-  key: "documentsState",
-  default: [],
-})
-
-const documentIndexState = atom({
-  key: "documentIndexState",
-  default: 0,
-})
-
-const annotationsState = atom<WorkspaceAnnotation[][]>({
-  key: "annotationsState",
-  default: [],
-})
-
-const proposedAnnotationState = atom<InlineAnnotation | null>({
-  key: "proposedAnnotationState",
-  default: null,
-})
-
-export {
-  activeTutorialStepState,
-  configState,
-  documentsState,
-  documentIndexState,
-  activeEntityState,
-  entityColoursState,
-  populatedAttributeState,
-  activeOntologyConceptState as activeOntologyConceptsState,
-  annotationsState,
-  proposedAnnotationState,
-}
+  documents: [],
+  documentIndex: 0,
+  annotations: [],
+  proposedAnnotation: null,
+  setActiveTutorialStep: (activeTutorialStep) => set({ activeTutorialStep }),
+  setConfig: (config) => set({ config }),
+  setActiveEntity: (activeEntity) => set({ activeEntity }),
+  setEntityColours: (entityColours) => set({ entityColours }),
+  setPopulatedAttributes: (populatedAttributes) => set({ populatedAttributes }),
+  setActiveOntologyConcept: (activeOntologyConcept) => set({ activeOntologyConcept }),
+  setDocuments: (documents) => set({ documents }),
+  setDocumentIndex: (documentIndex) => set({ documentIndex }),
+  setAnnotations: (annotations) => set({ annotations }),
+  setProposedAnnotation: (proposedAnnotation) => set({ proposedAnnotation }),
+}))
