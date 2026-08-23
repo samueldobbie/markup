@@ -1,3 +1,33 @@
+.article :global(h2) {
+  font-size: 28px;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.card {
+  background-color: light-dark(#fbfbfb, var(--mantine-color-dark-6)) !important;
+}
+
+.cardTitle {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 8px;
+}
+
+.cardBody {
+  color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-gray-5));
+  font-size: var(--mantine-font-size-md);
+  line-height: 1.55;
+}
+
+.cardBody :global(b) {
+  display: inline;
+  font-weight: 700;
+  color: inherit;
+}
+
 .link {
   display: block;
   text-decoration: none;

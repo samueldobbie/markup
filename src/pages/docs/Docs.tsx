@@ -1,6 +1,6 @@
 import classes from "./Docs.module.css"
 import clsx from "clsx"
-import { useEffect, useState } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import { Box, Text, Group, Container, Grid, Card, Collapse, Alert, Button, Code } from "@mantine/core"
 import { IconAlertCircle, IconArrowLeft, IconArrowRight, IconBook2, IconFilePlus, IconUsers, IconX } from "@tabler/icons-react"
 import { Path } from "utils/Path"
@@ -166,7 +166,7 @@ function TableOfContents({ active, setActive }: any) {
 
 function Content({ active, setActive }: any) {
   return (
-    <>
+    <div className={classes.article}>
       {DOCUMENTATION[active].content}
 
       <Group justify="space-between" mt={40} mb={40}>
@@ -202,7 +202,16 @@ function Content({ active, setActive }: any) {
           </Button>
         )}
       </Group>
-    </>
+    </div>
+  )
+}
+
+function ConceptCard({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <Card mb={20} mt={20} className={classes.card}>
+      <div className={classes.cardTitle}>{title}</div>
+      <div className={classes.cardBody}>{children}</div>
+    </Card>
   )
 }
 
@@ -224,7 +233,7 @@ function WhatIsMarkup() {
         <br />
 
         <Text>
-          Markup uses GPT-3.5 to predict and suggest entities and attributes
+          Markup uses AI to predict and suggest entities and attributes
           to speed up the annotation process and reduce the amount of manual
           input required.
         </Text>
@@ -260,35 +269,24 @@ function CoreConcepts() {
           Markup is built around a few core concepts that are important to understand:
         </Text>
 
-        <Card mb={20} mt={20}>
-          <p>
-            <b>Workspaces</b>
-          </p>
-
+        <ConceptCard title="Workspaces">
           Workspaces are the basic unit of organization in Markup. A workspace
           contains a set of documents, annotations, guidelines, and configurations
           that can be shared with other users.
-        </Card>
+        </ConceptCard>
 
-        <Card mb={20} mt={20}>
-          <p>
-            <b>Documents</b>
-          </p>
-
+        <ConceptCard title="Documents">
           A document can be any text-based file that you want to annotate (e.g. .txt, .pdf, .docx files).
-        </Card>
+        </ConceptCard>
 
-        <Card mb={20} mt={20}>
-          <p>
-            <b>Annotations</b>
-          </p>
+        <Card mb={20} mt={20} className={classes.card}>
+          <div className={classes.cardTitle}>Annotations</div>
 
-          An annotation is a subset of a document that has been annotated with
-          an entity, and any number of attributes. Here's an example of an annotation that has
-          a <b>Company</b> entity and some attributes. Try clicking on the card to view the attributes!
-
-          <br />
-          <br />
+          <div className={classes.cardBody} style={{ marginBottom: 16 }}>
+            An annotation is a subset of a document that has been annotated with
+            an entity, and any number of attributes. Here's an example of an annotation that has
+            a <b>Company</b> entity and some attributes. Try clicking on the card to view the attributes!
+          </div>
 
           <Card
             radius={2}
@@ -337,41 +335,24 @@ function CoreConcepts() {
           </Card>
         </Card>
 
-        <Card mb={20} mt={20}>
-          <p>
-            <b>Entities</b>
-          </p>
-
+        <ConceptCard title="Entities">
           Entities represent the key concepts you aim to identify within documents,
           usually taking the form of nouns (e.g. <b>Company</b>, <b>Person</b>, <b>Location</b>).
-        </Card>
+        </ConceptCard>
 
-        <Card mb={20} mt={20}>
-          <p>
-            <b>Attributes</b>
-          </p>
-
+        <ConceptCard title="Attributes">
           Attributes are more detailed bits of information about an entity (e.g. a <b>Street Address</b> attribute for a <b>Location</b> entity).
-        </Card>
+        </ConceptCard>
 
-        <Card mb={20} mt={20}>
-          <p>
-            <b>Config</b>
-          </p>
-
+        <ConceptCard title="Config">
           Each workspace has a config that defines the entities and attributes that
           can be used whilst annotating documents.
-        </Card>
+        </ConceptCard>
 
-        <Card mb={20} mt={20}>
-          <p>
-            <b>Ontologies</b>
-          </p>
-
-
+        <ConceptCard title="Ontologies">
           Ontologies, or terminologies, consist of concept-to-code mappings (e.g. a medical ontology may link <b>Flu</b> to the code <b>C0004096</b>).
           Markup offers built-in access to common ontologies (e.g. UMLS), and allows you to upload your own custom ontologies.
-        </Card>
+        </ConceptCard>
       </>
     )
   )
@@ -570,7 +551,7 @@ function AdditionalFeatures() {
 
       <Text>
         There are numerous additional features that Markup offers to make your annotation experience
-        as seamless as possible, including the use of GPT-3.5 for AI-assisted annotation, the
+        as seamless as possible, including AI-assisted annotation, the
         ability to add collaborators and define annotation guidelines for each workspace, and more.
       </Text>
     </Text>
