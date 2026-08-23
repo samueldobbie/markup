@@ -3,9 +3,15 @@ import { HTTPException } from "hono/http-exception"
 import { AuthVariables, requireWorkspaceMember } from "./auth.js"
 import { completeJson } from "./complete.js"
 import { getWorkspaceModelCredentials } from "./model.js"
-import { attributesPrompt, entityPrompt } from "./prompts.js"
-import { ConfigAttribute, MAX_SELECTED_TEXT_LENGTH, isConfigAttribute } from "./types.js"
-import { filterSuggestedAttributes, filterSuggestedEntity } from "./validate.js"
+import { attributesPrompt, documentAnnotationsPrompt, entityPrompt } from "./prompts.js"
+import {
+  ConfigAttribute,
+  MAX_DOCUMENT_PROMPT_LENGTH,
+  MAX_SELECTED_TEXT_LENGTH,
+  isConfigAttribute,
+  isWorkspaceConfigPayload,
+} from "./types.js"
+import { filterSuggestedAttributes, filterSuggestedEntity, resolveDocumentSuggestions } from "./validate.js"
 
 export const suggestRoutes = new Hono<{ Variables: AuthVariables }>()
 
@@ -87,4 +93,73 @@ suggestRoutes.post("/attributes", async (c) => {
   })
 
   return c.json(filterSuggestedAttributes(parsed, selectedText, availableAttributes))
+})
+
+suggestRoutes.post("/document", async (c) => {
+  const body = await c.req.json<{
+    workspaceId?: string
+    document?: string
+    annotations?: Array<{ start_index?: number, end_index?: number, entity?: string, text?: string }>
+    config?: unknown
+    guidelines?: string
+  }>()
+
+  const workspaceId = body.workspaceId
+  const document = body.document
+  const annotations = body.annotations
+  const guidelines = typeof body.guidelines === "string" ? body.guidelines.slice(0, 4_000) : undefined
+
+  if (typeof workspaceId !== "string" || workspaceId === "") {
+    throw new HTTPException(400, { message: "workspaceId is required" })
+  }
+
+  if (typeof document !== "string" || document.trim() === "") {
+    throw new HTTPException(400, { message: "document is required" })
+  }
+
+  if (!isWorkspaceConfigPayload(body.config)) {
+    throw new HTTPException(400, { message: "config is invalid" })
+  }
+
+  if (!Array.isArray(annotations)) {
+    throw new HTTPException(400, { message: "annotations must be an array" })
+  }
+
+  const existing = annotations
+    .filter((annotation) => (
+      typeof annotation.start_index === "number"
+      && typeof annotation.end_index === "number"
+    ))
+    .map((annotation) => ({
+      start_index: annotation.start_index as number,
+      end_index: annotation.end_index as number,
+      entity: typeof annotation.entity === "string" ? annotation.entity : undefined,
+      text: typeof annotation.text === "string" ? annotation.text : undefined,
+    }))
+
+  await requireWorkspaceMember(c.get("userId"), workspaceId)
+
+  const credentials = await getWorkspaceModelCredentials(workspaceId)
+  const promptDocument = document.length > MAX_DOCUMENT_PROMPT_LENGTH
+    ? document.slice(0, MAX_DOCUMENT_PROMPT_LENGTH)
+    : document
+  const parsed = await completeJson({
+    ...credentials,
+    prompt: documentAnnotationsPrompt(
+      promptDocument,
+      body.config,
+      existing.map(({ entity, text, start_index, end_index }) => ({
+        entity,
+        text,
+        start_index,
+        end_index,
+      })),
+      guidelines,
+    ),
+    timeoutMs: 90_000,
+  })
+
+  return c.json({
+    suggestions: resolveDocumentSuggestions(parsed, document, existing, body.config),
+  })
 })
