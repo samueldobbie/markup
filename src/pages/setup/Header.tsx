@@ -1,12 +1,13 @@
-import { Group, Button, Text, Grid, Modal, TextInput } from "@mantine/core"
+import { Group, Button, Text, Grid, Modal, TextInput, PasswordInput, Divider } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { IconArrowRight } from "@tabler/icons-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import { database } from "storage/database"
+import { Workspace, database } from "storage/database"
 import { moveToPage } from "utils/Location"
 import notify from "utils/Notifications"
 import { Path, toAnnotateUrl } from "utils/Path"
+import { getWorkspaceModel, saveWorkspaceModel } from "utils/WorkspaceModel"
 import { SectionProps } from "./Setup"
 
 function Header({ workspace, workspaceStatus }: SectionProps) {
@@ -71,23 +72,92 @@ function Header({ workspace, workspaceStatus }: SectionProps) {
 interface UpdateWorkspaceForm {
   name: string
   description?: string
+  baseUrl: string
+  model: string
+  apiKey: string
 }
 
-function EditWorkspaceModal({ workspace, openedModal, setOpenedModal }: any) {
+function EditWorkspaceModal({
+  workspace,
+  openedModal,
+  setOpenedModal,
+}: {
+  workspace: Workspace
+  openedModal: boolean
+  setOpenedModal: (opened: boolean) => void
+}) {
+  const [apiKeyLast4, setApiKeyLast4] = useState<string | null>(null)
+  const [modelConfigured, setModelConfigured] = useState(false)
+  const [saving, setSaving] = useState(false)
+
   const form = useForm({
     initialValues: {
       name: workspace.name,
       description: workspace.description,
-    }
+      baseUrl: "https://api.openai.com/v1",
+      model: "",
+      apiKey: "",
+    },
   })
 
-  const handleUpdateWorkspace = async (form: UpdateWorkspaceForm) => {
-    const { name, description } = form
+  useEffect(() => {
+    if (!openedModal) {
+      return
+    }
 
-    await database
-      .updateWorkspace(workspace.id, name, description || "")
-      .then(() => window.location.reload())
-      .catch((e) => notify.error("Failed to update workspace details.", e))
+    form.setValues({
+      name: workspace.name,
+      description: workspace.description,
+      baseUrl: "https://api.openai.com/v1",
+      model: "",
+      apiKey: "",
+    })
+
+    getWorkspaceModel(workspace.id)
+      .then((model) => {
+        setApiKeyLast4(model.apiKeyLast4)
+        setModelConfigured(model.configured)
+        form.setValues({
+          name: workspace.name,
+          description: workspace.description,
+          baseUrl: model.baseUrl,
+          model: model.model,
+          apiKey: "",
+        })
+      })
+      .catch((e) => notify.error("Failed to load workspace model.", e))
+    // form is not a stable dep from useForm
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openedModal, workspace.description, workspace.id, workspace.name])
+
+  const handleUpdateWorkspace = async (values: UpdateWorkspaceForm) => {
+    const { name, description, baseUrl, model, apiKey } = values
+    const shouldSaveModel = model.trim().length > 0
+
+    if (shouldSaveModel && !apiKey && !modelConfigured) {
+      form.setFieldError("apiKey", "API key is required")
+      return
+    }
+
+    setSaving(true)
+
+    try {
+      await database.updateWorkspace(workspace.id, name, description || "")
+
+      if (shouldSaveModel) {
+        await saveWorkspaceModel(workspace.id, {
+          baseUrl,
+          model,
+          apiKey: apiKey || undefined,
+        })
+      }
+
+      window.location.reload()
+    } catch (e) {
+      notify.error("Failed to update workspace.", e instanceof Error ? e : undefined)
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -118,7 +188,40 @@ function EditWorkspaceModal({ workspace, openedModal, setOpenedModal }: any) {
           </Grid.Col>
 
           <Grid.Col span={12}>
-            <Button type="submit">
+            <Divider label="AI model" labelPosition="left" />
+            <Text size="xs" c="dimmed" mt={8}>
+              OpenAI-compatible Chat Completions endpoint used for suggestions in this workspace.
+              Leave the model name blank to skip saving.
+            </Text>
+          </Grid.Col>
+
+          <Grid.Col span={12}>
+            <TextInput
+              label="Base URL"
+              placeholder="https://api.openai.com/v1"
+              {...form.getInputProps("baseUrl")}
+            />
+          </Grid.Col>
+
+          <Grid.Col span={12}>
+            <TextInput
+              label="Model"
+              placeholder="gpt-4o-mini"
+              {...form.getInputProps("model")}
+            />
+          </Grid.Col>
+
+          <Grid.Col span={12}>
+            <PasswordInput
+              label="API key"
+              placeholder={apiKeyLast4 ? `Saved key ending in ${apiKeyLast4}` : "sk-..."}
+              description={apiKeyLast4 ? "Leave blank to keep the saved key." : undefined}
+              {...form.getInputProps("apiKey")}
+            />
+          </Grid.Col>
+
+          <Grid.Col span={12}>
+            <Button type="submit" loading={saving}>
               Update
             </Button>
           </Grid.Col>
