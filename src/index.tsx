@@ -13,20 +13,21 @@ import "@mantine/dropzone/styles.css"
 import "mantine-datatable/styles.css"
 import "./index.css"
 
+const cssVariablesResolver = () => ({
+  variables: {},
+  light: {
+    "--mantine-color-brand-light-color": "#6F72E9",
+    "--mantine-primary-color-light-color": "#6F72E9",
+  },
+  dark: {
+    "--mantine-color-brand-light-color": "#AAACF2",
+    "--mantine-primary-color-light-color": "#AAACF2",
+  },
+})
+
 const theme = createTheme({
   primaryColor: "brand",
   primaryShade: 4,
-  cssVariablesResolver: () => ({
-    variables: {},
-    light: {
-      "--mantine-color-brand-light-color": "#6F72E9",
-      "--mantine-primary-color-light-color": "#6F72E9",
-    },
-    dark: {
-      "--mantine-color-brand-light-color": "#AAACF2",
-      "--mantine-primary-color-light-color": "#AAACF2",
-    },
-  }),
   spacing: {
     xs: "10px",
     sm: "12px",
@@ -76,7 +77,7 @@ function App() {
   return (
     <MantineProvider
       theme={theme}
-      cssVariablesResolver={theme.cssVariablesResolver}
+      cssVariablesResolver={cssVariablesResolver}
       defaultColorScheme="dark"
       forceColorScheme={colorScheme === "auto" ? undefined : colorScheme}
     >
