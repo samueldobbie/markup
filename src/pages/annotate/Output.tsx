@@ -82,6 +82,7 @@ function Output({ workspace }: SectionProps) {
               <Group justify="space-between" wrap="nowrap">
                 <Button
                   variant="subtle"
+                  color="brand"
                   leftSection={<IconView360 size={16} />}
                   onClick={() => setOpenedViewGuidelineModal(true)}
                 >
@@ -90,6 +91,7 @@ function Output({ workspace }: SectionProps) {
 
                 <Button
                   variant="subtle"
+                  color="brand"
                   leftSection={<IconDownload size={16} />}
                   onClick={() => exportJsonAnnotations(documents, annotations)}
                 >

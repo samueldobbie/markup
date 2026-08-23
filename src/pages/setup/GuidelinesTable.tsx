@@ -95,6 +95,7 @@ function GuidelinesTable({ workspace }: SectionProps) {
                 <Tooltip label="Delete guidelines">
                   <ActionIcon
                     color="brand"
+                    variant="subtle"
                     onClick={() => {
                       database
                         .deleteWorkspaceGuideline(guideline.id)

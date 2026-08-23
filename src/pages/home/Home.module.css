@@ -38,7 +38,7 @@
 }
 
 .highlight {
-  color: light-dark(var(--mantine-color-brand-6), var(--mantine-color-brand-4));
+  color: light-dark(#6F72E9, #AAACF2);
 }
 
 .description {

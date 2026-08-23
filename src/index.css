@@ -9,3 +9,27 @@ tr {
 thead {
   background-color: transparent !important;
 }
+
+[data-variant="transparent"]:disabled,
+[data-variant="transparent"][data-disabled] {
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+.document-nav-arrow {
+  color: light-dark(#6F72E9, #AAACF2) !important;
+  background: transparent !important;
+}
+
+.document-nav-arrow:disabled,
+.document-nav-arrow[data-disabled] {
+  color: var(--mantine-color-dimmed) !important;
+  background: transparent !important;
+  opacity: 0.45;
+}
+
+.highlight-chip {
+  font-size: 15px;
+  background: light-dark(rgb(241, 241, 249), rgba(92, 93, 144, 0.2)) !important;
+  color: inherit !important;
+}

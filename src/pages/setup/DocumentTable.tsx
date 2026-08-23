@@ -192,8 +192,9 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                   {(props) => (
                     <Tooltip label="Upload existing annotations">
                       <ActionIcon
-                        color="brand"
                         {...props}
+                        color="brand"
+                        variant="subtle"
                       >
                         <IconFilePlus
                           size={16}
@@ -207,6 +208,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                 <Tooltip label="Delete document">
                   <ActionIcon
                     color="brand"
+                    variant="subtle"
                     onClick={(event: any) => {
                       event.stopPropagation()
 

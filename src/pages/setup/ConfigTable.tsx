@@ -195,6 +195,7 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
                   <Tooltip label="Delete config">
                     <ActionIcon
                       color="brand"
+                      variant="subtle"
                       onClick={() => {
                         database
                           .deleteWorkspaceConfig(config.id)

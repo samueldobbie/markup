@@ -16,6 +16,32 @@ import "./index.css"
 const theme = createTheme({
   primaryColor: "brand",
   primaryShade: 4,
+  cssVariablesResolver: () => ({
+    variables: {},
+    light: {
+      "--mantine-color-brand-light-color": "#6F72E9",
+      "--mantine-primary-color-light-color": "#6F72E9",
+    },
+    dark: {
+      "--mantine-color-brand-light-color": "#AAACF2",
+      "--mantine-primary-color-light-color": "#AAACF2",
+    },
+  }),
+  spacing: {
+    xs: "10px",
+    sm: "12px",
+    md: "16px",
+    lg: "20px",
+    xl: "24px",
+  },
+  components: {
+    ActionIcon: {
+      defaultProps: {
+        variant: "subtle",
+        color: "brand",
+      },
+    },
+  },
   colors: {
     brand: [
       "#F1F1F9",
@@ -50,6 +76,7 @@ function App() {
   return (
     <MantineProvider
       theme={theme}
+      cssVariablesResolver={theme.cssVariablesResolver}
       defaultColorScheme="dark"
       forceColorScheme={colorScheme === "auto" ? undefined : colorScheme}
     >

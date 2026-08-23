@@ -16,7 +16,7 @@
 
 .linkActive {
   font-weight: 500;
-  color: light-dark(var(--mantine-color-brand-7), var(--mantine-color-brand-3));
+  color: light-dark(#6F72E9, #AAACF2);
 }
 
 .links {
@@ -25,7 +25,7 @@
 
 .indicator {
   transition: transform 150ms ease;
-  border: 2px solid light-dark(var(--mantine-color-brand-7), var(--mantine-color-brand-3));
+  border: 2px solid light-dark(#6F72E9, #AAACF2);
   background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
   height: 10px;
   width: 10px;

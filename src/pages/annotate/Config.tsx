@@ -230,7 +230,7 @@ function Config({ workspace }: SectionProps) {
 
           <Grid.Col span={12}>
             <Text style={{ padding: 5 }}>
-              <Code style={{ fontSize: 15 }} color="rgb(111, 114, 233)">
+              <Code className="highlight-chip">
                 {selectedText === "" ? "Highlight the text you want to annotate." : selectedText}
               </Code>
             </Text>
