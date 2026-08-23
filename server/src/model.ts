@@ -93,20 +93,15 @@ export async function upsertWorkspaceModel(
 ): Promise<WorkspaceModelPublic> {
   const baseUrl = parseBaseUrl(input.baseUrl)
   const model = input.model.trim()
-
-  if (!model) {
-    throw new HTTPException(400, { message: "Model name is required" })
-  }
-
   const existing = await getWorkspaceModelRow(workspaceId)
   const apiKey = input.apiKey?.trim()
 
-  if (!apiKey && !existing) {
-    throw new HTTPException(400, { message: "API key is required" })
-  }
-
-  const ciphertext = apiKey ? encryptSecret(apiKey) : existing!.api_key_ciphertext
-  const last4 = apiKey ? secretLast4(apiKey) : existing!.api_key_last4
+  const ciphertext = apiKey
+    ? encryptSecret(apiKey)
+    : existing?.api_key_ciphertext ?? encryptSecret("")
+  const last4 = apiKey
+    ? secretLast4(apiKey)
+    : existing?.api_key_last4 ?? ""
 
   const { data, error } = await supabaseAdmin
     .from("workspace_model")

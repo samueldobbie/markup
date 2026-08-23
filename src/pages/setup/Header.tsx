@@ -132,12 +132,13 @@ function EditWorkspaceModal({
 
   const handleUpdateWorkspace = async (values: UpdateWorkspaceForm) => {
     const { name, description, baseUrl, model, apiKey } = values
-    const shouldSaveModel = model.trim().length > 0
-
-    if (shouldSaveModel && !apiKey && !modelConfigured) {
-      form.setFieldError("apiKey", "API key is required")
-      return
-    }
+    const defaultBaseUrl = "https://api.openai.com/v1"
+    const normalizedBaseUrl = baseUrl.trim().replace(/\/$/, "")
+    const hasCustomEndpoint = normalizedBaseUrl !== "" && normalizedBaseUrl !== defaultBaseUrl
+    const shouldSaveModel = modelConfigured
+      || apiKey.trim() !== ""
+      || model.trim() !== ""
+      || hasCustomEndpoint
 
     setSaving(true)
 
@@ -191,7 +192,7 @@ function EditWorkspaceModal({
             <Divider label="AI model" labelPosition="left" />
             <Text size="xs" c="dimmed" mt={8}>
               OpenAI-compatible Chat Completions endpoint used for suggestions in this workspace.
-              Leave the model name blank to skip saving.
+              Model name and API key are optional if your server ignores them.
             </Text>
           </Grid.Col>
 
@@ -206,7 +207,7 @@ function EditWorkspaceModal({
           <Grid.Col span={12}>
             <TextInput
               label="Model"
-              placeholder="gpt-4o-mini"
+              placeholder="optional if your server ignores it"
               {...form.getInputProps("model")}
             />
           </Grid.Col>

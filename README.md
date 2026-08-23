@@ -25,7 +25,70 @@ To install and run Markup locally:
 1. Run the web app and API: `pnpm dev` and `pnpm dev:api`
 1. Open Markup in your web browser at `http://localhost:3000`
 
-To use AI suggestions, open a workspace, click **Settings**, and add an OpenAI-compatible base URL, model name, and API key. Highlighting text in the annotate view will then suggest an entity and attributes.
+To use AI suggestions, open a workspace, click **Settings**, and add an OpenAI-compatible base URL. Model name and API key are optional. Highlighting text in the annotate view will then suggest an entity and attributes.
+
+# Custom AI endpoints
+
+Markup does not call a Markup-hosted model. Each workspace points at **your** HTTP API. That API must speak the OpenAI Chat Completions protocol.
+
+Markup sends:
+
+```
+POST {base URL}/chat/completions
+Content-Type: application/json
+Authorization: Bearer {API key}   # omitted if you leave the API key blank
+```
+
+Do not include `/chat/completions` in the base URL. These are equivalent:
+
+| Base URL | Request URL |
+|---|---|
+| `https://api.openai.com/v1` | `https://api.openai.com/v1/chat/completions` |
+| `http://127.0.0.1:8080` | `http://127.0.0.1:8080/chat/completions` |
+
+Request body:
+
+```json
+{
+  "model": "gpt-4o-mini",
+  "temperature": 0,
+  "messages": [
+    { "role": "system", "content": "You are a JSON API. Respond with valid JSON only. ..." },
+    { "role": "user", "content": "<suggestion prompt>" }
+  ]
+}
+```
+
+`model` is omitted when the workspace model name is blank. Your server can ignore `model` if it only serves one model.
+
+Markup first tries `response_format: { "type": "json_object" }`. If that returns HTTP 400, it retries without `response_format`. Either way, the assistant message must be JSON (optionally wrapped in a ` ```json ` fence).
+
+Expected response:
+
+```json
+{
+  "choices": [
+    {
+      "message": {
+        "content": "{\"entity\": \"Prescription\"}"
+      }
+    }
+  ]
+}
+```
+
+Entity suggestions parse `{"entity": "<name>"}`. Attribute suggestions parse a flat object of string values, for example `{"Dose": "10", "Unit": "mg"}`. Anything not in the workspace config, or whose value is not in the highlighted span, is dropped.
+
+Examples:
+
+| Provider | Base URL | Model | API key |
+|---|---|---|---|
+| OpenAI | `https://api.openai.com/v1` | `gpt-4o-mini` | `sk-...` |
+| Anthropic (OpenAI-compatible) | `https://api.anthropic.com/v1` | `claude-haiku-4-5` | `sk-ant-...` |
+| Ollama | `http://127.0.0.1:11434/v1` | `llama3.2` | blank or any placeholder |
+| Single-model proxy | `https://your-proxy.example` | blank | blank, or Bearer token if you require auth |
+
+A local or private endpoint with no model name and no key is valid: set only the base URL.
 
 # Deploy
 
