@@ -25,6 +25,22 @@ To install and run Markup locally:
 1. Run the web app and API: `pnpm dev` and `pnpm dev:api`
 1. Open Markup in your web browser at `http://localhost:3000`
 
+To use AI suggestions, open a workspace, click **Settings**, and add an OpenAI-compatible base URL, model name, and API key. Highlighting text in the annotate view will then suggest an entity and attributes.
+
+# Deploy
+
+The Fly.io app serves the API and the built frontend from the same process. Set these secrets on the machine:
+
+```
+fly secrets set SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... MODEL_CREDENTIALS_KEY=...
+```
+
+`VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are baked in at image build time, so pass them as build arguments:
+
+```
+fly deploy --build-arg VITE_SUPABASE_URL=... --build-arg VITE_SUPABASE_ANON_KEY=...
+```
+
 # Usage
 
 To get started with Markup, read the [quick start guide](https://getmarkup.com/docs).

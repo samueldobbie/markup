@@ -10,9 +10,11 @@ import Title from "components/title/Title"
 import EntityConfig from "components/annotate/EntityConfig"
 import AttributeConfig, { SelectData } from "components/annotate/AttributeConfig"
 import { IconNumber1, IconNumber2, IconNumber3, IconNumber4 } from "@tabler/icons-react"
+import { suggestAttributes, suggestEntity } from "utils/Suggest"
 
-const SUGGEST_ENTITY_API_URL = "https://vior5kmthct3a7wzlpc4r6yy2i0iqfnc.lambda-url.eu-west-2.on.aws/"
-const SUGGEST_ATTRIBUTES_API_URL = "https://r6k5pux3iwubbplreajwa6ppoe0apqpf.lambda-url.eu-west-2.on.aws/"
+function isAbortError(error: unknown): boolean {
+  return error instanceof DOMException && error.name === "AbortError"
+}
 
 function Config({ workspace }: SectionProps) {
   const config = useAnnotateStore((s) => s.config)
@@ -96,30 +98,33 @@ function Config({ workspace }: SectionProps) {
   }, [proposedAnnotation, documents, documentIndex, config, setActiveEntity])
 
   useEffect(() => {
-    if (selectedText !== "") {
-      fetch(SUGGEST_ENTITY_API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          selectedText,
-          availableEntities: config.entities.map(entity => entity.name),
-        }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data["entity"]) {
-            setSuggestedEntity(data["entity"])
-          } else {
-            setSuggestedEntity("")
-          }
-        })
+    if (selectedText === "") {
+      setSuggestedEntity("")
+      return
     }
-  }, [config, selectedText, setSuggestedEntity])
+
+    const controller = new AbortController()
+
+    suggestEntity(
+      workspace.id,
+      selectedText,
+      config.entities.map(entity => entity.name),
+      controller.signal,
+    )
+      .then((data) => {
+        setSuggestedEntity(data.entity || "")
+      })
+      .catch((error) => {
+        if (!isAbortError(error)) {
+          setSuggestedEntity("")
+        }
+      })
+
+    return () => controller.abort()
+  }, [config, selectedText, workspace.id])
 
   useEffect(() => {
-    if (activeEntity === "") {
+    if (activeEntity === "" || selectedText === "") {
       setSuggestedAttributes({})
       return
     }
@@ -127,29 +132,34 @@ function Config({ workspace }: SectionProps) {
     const entityAttributes = config.entities.find(entity => entity.name === activeEntity)?.attributes ?? []
     const globalAttributes = config.globalAttributes
     const availableAttributes = [...entityAttributes, ...globalAttributes]
+    const controller = new AbortController()
 
-    fetch(SUGGEST_ATTRIBUTES_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        selectedText,
-        selectedEntity: activeEntity,
-        availableAttributes,
-      }),
-    })
-      .then((response) => response.json())
+    suggestAttributes(
+      workspace.id,
+      selectedText,
+      activeEntity,
+      availableAttributes,
+      controller.signal,
+    )
       .then((data) => {
-        Object.keys(data).forEach((key) => {
-          if (data[key] === "") {
-            delete data[key]
+        const attributes = { ...data }
+
+        Object.keys(attributes).forEach((key) => {
+          if (attributes[key] === "") {
+            delete attributes[key]
           }
         })
 
-        setSuggestedAttributes(data)
+        setSuggestedAttributes(attributes)
       })
-  }, [activeEntity, selectedText, config])
+      .catch((error) => {
+        if (!isAbortError(error)) {
+          setSuggestedAttributes({})
+        }
+      })
+
+    return () => controller.abort()
+  }, [activeEntity, selectedText, config, workspace.id])
 
   const addAnnotation = () => {
     if (!proposedAnnotation) {

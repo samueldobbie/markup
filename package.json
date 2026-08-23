@@ -15,6 +15,7 @@
   "scripts": {
     "dev": "vite",
     "dev:api": "tsx watch server/src/index.ts",
+    "start:api": "tsx server/src/index.ts",
     "start": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
