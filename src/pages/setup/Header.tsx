@@ -1,7 +1,7 @@
-import { Group, Button, Text, Grid, Modal, TextInput, PasswordInput, Divider } from "@mantine/core"
+import { ActionIcon, Group, Button, Text, Grid, Modal, TextInput, PasswordInput, Tooltip } from "@mantine/core"
 import { useForm } from "@mantine/form"
-import { IconArrowRight } from "@tabler/icons-react"
-import { useEffect, useState } from "react"
+import { IconArrowRight, IconCornerDownLeft, IconPencil, IconSparkles } from "@tabler/icons-react"
+import { useEffect, useRef, useState } from "react"
 import { useParams } from "react-router-dom"
 import { Workspace, database } from "storage/database"
 import { moveToPage } from "utils/Location"
@@ -10,10 +10,37 @@ import { Path, toAnnotateUrl } from "utils/Path"
 import { getWorkspaceModel, saveWorkspaceModel } from "utils/WorkspaceModel"
 import { SectionProps } from "./Setup"
 
-function Header({ workspace, workspaceStatus }: SectionProps) {
+interface HeaderProps extends SectionProps {
+  onWorkspaceChange: (workspace: Workspace) => void
+}
+
+function Header({ workspace, workspaceStatus, onWorkspaceChange }: HeaderProps) {
   const { id } = useParams()
 
-  const [openedEditWorkspaceModal, setOpenedEditWorkspaceModal] = useState(false)
+  const [openedConfigureAiModal, setOpenedConfigureAiModal] = useState(false)
+  const workspaceRef = useRef(workspace)
+  workspaceRef.current = workspace
+
+  const saveMetadata = async (name: string, description: string) => {
+    const previous = workspaceRef.current
+    const next = {
+      ...previous,
+      name,
+      description,
+    }
+
+    workspaceRef.current = next
+    onWorkspaceChange(next)
+
+    try {
+      await database.updateWorkspace(next.id, next.name, next.description || "")
+    } catch (e) {
+      workspaceRef.current = previous
+      onWorkspaceChange(previous)
+      notify.error("Failed to update workspace.", e instanceof Error ? e : undefined)
+      throw e
+    }
+  }
 
   if (id === undefined) {
     return <></>
@@ -21,20 +48,29 @@ function Header({ workspace, workspaceStatus }: SectionProps) {
 
   return (
     <>
-      <Group justify="space-between">
-        <Group justify="flex-start">
-          <div>
-            <Text fz={25} style={{ fontWeight: "bold" }}>
-              {workspace.name}
-            </Text>
+      <Group justify="space-between" align="flex-start" wrap="nowrap">
+        <div style={{ flex: 1, minWidth: 0, marginRight: 16 }}>
+          <InlineEditableText
+            value={workspace.name}
+            placeholder="Add a title..."
+            editLabel="Edit name"
+            required
+            fz={25}
+            fw={700}
+            onSave={(name) => saveMetadata(name, workspaceRef.current.description || "")}
+          />
 
-            <Text c="dimmed" fz={14}>
-              {workspace.description || "No description"}
-            </Text>
-          </div>
-        </Group>
+          <InlineEditableText
+            value={workspace.description || ""}
+            placeholder="Add a description..."
+            editLabel="Edit description"
+            fz={14}
+            c="dimmed"
+            onSave={(description) => saveMetadata(workspaceRef.current.name, description)}
+          />
+        </div>
 
-        <Group>
+        <Group wrap="nowrap">
           <Button
             variant="subtle"
             onClick={() => moveToPage(Path.Dashboard)}
@@ -44,9 +80,10 @@ function Header({ workspace, workspaceStatus }: SectionProps) {
 
           <Button
             variant="subtle"
-            onClick={() => setOpenedEditWorkspaceModal(true)}
+            leftSection={<IconSparkles size={16} />}
+            onClick={() => setOpenedConfigureAiModal(true)}
           >
-            Settings
+            Configure AI
           </Button>
 
           <Button
@@ -55,30 +92,170 @@ function Header({ workspace, workspaceStatus }: SectionProps) {
             variant="light"
             bg={!workspaceStatus.hasConfig || !workspaceStatus.hasDocument ? "gray" : "green"}
             c={!workspaceStatus.hasConfig || !workspaceStatus.hasDocument ? "darkgray" : "darkgreen"}
->
+          >
             Annotate <IconArrowRight size={19} />
           </Button>
         </Group>
       </Group>
 
-      <EditWorkspaceModal
+      <ConfigureAiModal
         workspace={workspace}
-        openedModal={openedEditWorkspaceModal}
-        setOpenedModal={setOpenedEditWorkspaceModal}
+        openedModal={openedConfigureAiModal}
+        setOpenedModal={setOpenedConfigureAiModal}
       />
     </>
   )
 }
 
-interface UpdateWorkspaceForm {
-  name: string
-  description?: string
+function InlineEditableText({
+  value,
+  placeholder,
+  editLabel,
+  required,
+  fz,
+  fw,
+  c,
+  onSave,
+}: {
+  value: string
+  placeholder?: string
+  editLabel: string
+  required?: boolean
+  fz: number
+  fw?: number
+  c?: string
+  onSave: (next: string) => Promise<void>
+}) {
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState(value)
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    if (!editing) {
+      setDraft(value)
+    }
+  }, [editing, value])
+
+  const startEditing = () => {
+    setDraft(value)
+    setEditing(true)
+  }
+
+  const cancel = () => {
+    setDraft(value)
+    setEditing(false)
+  }
+
+  const save = async () => {
+    const trimmed = draft.trim()
+
+    if (required && trimmed === "") {
+      return
+    }
+
+    if (trimmed === value.trim()) {
+      setEditing(false)
+      setDraft(value)
+      return
+    }
+
+    setSaving(true)
+
+    try {
+      await onSave(trimmed)
+      setEditing(false)
+    } catch {
+      // Keep the draft so the user can retry or cancel.
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (editing) {
+    return (
+      <form
+        onSubmit={(event) => {
+          event.preventDefault()
+          void save()
+        }}
+        style={{ marginBottom: 4 }}
+      >
+        <Group gap="xs" wrap="nowrap" align="center">
+          <TextInput
+            style={{ flex: 1, minWidth: 0 }}
+            value={draft}
+            placeholder={placeholder}
+            autoFocus
+            disabled={saving}
+            onChange={(event) => setDraft(event.currentTarget.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                event.preventDefault()
+                cancel()
+              }
+            }}
+          />
+
+          <Button
+            type="button"
+            variant="default"
+            size="sm"
+            disabled={saving}
+            onClick={cancel}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            type="submit"
+            color="green"
+            size="sm"
+            loading={saving}
+            disabled={required && draft.trim() === ""}
+            rightSection={<IconCornerDownLeft size={14} />}
+          >
+            Save
+          </Button>
+        </Group>
+      </form>
+    )
+  }
+
+  return (
+    <Group gap={6} wrap="nowrap" align="center">
+      <Text
+        fz={fz}
+        fw={fw}
+        c={value ? c : "dimmed"}
+        style={{ cursor: "pointer", minWidth: 0 }}
+        lineClamp={2}
+        onClick={startEditing}
+      >
+        {value || placeholder}
+      </Text>
+
+      <Tooltip label={editLabel}>
+        <ActionIcon
+          variant="subtle"
+          color="gray"
+          size="sm"
+          aria-label={editLabel}
+          onClick={startEditing}
+        >
+          <IconPencil size={15} />
+        </ActionIcon>
+      </Tooltip>
+    </Group>
+  )
+}
+
+interface ConfigureAiForm {
   baseUrl: string
   model: string
   apiKey: string
 }
 
-function EditWorkspaceModal({
+function ConfigureAiModal({
   workspace,
   openedModal,
   setOpenedModal,
@@ -93,8 +270,6 @@ function EditWorkspaceModal({
 
   const form = useForm({
     initialValues: {
-      name: workspace.name,
-      description: workspace.description,
       baseUrl: "https://api.openai.com/v1",
       model: "",
       apiKey: "",
@@ -107,8 +282,6 @@ function EditWorkspaceModal({
     }
 
     form.setValues({
-      name: workspace.name,
-      description: workspace.description,
       baseUrl: "https://api.openai.com/v1",
       model: "",
       apiKey: "",
@@ -119,8 +292,6 @@ function EditWorkspaceModal({
         setApiKeyLast4(model.apiKeyLast4)
         setModelConfigured(model.configured)
         form.setValues({
-          name: workspace.name,
-          description: workspace.description,
           baseUrl: model.baseUrl,
           model: model.model,
           apiKey: "",
@@ -129,10 +300,10 @@ function EditWorkspaceModal({
       .catch((e) => notify.error("Failed to load workspace model.", e))
     // form is not a stable dep from useForm
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openedModal, workspace.description, workspace.id, workspace.name])
+  }, [openedModal, workspace.id])
 
-  const handleUpdateWorkspace = async (values: UpdateWorkspaceForm) => {
-    const { name, description, baseUrl, model, apiKey } = values
+  const handleSaveModel = async (values: ConfigureAiForm) => {
+    const { baseUrl, model, apiKey } = values
     const defaultBaseUrl = "https://api.openai.com/v1"
     const normalizedBaseUrl = baseUrl.trim().replace(/\/$/, "")
     const hasCustomEndpoint = normalizedBaseUrl !== "" && normalizedBaseUrl !== defaultBaseUrl
@@ -141,22 +312,24 @@ function EditWorkspaceModal({
       || model.trim() !== ""
       || hasCustomEndpoint
 
+    if (!shouldSaveModel) {
+      setOpenedModal(false)
+      return
+    }
+
     setSaving(true)
 
     try {
-      await database.updateWorkspace(workspace.id, name, description || "")
+      await saveWorkspaceModel(workspace.id, {
+        baseUrl,
+        model,
+        apiKey: apiKey || undefined,
+      })
 
-      if (shouldSaveModel) {
-        await saveWorkspaceModel(workspace.id, {
-          baseUrl,
-          model,
-          apiKey: apiKey || undefined,
-        })
-      }
-
-      window.location.reload()
+      notify.success("AI model saved.")
+      setOpenedModal(false)
     } catch (e) {
-      notify.error("Failed to update workspace.", e instanceof Error ? e : undefined)
+      notify.error("Failed to save AI model.", e instanceof Error ? e : undefined)
     } finally {
       setSaving(false)
     }
@@ -166,32 +339,13 @@ function EditWorkspaceModal({
     <Modal
       opened={openedModal}
       onClose={() => setOpenedModal(false)}
-      title="Update workspace"
+      title="Configure AI"
       centered
     >
-      <form onSubmit={form.onSubmit((values) => handleUpdateWorkspace(values))}>
+      <form onSubmit={form.onSubmit((values) => handleSaveModel(values))}>
         <Grid>
           <Grid.Col span={12}>
-            <TextInput
-              required
-              withAsterisk
-              label="Name"
-              placeholder="Clinical letters"
-              {...form.getInputProps("name")}
-            />
-          </Grid.Col>
-
-          <Grid.Col span={12}>
-            <TextInput
-              label="Description"
-              placeholder="500 letters provided by LSE hospital"
-              {...form.getInputProps("description")}
-            />
-          </Grid.Col>
-
-          <Grid.Col span={12}>
-            <Divider label="AI model" labelPosition="left" />
-            <Text size="xs" c="dimmed" mt={8}>
+            <Text size="xs" c="dimmed">
               OpenAI-compatible Chat Completions endpoint used for suggestions in this workspace.
               Model name and API key are optional if your server ignores them.
             </Text>
@@ -224,7 +378,7 @@ function EditWorkspaceModal({
 
           <Grid.Col span={12}>
             <Button type="submit" loading={saving}>
-              Update
+              Save
             </Button>
           </Grid.Col>
         </Grid>

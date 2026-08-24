@@ -67,6 +67,7 @@ function Setup() {
                 <Header
                   workspace={workspace}
                   workspaceStatus={workspaceStatus}
+                  onWorkspaceChange={setWorkspace}
                 />
               </Grid.Col>
 
