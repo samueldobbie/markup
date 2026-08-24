@@ -75,7 +75,7 @@ function SmartAssistant({ workspace, guideline, setSuggestionCount }: Props) {
         setSuggestionCount(0)
 
         if (caught instanceof ApiError && caught.status === 409) {
-          setError("Configure a model in workspace Settings to get suggestions.")
+          setError("Configure AI on the workspace setup page to get suggestions.")
           return
         }
 
