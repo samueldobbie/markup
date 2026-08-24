@@ -1,5 +1,4 @@
 import { Accordion, Container, Title } from "@mantine/core"
-import { IconStar } from "@tabler/icons-react"
 
 function Faq() {
   return (
@@ -41,8 +40,8 @@ function Faq() {
           </Accordion.Control>
 
           <Accordion.Panel>
-            You can support Markup by hitting <IconStar size={16} color="#d1e32d" /> on <a
-              href="https://github.com/samueldobbie/markup/stargazers"
+            You can support Markup by hitting 'Star' on <a
+              href="https://github.com/samueldobbie/markup"
               target="_blank"
               rel="noreferrer"
             >
