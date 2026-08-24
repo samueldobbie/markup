@@ -42,6 +42,13 @@ function ConfigTable({ workspace, workspaceStatus, setWorkspaceStatus }: Section
     database
       .getWorkspaceConfig(workspace.id)
       .then((config) => {
+        if (!config) {
+          setConfigRecord(null)
+          setEntityCount(0)
+          setAttributeCount(0)
+          return
+        }
+
         const { entities, globalAttributes } = parseJsonConfig(config.content)
 
         const entityCount = entities.length

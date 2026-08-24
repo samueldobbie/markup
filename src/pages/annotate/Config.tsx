@@ -50,6 +50,14 @@ function Config({ workspace }: SectionProps) {
     database
       .getWorkspaceConfig(workspace.id)
       .then(config => {
+        if (!config) {
+          setConfig({
+            entities: [],
+            globalAttributes: [],
+          })
+          return
+        }
+
         const parsedConfig = parseJsonConfig(config.content)
         setConfig(parsedConfig)
       })
