@@ -1,7 +1,7 @@
 import { Button, Card, Center, Collapse, Grid, Group, Loader, Text } from "@mantine/core"
 import { IconCheck, IconRefresh, IconX } from "@tabler/icons-react"
 import { useEffect, useState } from "react"
-import { Workspace, database } from "storage/database/Database"
+import { Workspace, WorkspaceAnnotation, database } from "storage/database/Database"
 import { useAnnotateStore } from "storage/state/Annotate"
 import { ApiError } from "utils/Api"
 import notify from "utils/Notifications"
@@ -17,6 +17,29 @@ function isAbortError(error: unknown): boolean {
   return error instanceof DOMException && error.name === "AbortError"
 }
 
+function spansOverlap(
+  startA: number,
+  endA: number,
+  startB: number,
+  endB: number,
+): boolean {
+  return startA < endB && startB < endA
+}
+
+function overlapsExisting(
+  suggestion: DocumentAnnotationSuggestion,
+  existing: WorkspaceAnnotation[],
+): boolean {
+  return existing.some((annotation) => (
+    spansOverlap(
+      suggestion.start_index,
+      suggestion.end_index,
+      annotation.start_index,
+      annotation.end_index,
+    )
+  ))
+}
+
 function SmartAssistant({ workspace, guideline, setSuggestionCount }: Props) {
   const config = useAnnotateStore((s) => s.config)
   const entityColours = useAnnotateStore((s) => s.entityColours)
@@ -24,9 +47,11 @@ function SmartAssistant({ workspace, guideline, setSuggestionCount }: Props) {
   const documentIndex = useAnnotateStore((s) => s.documentIndex)
   const annotations = useAnnotateStore((s) => s.annotations)
   const setAnnotations = useAnnotateStore((s) => s.setAnnotations)
+  const pendingSuggestion = useAnnotateStore((s) => s.pendingSuggestion)
+  const setPendingSuggestion = useAnnotateStore((s) => s.setPendingSuggestion)
+  const setProposedAnnotation = useAnnotateStore((s) => s.setProposedAnnotation)
 
   const [suggestions, setSuggestions] = useState<DocumentAnnotationSuggestion[]>([])
-  const [openSuggestions, setOpenSuggestions] = useState<Record<string, boolean>>({})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [refreshToken, setRefreshToken] = useState(0)
@@ -34,10 +59,25 @@ function SmartAssistant({ workspace, guideline, setSuggestionCount }: Props) {
   const document = documents[documentIndex]
 
   useEffect(() => {
+    setSuggestionCount(suggestions.length)
+  }, [setSuggestionCount, suggestions.length])
+
+  useEffect(() => {
+    const currentAnnotations = annotations[documentIndex] ?? []
+
+    setSuggestions((current) => {
+      const remaining = current.filter((suggestion) => (
+        !overlapsExisting(suggestion, currentAnnotations)
+      ))
+
+      return remaining.length === current.length ? current : remaining
+    })
+  }, [annotations, documentIndex])
+
+  useEffect(() => {
     if (!document || config.entities.length === 0) {
       setSuggestions([])
       setError("")
-      setSuggestionCount(0)
       return
     }
 
@@ -63,8 +103,11 @@ function SmartAssistant({ workspace, guideline, setSuggestionCount }: Props) {
       controller.signal,
     )
       .then((data) => {
-        setSuggestions(data.suggestions)
-        setSuggestionCount(data.suggestions.length)
+        const remaining = data.suggestions.filter((suggestion) => (
+          !overlapsExisting(suggestion, currentAnnotations)
+        ))
+
+        setSuggestions(remaining)
       })
       .catch((caught) => {
         if (isAbortError(caught)) {
@@ -72,7 +115,6 @@ function SmartAssistant({ workspace, guideline, setSuggestionCount }: Props) {
         }
 
         setSuggestions([])
-        setSuggestionCount(0)
 
         if (caught instanceof ApiError && caught.status === 409) {
           setError("Configure AI on the workspace setup page to get suggestions.")
@@ -88,38 +130,25 @@ function SmartAssistant({ workspace, guideline, setSuggestionCount }: Props) {
       })
 
     return () => controller.abort()
-  }, [config, document, documentIndex, guideline, refreshToken, setSuggestionCount, workspace.id])
+  }, [config, document, documentIndex, guideline, refreshToken, workspace.id])
 
-  const acceptSuggestion = async (suggestion: DocumentAnnotationSuggestion) => {
-    if (!document) {
-      return
-    }
-
-    try {
-      const annotation = await database.addWorkspaceAnnotation(workspace.id, document.id, {
-        text: suggestion.text,
-        entity: suggestion.entity,
-        start_index: suggestion.start_index,
-        end_index: suggestion.end_index,
-        attributes: suggestion.attributes,
-      })
-
-      const copy = [...annotations]
-      copy[documentIndex] = [...(copy[documentIndex] ?? []), annotation]
-      setAnnotations(copy)
-
-      const remaining = suggestions.filter((item) => item.id !== suggestion.id)
-      setSuggestions(remaining)
-      setSuggestionCount(remaining.length)
-    } catch (caught) {
-      notify.error("Failed to add annotation.", caught instanceof Error ? caught : undefined)
-    }
+  const reviewSuggestion = (suggestion: DocumentAnnotationSuggestion) => {
+    setPendingSuggestion(suggestion)
+    setProposedAnnotation({
+      tag: suggestion.entity,
+      start: suggestion.start_index,
+      end: suggestion.end_index,
+      color: entityColours[suggestion.entity] || "#6F72E9",
+    })
   }
 
   const dismissSuggestion = (suggestionId: string) => {
-    const remaining = suggestions.filter((item) => item.id !== suggestionId)
-    setSuggestions(remaining)
-    setSuggestionCount(remaining.length)
+    if (pendingSuggestion?.id === suggestionId) {
+      setPendingSuggestion(null)
+      setProposedAnnotation(null)
+    }
+
+    setSuggestions((current) => current.filter((item) => item.id !== suggestionId))
   }
 
   const acceptAll = async () => {
@@ -141,8 +170,9 @@ function SmartAssistant({ workspace, guideline, setSuggestionCount }: Props) {
       const copy = [...annotations]
       copy[documentIndex] = [...(copy[documentIndex] ?? []), ...saved]
       setAnnotations(copy)
+      setPendingSuggestion(null)
+      setProposedAnnotation(null)
       setSuggestions([])
-      setSuggestionCount(0)
     } catch (caught) {
       notify.error("Failed to add annotations.", caught instanceof Error ? caught : undefined)
     }
@@ -156,7 +186,14 @@ function SmartAssistant({ workspace, guideline, setSuggestionCount }: Props) {
             variant="subtle"
             size="xs"
             leftSection={<IconRefresh size={14} />}
-            onClick={() => setRefreshToken((value) => value + 1)}
+            onClick={() => {
+              if (pendingSuggestion) {
+                setPendingSuggestion(null)
+                setProposedAnnotation(null)
+              }
+
+              setRefreshToken((value) => value + 1)
+            }}
             disabled={loading}
           >
             Refresh
@@ -198,74 +235,75 @@ function SmartAssistant({ workspace, guideline, setSuggestionCount }: Props) {
         </Grid.Col>
       )}
 
-      {!loading && suggestions.map((suggestion) => (
-        <Grid.Col span={12} key={suggestion.id}>
-          <Card
-            radius={2}
-            p="sm"
-            style={{
-              backgroundColor: entityColours[suggestion.entity] || "#e9ecef",
-              color: "#333333",
-              cursor: "pointer",
-            }}
-            onClick={() => {
-              setOpenSuggestions({
-                ...openSuggestions,
-                [suggestion.id]: !openSuggestions[suggestion.id],
-              })
-            }}
-          >
-            <Grid>
-              <Grid.Col span={2}>
-                <IconX
-                  size={16}
-                  onClick={(event) => {
-                    event.stopPropagation()
-                    dismissSuggestion(suggestion.id)
-                  }}
-                />
-              </Grid.Col>
+      {!loading && suggestions.map((suggestion) => {
+        const selected = pendingSuggestion?.id === suggestion.id
 
-              <Grid.Col span={10} style={{ userSelect: "none" }}>
-                <Text fw={500} size="sm">
-                  {suggestion.entity}
-                </Text>
-                <Text>
-                  {suggestion.text}
-                </Text>
-                <Text c="dimmed" fz={12}>
-                  {Object.keys(suggestion.attributes).length} attributes
-                </Text>
-              </Grid.Col>
-            </Grid>
-
-            <Collapse in={Object.keys(suggestion.attributes).length > 0 && openSuggestions[suggestion.id]} mt={10}>
-              {Object.keys(suggestion.attributes).map((attribute) => (
-                <Text fz={12} key={attribute}>
-                  {attribute}
-                  <Text c="dimmed">
-                    {suggestion.attributes[attribute]}
-                  </Text>
-                </Text>
-              ))}
-            </Collapse>
-
-            <Button
-              fullWidth
-              size="xs"
-              mt={10}
-              variant="white"
-              color="dark"
-              onClick={(event) => {
-                event.stopPropagation()
-                acceptSuggestion(suggestion)
+        return (
+          <Grid.Col span={12} key={suggestion.id}>
+            <Card
+              radius={2}
+              p="sm"
+              style={{
+                backgroundColor: entityColours[suggestion.entity] || "#e9ecef",
+                color: "#333333",
+                cursor: "pointer",
+                outline: selected ? "2px solid #1a1b1e" : undefined,
+                outlineOffset: selected ? 2 : undefined,
               }}
+              onClick={() => reviewSuggestion(suggestion)}
             >
-              Accept
-            </Button>
-          </Card>
-        </Grid.Col>
-      ))}
+              <Grid>
+                <Grid.Col span={2}>
+                  <IconX
+                    size={16}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      dismissSuggestion(suggestion.id)
+                    }}
+                  />
+                </Grid.Col>
+
+                <Grid.Col span={10} style={{ userSelect: "none" }}>
+                  <Text fw={500} size="sm">
+                    {suggestion.entity}
+                  </Text>
+                  <Text>
+                    {suggestion.text}
+                  </Text>
+                  <Text c="dimmed" fz={12}>
+                    {Object.keys(suggestion.attributes).length} attributes
+                  </Text>
+                </Grid.Col>
+              </Grid>
+
+              <Collapse in={selected && Object.keys(suggestion.attributes).length > 0} mt={10}>
+                {Object.keys(suggestion.attributes).map((attribute) => (
+                  <Text fz={12} key={attribute}>
+                    {attribute}
+                    <Text c="dimmed">
+                      {suggestion.attributes[attribute]}
+                    </Text>
+                  </Text>
+                ))}
+              </Collapse>
+
+              <Button
+                fullWidth
+                size="xs"
+                mt={10}
+                variant="white"
+                color="dark"
+                onClick={(event) => {
+                  event.stopPropagation()
+                  reviewSuggestion(suggestion)
+                }}
+              >
+                Review
+              </Button>
+            </Card>
+          </Grid.Col>
+        )
+      })}
     </Grid>
   )
 }

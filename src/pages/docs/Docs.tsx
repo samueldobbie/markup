@@ -570,8 +570,9 @@ function AssistedAnnotation() {
         Clicking on a suggested entity or attribute will automatically add it to your annotation,
         although you will always have the option to change it or add additional values.
 
-        The Suggested tab can also propose annotations for the whole document. Accept a suggestion
-        to add it, or dismiss it if it is not useful.
+        The Suggested tab can also propose annotations for the whole document. Review a suggestion
+        to load it into the annotation form, edit it if needed, then add it. Dismiss a suggestion
+        if it is not useful.
 
       </Text>
     </Text>
