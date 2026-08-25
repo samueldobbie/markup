@@ -63,15 +63,16 @@ function AttributeConfig({ config }: Props) {
           <Grid style={{ width: "100%" }}>
             {shownAttributes.map((attribute, index) => {
               const predictedValue = populatedAttributes[attribute.name]
+              const options = attributeValues[attribute.name] ?? []
 
-              if (predictedValue && !attributeValues[attribute.name].map(value => value.value).includes(predictedValue)) {
+              if (predictedValue && !options.map(value => value.value).includes(predictedValue)) {
                 const copy = { ...attributeValues }
                 const item = {
                   value: predictedValue,
                   label: predictedValue,
                 }
 
-                copy[attribute.name].push(item)
+                copy[attribute.name] = [...options, item]
                 setAttributeValues(copy)
               }
 

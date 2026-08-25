@@ -33,6 +33,8 @@ function Config({ workspace }: SectionProps) {
 
   const proposedAnnotation = useAnnotateStore((s) => s.proposedAnnotation)
   const setProposedAnnotation = useAnnotateStore((s) => s.setProposedAnnotation)
+  const pendingSuggestion = useAnnotateStore((s) => s.pendingSuggestion)
+  const setPendingSuggestion = useAnnotateStore((s) => s.setPendingSuggestion)
   const populatedAttributes = useAnnotateStore((s) => s.populatedAttributes)
   const activeOntologyConcept = useAnnotateStore((s) => s.activeOntologyConcept)
   const documents = useAnnotateStore((s) => s.documents)
@@ -93,17 +95,23 @@ function Config({ workspace }: SectionProps) {
   useEffect(() => {
     if (proposedAnnotation) {
       const { start, end } = proposedAnnotation
-      const text = documents[documentIndex].content.slice(start, end)
-
-      setSelectedText(text)
+      setSelectedText(documents[documentIndex].content.slice(start, end))
     } else {
       setSelectedText("")
     }
 
-    setActiveEntity("")
     setSuggestedEntity("")
     setSuggestedAttributes({})
-  }, [proposedAnnotation, documents, documentIndex, config, setActiveEntity])
+
+    if (pendingSuggestion) {
+      setActiveEntity(pendingSuggestion.entity)
+      setPopulatedAttributes(pendingSuggestion.attributes)
+      return
+    }
+
+    setActiveEntity("")
+    setPopulatedAttributes({})
+  }, [proposedAnnotation, pendingSuggestion, documents, documentIndex, config, setActiveEntity, setPopulatedAttributes])
 
   useEffect(() => {
     if (selectedText === "") {
@@ -221,19 +229,21 @@ function Config({ workspace }: SectionProps) {
     setSuggestedAttributes({})
     setPopulatedAttributes({})
     setProposedAnnotation(null)
+    setPendingSuggestion(null)
   }
-
-  useEffect(() => {
-    setActiveEntity("")
-    setSuggestedEntity("")
-    setSuggestedAttributes({})
-    setPopulatedAttributes({})
-  }, [documentIndex, selectedText, setActiveEntity, setPopulatedAttributes])
 
   return (
     <Card shadow="xs" radius={5} p="xl">
       <ScrollArea scrollbarSize={0} style={{ height: "76vh" }}>
         <Grid>
+          {pendingSuggestion && (
+            <Grid.Col span={12}>
+              <Text size="sm" c="dimmed">
+                Reviewing suggestion. Edit the entity, attributes, or ontology, then add the annotation.
+              </Text>
+            </Grid.Col>
+          )}
+
           <Grid.Col span={12}>
             <Group justify="space-between">
               <Title

@@ -21,6 +21,7 @@ function Document({ workspace }: SectionProps) {
   const entityColours = useAnnotateStore((s) => s.entityColours)
   const proposedAnnotation = useAnnotateStore((s) => s.proposedAnnotation)
   const setProposedAnnotation = useAnnotateStore((s) => s.setProposedAnnotation)
+  const setPendingSuggestion = useAnnotateStore((s) => s.setPendingSuggestion)
 
   const documents = useAnnotateStore((s) => s.documents)
   const setDocuments = useAnnotateStore((s) => s.setDocuments)
@@ -92,7 +93,8 @@ function Document({ workspace }: SectionProps) {
 
   useEffect(() => {
     setProposedAnnotation(null)
-  }, [documentIndex, setProposedAnnotation])
+    setPendingSuggestion(null)
+  }, [documentIndex, setProposedAnnotation, setPendingSuggestion])
 
   return (
     <>
@@ -186,6 +188,7 @@ function Document({ workspace }: SectionProps) {
                       return
                     }
 
+                    setPendingSuggestion(null)
                     setProposedAnnotation(updated[updated.length - 1])
                   }}
                   getSpan={(span) => ({

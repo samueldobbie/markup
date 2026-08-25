@@ -3,6 +3,7 @@ import { InlineAnnotation } from "pages/annotate/Document"
 import { OntologyConcept } from "pages/dashboard/OntologyTable"
 import { IConfig } from "pages/setup/ConfigTable"
 import { WorkspaceAnnotation, WorkspaceDocument } from "storage/database"
+import { DocumentAnnotationSuggestion } from "utils/Suggest"
 
 interface AnnotateStore {
   activeTutorialStep: number
@@ -15,6 +16,7 @@ interface AnnotateStore {
   documentIndex: number
   annotations: WorkspaceAnnotation[][]
   proposedAnnotation: InlineAnnotation | null
+  pendingSuggestion: DocumentAnnotationSuggestion | null
   setActiveTutorialStep: (activeTutorialStep: number) => void
   setConfig: (config: IConfig) => void
   setActiveEntity: (activeEntity: string) => void
@@ -25,6 +27,7 @@ interface AnnotateStore {
   setDocumentIndex: (documentIndex: number) => void
   setAnnotations: (annotations: WorkspaceAnnotation[][]) => void
   setProposedAnnotation: (proposedAnnotation: InlineAnnotation | null) => void
+  setPendingSuggestion: (pendingSuggestion: DocumentAnnotationSuggestion | null) => void
 }
 
 export const useAnnotateStore = create<AnnotateStore>((set) => ({
@@ -44,6 +47,7 @@ export const useAnnotateStore = create<AnnotateStore>((set) => ({
   documentIndex: 0,
   annotations: [],
   proposedAnnotation: null,
+  pendingSuggestion: null,
   setActiveTutorialStep: (activeTutorialStep) => set({ activeTutorialStep }),
   setConfig: (config) => set({ config }),
   setActiveEntity: (activeEntity) => set({ activeEntity }),
@@ -54,4 +58,5 @@ export const useAnnotateStore = create<AnnotateStore>((set) => ({
   setDocumentIndex: (documentIndex) => set({ documentIndex }),
   setAnnotations: (annotations) => set({ annotations }),
   setProposedAnnotation: (proposedAnnotation) => set({ proposedAnnotation }),
+  setPendingSuggestion: (pendingSuggestion) => set({ pendingSuggestion }),
 }))
