@@ -1,5 +1,12 @@
-export const CUSTOM_PROVIDER_ID = "custom"
-export const DEFAULT_PROVIDER_ID = "anthropic"
+export const ProviderId = {
+  Anthropic: "anthropic",
+  OpenAI: "openai",
+  Custom: "custom",
+} as const
+
+export type ProviderId = (typeof ProviderId)[keyof typeof ProviderId]
+
+export const DEFAULT_PROVIDER_ID = ProviderId.Anthropic
 
 export interface ModelOption {
   id: string
@@ -7,7 +14,7 @@ export interface ModelOption {
 }
 
 export interface ProviderPreset {
-  id: string
+  id: typeof ProviderId.Anthropic | typeof ProviderId.OpenAI
   label: string
   baseUrl: string
   defaultModelId: string
@@ -17,7 +24,7 @@ export interface ProviderPreset {
 
 export const MODEL_PROVIDERS: ProviderPreset[] = [
   {
-    id: "anthropic",
+    id: ProviderId.Anthropic,
     label: "Claude",
     baseUrl: "https://api.anthropic.com/v1",
     defaultModelId: "claude-sonnet-5",
@@ -30,7 +37,7 @@ export const MODEL_PROVIDERS: ProviderPreset[] = [
     ],
   },
   {
-    id: "openai",
+    id: ProviderId.OpenAI,
     label: "OpenAI",
     baseUrl: "https://api.openai.com/v1",
     defaultModelId: "gpt-5.6-sol",
@@ -44,7 +51,7 @@ export const MODEL_PROVIDERS: ProviderPreset[] = [
 ]
 
 export interface MatchedPreset {
-  providerId: string
+  providerId: ProviderId
   modelId: string
 }
 
@@ -57,7 +64,7 @@ export function getProvider(providerId: string): ProviderPreset | undefined {
 }
 
 export function isCustomProvider(providerId: string): boolean {
-  return providerId === CUSTOM_PROVIDER_ID
+  return providerId === ProviderId.Custom
 }
 
 export function providerSelectData(): { value: string, label: string }[] {
@@ -66,7 +73,7 @@ export function providerSelectData(): { value: string, label: string }[] {
       value: provider.id,
       label: provider.label,
     })),
-    { value: CUSTOM_PROVIDER_ID, label: "Custom" },
+    { value: ProviderId.Custom, label: "Custom" },
   ]
 }
 
@@ -95,7 +102,7 @@ export function matchPreset(baseUrl: string, model: string): MatchedPreset {
   }
 
   return {
-    providerId: CUSTOM_PROVIDER_ID,
+    providerId: ProviderId.Custom,
     modelId: "",
   }
 }
