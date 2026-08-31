@@ -1,6 +1,7 @@
-import { Button, Grid, Modal, PasswordInput, Select, Text, TextInput } from "@mantine/core"
+import { Button, Grid, Group, Modal, PasswordInput, Select, Text, TextInput, type SelectProps } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { useEffect, useState } from "react"
+import { ProviderLogo } from "components/icons/ProviderLogos"
 import { Workspace } from "storage/database"
 import {
   CUSTOM_PROVIDER_ID,
@@ -22,6 +23,13 @@ interface ConfigureAiForm {
   model: string
   apiKey: string
 }
+
+const renderProviderOption: SelectProps["renderOption"] = ({ option }) => (
+  <Group gap={8} wrap="nowrap">
+    <ProviderLogo providerId={option.value} />
+    <span>{option.label}</span>
+  </Group>
+)
 
 function defaultForm(): ConfigureAiForm {
   return {
@@ -226,6 +234,9 @@ function ConfigureAiModal({
               allowDeselect={false}
               value={form.values.providerId}
               onChange={handleProviderChange}
+              leftSection={<ProviderLogo providerId={form.values.providerId} />}
+              leftSectionPointerEvents="none"
+              renderOption={renderProviderOption}
             />
           </Grid.Col>
 
