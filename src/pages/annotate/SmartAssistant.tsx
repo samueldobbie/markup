@@ -10,6 +10,7 @@ import { DocumentAnnotationSuggestion, suggestDocumentAnnotations } from "utils/
 interface Props {
   workspace: Workspace
   guideline: string
+  guidelineReady: boolean
   setSuggestionCount: (count: number) => void
 }
 
@@ -40,7 +41,7 @@ function overlapsExisting(
   ))
 }
 
-function SmartAssistant({ workspace, guideline, setSuggestionCount }: Props) {
+function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCount }: Props) {
   const config = useAnnotateStore((s) => s.config)
   const entityColours = useAnnotateStore((s) => s.entityColours)
   const documents = useAnnotateStore((s) => s.documents)
@@ -75,9 +76,16 @@ function SmartAssistant({ workspace, guideline, setSuggestionCount }: Props) {
   }, [annotations, documentIndex])
 
   useEffect(() => {
+    if (!guidelineReady) {
+      setLoading(true)
+      setError("")
+      return
+    }
+
     if (!document || config.entities.length === 0) {
       setSuggestions([])
       setError("")
+      setLoading(false)
       return
     }
 
@@ -86,6 +94,7 @@ function SmartAssistant({ workspace, guideline, setSuggestionCount }: Props) {
 
     setLoading(true)
     setError("")
+    setSuggestions([])
 
     suggestDocumentAnnotations(
       workspace.id,
@@ -130,7 +139,7 @@ function SmartAssistant({ workspace, guideline, setSuggestionCount }: Props) {
       })
 
     return () => controller.abort()
-  }, [config, document, documentIndex, guideline, refreshToken, workspace.id])
+  }, [config, document, documentIndex, guideline, guidelineReady, refreshToken, workspace.id])
 
   const reviewSuggestion = (suggestion: DocumentAnnotationSuggestion) => {
     setPendingSuggestion(suggestion)

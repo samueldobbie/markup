@@ -17,6 +17,7 @@ function Output({ workspace }: SectionProps) {
   const documentIndex = useAnnotateStore((s) => s.documentIndex)
 
   const [guideline, setGuideline] = useState("")
+  const [guidelineReady, setGuidelineReady] = useState(false)
   const annotations = useAnnotateStore((s) => s.annotations)
   const setAnnotations = useAnnotateStore((s) => s.setAnnotations)
   const [groupedAnnotations, setGroupedAnnotations] = useState<AnnotationGroup>({})
@@ -63,14 +64,15 @@ function Output({ workspace }: SectionProps) {
   }, [annotations, openAnnotations])
 
   useEffect(() => {
+    setGuidelineReady(false)
+
     database
       .getWorkspaceGuideline(workspace.id)
       .then((guidelines) => {
-        if (guidelines.length > 0) {
-          setGuideline(guidelines[0].content)
-        }
+        setGuideline(guidelines.length > 0 ? guidelines[0].content : "")
       })
       .catch((e) => notify.error("Failed to load guidelines.", e))
+      .finally(() => setGuidelineReady(true))
   }, [workspace.id])
 
   return (
@@ -202,15 +204,14 @@ function Output({ workspace }: SectionProps) {
               </Grid.Col>
             )}
 
-            {segment === "suggestions" && (
-              <Grid.Col span={12}>
-                <SmartAssistant
-                  workspace={workspace}
-                  guideline={guideline}
-                  setSuggestionCount={setSuggestionCount}
-                />
-              </Grid.Col>
-            )}
+            <Grid.Col span={12} display={segment === "suggestions" ? undefined : "none"}>
+              <SmartAssistant
+                workspace={workspace}
+                guideline={guideline}
+                guidelineReady={guidelineReady}
+                setSuggestionCount={setSuggestionCount}
+              />
+            </Grid.Col>
           </Grid>
         </ScrollArea>
       </Card>
