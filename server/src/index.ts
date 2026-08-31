@@ -12,6 +12,7 @@ import {
   toPublicModel,
   upsertWorkspaceModel,
 } from "./model.js"
+import { searchWorkspaceDocuments } from "./search.js"
 import { suggestRoutes } from "./suggest.js"
 
 const app = new Hono()
@@ -66,6 +67,21 @@ api.put("/workspaces/:workspaceId/model", async (c) => {
 })
 
 api.route("/suggest", suggestRoutes)
+
+api.post("/workspaces/:workspaceId/search", async (c) => {
+  const workspaceId = c.req.param("workspaceId")
+  await requireWorkspaceMember(c.get("userId"), workspaceId)
+
+  let body: { query?: unknown, mode?: unknown }
+
+  try {
+    body = await c.req.json()
+  } catch {
+    throw new HTTPException(400, { message: "Invalid JSON body" })
+  }
+
+  return c.json(await searchWorkspaceDocuments(workspaceId, body))
+})
 
 app.route("/api", api)
 

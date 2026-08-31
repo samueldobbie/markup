@@ -2,6 +2,11 @@ export const MAX_SELECTED_TEXT_LENGTH = 8_000
 export const MAX_DOCUMENT_PROMPT_LENGTH = 24_000
 export const MAX_DOCUMENT_SUGGESTIONS = 25
 export const MAX_OCCURRENCES_PER_SPAN = 5
+export const MAX_SEARCH_QUERY_LENGTH = 500
+export const SEARCH_CANDIDATE_LIMIT = 75
+export const SEARCH_JUDGE_BATCH_SIZE = 8
+export const SEARCH_JUDGE_DOC_CHARS = 4_000
+export const SEARCH_JUDGE_CONCURRENCY = 3
 
 export interface ConfigAttribute {
   name: string

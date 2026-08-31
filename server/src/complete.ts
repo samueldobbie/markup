@@ -32,15 +32,12 @@ export async function completeJson(args: CompleteArgs): Promise<unknown> {
     },
   ]
 
-  const attempts: Array<Record<string, unknown>> = [
-    { response_format: { type: "json_object" } },
-    {},
-  ]
-
+  let useJsonFormat = true
+  let useTemperature = !/anthropic\.com/i.test(args.baseUrl) && !/^claude/i.test(args.model)
   let lastStatus = 0
   let lastBody = ""
 
-  for (const extra of attempts) {
+  while (true) {
     let response: Response
 
     try {
@@ -53,9 +50,15 @@ export async function completeJson(args: CompleteArgs): Promise<unknown> {
       }
 
       const body: Record<string, unknown> = {
-        temperature: 0,
         messages,
-        ...extra,
+      }
+
+      if (useTemperature) {
+        body.temperature = 0
+      }
+
+      if (useJsonFormat) {
+        body.response_format = { type: "json_object" }
       }
 
       if (args.model) {
@@ -92,6 +95,18 @@ export async function completeJson(args: CompleteArgs): Promise<unknown> {
     if (response.status !== 400) {
       break
     }
+
+    if (useTemperature && /temperature/i.test(lastBody)) {
+      useTemperature = false
+      continue
+    }
+
+    if (useJsonFormat) {
+      useJsonFormat = false
+      continue
+    }
+
+    break
   }
 
   console.error("Workspace model error", lastStatus, lastBody.slice(0, 2000))

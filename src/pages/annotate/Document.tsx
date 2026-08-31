@@ -1,5 +1,5 @@
 import { useAnnotateStore } from "storage/state/Annotate"
-import { ActionIcon, Button, Card, Divider, Grid, Group, Modal, ScrollArea, Select, TextInput, Text } from "@mantine/core"
+import { ActionIcon, Button, Card, Divider, Grid, Group, Loader, Modal, ScrollArea, Select, TextInput, Text } from "@mantine/core"
 import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight, IconSearch } from "@tabler/icons-react"
 import { database, WorkspaceAnnotation, WorkspaceDocument } from "storage/database/Database"
 import { useEffect, useState } from "react"
@@ -7,6 +7,8 @@ import { SectionProps } from "./Annotate"
 import { TextAnnotateBlend } from "react-text-annotate-blend"
 import { useDebouncedState } from "@mantine/hooks"
 import notify from "utils/Notifications"
+import { searchWorkspaceDocuments, DocumentSearchResult } from "utils/Search"
+import { getWorkspaceModel } from "utils/WorkspaceModel"
 import "./Document.css"
 
 export interface InlineAnnotation {
@@ -209,6 +211,7 @@ function Document({ workspace }: SectionProps) {
       }
 
       <SearchDocumentModal
+        workspaceId={workspace.id}
         documents={documents}
         openedModal={openedSearchDocumentModal}
         setOpenedModal={setOpenedSearchDocumentModal}
@@ -218,43 +221,86 @@ function Document({ workspace }: SectionProps) {
 }
 
 interface Props {
+  workspaceId: string
   documents: WorkspaceDocument[]
   openedModal: boolean
   setOpenedModal: (openedModal: boolean) => void
 }
 
-function SearchDocumentModal({ documents, openedModal, setOpenedModal }: Props) {
+function isAbortError(error: unknown): boolean {
+  return error instanceof DOMException && error.name === "AbortError"
+    || error instanceof Error && error.name === "AbortError"
+}
+
+function SearchDocumentModal({ workspaceId, documents, openedModal, setOpenedModal }: Props) {
   const setDocumentIndex = useAnnotateStore((s) => s.setDocumentIndex)
 
-  const [searchTerm, setSearchTerm] = useDebouncedState("", 200)
-  const [availableDocuments, setAvailableDocuments] = useState<Record<number, WorkspaceDocument>>({})
+  const [inputValue, setInputValue] = useState("")
+  const [searchTerm, setSearchTerm] = useDebouncedState("", 500)
+  const [modelConfigured, setModelConfigured] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [results, setResults] = useState<DocumentSearchResult[] | null>(null)
 
   useEffect(() => {
-    if (searchTerm === "") {
-      const availableDocuments: Record<number, WorkspaceDocument> = {}
+    if (!openedModal) {
+      setInputValue("")
+      setSearchTerm("")
+      setResults(null)
+      setLoading(false)
+      return
+    }
 
-      documents.forEach((document, index) => {
-        availableDocuments[index] = document
+    getWorkspaceModel(workspaceId)
+      .then((model) => setModelConfigured(model.configured))
+      .catch(() => setModelConfigured(false))
+  }, [openedModal, setSearchTerm, workspaceId])
+
+  useEffect(() => {
+    if (!openedModal) {
+      return
+    }
+
+    if (searchTerm.trim() === "") {
+      setLoading(false)
+      setResults(null)
+      return
+    }
+
+    const controller = new AbortController()
+    setLoading(true)
+
+    searchWorkspaceDocuments(workspaceId, searchTerm, { signal: controller.signal })
+      .then((response) => {
+        setModelConfigured(response.modelConfigured)
+        setResults(response.results)
       })
+      .catch((error) => {
+        if (isAbortError(error)) {
+          return
+        }
 
-      setAvailableDocuments(availableDocuments)
-    } else {
-      const availableDocuments: Record<number, WorkspaceDocument> = {}
-
-      documents.forEach((document, index) => {
-        const isMatch = document
-          .content
-          .toLocaleLowerCase()
-          .includes(searchTerm)
-
-        if (isMatch) {
-          availableDocuments[index] = document
+        setResults([])
+        notify.error("Failed to search documents.", error instanceof Error ? error : undefined)
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setLoading(false)
         }
       })
 
-      setAvailableDocuments(availableDocuments)
+    return () => controller.abort()
+  }, [openedModal, searchTerm, workspaceId])
+
+  const openDocument = (documentId: string) => {
+    const index = documents.findIndex((document) => document.id === documentId)
+
+    if (index < 0) {
+      return
     }
-  }, [documents, searchTerm])
+
+    setDocumentIndex(index)
+    setOpenedModal(false)
+  }
 
   return (
     <Modal
@@ -273,79 +319,124 @@ function SearchDocumentModal({ documents, openedModal, setOpenedModal }: Props) 
       centered
     >
       <TextInput
-        placeholder="Enter search term"
+        placeholder="female patients on metformin"
         size="md"
-        onChange={(e) => setSearchTerm(e.currentTarget.value.toLocaleLowerCase())}
+        value={inputValue}
+        onChange={(e) => {
+          setInputValue(e.currentTarget.value)
+          setSearchTerm(e.currentTarget.value)
+        }}
       />
+
+      {!modelConfigured && (
+        <Text size="sm" c="dimmed" mt={8}>
+          Keyword search. Configure AI in workspace settings for conceptual search.
+        </Text>
+      )}
 
       <Divider mt={20} mb={20} />
 
       <ScrollArea scrollbarSize={0} style={{ height: 400 }}>
         <Grid>
-          {Object.keys(availableDocuments).length === 0 && (
-            <Grid.Col span={12}>
-              <Text c="dimmed">
-                No matching documents found
-              </Text>
-            </Grid.Col>
-          )}
-
-          {Object.keys(availableDocuments).map((documentIndex) => {
-            const parsedDocumentIndex = parseInt(documentIndex)
-            const document = availableDocuments[parsedDocumentIndex]
-
-            let documentSnippet = (
-              <Text c="dimmed">
-                {document.content.slice(0, 250)}
-              </Text>
-            )
-
-            if (searchTerm !== "") {
-              // highlight search term (case insensitive) in yellow
-              const searchTermRegex = new RegExp(searchTerm, "gi")
-              const highlightedContent = document.content.replace(searchTermRegex, (match) => (
-                `<span style="background-color: #FDE047">${match}</span>`
-              ))
-
-              // show up to 125 characters before and after the search term
-              const searchTermIndex = highlightedContent.indexOf(`<span style="background-color: #FDE047">`)
-              let snippetStartIndex = Math.max(0, searchTermIndex - 125)
-              let snippetEndIndex = Math.min(highlightedContent.length, searchTermIndex + 125)
-
-              // if the search term is at the start or end of the document, show more characters
-              if (snippetStartIndex === 0) {
-                snippetEndIndex = Math.min(highlightedContent.length, snippetEndIndex + 125)
-              } else if (snippetEndIndex === highlightedContent.length) {
-                snippetStartIndex = Math.max(0, snippetStartIndex - 125)
-              }
-
-              documentSnippet = (
-                <Text
-                  dangerouslySetInnerHTML={{ __html: highlightedContent.slice(snippetStartIndex, snippetEndIndex) }}
-                  c="dimmed"
-                />
-              )
-            }
-
-            return (
-              <Grid.Col span={12} key={crypto.randomUUID()} onClick={() => {
-                  setDocumentIndex(parsedDocumentIndex)
-                  setOpenedModal(false)
-                }}
-              >
-                <Card shadow="xs" radius={5} p="xl">
-                  {document.name}
-
-                  <Divider mt={10} mb={10} />
-
-                  {documentSnippet}
-                </Card>
-              </Grid.Col>
-            )
-          })}
+          <SearchDocumentResults
+            documents={documents}
+            loading={loading}
+            results={results}
+            onOpen={openDocument}
+          />
         </Grid>
       </ScrollArea>
     </Modal>
+  )
+}
+
+function SearchDocumentResults({
+  documents,
+  loading,
+  results,
+  onOpen,
+}: {
+  documents: WorkspaceDocument[]
+  loading: boolean
+  results: DocumentSearchResult[] | null
+  onOpen: (documentId: string) => void
+}) {
+  if (loading) {
+    return (
+      <Grid.Col span={12}>
+        <Group justify="center" pt={40} pb={40}>
+          <Loader size="sm" color="brand" />
+          <Text c="dimmed">
+            Searching documents…
+          </Text>
+        </Group>
+      </Grid.Col>
+    )
+  }
+
+  if (results !== null) {
+    if (results.length === 0) {
+      return (
+        <Grid.Col span={12}>
+          <Text c="dimmed">
+            No matching documents found
+          </Text>
+        </Grid.Col>
+      )
+    }
+
+    return (
+      <>
+        {results.map((result) => (
+          <Grid.Col span={12} key={result.id} onClick={() => onOpen(result.id)}>
+            <Card shadow="xs" radius={5} p="xl" style={{ cursor: "pointer" }}>
+              {result.name}
+
+              <Divider mt={10} mb={10} />
+
+              <Text
+                dangerouslySetInnerHTML={{ __html: result.snippet }}
+                c="dimmed"
+              />
+
+              {result.reason && (
+                <Text size="sm" mt={10}>
+                  {result.reason}
+                </Text>
+              )}
+            </Card>
+          </Grid.Col>
+        ))}
+      </>
+    )
+  }
+
+  if (documents.length === 0) {
+    return (
+      <Grid.Col span={12}>
+        <Text c="dimmed">
+          No matching documents found
+        </Text>
+      </Grid.Col>
+    )
+  }
+
+  return (
+    <>
+      {documents.map((document) => (
+        <Grid.Col span={12} key={document.id} onClick={() => onOpen(document.id)}>
+          <Card shadow="xs" radius={5} p="xl" style={{ cursor: "pointer" }}>
+            {document.name}
+
+            <Divider mt={10} mb={10} />
+
+            <Text c="dimmed">
+              {document.content.slice(0, 250)}
+            </Text>
+          </Card>
+        </Grid.Col>
+      ))}
+    </>
   )
 }
 
