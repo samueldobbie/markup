@@ -8,11 +8,14 @@ import { parseJsonAnnotations } from "./ParseJsonAnnotations"
 import { parseStandoffAnnotations } from "./ParseStandoffAnnotations"
 import { SectionProps } from "./Setup"
 
+const PAGE_SIZE = 10
+
 function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: SectionProps) {
   const [documents, setDocuments] = useState<WorkspaceDocument[]>([])
   const [documentFiles, setDocumentFiles] = useState<File[]>([])
   const [annotationFiles, setAnnotationFiles] = useState<File[]>([])
   const [documentToAnnotationCount, setDocumentToAnnotationCount] = useState<Record<string, number>>({})
+  const [page, setPage] = useState(1)
 
   const uploadAnnotations = useCallback(async (documentId: string, file: File) => {
     const format = file.name.split(".").pop()
@@ -48,8 +51,10 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
       database
         .addWorkspaceDocuments(workspace.id, documentFiles)
         .then(insertedDocuments => {
+          const nextDocuments = [...documents, ...insertedDocuments]
           setDocumentFiles([])
-          setDocuments([...documents, ...insertedDocuments])
+          setDocuments(nextDocuments)
+          setPage(Math.max(1, Math.ceil(nextDocuments.length / PAGE_SIZE)))
           notify.success(`${insertedDocuments.length} documents uploaded.`)
         })
         .catch((e) => notify.error("Failed to upload documents.", e))
@@ -110,6 +115,16 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
       .catch((e) => notify.error("Failed to load annotations.", e))
   }, [documents])
 
+  useEffect(() => {
+    const pageCount = Math.max(1, Math.ceil(documents.length / PAGE_SIZE))
+    if (page > pageCount) {
+      setPage(pageCount)
+    }
+  }, [documents.length, page])
+
+  const from = (page - 1) * PAGE_SIZE
+  const pagedDocuments = documents.slice(from, from + PAGE_SIZE)
+
   return (
     <Card shadow="xs" radius={5}>
       <DataTable
@@ -117,7 +132,12 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
         emptyState="Upload documents to annotate"
         borderRadius={5}
         style={{ minHeight: "500px" }}
-        records={documents}
+        records={pagedDocuments}
+        totalRecords={documents.length}
+        recordsPerPage={PAGE_SIZE}
+        page={page}
+        onPageChange={setPage}
+        paginationText={({ from, to, totalRecords }) => `${from}–${to} of ${totalRecords}`}
         rowExpansion={{
           content: (document) => (
             <Text p={20} c="dimmed" mb={20}>
