@@ -71,3 +71,33 @@ Config: ${JSON.stringify(config)}
 Current annotations: ${JSON.stringify(annotations)}
 Suggestion:`
 }
+
+export function searchExpandPrompt(query: string): string {
+  return `You turn a document search query into retrieval keywords and a match criterion.
+
+Rules:
+- Respond with valid JSON only.
+- keywords: 4 to 16 terms and synonyms that would appear in matching documents. Include morphological variants (for example female, woman, she). Do not include stopwords.
+- criteria: one sentence describing what a matching document must satisfy. This is used as a yes/no filter.
+
+Query: ${query}
+`
+}
+
+export function searchJudgePrompt(
+  criteria: string,
+  documents: Array<{ id: string, name: string, text: string }>,
+): string {
+  return `You decide whether each document matches a search criterion.
+
+Rules:
+- Respond with valid JSON only: {"results":[{"id":"<id>","match":true,"reason":"<short why>","snippet":"<short quote>"}]}
+- Include every document id exactly once.
+- match is true only if the document clearly satisfies the criterion.
+- reason is at most 20 words.
+- snippet is a short exact quote from the document, or an empty string.
+
+Criterion: ${criteria}
+Documents: ${JSON.stringify(documents)}
+`
+}

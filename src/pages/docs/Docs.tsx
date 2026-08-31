@@ -695,14 +695,23 @@ function AddOntology() {
 function SearchDocuments() {
   return (
     <Text>
-      <h2>Search document</h2>
+      <h2>Search documents</h2>
 
       <Text>
-        During an annotation session, you can search for a document by name by
-        clicking <b>Search documents</b>. Currently this only does a basic search
-        of document content, but we plan to add more advanced search capabilities such
-        as the ability to perform semantic searches and search by entity/attribute in
-        the near future.
+        During an annotation session, click <b>Search documents</b> to find files
+        in the workspace. Type a keyword to search document names and content.
+      </Text>
+
+      <Text mt={10}>
+        If the workspace has an AI model configured, you can also search by
+        concept — for example, <i>female patients on metformin</i>. Markup
+        retrieves likely matches, then uses the workspace model to keep only
+        documents that satisfy the query.
+      </Text>
+
+      <Text mt={10}>
+        If no model is configured, search falls back to keyword matching.
+        Configure AI from workspace settings to enable conceptual search.
       </Text>
     </Text>
   )
