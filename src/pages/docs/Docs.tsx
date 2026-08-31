@@ -564,6 +564,9 @@ function AssistedAnnotation() {
       <h2>AI-assisted annotation</h2>
 
       <Text>
+        Configure AI from the workspace setup page to enable suggestions. Pick Claude or OpenAI
+        from the dropdowns, or choose Custom for a local or OpenAI-compatible server.
+
         Each time you highlight a span of text during an annotation session, Markup will
         automatically suggest the most relevant entity and attributes for that span.
 
