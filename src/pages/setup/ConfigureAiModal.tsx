@@ -4,8 +4,8 @@ import { useEffect, useState } from "react"
 import { ProviderLogo } from "components/icons/ProviderLogos"
 import { Workspace } from "storage/database"
 import {
-  CUSTOM_PROVIDER_ID,
   DEFAULT_PROVIDER_ID,
+  ProviderId,
   getProvider,
   isCustomProvider,
   matchPreset,
@@ -85,7 +85,7 @@ function ConfigureAiModal({
 
         if (isCustomProvider(matched.providerId)) {
           form.setValues({
-            providerId: CUSTOM_PROVIDER_ID,
+            providerId: ProviderId.Custom,
             modelId: "",
             baseUrl: model.baseUrl,
             model: model.model,

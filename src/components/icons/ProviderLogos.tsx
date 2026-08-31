@@ -1,4 +1,5 @@
 import { IconServer } from "@tabler/icons-react"
+import { ProviderId } from "utils/ModelPresets"
 
 function OpenAiLogo({ size = 16 }: { size?: number }) {
   return (
@@ -29,11 +30,11 @@ function ClaudeLogo({ size = 16 }: { size?: number }) {
 }
 
 export function ProviderLogo({ providerId, size = 16 }: { providerId: string, size?: number }) {
-  if (providerId === "anthropic") {
+  if (providerId === ProviderId.Anthropic) {
     return <ClaudeLogo size={size} />
   }
 
-  if (providerId === "openai") {
+  if (providerId === ProviderId.OpenAI) {
     return <OpenAiLogo size={size} />
   }
 
