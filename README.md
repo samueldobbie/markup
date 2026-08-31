@@ -25,7 +25,7 @@ To install and run Markup locally:
 1. Run the web app and API: `pnpm dev` and `pnpm dev:api`
 1. Open Markup in your web browser at `http://localhost:3000`
 
-To use AI suggestions, open a workspace, click **Settings**, and add an OpenAI-compatible base URL. Model name and API key are optional. Highlighting text in the annotate view will suggest an entity and attributes. The **Suggested** tab asks the same model for document-level annotations you can accept or dismiss.
+To use AI suggestions, open a workspace, click **Configure AI**, and pick Claude or OpenAI (or **Custom** for a local / OpenAI-compatible server). Highlighting text in the annotate view will suggest an entity and attributes. The **Suggested** tab asks the same model for document-level annotations you can accept or dismiss.
 
 # Custom AI endpoints
 
@@ -83,10 +83,10 @@ Examples:
 
 | Provider | Base URL | Model | API key |
 |---|---|---|---|
-| OpenAI | `https://api.openai.com/v1` | `gpt-4o-mini` | `sk-...` |
-| Anthropic (OpenAI-compatible) | `https://api.anthropic.com/v1` | `claude-haiku-4-5` | `sk-ant-...` |
-| Ollama | `http://127.0.0.1:11434/v1` | `llama3.2` | blank or any placeholder |
-| Single-model proxy | `https://your-proxy.example` | blank | blank, or Bearer token if you require auth |
+| Claude | `https://api.anthropic.com/v1` | `claude-sonnet-5` | `sk-ant-...` |
+| OpenAI | `https://api.openai.com/v1` | `gpt-5.6-sol` | `sk-...` |
+| Ollama (Custom) | `http://127.0.0.1:11434/v1` | `llama3.2` | blank or any placeholder |
+| Single-model proxy (Custom) | `https://your-proxy.example` | blank | blank, or Bearer token if you require auth |
 
 A local or private endpoint with no model name and no key is valid: set only the base URL.
 

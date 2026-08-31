@@ -1,5 +1,4 @@
-import { ActionIcon, Group, Button, Text, Grid, Modal, TextInput, PasswordInput, Tooltip } from "@mantine/core"
-import { useForm } from "@mantine/form"
+import { ActionIcon, Group, Button, Text, TextInput, Tooltip } from "@mantine/core"
 import { IconArrowRight, IconCornerDownLeft, IconPencil, IconSparkles } from "@tabler/icons-react"
 import { useEffect, useRef, useState } from "react"
 import { useParams } from "react-router-dom"
@@ -7,7 +6,7 @@ import { Workspace, database } from "storage/database"
 import { moveToPage } from "utils/Location"
 import notify from "utils/Notifications"
 import { Path, toAnnotateUrl } from "utils/Path"
-import { getWorkspaceModel, saveWorkspaceModel } from "utils/WorkspaceModel"
+import ConfigureAiModal from "./ConfigureAiModal"
 import { SectionProps } from "./Setup"
 
 interface HeaderProps extends SectionProps {
@@ -246,144 +245,6 @@ function InlineEditableText({
         </ActionIcon>
       </Tooltip>
     </Group>
-  )
-}
-
-interface ConfigureAiForm {
-  baseUrl: string
-  model: string
-  apiKey: string
-}
-
-function ConfigureAiModal({
-  workspace,
-  openedModal,
-  setOpenedModal,
-}: {
-  workspace: Workspace
-  openedModal: boolean
-  setOpenedModal: (opened: boolean) => void
-}) {
-  const [apiKeyLast4, setApiKeyLast4] = useState<string | null>(null)
-  const [modelConfigured, setModelConfigured] = useState(false)
-  const [saving, setSaving] = useState(false)
-
-  const form = useForm({
-    initialValues: {
-      baseUrl: "https://api.openai.com/v1",
-      model: "",
-      apiKey: "",
-    },
-  })
-
-  useEffect(() => {
-    if (!openedModal) {
-      return
-    }
-
-    form.setValues({
-      baseUrl: "https://api.openai.com/v1",
-      model: "",
-      apiKey: "",
-    })
-
-    getWorkspaceModel(workspace.id)
-      .then((model) => {
-        setApiKeyLast4(model.apiKeyLast4)
-        setModelConfigured(model.configured)
-        form.setValues({
-          baseUrl: model.baseUrl,
-          model: model.model,
-          apiKey: "",
-        })
-      })
-      .catch((e) => notify.error("Failed to load workspace model.", e))
-    // form is not a stable dep from useForm
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openedModal, workspace.id])
-
-  const handleSaveModel = async (values: ConfigureAiForm) => {
-    const { baseUrl, model, apiKey } = values
-    const defaultBaseUrl = "https://api.openai.com/v1"
-    const normalizedBaseUrl = baseUrl.trim().replace(/\/$/, "")
-    const hasCustomEndpoint = normalizedBaseUrl !== "" && normalizedBaseUrl !== defaultBaseUrl
-    const shouldSaveModel = modelConfigured
-      || apiKey.trim() !== ""
-      || model.trim() !== ""
-      || hasCustomEndpoint
-
-    if (!shouldSaveModel) {
-      setOpenedModal(false)
-      return
-    }
-
-    setSaving(true)
-
-    try {
-      await saveWorkspaceModel(workspace.id, {
-        baseUrl,
-        model,
-        apiKey: apiKey || undefined,
-      })
-
-      notify.success("AI model saved.")
-      setOpenedModal(false)
-    } catch (e) {
-      notify.error("Failed to save AI model.", e instanceof Error ? e : undefined)
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  return (
-    <Modal
-      opened={openedModal}
-      onClose={() => setOpenedModal(false)}
-      title="Configure AI"
-      centered
-    >
-      <form onSubmit={form.onSubmit((values) => handleSaveModel(values))}>
-        <Grid>
-          <Grid.Col span={12}>
-            <Text size="xs" c="dimmed">
-              OpenAI-compatible Chat Completions endpoint used for suggestions in this workspace.
-              Model name and API key are optional if your server ignores them.
-            </Text>
-          </Grid.Col>
-
-          <Grid.Col span={12}>
-            <TextInput
-              label="Base URL"
-              placeholder="https://api.openai.com/v1"
-              {...form.getInputProps("baseUrl")}
-            />
-          </Grid.Col>
-
-          <Grid.Col span={12}>
-            <TextInput
-              label="Model"
-              placeholder="optional if your server ignores it"
-              {...form.getInputProps("model")}
-            />
-          </Grid.Col>
-
-          <Grid.Col span={12}>
-            <PasswordInput
-              label="API key"
-              placeholder={apiKeyLast4 ? `Saved key ending in ${apiKeyLast4}` : "sk-..."}
-              description={apiKeyLast4 ? "Leave blank to keep the saved key." : undefined}
-              {...form.getInputProps("apiKey")}
-            />
-          </Grid.Col>
-
-          <Grid.Col span={12}>
-            <Button type="submit" loading={saving}>
-              Save
-            </Button>
-          </Grid.Col>
-        </Grid>
-      </form>
-    </Modal>
   )
 }
 
