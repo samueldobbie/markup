@@ -30,7 +30,6 @@ export const MODEL_PROVIDERS: ProviderPreset[] = [
     defaultModelId: "claude-sonnet-5",
     apiKeyPlaceholder: "sk-ant-...",
     models: [
-      { id: "claude-fable-5", label: "Fable 5" },
       { id: "claude-opus-5", label: "Opus 5" },
       { id: "claude-sonnet-5", label: "Sonnet 5" },
       { id: "claude-haiku-4-5", label: "Haiku 4.5" },
