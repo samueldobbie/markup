@@ -493,7 +493,12 @@ function AttributeSection({ entities, attributes, setAttributes }: AttributeSect
     if (isUnique) {
       setAttributes([addedAttribute, ...attributes])
       setAttributeValues([])
-      form.reset()
+      form.setValues({
+        entity: submitted.entity,
+        name: "",
+        allowCustomValues: false,
+      })
+      form.clearErrors()
     } else {
       notify.error("An attribute with that name already exists for the related entity.")
     }
