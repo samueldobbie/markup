@@ -1,9 +1,10 @@
 import { useAnnotateStore } from "storage/state/Annotate"
-import { Box, Button, Card, Center, Collapse, Divider, Grid, Group, Modal, ScrollArea, SegmentedControl, Text } from "@mantine/core"
+import { Box, Button, Card, Center, Collapse, Divider, Grid, Group, Menu, Modal, ScrollArea, SegmentedControl, Text } from "@mantine/core"
 import { IconDownload, IconView360, IconX } from "@tabler/icons-react"
 import { useEffect, useState } from "react"
 import { database, WorkspaceAnnotation } from "storage/database"
 import { SectionProps } from "./Annotate"
+import { exportAnnotationFeedback } from "./ExportAnnotationFeedback"
 import { exportJsonAnnotations } from "./ExportJsonAnnotations"
 import notify from "utils/Notifications"
 import SmartAssistant from "./SmartAssistant"
@@ -91,14 +92,26 @@ function Output({ workspace }: SectionProps) {
                   Guidelines
                 </Button>
 
-                <Button
-                  variant="subtle"
-                  color="brand"
-                  leftSection={<IconDownload size={16} />}
-                  onClick={() => exportJsonAnnotations(documents, annotations)}
-                >
-                  Export
-                </Button>
+                <Menu width={200} shadow="xs">
+                  <Menu.Target>
+                    <Button
+                      variant="subtle"
+                      color="brand"
+                      leftSection={<IconDownload size={16} />}
+                    >
+                      Export
+                    </Button>
+                  </Menu.Target>
+
+                  <Menu.Dropdown>
+                    <Menu.Item onClick={() => exportJsonAnnotations(documents, annotations)}>
+                      Annotations
+                    </Menu.Item>
+                    <Menu.Item onClick={() => exportAnnotationFeedback(workspace)}>
+                      AI feedback
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
               </Group>
             </Grid.Col>
 

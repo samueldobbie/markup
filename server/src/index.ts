@@ -12,6 +12,7 @@ import {
   toPublicModel,
   upsertWorkspaceModel,
 } from "./model.js"
+import { getWorkspaceFeedbackExport } from "./feedback.js"
 import { searchWorkspaceDocuments } from "./search.js"
 import { suggestRoutes } from "./suggest.js"
 
@@ -67,6 +68,13 @@ api.put("/workspaces/:workspaceId/model", async (c) => {
 })
 
 api.route("/suggest", suggestRoutes)
+
+api.get("/workspaces/:workspaceId/feedback", async (c) => {
+  const workspaceId = c.req.param("workspaceId")
+  await requireWorkspaceMember(c.get("userId"), workspaceId)
+
+  return c.json(await getWorkspaceFeedbackExport(workspaceId))
+})
 
 api.post("/workspaces/:workspaceId/search", async (c) => {
   const workspaceId = c.req.param("workspaceId")

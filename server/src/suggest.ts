@@ -2,6 +2,7 @@ import { Hono } from "hono"
 import { HTTPException } from "hono/http-exception"
 import { AuthVariables, requireWorkspaceMember } from "./auth.js"
 import { completeJson } from "./complete.js"
+import { recordWorkspaceAnnotationFeedback } from "./feedback.js"
 import { getWorkspaceModelCredentials } from "./model.js"
 import { attributesPrompt, documentAnnotationsPrompt, entityPrompt } from "./prompts.js"
 import {
@@ -162,4 +163,36 @@ suggestRoutes.post("/document", async (c) => {
   return c.json({
     suggestions: resolveDocumentSuggestions(parsed, document, existing, body.config),
   })
+})
+
+suggestRoutes.post("/feedback", async (c) => {
+  const body = await c.req.json<{
+    workspaceId?: string
+    documentId?: string
+    events?: unknown
+  }>()
+
+  const workspaceId = body.workspaceId
+  const documentId = body.documentId
+
+  if (typeof workspaceId !== "string" || workspaceId === "") {
+    throw new HTTPException(400, { message: "workspaceId is required" })
+  }
+
+  if (typeof documentId !== "string" || documentId === "") {
+    throw new HTTPException(400, { message: "documentId is required" })
+  }
+
+  if (!Array.isArray(body.events)) {
+    throw new HTTPException(400, { message: "events must be an array" })
+  }
+
+  await requireWorkspaceMember(c.get("userId"), workspaceId)
+
+  return c.json(await recordWorkspaceAnnotationFeedback(
+    c.get("userId"),
+    workspaceId,
+    documentId,
+    body.events,
+  ))
 })

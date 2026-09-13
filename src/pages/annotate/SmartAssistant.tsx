@@ -5,6 +5,7 @@ import { Workspace, WorkspaceAnnotation, database } from "storage/database/Datab
 import { useAnnotateStore } from "storage/state/Annotate"
 import { ApiError } from "utils/Api"
 import notify from "utils/Notifications"
+import { logAnnotationFeedback, toFeedbackSpan } from "utils/AnnotationFeedback"
 import { DocumentAnnotationSuggestion, suggestDocumentAnnotations } from "utils/Suggest"
 
 interface Props {
@@ -152,12 +153,23 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
   }
 
   const dismissSuggestion = (suggestionId: string) => {
+    const dismissed = suggestions.find((item) => item.id === suggestionId)
+
     if (pendingSuggestion?.id === suggestionId) {
       setPendingSuggestion(null)
       setProposedAnnotation(null)
     }
 
     setSuggestions((current) => current.filter((item) => item.id !== suggestionId))
+
+    if (dismissed && document) {
+      logAnnotationFeedback(workspace.id, document.id, [{
+        action: "reject",
+        suggestionId: dismissed.id,
+        suggested: toFeedbackSpan(dismissed),
+        accepted: null,
+      }])
+    }
   }
 
   const acceptAll = async () => {
@@ -182,6 +194,14 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
       setPendingSuggestion(null)
       setProposedAnnotation(null)
       setSuggestions([])
+
+      logAnnotationFeedback(workspace.id, document.id, suggestions.map((suggestion, index) => ({
+        action: "accept",
+        suggestionId: suggestion.id,
+        annotationId: saved[index].id,
+        suggested: toFeedbackSpan(suggestion),
+        accepted: toFeedbackSpan(suggestion),
+      })))
     } catch (caught) {
       notify.error("Failed to add annotations.", caught instanceof Error ? caught : undefined)
     }

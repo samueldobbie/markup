@@ -11,6 +11,7 @@ import EntityConfig from "components/annotate/EntityConfig"
 import AttributeConfig, { SelectData } from "components/annotate/AttributeConfig"
 import { IconNumber1, IconNumber2, IconNumber3, IconNumber4 } from "@tabler/icons-react"
 import { suggestAttributes, suggestEntity } from "utils/Suggest"
+import { annotationFeedbackAction, logAnnotationFeedback, toFeedbackSpan } from "utils/AnnotationFeedback"
 
 function isAbortError(error: unknown): boolean {
   return error instanceof DOMException && error.name === "AbortError"
@@ -209,6 +210,7 @@ function Config({ workspace }: SectionProps) {
       end_index: end,
       attributes: allAttributes,
     } as RawAnnotation
+    const reviewedSuggestion = pendingSuggestion
 
     database
       .addWorkspaceAnnotation(workspace.id, documentId, rawAnnotation)
@@ -216,6 +218,19 @@ function Config({ workspace }: SectionProps) {
         const copy = [...annotations]
         copy[documentIndex] = [...copy[documentIndex], annotation]
         setAnnotations(copy)
+
+        if (reviewedSuggestion) {
+          const suggested = toFeedbackSpan(reviewedSuggestion)
+          const accepted = toFeedbackSpan(rawAnnotation)
+
+          logAnnotationFeedback(workspace.id, documentId, [{
+            action: annotationFeedbackAction(suggested, accepted),
+            suggestionId: reviewedSuggestion.id,
+            annotationId: annotation.id,
+            suggested,
+            accepted,
+          }])
+        }
       })
       .catch((e) => notify.error("Failed to add annotation.", e))
 
