@@ -1,8 +1,8 @@
 import { useAnnotateStore } from "storage/state/Annotate"
 import { Group, Radio } from "@mantine/core"
-import distinctColors from "distinct-colors"
 import { IConfig } from "pages/setup/ConfigTable"
 import { useEffect, useState } from "react"
+import { coloursForEntities } from "utils/EntityColour"
 
 interface Props {
   config: IConfig
@@ -24,18 +24,7 @@ function EntityConfig({ config }: Props) {
   }, [config, setActiveEntity])
 
   useEffect(() => {
-    const colours: Record<string, string> = {}
-
-    const palette = distinctColors({
-      count: entityNames.length,
-      lightMin: 80,
-    })
-
-    entityNames.forEach((entityName, index) => {
-      colours[entityName] = palette[index].hex()
-    })
-
-    setEntityColours(colours)
+    setEntityColours(coloursForEntities(entityNames))
   }, [entityNames, setEntityColours])
 
   return (

@@ -34,7 +34,6 @@
     "@supabase/supabase-js": "^2.57.4",
     "@tabler/icons-react": "^3.34.1",
     "clsx": "^2.1.1",
-    "distinct-colors": "^3.0.0",
     "dotenv": "^17.4.2",
     "file-saver": "^2.0.5",
     "hono": "^4.13.3",
