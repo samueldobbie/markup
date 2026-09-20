@@ -66,7 +66,7 @@ function WorkspaceTable() {
           {
             accessor: "name",
             title: (
-              <Text fz={16}>
+              <Text fz={16} component="div">
                 Workspaces
 
                 <Text fz={13} c="dimmed">

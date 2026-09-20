@@ -66,7 +66,7 @@ function GuidelinesTable({ workspace }: SectionProps) {
           {
             accessor: "name",
             title: (
-              <Text fz={16}>
+              <Text fz={16} component="div">
                 Annotation Guidelines
 
                 <Text fz={13} c="dimmed">
