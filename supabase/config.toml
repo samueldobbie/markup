@@ -6,8 +6,8 @@ project_id = "markup"
 # Port to use for the API URL.
 port = 54321
 # Schemas to expose in your API. Tables, views and stored procedures in this schema will get API
-# endpoints. public and storage are always included.
-schemas = []
+# endpoints. These are passed verbatim to PGRST_DB_SCHEMAS — an empty list exposes nothing.
+schemas = ["public", "storage", "graphql_public"]
 # Extra schemas to add to the search_path of every request.
 extra_search_path = ["extensions"]
 # The maximum number of rows returns from a view, table, or stored procedure. Limits payload size

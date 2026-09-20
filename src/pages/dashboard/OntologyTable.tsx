@@ -65,7 +65,7 @@ function OntologyTable() {
           {
             accessor: "name",
             title: (
-              <Text fz={16}>
+              <Text fz={16} component="div">
                 Ontology
 
                 <Text fz={13} c="dimmed">

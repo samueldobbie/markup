@@ -149,7 +149,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
           {
             accessor: "name",
             title: (
-              <Text fz={16}>
+              <Text fz={16} component="div">
                 Documents
 
                 <Text fz={13} c="dimmed">

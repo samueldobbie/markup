@@ -1,7 +1,7 @@
 ALTER TABLE public.workspace_document
     ADD COLUMN IF NOT EXISTS content_tsv tsvector
     GENERATED ALWAYS AS (
-        to_tsvector('english', coalesce(name, '') || ' ' || coalesce(content, ''))
+        to_tsvector('english', left(coalesce(name, '') || ' ' || coalesce(content, ''), 500000))
     ) STORED;
 
 CREATE INDEX IF NOT EXISTS workspace_document_content_tsv_idx
