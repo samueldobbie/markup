@@ -1,5 +1,5 @@
-import { Button, Card, Center, Collapse, Grid, Group, Loader, Text } from "@mantine/core"
-import { IconCheck, IconRefresh, IconX } from "@tabler/icons-react"
+import { ActionIcon, Button, Card, Center, Collapse, Divider, Grid, Group, Loader, Text, Tooltip } from "@mantine/core"
+import { IconCheck, IconPencil, IconRefresh, IconX } from "@tabler/icons-react"
 import { useEffect, useState } from "react"
 import { Workspace, WorkspaceAnnotation, database } from "storage/database/Database"
 import { useAnnotateStore } from "storage/state/Annotate"
@@ -57,6 +57,7 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [refreshToken, setRefreshToken] = useState(0)
+  const [openSuggestions, setOpenSuggestions] = useState<Record<string, boolean>>({})
 
   const document = documents[documentIndex]
 
@@ -96,6 +97,7 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
     setLoading(true)
     setError("")
     setSuggestions([])
+    setOpenSuggestions({})
 
     suggestDocumentAnnotations(
       workspace.id,
@@ -142,6 +144,13 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
     return () => controller.abort()
   }, [config, document, documentIndex, guideline, guidelineReady, refreshToken, workspace.id])
 
+  const toggleSuggestion = (suggestionId: string) => {
+    setOpenSuggestions((current) => ({
+      ...current,
+      [suggestionId]: !current[suggestionId],
+    }))
+  }
+
   const reviewSuggestion = (suggestion: DocumentAnnotationSuggestion) => {
     setPendingSuggestion(suggestion)
     setProposedAnnotation({
@@ -172,13 +181,13 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
     }
   }
 
-  const acceptAll = async () => {
-    if (!document || suggestions.length === 0) {
+  const acceptSuggestions = async (accepted: DocumentAnnotationSuggestion[]) => {
+    if (!document || accepted.length === 0) {
       return
     }
 
     try {
-      const saved = await Promise.all(suggestions.map((suggestion) => (
+      const saved = await Promise.all(accepted.map((suggestion) => (
         database.addWorkspaceAnnotation(workspace.id, document.id, {
           text: suggestion.text,
           entity: suggestion.entity,
@@ -188,14 +197,20 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
         })
       )))
 
+      const acceptedIds = new Set(accepted.map((suggestion) => suggestion.id))
+
       const copy = [...annotations]
       copy[documentIndex] = [...(copy[documentIndex] ?? []), ...saved]
       setAnnotations(copy)
-      setPendingSuggestion(null)
-      setProposedAnnotation(null)
-      setSuggestions([])
 
-      logAnnotationFeedback(workspace.id, document.id, suggestions.map((suggestion, index) => ({
+      if (pendingSuggestion && acceptedIds.has(pendingSuggestion.id)) {
+        setPendingSuggestion(null)
+        setProposedAnnotation(null)
+      }
+
+      setSuggestions((current) => current.filter((item) => !acceptedIds.has(item.id)))
+
+      logAnnotationFeedback(workspace.id, document.id, accepted.map((suggestion, index) => ({
         action: "accept",
         suggestionId: suggestion.id,
         annotationId: saved[index].id,
@@ -232,7 +247,7 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
             variant="subtle"
             size="xs"
             leftSection={<IconCheck size={14} />}
-            onClick={() => acceptAll()}
+            onClick={() => acceptSuggestions(suggestions)}
             disabled={loading || suggestions.length === 0}
           >
             Accept all
@@ -266,6 +281,8 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
 
       {!loading && suggestions.map((suggestion) => {
         const selected = pendingSuggestion?.id === suggestion.id
+        const attributes = Object.keys(suggestion.attributes)
+        const expanded = selected || openSuggestions[suggestion.id] === true
 
         return (
           <Grid.Col span={12} key={suggestion.id}>
@@ -275,38 +292,45 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
               style={{
                 backgroundColor: entityColours[suggestion.entity] || "#e9ecef",
                 color: "#333333",
-                cursor: "pointer",
+                cursor: attributes.length > 0 ? "pointer" : "default",
                 outline: selected ? "2px solid #1a1b1e" : undefined,
                 outlineOffset: selected ? 2 : undefined,
               }}
-              onClick={() => reviewSuggestion(suggestion)}
+              onClick={() => toggleSuggestion(suggestion.id)}
             >
-              <Grid>
-                <Grid.Col span={2}>
-                  <IconX
-                    size={16}
+              <Group justify="space-between" align="flex-start" wrap="nowrap" style={{ userSelect: "none" }}>
+                <div>
+                  <Text fw={500} size="sm">
+                    {suggestion.entity}
+                  </Text>
+
+                  <Text>
+                    {suggestion.text}
+                  </Text>
+
+                  <Text c="dimmed" fz={12}>
+                    {attributes.length} attributes
+                  </Text>
+                </div>
+
+                <Tooltip label="Dismiss" withArrow>
+                  <ActionIcon
+                    color="dark"
+                    c="#333333"
+                    size="sm"
+                    aria-label="Dismiss suggestion"
                     onClick={(event) => {
                       event.stopPropagation()
                       dismissSuggestion(suggestion.id)
                     }}
-                  />
-                </Grid.Col>
+                  >
+                    <IconX size={16} />
+                  </ActionIcon>
+                </Tooltip>
+              </Group>
 
-                <Grid.Col span={10} style={{ userSelect: "none" }}>
-                  <Text fw={500} size="sm">
-                    {suggestion.entity}
-                  </Text>
-                  <Text>
-                    {suggestion.text}
-                  </Text>
-                  <Text c="dimmed" fz={12}>
-                    {Object.keys(suggestion.attributes).length} attributes
-                  </Text>
-                </Grid.Col>
-              </Grid>
-
-              <Collapse in={selected && Object.keys(suggestion.attributes).length > 0} mt={10}>
-                {Object.keys(suggestion.attributes).map((attribute) => (
+              <Collapse in={expanded && attributes.length > 0} mt={10}>
+                {attributes.map((attribute) => (
                   <Text fz={12} key={attribute}>
                     {attribute}
                     <Text c="dimmed">
@@ -316,23 +340,43 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
                 ))}
               </Collapse>
 
-              <Button
-                fullWidth
-                size="xs"
-                mt={10}
-                variant="white"
-                color="dark"
-                onClick={(event) => {
-                  event.stopPropagation()
-                  reviewSuggestion(suggestion)
-                }}
-              >
-                Review
-              </Button>
+              <Divider my={8} color="rgba(51, 51, 51, 0.15)" />
+
+              <Group grow gap={4} wrap="nowrap">
+                <Button
+                  size="compact-xs"
+                  variant="subtle"
+                  color="dark"
+                  c="#333333"
+                  leftSection={<IconPencil size={13} />}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    reviewSuggestion(suggestion)
+                  }}
+                >
+                  Edit
+                </Button>
+
+                <Button
+                  size="compact-xs"
+                  variant="subtle"
+                  color="dark"
+                  c="#333333"
+                  fw={600}
+                  leftSection={<IconCheck size={13} />}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    acceptSuggestions([suggestion])
+                  }}
+                >
+                  Accept
+                </Button>
+              </Group>
             </Card>
           </Grid.Col>
         )
       })}
+
     </Grid>
   )
 }
