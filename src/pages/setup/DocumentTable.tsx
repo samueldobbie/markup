@@ -54,7 +54,6 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
           const nextDocuments = [...documents, ...insertedDocuments]
           setDocumentFiles([])
           setDocuments(nextDocuments)
-          setPage(Math.max(1, Math.ceil(nextDocuments.length / PAGE_SIZE)))
           notify.success(`${insertedDocuments.length} documents uploaded.`)
         })
         .catch((e) => notify.error("Failed to upload documents.", e))
