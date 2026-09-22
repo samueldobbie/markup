@@ -19,6 +19,12 @@ function WorkspaceTable() {
   const [openedCreateWorkspaceModal, setOpenedCreateWorkspaceModal] = useState(false)
   const [openedManageCollaboratorsModal, setOpenedManageCollaboratorsModal] = useState(false)
 
+  const setCollaboratorCount = (workspaceId: string, count: number) => {
+    setWorkspaces((current) => current.map((i) => (
+      i.id === workspaceId ? { ...i, collaborators: count } : i
+    )))
+  }
+
   const openConfirmDeleteModal = (workspace: Workspace) => openConfirmModal({
     title: <>Are you sure you want to delete the '{workspace.name}' workspace?</>,
     children: (
@@ -167,6 +173,7 @@ function WorkspaceTable() {
           openedModal={openedManageCollaboratorsModal}
           setOpenedModal={setOpenedManageCollaboratorsModal}
           workspace={workspace}
+          onCollaboratorsChange={(count) => setCollaboratorCount(workspace.id, count)}
         />
       )}
     </Card>
@@ -252,9 +259,15 @@ interface ManageCollaboratorsModalProps {
   workspace: Workspace
   openedModal: boolean
   setOpenedModal: (opened: boolean) => void
+  onCollaboratorsChange: (count: number) => void
 }
 
-function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: ManageCollaboratorsModalProps) {
+function ManageCollaboratorsModal({
+  workspace,
+  openedModal,
+  setOpenedModal,
+  onCollaboratorsChange,
+}: ManageCollaboratorsModalProps) {
   const [collaboratorEmails, setCollaboratorEmails] = useState<string[]>([])
 
   const form = useForm({
@@ -267,7 +280,9 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
     database
       .addWorkspaceCollaborator(workspace.id, email)
       .then(() => {
-        setCollaboratorEmails([...collaboratorEmails, email])
+        const emails = [...collaboratorEmails, email]
+        setCollaboratorEmails(emails)
+        onCollaboratorsChange(emails.length)
         notify.success(`Added ${email} as a collaborator.`)
       })
       .catch((e) => notify.error(`Failed to add  ${email} as a collaborator.`, e))
@@ -277,7 +292,9 @@ function ManageCollaboratorsModal({ workspace, openedModal, setOpenedModal }: Ma
     database
       .removeWorkspaceCollaborator(workspace.id, email)
       .then(() => {
-        setCollaboratorEmails(collaboratorEmails.filter(c => c !== email))
+        const emails = collaboratorEmails.filter(c => c !== email)
+        setCollaboratorEmails(emails)
+        onCollaboratorsChange(emails.length)
         notify.success(`Removed ${email} as a collaborator.`)
       })
       .catch((e) => notify.error(`Failed to remove ${email} as a collaborator.`, e))

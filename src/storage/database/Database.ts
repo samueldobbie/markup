@@ -1,5 +1,6 @@
 import { definitions } from "./Definitions"
 import { supabase } from "../../utils/Supabase"
+import { apiFetch } from "../../utils/Api"
 import { OntologyConcept } from "pages/dashboard/OntologyTable"
 import { WorkspaceGuideline } from "pages/setup/GuidelinesTable"
 
@@ -367,101 +368,21 @@ async function deleteWorkspaceAnnotation(annotationId: string): Promise<boolean>
 }
 
 async function addWorkspaceCollaborator(workspaceId: string, email: string): Promise<void> {
-  const { error } = await supabase
-    .functions
-    .invoke("add-collaborator", {
-      body: {
-        workspaceId,
-        email,
-      },
-    })
-
-  if (error) {
-    throw new Error(error.message)
-  }
-
-  const { data: workspace, error: workspaceError } = await supabase
-    .from("workspace")
-    .select()
-    .eq("id", workspaceId)
-
-  if (workspaceError) {
-    throw new Error(workspaceError.message)
-  }
-
-  if (workspace === null || workspace.length === 0) {
-    throw new Error("Invalid workspace")
-  }
-
-  const { error: updateError } = await supabase
-    .from("workspace")
-    .update({
-      collaborators: workspace[0].collaborators + 1,
-    })
-    .eq("id", workspaceId)
-
-  if (updateError) {
-    throw new Error(updateError.message)
-  }
+  await apiFetch(`/api/workspaces/${encodeURIComponent(workspaceId)}/collaborators`, {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  })
 }
 
 async function getWorkspaceCollaboratorEmails(workspaceId: string): Promise<string[]> {
-  const user = await supabase.auth.getUser()
-  const userId = user.data.user?.id ?? ""
-
-  const { data: collaborators, error } = await supabase
-    .functions
-    .invoke("get-collaborator-emails", {
-      body: {
-        workspaceId,
-        requestingUserId: userId,
-      },
-    })
-
-  if (error) {
-    throw new Error(error.message)
-  }
-
-  return JSON.parse(collaborators)
+  return apiFetch(`/api/workspaces/${encodeURIComponent(workspaceId)}/collaborators`)
 }
 
 async function removeWorkspaceCollaborator(workspaceId: string, email: string): Promise<void> {
-  const { error } = await supabase
-    .functions
-    .invoke("remove-collaborator", {
-      body: {
-        workspaceId,
-        email,
-      },
-    })
-
-  if (error) {
-    throw new Error(error.message)
-  }
-
-  const { data: workspace, error: workspaceError } = await supabase
-    .from("workspace")
-    .select()
-    .eq("id", workspaceId)
-
-  if (workspaceError) {
-    throw new Error(workspaceError.message)
-  }
-
-  if (workspace === null || workspace.length === 0) {
-    throw new Error("Invalid workspace")
-  }
-
-  const { error: updateError } = await supabase
-    .from("workspace")
-    .update({
-      collaborators: workspace[0].collaborators - 1,
-    })
-    .eq("id", workspaceId)
-
-  if (updateError) {
-    throw new Error(updateError.message)
-  }
+  await apiFetch(
+    `/api/workspaces/${encodeURIComponent(workspaceId)}/collaborators/${encodeURIComponent(email)}`,
+    { method: "DELETE" },
+  )
 }
 
 async function addOntology(name: string, description: string, rows: OntologyConcept[]): Promise<void> {

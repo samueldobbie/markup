@@ -44,6 +44,24 @@ export async function requireWorkspaceMember(userId: string, workspaceId: string
   }
 }
 
+export async function requireWorkspaceOwner(userId: string, workspaceId: string): Promise<void> {
+  const { data, error } = await supabaseAdmin
+    .from("workspace_access")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("workspace_id", workspaceId)
+    .eq("is_owner", true)
+    .limit(1)
+
+  if (error) {
+    throw new HTTPException(500, { message: "Failed to verify workspace access" })
+  }
+
+  if (data.length === 0) {
+    throw new HTTPException(403, { message: "Only the workspace owner can manage collaborators" })
+  }
+}
+
 async function isWorkspaceMember(userId: string, workspaceId: string): Promise<boolean> {
   const { data, error } = await supabaseAdmin
     .from("workspace_access")

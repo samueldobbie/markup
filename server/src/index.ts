@@ -4,7 +4,15 @@ import { serveStatic } from "@hono/node-server/serve-static"
 import { Hono } from "hono"
 import { cors } from "hono/cors"
 import { HTTPException } from "hono/http-exception"
-import { AuthVariables, optionalUser, requireUser, requireWorkspaceMember, requireWorkspaceReader } from "./auth.js"
+import {
+  AuthVariables,
+  optionalUser,
+  requireUser,
+  requireWorkspaceMember,
+  requireWorkspaceOwner,
+  requireWorkspaceReader,
+} from "./auth.js"
+import { addCollaborator, getCollaboratorEmails, removeCollaborator } from "./collaborators.js"
 import { env } from "./env.js"
 import {
   emptyModelConfig,
@@ -21,7 +29,7 @@ const app = new Hono()
 app.use("/api/*", cors({
   origin: ["http://localhost:3000"],
   allowHeaders: ["Authorization", "Content-Type"],
-  allowMethods: ["GET", "PUT", "POST", "OPTIONS"],
+  allowMethods: ["GET", "PUT", "POST", "DELETE", "OPTIONS"],
 }))
 
 app.onError((error, c) => {
@@ -87,6 +95,32 @@ api.put("/workspaces/:workspaceId/model", async (c) => {
 })
 
 api.route("/suggest", suggestRoutes)
+
+api.get("/workspaces/:workspaceId/collaborators", async (c) => {
+  const workspaceId = c.req.param("workspaceId")
+  await requireWorkspaceOwner(c.get("userId"), workspaceId)
+
+  return c.json(await getCollaboratorEmails(workspaceId))
+})
+
+api.post("/workspaces/:workspaceId/collaborators", async (c) => {
+  const workspaceId = c.req.param("workspaceId")
+  await requireWorkspaceOwner(c.get("userId"), workspaceId)
+
+  const body = await c.req.json<{ email?: unknown }>()
+  await addCollaborator(workspaceId, body.email)
+
+  return c.json({ ok: true })
+})
+
+api.delete("/workspaces/:workspaceId/collaborators/:email", async (c) => {
+  const workspaceId = c.req.param("workspaceId")
+  await requireWorkspaceOwner(c.get("userId"), workspaceId)
+
+  await removeCollaborator(workspaceId, c.req.param("email"))
+
+  return c.json({ ok: true })
+})
 
 api.get("/workspaces/:workspaceId/feedback", async (c) => {
   const workspaceId = c.req.param("workspaceId")
