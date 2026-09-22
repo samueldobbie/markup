@@ -7,6 +7,7 @@ import { SectionProps } from "./Annotate"
 import { exportAnnotationFeedback } from "./ExportAnnotationFeedback"
 import { exportJsonAnnotations } from "./ExportJsonAnnotations"
 import notify from "utils/Notifications"
+import { DEMO_IDS } from "utils/Demo"
 import SmartAssistant from "./SmartAssistant"
 
 type Entity = string
@@ -107,7 +108,10 @@ function Output({ workspace }: SectionProps) {
                     <Menu.Item onClick={() => exportJsonAnnotations(documents, annotations)}>
                       Annotations
                     </Menu.Item>
-                    <Menu.Item onClick={() => exportAnnotationFeedback(workspace)}>
+                    <Menu.Item
+                      disabled={DEMO_IDS.includes(workspace.id)}
+                      onClick={() => exportAnnotationFeedback(workspace)}
+                    >
                       AI feedback
                     </Menu.Item>
                   </Menu.Dropdown>

@@ -16,6 +16,12 @@ function exportFilename(name: string): string {
 async function exportAnnotationFeedback(workspace: Workspace): Promise<void> {
   try {
     const payload = await getAnnotationFeedbackExport(workspace.id)
+
+    if (payload.events.length === 0) {
+      notify.info("No AI feedback to export yet.")
+      return
+    }
+
     const blob = new Blob(
       [JSON.stringify(payload, null, 2)],
       { type: "application/json;charset=utf-8" },
