@@ -92,17 +92,19 @@ A local or private endpoint with no model name and no key is valid: set only the
 
 # Deploy
 
-The Fly.io app serves the API and the built frontend from the same process. Set these secrets on the machine:
+Markup is deployed to [Render](https://render.com) as a Docker web service built from the `Dockerfile`. The container serves the API and the built frontend from the same process. Render redeploys automatically when `main` is updated.
 
-```
-fly secrets set SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... MODEL_CREDENTIALS_KEY=...
-```
+Set these environment variables on the Render service:
 
-`VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are baked in at image build time, so pass them as build arguments:
+| Variable | Used by |
+|---|---|
+| `SUPABASE_URL` | API server |
+| `SUPABASE_SERVICE_ROLE_KEY` | API server (use an `sb_secret_...` key) |
+| `MODEL_CREDENTIALS_KEY` | API server (encrypts workspace API keys; changing it makes saved keys unreadable) |
+| `VITE_SUPABASE_URL` | Frontend build |
+| `VITE_SUPABASE_ANON_KEY` | Frontend build (the publishable key) |
 
-```
-fly deploy --build-arg VITE_SUPABASE_URL=... --build-arg VITE_SUPABASE_ANON_KEY=...
-```
+Render passes the service's environment variables to the Docker build as build arguments, so the `VITE_` values are baked into the frontend at build time. Changing them requires a redeploy.
 
 # Usage
 
