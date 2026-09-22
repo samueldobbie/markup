@@ -6,12 +6,11 @@ export type AuthVariables = {
   userId: string
 }
 
-export const requireUser = createMiddleware<{ Variables: AuthVariables }>(async (c, next) => {
-  const header = c.req.header("Authorization")
+async function userIdFromToken(header: string | undefined): Promise<string | undefined> {
   const token = header?.startsWith("Bearer ") ? header.slice("Bearer ".length) : undefined
 
   if (!token) {
-    throw new HTTPException(401, { message: "Missing access token" })
+    return undefined
   }
 
   const { data, error } = await supabaseAdmin.auth.getUser(token)
@@ -20,11 +19,32 @@ export const requireUser = createMiddleware<{ Variables: AuthVariables }>(async 
     throw new HTTPException(401, { message: "Invalid access token" })
   }
 
-  c.set("userId", data.user.id)
+  return data.user.id
+}
+
+export const requireUser = createMiddleware<{ Variables: AuthVariables }>(async (c, next) => {
+  const userId = await userIdFromToken(c.req.header("Authorization"))
+
+  if (!userId) {
+    throw new HTTPException(401, { message: "Missing access token" })
+  }
+
+  c.set("userId", userId)
+  await next()
+})
+
+export const optionalUser = createMiddleware<{ Variables: Partial<AuthVariables> }>(async (c, next) => {
+  c.set("userId", await userIdFromToken(c.req.header("Authorization")))
   await next()
 })
 
 export async function requireWorkspaceMember(userId: string, workspaceId: string): Promise<void> {
+  if (!await isWorkspaceMember(userId, workspaceId)) {
+    throw new HTTPException(403, { message: "You do not have access to this workspace" })
+  }
+}
+
+async function isWorkspaceMember(userId: string, workspaceId: string): Promise<boolean> {
   const { data, error } = await supabaseAdmin
     .from("workspace_access")
     .select("id")
@@ -36,7 +56,39 @@ export async function requireWorkspaceMember(userId: string, workspaceId: string
     throw new HTTPException(500, { message: "Failed to verify workspace access" })
   }
 
-  if (!data) {
-    throw new HTTPException(403, { message: "You do not have access to this workspace" })
+  return data !== null
+}
+
+async function isDemoWorkspace(workspaceId: string): Promise<boolean> {
+  const { data, error } = await supabaseAdmin
+    .from("workspace_access")
+    .select("id")
+    .eq("workspace_id", workspaceId)
+    .eq("is_demo", true)
+    .limit(1)
+
+  if (error) {
+    throw new HTTPException(500, { message: "Failed to verify workspace access" })
   }
+
+  return data.length > 0
+}
+
+export async function requireWorkspaceReader(
+  userId: string | undefined,
+  workspaceId: string,
+): Promise<{ isMember: boolean }> {
+  if (userId && await isWorkspaceMember(userId, workspaceId)) {
+    return { isMember: true }
+  }
+
+  if (await isDemoWorkspace(workspaceId)) {
+    return { isMember: false }
+  }
+
+  if (!userId) {
+    throw new HTTPException(401, { message: "Missing access token" })
+  }
+
+  throw new HTTPException(403, { message: "You do not have access to this workspace" })
 }

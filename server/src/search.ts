@@ -45,10 +45,11 @@ interface JudgeDecision {
 export async function searchWorkspaceDocuments(
   workspaceId: string,
   input: { query?: unknown, mode?: unknown },
+  options: { allowConceptual: boolean },
 ): Promise<DocumentSearchResponse> {
   const query = parseQuery(input.query)
   const requestedMode = parseMode(input.mode)
-  const modelRow = await getWorkspaceModelRow(workspaceId)
+  const modelRow = options.allowConceptual ? await getWorkspaceModelRow(workspaceId) : null
   const modelConfigured = modelRow !== null
   const useConceptual = requestedMode === "conceptual" && modelConfigured
 
