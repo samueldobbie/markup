@@ -1,5 +1,5 @@
 import { useAnnotateStore } from "storage/state/Annotate"
-import { ActionIcon, Button, Card, Divider, Grid, Group, Loader, Modal, ScrollArea, Select, TextInput, Text } from "@mantine/core"
+import { ActionIcon, Button, Card, Center, Divider, Grid, Group, Loader, Modal, ScrollArea, Select, TextInput, Text } from "@mantine/core"
 import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight, IconSearch } from "@tabler/icons-react"
 import { database, WorkspaceAnnotation, WorkspaceDocument } from "storage/database/Database"
 import { useEffect, useState } from "react"
@@ -33,6 +33,7 @@ function Document({ workspace }: SectionProps) {
   const setAnnotations = useAnnotateStore((s) => s.setAnnotations)
   const [openedSearchDocumentModal, setOpenedSearchDocumentModal] = useState(false)
   const [inlineAnnotations, setInlineAnnotations] = useState<InlineAnnotation[]>([])
+  const [loadingDocuments, setLoadingDocuments] = useState(true)
 
   const moveToFirstDocument = () => setDocumentIndex(0)
   const moveToPreviousDocument = () => setDocumentIndex(documentIndex - 1)
@@ -52,10 +53,13 @@ function Document({ workspace }: SectionProps) {
   }, [documents.length, setAnnotations])
 
   useEffect(() => {
+    setLoadingDocuments(true)
+
     database
       .getWorkspaceDocuments(workspace.id)
       .then(setDocuments)
       .catch((e) => notify.error("Failed to load documents.", e))
+      .finally(() => setLoadingDocuments(false))
   }, [setDocuments, workspace.id])
 
   useEffect(() => {
@@ -100,9 +104,23 @@ function Document({ workspace }: SectionProps) {
 
   return (
     <>
-      {documents.length > 0 &&
-        <Card shadow="xs" radius={5} p="xl">
-          <ScrollArea scrollbarSize={0} style={{ height: "76vh" }}>
+      <Card shadow="xs" radius={5} p="xl">
+        <ScrollArea scrollbarSize={0} style={{ height: "76vh" }}>
+          {loadingDocuments && (
+            <Center h="76vh">
+              <Loader size="sm" />
+            </Center>
+          )}
+
+          {!loadingDocuments && documents.length === 0 && (
+            <Center h="76vh">
+              <Text c="dimmed" size="sm">
+                This workspace has no documents.
+              </Text>
+            </Center>
+          )}
+
+          {!loadingDocuments && documents.length > 0 && (
             <Grid>
               <Grid.Col span={12}>
                 <Group gap={0} justify="center" wrap="nowrap">
@@ -206,9 +224,9 @@ function Document({ workspace }: SectionProps) {
                 />
               </Grid.Col>
             </Grid>
-          </ScrollArea>
-        </Card>
-      }
+          )}
+        </ScrollArea>
+      </Card>
 
       <SearchDocumentModal
         workspaceId={workspace.id}
