@@ -21,6 +21,9 @@ port = 54322
 # server_version;` on the remote database to check.
 major_version = 15
 
+[storage]
+enabled = false
+
 [studio]
 # Port to use for Supabase Studio.
 port = 54323

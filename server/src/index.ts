@@ -4,7 +4,7 @@ import { serveStatic } from "@hono/node-server/serve-static"
 import { Hono } from "hono"
 import { cors } from "hono/cors"
 import { HTTPException } from "hono/http-exception"
-import { AuthVariables, requireUser, requireWorkspaceMember } from "./auth.js"
+import { AuthVariables, optionalUser, requireUser, requireWorkspaceMember, requireWorkspaceReader } from "./auth.js"
 import { env } from "./env.js"
 import {
   emptyModelConfig,
@@ -34,6 +34,25 @@ app.onError((error, c) => {
 })
 
 app.get("/api/health", (c) => c.json({ ok: true }))
+
+const publicApi = new Hono<{ Variables: Partial<AuthVariables> }>()
+
+publicApi.use("*", optionalUser)
+
+publicApi.post("/workspaces/:workspaceId/search", async (c) => {
+  const workspaceId = c.req.param("workspaceId")
+  const { isMember } = await requireWorkspaceReader(c.get("userId"), workspaceId)
+
+  let body: { query?: unknown, mode?: unknown }
+
+  try {
+    body = await c.req.json()
+  } catch {
+    throw new HTTPException(400, { message: "Invalid JSON body" })
+  }
+
+  return c.json(await searchWorkspaceDocuments(workspaceId, body, { allowConceptual: isMember }))
+})
 
 const api = new Hono<{ Variables: AuthVariables }>()
 
@@ -76,21 +95,7 @@ api.get("/workspaces/:workspaceId/feedback", async (c) => {
   return c.json(await getWorkspaceFeedbackExport(workspaceId))
 })
 
-api.post("/workspaces/:workspaceId/search", async (c) => {
-  const workspaceId = c.req.param("workspaceId")
-  await requireWorkspaceMember(c.get("userId"), workspaceId)
-
-  let body: { query?: unknown, mode?: unknown }
-
-  try {
-    body = await c.req.json()
-  } catch {
-    throw new HTTPException(400, { message: "Invalid JSON body" })
-  }
-
-  return c.json(await searchWorkspaceDocuments(workspaceId, body))
-})
-
+app.route("/api", publicApi)
 app.route("/api", api)
 
 if (existsSync("dist/index.html")) {

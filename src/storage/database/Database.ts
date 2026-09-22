@@ -594,25 +594,6 @@ async function deleteOntology(ontologyId: string, isDefault: boolean): Promise<b
   const userId = user.data.user?.id ?? ""
 
   if (!isDefault) {
-    const { error: ontologyConceptError } = await supabase
-      .from("ontology_concept")
-      .delete()
-      .eq("ontology_id", ontologyId)
-
-    if (ontologyConceptError) {
-      throw new Error(ontologyConceptError.message)
-    }
-
-    const { error: ontologyAccessError } = await supabase
-      .from("ontology_access")
-      .delete()
-      .eq("ontology_id", ontologyId)
-      .eq("user_id", userId)
-
-    if (ontologyAccessError) {
-      throw new Error(ontologyAccessError.message)
-    }
-
     const { error: ontologyError } = await supabase
       .from("ontology")
       .delete()
