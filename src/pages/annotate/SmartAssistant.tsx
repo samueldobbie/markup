@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Workspace, WorkspaceAnnotation, database } from "storage/database/Database"
 import { useAnnotateStore } from "storage/state/Annotate"
 import { ApiError } from "utils/Api"
+import { DEMO_IDS } from "utils/Demo"
 import notify from "utils/Notifications"
 import { logAnnotationFeedback, toFeedbackSpan } from "utils/AnnotationFeedback"
 import { DocumentAnnotationSuggestion, suggestDocumentAnnotations } from "utils/Suggest"
@@ -60,6 +61,7 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
   const [openSuggestions, setOpenSuggestions] = useState<Record<string, boolean>>({})
 
   const document = documents[documentIndex]
+  const isDemoWorkspace = DEMO_IDS.includes(workspace.id)
 
   useEffect(() => {
     setSuggestionCount(suggestions.length)
@@ -78,6 +80,13 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
   }, [annotations, documentIndex])
 
   useEffect(() => {
+    if (isDemoWorkspace) {
+      setSuggestions([])
+      setError("AI-powered annotations are not available in demo workspaces.")
+      setLoading(false)
+      return
+    }
+
     if (!guidelineReady) {
       setLoading(true)
       setError("")
@@ -142,7 +151,7 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
       })
 
     return () => controller.abort()
-  }, [config, document, documentIndex, guideline, guidelineReady, refreshToken, workspace.id])
+  }, [config, document, documentIndex, guideline, guidelineReady, isDemoWorkspace, refreshToken, workspace.id])
 
   const toggleSuggestion = (suggestionId: string) => {
     setOpenSuggestions((current) => ({
@@ -238,7 +247,7 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
 
               setRefreshToken((value) => value + 1)
             }}
-            disabled={loading}
+            disabled={loading || isDemoWorkspace}
           >
             Refresh
           </Button>
