@@ -10,6 +10,8 @@ interface ForgotPasswordForm {
   email: string,
 }
 
+const RESET_PASSWORD_ORIGIN = import.meta.env.DEV ? window.location.origin : "https://www.getmarkup.com"
+
 function ForgotPassword() {
   const [sentEmail, setSentEmail] = useState(false)
 
@@ -22,7 +24,7 @@ function ForgotPassword() {
   const handleForgotPassword = async (submitted: ForgotPasswordForm) => {
     const { email } = submitted
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `https://www.getmarkup.com${Path.ResetPassword}`,
+      redirectTo: `${RESET_PASSWORD_ORIGIN}${Path.ResetPassword}`,
     })
 
     if (error) {

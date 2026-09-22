@@ -16,16 +16,16 @@ export function AuthProvider({ children }: any) {
   useEffect(() => {
     supabase.auth
       .getSession()
-      .then(({ data: { session } }) => {
-        setUser(session?.user ?? null)
-        setLoading(false)
-      })
+      .then(({ data: { session } }) => setUser(session?.user ?? null))
       .catch((e) => notify.error("Failed to load user.", e))
+      .finally(() => setLoading(false))
 
-    supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
       setLoading(false)
     })
+
+    return () => subscription.unsubscribe()
   }, [])
 
   return (

@@ -21,8 +21,8 @@ function ResetPassword() {
       passwordConf: "",
     },
     validate: {
-      password: (value) => ((value.length === 0 || value.length > 6) ? null : "Must be longer than 6 characters"),
-      passwordConf: (value) => ((value.length === 0 || value.length > 6) ? null : "Must be longer than 6 characters"),
+      password: (value) => (value.length > 6 ? null : "Must be longer than 6 characters"),
+      passwordConf: (value) => (value.length > 6 ? null : "Must be longer than 6 characters"),
     },
   })
 
