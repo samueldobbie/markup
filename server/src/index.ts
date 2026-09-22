@@ -14,6 +14,7 @@ import {
 } from "./auth.js"
 import { addCollaborator, getCollaboratorEmails, removeCollaborator } from "./collaborators.js"
 import { env } from "./env.js"
+import { readJsonBody } from "./request.js"
 import {
   emptyModelConfig,
   getWorkspaceModelRow,
@@ -51,13 +52,7 @@ publicApi.post("/workspaces/:workspaceId/search", async (c) => {
   const workspaceId = c.req.param("workspaceId")
   const { isMember } = await requireWorkspaceReader(c.get("userId"), workspaceId)
 
-  let body: { query?: unknown, mode?: unknown }
-
-  try {
-    body = await c.req.json()
-  } catch {
-    throw new HTTPException(400, { message: "Invalid JSON body" })
-  }
+  const body = await readJsonBody<{ query: unknown, mode: unknown }>(c)
 
   return c.json(await searchWorkspaceDocuments(workspaceId, body, { allowConceptual: isMember }))
 })
@@ -77,16 +72,24 @@ api.get("/workspaces/:workspaceId/model", async (c) => {
 
 api.put("/workspaces/:workspaceId/model", async (c) => {
   const workspaceId = c.req.param("workspaceId")
-  await requireWorkspaceMember(c.get("userId"), workspaceId)
+  await requireWorkspaceOwner(c.get("userId"), workspaceId, "Only the workspace owner can configure AI")
 
-  const body = await c.req.json<{
-    baseUrl?: string
-    model?: string
-    apiKey?: string
-  }>()
+  const body = await readJsonBody<{ baseUrl: unknown, model: unknown, apiKey: unknown }>(c)
+
+  if (typeof body.baseUrl !== "string") {
+    throw new HTTPException(400, { message: "baseUrl must be a string" })
+  }
+
+  if (body.model !== undefined && typeof body.model !== "string") {
+    throw new HTTPException(400, { message: "model must be a string" })
+  }
+
+  if (body.apiKey !== undefined && typeof body.apiKey !== "string") {
+    throw new HTTPException(400, { message: "apiKey must be a string" })
+  }
 
   const saved = await upsertWorkspaceModel(workspaceId, {
-    baseUrl: body.baseUrl ?? "",
+    baseUrl: body.baseUrl,
     model: body.model ?? "",
     apiKey: body.apiKey,
   })
@@ -98,16 +101,16 @@ api.route("/suggest", suggestRoutes)
 
 api.get("/workspaces/:workspaceId/collaborators", async (c) => {
   const workspaceId = c.req.param("workspaceId")
-  await requireWorkspaceOwner(c.get("userId"), workspaceId)
+  await requireWorkspaceOwner(c.get("userId"), workspaceId, "Only the workspace owner can manage collaborators")
 
   return c.json(await getCollaboratorEmails(workspaceId))
 })
 
 api.post("/workspaces/:workspaceId/collaborators", async (c) => {
   const workspaceId = c.req.param("workspaceId")
-  await requireWorkspaceOwner(c.get("userId"), workspaceId)
+  await requireWorkspaceOwner(c.get("userId"), workspaceId, "Only the workspace owner can manage collaborators")
 
-  const body = await c.req.json<{ email?: unknown }>()
+  const body = await readJsonBody<{ email: unknown }>(c)
   await addCollaborator(workspaceId, body.email)
 
   return c.json({ ok: true })
@@ -115,7 +118,7 @@ api.post("/workspaces/:workspaceId/collaborators", async (c) => {
 
 api.delete("/workspaces/:workspaceId/collaborators/:email", async (c) => {
   const workspaceId = c.req.param("workspaceId")
-  await requireWorkspaceOwner(c.get("userId"), workspaceId)
+  await requireWorkspaceOwner(c.get("userId"), workspaceId, "Only the workspace owner can manage collaborators")
 
   await removeCollaborator(workspaceId, c.req.param("email"))
 

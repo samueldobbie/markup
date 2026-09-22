@@ -96,12 +96,18 @@ export async function upsertWorkspaceModel(
   const existing = await getWorkspaceModelRow(workspaceId)
   const apiKey = input.apiKey?.trim()
 
+  const keepExistingKey = existing !== null && existing.base_url === baseUrl
+
+  if (!apiKey && !keepExistingKey && existing?.api_key_last4) {
+    throw new HTTPException(400, { message: "Enter the API key again when changing the base URL" })
+  }
+
   const ciphertext = apiKey
     ? encryptSecret(apiKey)
-    : existing?.api_key_ciphertext ?? encryptSecret("")
+    : keepExistingKey ? existing.api_key_ciphertext : encryptSecret("")
   const last4 = apiKey
     ? secretLast4(apiKey)
-    : existing?.api_key_last4 ?? ""
+    : keepExistingKey ? existing.api_key_last4 : ""
 
   const { data, error } = await supabaseAdmin
     .from("workspace_model")

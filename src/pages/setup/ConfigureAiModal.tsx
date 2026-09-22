@@ -52,6 +52,7 @@ function ConfigureAiModal({
 }) {
   const [apiKeyLast4, setApiKeyLast4] = useState<string | null>(null)
   const [savedProviderId, setSavedProviderId] = useState<string | null>(null)
+  const [savedBaseUrl, setSavedBaseUrl] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
   const form = useForm<ConfigureAiForm>({
@@ -69,6 +70,7 @@ function ConfigureAiModal({
     form.setValues(defaultForm())
     setApiKeyLast4(null)
     setSavedProviderId(null)
+    setSavedBaseUrl(null)
 
     getWorkspaceModel(workspace.id)
       .then((model) => {
@@ -82,6 +84,7 @@ function ConfigureAiModal({
 
         const matched = matchPreset(model.baseUrl, model.model)
         setSavedProviderId(matched.providerId)
+        setSavedBaseUrl(model.baseUrl)
 
         if (isCustomProvider(matched.providerId)) {
           form.setValues({
@@ -147,6 +150,13 @@ function ConfigureAiModal({
 
       if (baseUrl === "") {
         form.setFieldError("baseUrl", "Enter a base URL")
+        return
+      }
+
+      const baseUrlChanged = savedBaseUrl !== null && savedBaseUrl !== baseUrl.replace(/\/$/, "")
+
+      if (values.apiKey.trim() === "" && apiKeyLast4 && baseUrlChanged) {
+        form.setFieldError("apiKey", "Enter the API key again when changing the base URL")
         return
       }
 

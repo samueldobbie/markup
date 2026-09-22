@@ -44,7 +44,11 @@ export async function requireWorkspaceMember(userId: string, workspaceId: string
   }
 }
 
-export async function requireWorkspaceOwner(userId: string, workspaceId: string): Promise<void> {
+export async function requireWorkspaceOwner(
+  userId: string,
+  workspaceId: string,
+  message = "Only the workspace owner can do this",
+): Promise<void> {
   const { data, error } = await supabaseAdmin
     .from("workspace_access")
     .select("id")
@@ -58,7 +62,7 @@ export async function requireWorkspaceOwner(userId: string, workspaceId: string)
   }
 
   if (data.length === 0) {
-    throw new HTTPException(403, { message: "Only the workspace owner can manage collaborators" })
+    throw new HTTPException(403, { message })
   }
 }
 

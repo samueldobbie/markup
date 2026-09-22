@@ -4,6 +4,7 @@ import { AuthVariables, requireWorkspaceMember } from "./auth.js"
 import { completeJson } from "./complete.js"
 import { recordWorkspaceAnnotationFeedback } from "./feedback.js"
 import { getWorkspaceModelCredentials } from "./model.js"
+import { readJsonBody } from "./request.js"
 import { attributesPrompt, documentAnnotationsPrompt, entityPrompt } from "./prompts.js"
 import {
   ConfigAttribute,
@@ -29,11 +30,11 @@ function requireSelectedText(selectedText: unknown): string {
 }
 
 suggestRoutes.post("/entity", async (c) => {
-  const body = await c.req.json<{
-    workspaceId?: string
-    selectedText?: string
-    availableEntities?: string[]
-  }>()
+  const body = await readJsonBody<{
+    workspaceId: string
+    selectedText: string
+    availableEntities: string[]
+  }>(c)
 
   const workspaceId = body.workspaceId
   const availableEntities = body.availableEntities
@@ -61,12 +62,12 @@ suggestRoutes.post("/entity", async (c) => {
 })
 
 suggestRoutes.post("/attributes", async (c) => {
-  const body = await c.req.json<{
-    workspaceId?: string
-    selectedText?: string
-    selectedEntity?: string
-    availableAttributes?: ConfigAttribute[]
-  }>()
+  const body = await readJsonBody<{
+    workspaceId: string
+    selectedText: string
+    selectedEntity: string
+    availableAttributes: ConfigAttribute[]
+  }>(c)
 
   const workspaceId = body.workspaceId
   const selectedEntity = body.selectedEntity
@@ -97,13 +98,13 @@ suggestRoutes.post("/attributes", async (c) => {
 })
 
 suggestRoutes.post("/document", async (c) => {
-  const body = await c.req.json<{
-    workspaceId?: string
-    document?: string
-    annotations?: Array<{ start_index?: number, end_index?: number, entity?: string, text?: string }>
-    config?: unknown
-    guidelines?: string
-  }>()
+  const body = await readJsonBody<{
+    workspaceId: string
+    document: string
+    annotations: Array<{ start_index?: number, end_index?: number, entity?: string, text?: string }>
+    config: unknown
+    guidelines: string
+  }>(c)
 
   const workspaceId = body.workspaceId
   const document = body.document
@@ -166,11 +167,11 @@ suggestRoutes.post("/document", async (c) => {
 })
 
 suggestRoutes.post("/feedback", async (c) => {
-  const body = await c.req.json<{
-    workspaceId?: string
-    documentId?: string
-    events?: unknown
-  }>()
+  const body = await readJsonBody<{
+    workspaceId: string
+    documentId: string
+    events: unknown
+  }>(c)
 
   const workspaceId = body.workspaceId
   const documentId = body.documentId
