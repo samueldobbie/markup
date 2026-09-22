@@ -4,6 +4,7 @@ import { serveStatic } from "@hono/node-server/serve-static"
 import { Hono } from "hono"
 import { cors } from "hono/cors"
 import { HTTPException } from "hono/http-exception"
+import { secureHeaders } from "hono/secure-headers"
 import {
   AuthVariables,
   optionalUser,
@@ -26,6 +27,8 @@ import { searchWorkspaceDocuments } from "./search.js"
 import { suggestRoutes } from "./suggest.js"
 
 const app = new Hono()
+
+app.use("*", secureHeaders())
 
 app.use("/api/*", cors({
   origin: ["http://localhost:3000"],

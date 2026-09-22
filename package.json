@@ -42,7 +42,7 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-github-btn": "^1.4.0",
-    "react-router-dom": "^6.30.1",
+    "react-router-dom": "^7.18.4",
     "react-text-annotate-blend": "^1.1.0",
     "zustand": "^5.0.8"
   },

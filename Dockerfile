@@ -25,4 +25,6 @@ COPY server ./server
 ENV PORT=8080
 EXPOSE 8080
 
-CMD ["pnpm", "exec", "tsx", "server/src/index.ts"]
+USER node
+
+CMD ["./node_modules/.bin/tsx", "server/src/index.ts"]
