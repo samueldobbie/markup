@@ -5,6 +5,14 @@ import { IConfig } from "pages/setup/ConfigTable"
 import { WorkspaceAnnotation, WorkspaceDocument } from "storage/database"
 import { DocumentAnnotationSuggestion } from "utils/Suggest"
 
+const MAX_HISTORY = 100
+
+export interface AnnotationChange {
+  type: "add" | "delete"
+  documentId: string
+  annotations: WorkspaceAnnotation[]
+}
+
 interface AnnotateStore {
   activeTutorialStep: number
   config: IConfig
@@ -17,6 +25,8 @@ interface AnnotateStore {
   annotations: WorkspaceAnnotation[][]
   proposedAnnotation: InlineAnnotation | null
   pendingSuggestion: DocumentAnnotationSuggestion | null
+  undoStack: AnnotationChange[]
+  redoStack: AnnotationChange[]
   setActiveTutorialStep: (activeTutorialStep: number) => void
   setConfig: (config: IConfig) => void
   setActiveEntity: (activeEntity: string) => void
@@ -28,6 +38,9 @@ interface AnnotateStore {
   setAnnotations: (annotations: WorkspaceAnnotation[][]) => void
   setProposedAnnotation: (proposedAnnotation: InlineAnnotation | null) => void
   setPendingSuggestion: (pendingSuggestion: DocumentAnnotationSuggestion | null) => void
+  recordAnnotationChange: (change: AnnotationChange) => void
+  setAnnotationHistory: (undoStack: AnnotationChange[], redoStack: AnnotationChange[]) => void
+  resetAnnotationHistory: () => void
 }
 
 export const useAnnotateStore = create<AnnotateStore>((set) => ({
@@ -48,6 +61,8 @@ export const useAnnotateStore = create<AnnotateStore>((set) => ({
   annotations: [],
   proposedAnnotation: null,
   pendingSuggestion: null,
+  undoStack: [],
+  redoStack: [],
   setActiveTutorialStep: (activeTutorialStep) => set({ activeTutorialStep }),
   setConfig: (config) => set({ config }),
   setActiveEntity: (activeEntity) => set({ activeEntity }),
@@ -59,4 +74,10 @@ export const useAnnotateStore = create<AnnotateStore>((set) => ({
   setAnnotations: (annotations) => set({ annotations }),
   setProposedAnnotation: (proposedAnnotation) => set({ proposedAnnotation }),
   setPendingSuggestion: (pendingSuggestion) => set({ pendingSuggestion }),
+  recordAnnotationChange: (change) => set((s) => ({
+    undoStack: [...s.undoStack, change].slice(-MAX_HISTORY),
+    redoStack: [],
+  })),
+  setAnnotationHistory: (undoStack, redoStack) => set({ undoStack, redoStack }),
+  resetAnnotationHistory: () => set({ undoStack: [], redoStack: [] }),
 }))

@@ -1,6 +1,6 @@
 import { useAnnotateStore } from "storage/state/Annotate"
-import { ActionIcon, Button, Card, Center, Divider, Grid, Group, Loader, Modal, ScrollArea, Select, TextInput, Text } from "@mantine/core"
-import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight, IconSearch } from "@tabler/icons-react"
+import { ActionIcon, Button, Card, Center, Divider, Grid, Group, Loader, Modal, ScrollArea, Select, TextInput, Text, Tooltip } from "@mantine/core"
+import { IconArrowBackUp, IconArrowForwardUp, IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight, IconSearch } from "@tabler/icons-react"
 import { database, WorkspaceAnnotation, WorkspaceDocument } from "storage/database/Database"
 import { useEffect, useState } from "react"
 import { SectionProps } from "./Annotate"
@@ -9,6 +9,7 @@ import { useDebouncedState } from "@mantine/hooks"
 import notify from "utils/Notifications"
 import { searchWorkspaceDocuments, DocumentSearchResult } from "utils/Search"
 import { getWorkspaceModel } from "utils/WorkspaceModel"
+import { redoAnnotationChange, undoAnnotationChange } from "utils/AnnotationHistory"
 import "./Document.css"
 
 export interface InlineAnnotation {
@@ -31,6 +32,9 @@ function Document({ workspace }: SectionProps) {
   const setDocumentIndex = useAnnotateStore((s) => s.setDocumentIndex)
   const annotations = useAnnotateStore((s) => s.annotations)
   const setAnnotations = useAnnotateStore((s) => s.setAnnotations)
+  const canUndo = useAnnotateStore((s) => s.undoStack.length > 0)
+  const canRedo = useAnnotateStore((s) => s.redoStack.length > 0)
+  const resetAnnotationHistory = useAnnotateStore((s) => s.resetAnnotationHistory)
   const [openedSearchDocumentModal, setOpenedSearchDocumentModal] = useState(false)
   const [inlineAnnotations, setInlineAnnotations] = useState<InlineAnnotation[]>([])
   const [loadingDocuments, setLoadingDocuments] = useState(true)
@@ -54,13 +58,14 @@ function Document({ workspace }: SectionProps) {
 
   useEffect(() => {
     setLoadingDocuments(true)
+    resetAnnotationHistory()
 
     database
       .getWorkspaceDocuments(workspace.id)
       .then(setDocuments)
       .catch((e) => notify.error("Failed to load documents.", e))
       .finally(() => setLoadingDocuments(false))
-  }, [setDocuments, workspace.id])
+  }, [resetAnnotationHistory, setDocuments, workspace.id])
 
   useEffect(() => {
     if (documents.length === 0) {
@@ -192,6 +197,32 @@ function Document({ workspace }: SectionProps) {
                   >
                     Search documents
                   </Button>
+
+                  <Tooltip label="Undo (Ctrl/⌘+Z)">
+                    <ActionIcon
+                      size="lg"
+                      color="brand"
+                      variant="transparent"
+                      onClick={() => undoAnnotationChange()}
+                      disabled={!canUndo}
+                      aria-label="Undo"
+                    >
+                      <IconArrowBackUp size={16} />
+                    </ActionIcon>
+                  </Tooltip>
+
+                  <Tooltip label="Redo (Ctrl/⌘+Shift+Z)">
+                    <ActionIcon
+                      size="lg"
+                      color="brand"
+                      variant="transparent"
+                      onClick={() => redoAnnotationChange()}
+                      disabled={!canRedo}
+                      aria-label="Redo"
+                    >
+                      <IconArrowForwardUp size={16} />
+                    </ActionIcon>
+                  </Tooltip>
                 </Group>
               </Grid.Col>
 
