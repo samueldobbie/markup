@@ -43,6 +43,7 @@ function Config({ workspace }: SectionProps) {
 
   const annotations = useAnnotateStore((s) => s.annotations)
   const setAnnotations = useAnnotateStore((s) => s.setAnnotations)
+  const recordAnnotationChange = useAnnotateStore((s) => s.recordAnnotationChange)
   const activeTutorialStep = useAnnotateStore((s) => s.activeTutorialStep)
   const setActiveTutorialStep = useAnnotateStore((s) => s.setActiveTutorialStep)
   const [selectedText, setSelectedText] = useState("")
@@ -218,6 +219,7 @@ function Config({ workspace }: SectionProps) {
         const copy = [...annotations]
         copy[documentIndex] = [...copy[documentIndex], annotation]
         setAnnotations(copy)
+        recordAnnotationChange({ type: "add", documentId, annotations: [annotation] })
 
         if (reviewedSuggestion) {
           const suggested = toFeedbackSpan(reviewedSuggestion)

@@ -11,6 +11,7 @@ import notify from "utils/Notifications"
 import InvalidWorkspace from "pages/error/InvalidWorkspace"
 import Tutorial from "./Tutorial"
 import { DEMO_IDS } from "utils/Demo"
+import { useAnnotateShortcuts } from "utils/AnnotateShortcuts"
 
 export interface SectionProps {
   workspace: Workspace
@@ -22,6 +23,8 @@ function Annotate() {
   const [invalidWorkspace, setInvalidWorkspace] = useState(false)
   const [workspace, setWorkspace] = useState<Workspace>()
   const [isDemoWorkspace, setIsDemoWorkspace] = useState(false)
+
+  useAnnotateShortcuts()
 
   useEffect(() => {
     if (id === undefined) {

@@ -22,19 +22,21 @@ function Output({ workspace }: SectionProps) {
   const [guidelineReady, setGuidelineReady] = useState(false)
   const annotations = useAnnotateStore((s) => s.annotations)
   const setAnnotations = useAnnotateStore((s) => s.setAnnotations)
+  const recordAnnotationChange = useAnnotateStore((s) => s.recordAnnotationChange)
   const [groupedAnnotations, setGroupedAnnotations] = useState<AnnotationGroup>({})
   const [openAnnotations, setOpenAnnotations] = useState<Record<string, boolean>>({})
   const [suggestionCount, setSuggestionCount] = useState(0)
   const [segment, setSegment] = useState<"annotations" | "suggestions">("annotations")
   const [openedViewGuidelineModal, setOpenedViewGuidelineModal] = useState(false)
 
-  const deleteAnnotation = (annotationId: string) => {
+  const deleteAnnotation = (annotation: WorkspaceAnnotation) => {
     database
-      .deleteWorkspaceAnnotation(annotationId)
+      .deleteWorkspaceAnnotation(annotation.id)
       .then(() => {
         const copy = [...annotations]
-        copy[documentIndex] = [...copy[documentIndex].filter(i => i.id !== annotationId)]
+        copy[documentIndex] = [...copy[documentIndex].filter(i => i.id !== annotation.id)]
         setAnnotations(copy)
+        recordAnnotationChange({ type: "delete", documentId: annotation.document_id, annotations: [annotation] })
       })
       .catch((e) => notify.error("Failed to delete annotation.", e))
   }
@@ -186,7 +188,7 @@ function Output({ workspace }: SectionProps) {
                               <Grid.Col span={2}>
                                 <IconX
                                   size={16}
-                                  onClick={() => deleteAnnotation(annotation.id)}
+                                  onClick={() => deleteAnnotation(annotation)}
                                 />
                               </Grid.Col>
 

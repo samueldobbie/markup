@@ -1,5 +1,5 @@
 import { useAnnotateStore } from "storage/state/Annotate"
-import { Group, Radio } from "@mantine/core"
+import { Group, Radio, Text } from "@mantine/core"
 import { IConfig } from "pages/setup/ConfigTable"
 import { useEffect, useState } from "react"
 import { coloursForEntities } from "utils/EntityColour"
@@ -58,6 +58,12 @@ function EntityConfig({ config }: Props) {
                   }}
                 >
                   {entityName}
+
+                  {index < 9 && (
+                    <Text span size="xs" c="dimmed" ml={6}>
+                      {index + 1}
+                    </Text>
+                  )}
                 </span>
               }
             />

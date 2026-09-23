@@ -50,6 +50,7 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
   const documentIndex = useAnnotateStore((s) => s.documentIndex)
   const annotations = useAnnotateStore((s) => s.annotations)
   const setAnnotations = useAnnotateStore((s) => s.setAnnotations)
+  const recordAnnotationChange = useAnnotateStore((s) => s.recordAnnotationChange)
   const pendingSuggestion = useAnnotateStore((s) => s.pendingSuggestion)
   const setPendingSuggestion = useAnnotateStore((s) => s.setPendingSuggestion)
   const setProposedAnnotation = useAnnotateStore((s) => s.setProposedAnnotation)
@@ -211,6 +212,7 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
       const copy = [...annotations]
       copy[documentIndex] = [...(copy[documentIndex] ?? []), ...saved]
       setAnnotations(copy)
+      recordAnnotationChange({ type: "add", documentId: document.id, annotations: saved })
 
       if (pendingSuggestion && acceptedIds.has(pendingSuggestion.id)) {
         setPendingSuggestion(null)
