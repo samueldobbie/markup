@@ -20,9 +20,10 @@ interface AnnotateStore {
   entityColours: Record<string, string>
   populatedAttributes: Record<string, string>
   activeOntologyConcept: OntologyConcept
-  documents: WorkspaceDocument[]
+  documentCount: number
   documentIndex: number
-  annotations: WorkspaceAnnotation[][]
+  document: WorkspaceDocument | null
+  annotations: WorkspaceAnnotation[]
   proposedAnnotation: InlineAnnotation | null
   pendingSuggestion: DocumentAnnotationSuggestion | null
   undoStack: AnnotationChange[]
@@ -33,9 +34,10 @@ interface AnnotateStore {
   setEntityColours: (entityColours: Record<string, string>) => void
   setPopulatedAttributes: (populatedAttributes: Record<string, string>) => void
   setActiveOntologyConcept: (activeOntologyConcept: OntologyConcept) => void
-  setDocuments: (documents: WorkspaceDocument[]) => void
+  setDocumentCount: (documentCount: number) => void
   setDocumentIndex: (documentIndex: number) => void
-  setAnnotations: (annotations: WorkspaceAnnotation[][]) => void
+  setDocument: (document: WorkspaceDocument | null, annotations: WorkspaceAnnotation[]) => void
+  updateDocumentAnnotations: (documentId: string, update: (annotations: WorkspaceAnnotation[]) => WorkspaceAnnotation[]) => void
   setProposedAnnotation: (proposedAnnotation: InlineAnnotation | null) => void
   setPendingSuggestion: (pendingSuggestion: DocumentAnnotationSuggestion | null) => void
   recordAnnotationChange: (change: AnnotationChange) => void
@@ -56,8 +58,9 @@ export const useAnnotateStore = create<AnnotateStore>((set) => ({
     name: "",
     code: "",
   },
-  documents: [],
+  documentCount: 0,
   documentIndex: 0,
+  document: null,
   annotations: [],
   proposedAnnotation: null,
   pendingSuggestion: null,
@@ -69,9 +72,13 @@ export const useAnnotateStore = create<AnnotateStore>((set) => ({
   setEntityColours: (entityColours) => set({ entityColours }),
   setPopulatedAttributes: (populatedAttributes) => set({ populatedAttributes }),
   setActiveOntologyConcept: (activeOntologyConcept) => set({ activeOntologyConcept }),
-  setDocuments: (documents) => set({ documents }),
+  setDocumentCount: (documentCount) => set({ documentCount }),
   setDocumentIndex: (documentIndex) => set({ documentIndex }),
-  setAnnotations: (annotations) => set({ annotations }),
+  setDocument: (document, annotations) => set({ document, annotations }),
+  // Ignored if the user has since moved to another document
+  updateDocumentAnnotations: (documentId, update) => set((s) => (
+    s.document?.id === documentId ? { annotations: update(s.annotations) } : {}
+  )),
   setProposedAnnotation: (proposedAnnotation) => set({ proposedAnnotation }),
   setPendingSuggestion: (pendingSuggestion) => set({ pendingSuggestion }),
   recordAnnotationChange: (change) => set((s) => ({

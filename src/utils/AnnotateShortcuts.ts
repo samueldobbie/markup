@@ -52,7 +52,7 @@ export function useAnnotateShortcuts() {
       const offset = key === "arrowleft" ? -1 : 1
       const nextIndex = state.documentIndex + offset
 
-      if (nextIndex >= 0 && nextIndex < state.documents.length) {
+      if (nextIndex >= 0 && nextIndex < state.documentCount) {
         event.preventDefault()
         state.setDocumentIndex(nextIndex)
       }

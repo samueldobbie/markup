@@ -38,11 +38,8 @@ function Config({ workspace }: SectionProps) {
   const setPendingSuggestion = useAnnotateStore((s) => s.setPendingSuggestion)
   const populatedAttributes = useAnnotateStore((s) => s.populatedAttributes)
   const activeOntologyConcept = useAnnotateStore((s) => s.activeOntologyConcept)
-  const documents = useAnnotateStore((s) => s.documents)
-  const documentIndex = useAnnotateStore((s) => s.documentIndex)
-
-  const annotations = useAnnotateStore((s) => s.annotations)
-  const setAnnotations = useAnnotateStore((s) => s.setAnnotations)
+  const document = useAnnotateStore((s) => s.document)
+  const updateDocumentAnnotations = useAnnotateStore((s) => s.updateDocumentAnnotations)
   const recordAnnotationChange = useAnnotateStore((s) => s.recordAnnotationChange)
   const activeTutorialStep = useAnnotateStore((s) => s.activeTutorialStep)
   const setActiveTutorialStep = useAnnotateStore((s) => s.setActiveTutorialStep)
@@ -95,9 +92,9 @@ function Config({ workspace }: SectionProps) {
   }, [selectedOntologyId, setActiveOntologyConcept])
 
   useEffect(() => {
-    if (proposedAnnotation) {
+    if (proposedAnnotation && document) {
       const { start, end } = proposedAnnotation
-      setSelectedText(documents[documentIndex].content.slice(start, end))
+      setSelectedText(document.content.slice(start, end))
     } else {
       setSelectedText("")
     }
@@ -113,7 +110,7 @@ function Config({ workspace }: SectionProps) {
 
     setActiveEntity("")
     setPopulatedAttributes({})
-  }, [proposedAnnotation, pendingSuggestion, documents, documentIndex, config, setActiveEntity, setPopulatedAttributes])
+  }, [proposedAnnotation, pendingSuggestion, document, config, setActiveEntity, setPopulatedAttributes])
 
   useEffect(() => {
     if (selectedText === "") {
@@ -180,7 +177,7 @@ function Config({ workspace }: SectionProps) {
   }, [activeEntity, selectedText, config, workspace.id])
 
   const addAnnotation = () => {
-    if (!proposedAnnotation) {
+    if (!proposedAnnotation || !document) {
       notify.error("You need to highlight text within the document.")
       return
     }
@@ -192,8 +189,8 @@ function Config({ workspace }: SectionProps) {
 
     const { start, end } = proposedAnnotation
 
-    const documentId = documents[documentIndex].id
-    const text = documents[documentIndex].content.slice(start, end)
+    const documentId = document.id
+    const text = document.content.slice(start, end)
 
     const allAttributes = {
       ...populatedAttributes,
@@ -216,9 +213,7 @@ function Config({ workspace }: SectionProps) {
     database
       .addWorkspaceAnnotation(workspace.id, documentId, rawAnnotation)
       .then((annotation) => {
-        const copy = [...annotations]
-        copy[documentIndex] = [...copy[documentIndex], annotation]
-        setAnnotations(copy)
+        updateDocumentAnnotations(documentId, (annotations) => [...annotations, annotation])
         recordAnnotationChange({ type: "add", documentId, annotations: [annotation] })
 
         if (reviewedSuggestion) {

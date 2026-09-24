@@ -1,7 +1,7 @@
 import { useAnnotateStore } from "storage/state/Annotate"
-import { ActionIcon, Button, Card, Center, Divider, Grid, Group, Loader, Modal, ScrollArea, Select, TextInput, Text, Tooltip } from "@mantine/core"
+import { ActionIcon, Button, Card, Center, Divider, Grid, Group, Loader, Modal, Pagination, ScrollArea, Select, TextInput, Text, Tooltip } from "@mantine/core"
 import { IconArrowBackUp, IconArrowForwardUp, IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight, IconSearch } from "@tabler/icons-react"
-import { database, WorkspaceAnnotation, WorkspaceDocument } from "storage/database/Database"
+import { database, WorkspaceDocument, WorkspaceDocumentName } from "storage/database/Database"
 import { useEffect, useState } from "react"
 import { SectionProps } from "./Annotate"
 import { TextAnnotateBlend } from "react-text-annotate-blend"
@@ -11,6 +11,9 @@ import { searchWorkspaceDocuments, DocumentSearchResult } from "utils/Search"
 import { getWorkspaceModel } from "utils/WorkspaceModel"
 import { redoAnnotationChange, undoAnnotationChange } from "utils/AnnotationHistory"
 import "./Document.css"
+
+const NAME_PAGE_SIZE = 50
+const SEARCH_PAGE_SIZE = 10
 
 export interface InlineAnnotation {
   tag: string
@@ -26,60 +29,114 @@ function Document({ workspace }: SectionProps) {
   const setProposedAnnotation = useAnnotateStore((s) => s.setProposedAnnotation)
   const setPendingSuggestion = useAnnotateStore((s) => s.setPendingSuggestion)
 
-  const documents = useAnnotateStore((s) => s.documents)
-  const setDocuments = useAnnotateStore((s) => s.setDocuments)
+  const documentCount = useAnnotateStore((s) => s.documentCount)
+  const setDocumentCount = useAnnotateStore((s) => s.setDocumentCount)
   const documentIndex = useAnnotateStore((s) => s.documentIndex)
   const setDocumentIndex = useAnnotateStore((s) => s.setDocumentIndex)
+  const document = useAnnotateStore((s) => s.document)
+  const setDocument = useAnnotateStore((s) => s.setDocument)
   const annotations = useAnnotateStore((s) => s.annotations)
-  const setAnnotations = useAnnotateStore((s) => s.setAnnotations)
   const canUndo = useAnnotateStore((s) => s.undoStack.length > 0)
   const canRedo = useAnnotateStore((s) => s.redoStack.length > 0)
   const resetAnnotationHistory = useAnnotateStore((s) => s.resetAnnotationHistory)
   const [openedSearchDocumentModal, setOpenedSearchDocumentModal] = useState(false)
   const [inlineAnnotations, setInlineAnnotations] = useState<InlineAnnotation[]>([])
   const [loadingDocuments, setLoadingDocuments] = useState(true)
+  const [loadingDocument, setLoadingDocument] = useState(false)
+  const [namePage, setNamePage] = useState<{ start: number, names: WorkspaceDocumentName[] }>({ start: 0, names: [] })
+
+  const namePageStart = Math.floor(documentIndex / NAME_PAGE_SIZE) * NAME_PAGE_SIZE
 
   const moveToFirstDocument = () => setDocumentIndex(0)
   const moveToPreviousDocument = () => setDocumentIndex(documentIndex - 1)
   const moveToNextDocument = () => setDocumentIndex(documentIndex + 1)
-  const moveToLastDocument = () => setDocumentIndex(documents.length - 1)
+  const moveToLastDocument = () => setDocumentIndex(documentCount - 1)
 
   useEffect(() => {
-    const newAnnotations: WorkspaceAnnotation[][] = []
-    let documentSize = documents.length
+    let cancelled = false
 
-    while (documentSize > 0) {
-      newAnnotations.push([])
-      documentSize--
-    }
-
-    setAnnotations(newAnnotations)
-  }, [documents.length, setAnnotations])
-
-  useEffect(() => {
     setLoadingDocuments(true)
     resetAnnotationHistory()
+    setDocumentIndex(0)
+    setDocument(null, [])
 
     database
-      .getWorkspaceDocuments(workspace.id)
-      .then(setDocuments)
+      .getWorkspaceDocumentCount(workspace.id)
+      .then((count) => {
+        if (!cancelled) {
+          setDocumentCount(count)
+        }
+      })
       .catch((e) => notify.error("Failed to load documents.", e))
-      .finally(() => setLoadingDocuments(false))
-  }, [resetAnnotationHistory, setDocuments, workspace.id])
+      .finally(() => {
+        if (!cancelled) {
+          setLoadingDocuments(false)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [resetAnnotationHistory, setDocument, setDocumentCount, setDocumentIndex, workspace.id])
 
   useEffect(() => {
-    if (documents.length === 0) {
+    if (loadingDocuments || documentCount === 0) {
       return
     }
 
+    let cancelled = false
+
+    setLoadingDocument(true)
+    setDocument(null, [])
+
     database
-      .getWorkspaceAnnotations(documents.map(i => i.id))
-      .then(setAnnotations)
-      .catch((e) => notify.error("Failed to load annotations.", e))
-  }, [documents, setAnnotations])
+      .getWorkspaceDocumentAt(workspace.id, documentIndex)
+      .then(async (nextDocument) => {
+        const nextAnnotations = nextDocument ? await database.getDocumentAnnotations(nextDocument.id) : []
+
+        if (!cancelled) {
+          setDocument(nextDocument, nextAnnotations)
+        }
+      })
+      .catch((e) => {
+        if (!cancelled) {
+          notify.error("Failed to load document.", e)
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoadingDocument(false)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [documentCount, documentIndex, loadingDocuments, setDocument, workspace.id])
 
   useEffect(() => {
-    const inlineAnnotations = annotations[documentIndex]?.map(annotation => {
+    if (loadingDocuments || documentCount === 0) {
+      return
+    }
+
+    let cancelled = false
+
+    database
+      .getWorkspaceDocumentNames(workspace.id, namePageStart, namePageStart + NAME_PAGE_SIZE - 1)
+      .then((names) => {
+        if (!cancelled) {
+          setNamePage({ start: namePageStart, names })
+        }
+      })
+      .catch((e) => notify.error("Failed to load document names.", e))
+
+    return () => {
+      cancelled = true
+    }
+  }, [documentCount, loadingDocuments, namePageStart, workspace.id])
+
+  useEffect(() => {
+    const inlineAnnotations = annotations.map(annotation => {
       const inlineAnnotation: InlineAnnotation = {
         tag: "",
         start: annotation.start_index,
@@ -91,7 +148,7 @@ function Document({ workspace }: SectionProps) {
     })
 
     if (proposedAnnotation) {
-      inlineAnnotations?.push({
+      inlineAnnotations.push({
         tag: "",
         start: proposedAnnotation.start,
         end: proposedAnnotation.end,
@@ -99,8 +156,8 @@ function Document({ workspace }: SectionProps) {
       })
     }
 
-    setInlineAnnotations(inlineAnnotations || [])
-  }, [annotations, documentIndex, entityColours, proposedAnnotation])
+    setInlineAnnotations(inlineAnnotations)
+  }, [annotations, entityColours, proposedAnnotation])
 
   useEffect(() => {
     setProposedAnnotation(null)
@@ -117,7 +174,7 @@ function Document({ workspace }: SectionProps) {
             </Center>
           )}
 
-          {!loadingDocuments && documents.length === 0 && (
+          {!loadingDocuments && documentCount === 0 && (
             <Center h="76vh">
               <Text c="dimmed" size="sm">
                 This workspace has no documents.
@@ -125,7 +182,7 @@ function Document({ workspace }: SectionProps) {
             </Center>
           )}
 
-          {!loadingDocuments && documents.length > 0 && (
+          {!loadingDocuments && documentCount > 0 && (
             <Grid>
               <Grid.Col span={12}>
                 <Group gap={0} justify="center" wrap="nowrap">
@@ -153,17 +210,22 @@ function Document({ workspace }: SectionProps) {
 
                   <Select
                     size="md"
-                    data={documents.map(i => i.name)}
-                    value={documents[documentIndex].name}
-                    onChange={(nextDocumentName) => {
-                      documents.forEach((document, index) => {
-                        if (document.name === nextDocumentName) {
-                          setDocumentIndex(index)
-                          return
-                        }
-                      })
+                    data={namePage.names.map((name, offset) => ({
+                      value: String(namePage.start + offset),
+                      label: name.name,
+                    }))}
+                    value={String(documentIndex)}
+                    allowDeselect={false}
+                    onChange={(value) => {
+                      if (value !== null) {
+                        setDocumentIndex(Number(value))
+                      }
                     }}
                   />
+
+                  <Text size="sm" c="dimmed" ml={10} mr={4} style={{ whiteSpace: "nowrap" }}>
+                    {documentIndex + 1} / {documentCount}
+                  </Text>
 
                   <ActionIcon
                     className="document-nav-arrow"
@@ -171,7 +233,7 @@ function Document({ workspace }: SectionProps) {
                     color="brand"
                     variant="transparent"
                     onClick={moveToNextDocument}
-                    disabled={documentIndex >= documents.length - 1}
+                    disabled={documentIndex >= documentCount - 1}
                   >
                     <IconChevronRight size={16} />
                   </ActionIcon>
@@ -182,7 +244,7 @@ function Document({ workspace }: SectionProps) {
                     color="brand"
                     variant="transparent"
                     onClick={moveToLastDocument}
-                    disabled={documentIndex >= documents.length - 1}
+                    disabled={documentIndex >= documentCount - 1}
                   >
                     <IconChevronsRight size={16} />
                   </ActionIcon>
@@ -231,28 +293,44 @@ function Document({ workspace }: SectionProps) {
               </Grid.Col>
 
               <Grid.Col span={12}>
-                <TextAnnotateBlend
-                  content={documents[documentIndex].content}
-                  value={inlineAnnotations}
-                  onChange={(updated) => {
-                    if (annotations[documentIndex].length >= updated.length || updated.length === 0) {
-                      return
-                    }
+                {loadingDocument && (
+                  <Center h="60vh">
+                    <Loader size="sm" />
+                  </Center>
+                )}
 
-                    setPendingSuggestion(null)
-                    setProposedAnnotation(updated[updated.length - 1])
-                  }}
-                  getSpan={(span) => ({
-                    tag: activeEntity,
-                    color: entityColours[activeEntity],
-                    start: span.start,
-                    end: span.end,
-                  })}
-                  style={{
-                    fontSize: "1.1rem",
-                    whiteSpace: "pre-line",
-                  }}
-                />
+                {!loadingDocument && !document && (
+                  <Center h="60vh">
+                    <Text c="dimmed" size="sm">
+                      This document could not be found.
+                    </Text>
+                  </Center>
+                )}
+
+                {!loadingDocument && document && (
+                  <TextAnnotateBlend
+                    content={document.content}
+                    value={inlineAnnotations}
+                    onChange={(updated) => {
+                      if (annotations.length >= updated.length || updated.length === 0) {
+                        return
+                      }
+
+                      setPendingSuggestion(null)
+                      setProposedAnnotation(updated[updated.length - 1])
+                    }}
+                    getSpan={(span) => ({
+                      tag: activeEntity,
+                      color: entityColours[activeEntity],
+                      start: span.start,
+                      end: span.end,
+                    })}
+                    style={{
+                      fontSize: "1.1rem",
+                      whiteSpace: "pre-line",
+                    }}
+                  />
+                )}
               </Grid.Col>
             </Grid>
           )}
@@ -261,7 +339,7 @@ function Document({ workspace }: SectionProps) {
 
       <SearchDocumentModal
         workspaceId={workspace.id}
-        documents={documents}
+        documentCount={documentCount}
         openedModal={openedSearchDocumentModal}
         setOpenedModal={setOpenedSearchDocumentModal}
       />
@@ -271,7 +349,7 @@ function Document({ workspace }: SectionProps) {
 
 interface Props {
   workspaceId: string
-  documents: WorkspaceDocument[]
+  documentCount: number
   openedModal: boolean
   setOpenedModal: (openedModal: boolean) => void
 }
@@ -281,7 +359,7 @@ function isAbortError(error: unknown): boolean {
     || error instanceof Error && error.name === "AbortError"
 }
 
-function SearchDocumentModal({ workspaceId, documents, openedModal, setOpenedModal }: Props) {
+function SearchDocumentModal({ workspaceId, documentCount, openedModal, setOpenedModal }: Props) {
   const setDocumentIndex = useAnnotateStore((s) => s.setDocumentIndex)
 
   const [inputValue, setInputValue] = useState("")
@@ -289,9 +367,13 @@ function SearchDocumentModal({ workspaceId, documents, openedModal, setOpenedMod
   const [modelConfigured, setModelConfigured] = useState(false)
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState<DocumentSearchResult[] | null>(null)
+  const [page, setPage] = useState(1)
+  const [pageDocuments, setPageDocuments] = useState<WorkspaceDocument[]>([])
+  const [loadingPage, setLoadingPage] = useState(false)
 
   useEffect(() => {
     if (!openedModal) {
+      setPage(1)
       setInputValue("")
       setSearchTerm("")
       setResults(null)
@@ -340,16 +422,52 @@ function SearchDocumentModal({ workspaceId, documents, openedModal, setOpenedMod
     return () => controller.abort()
   }, [openedModal, searchTerm, workspaceId])
 
-  const openDocument = (documentId: string) => {
-    const index = documents.findIndex((document) => document.id === documentId)
-
-    if (index < 0) {
+  useEffect(() => {
+    if (!openedModal || documentCount === 0) {
+      setPageDocuments([])
       return
     }
 
-    setDocumentIndex(index)
-    setOpenedModal(false)
+    let cancelled = false
+    const from = (page - 1) * SEARCH_PAGE_SIZE
+
+    setLoadingPage(true)
+
+    database
+      .getWorkspaceDocumentPage(workspaceId, from, from + SEARCH_PAGE_SIZE - 1)
+      .then((documents) => {
+        if (!cancelled) {
+          setPageDocuments(documents)
+        }
+      })
+      .catch((e) => notify.error("Failed to load documents.", e))
+      .finally(() => {
+        if (!cancelled) {
+          setLoadingPage(false)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [documentCount, openedModal, page, workspaceId])
+
+  const openDocument = (documentId: string) => {
+    database
+      .getWorkspaceDocumentIndex(workspaceId, documentId)
+      .then((index) => {
+        if (index < 0) {
+          notify.error("This document could not be found.")
+          return
+        }
+
+        setDocumentIndex(index)
+        setOpenedModal(false)
+      })
+      .catch((e) => notify.error("Failed to open document.", e))
   }
+
+  const pageCount = Math.ceil(documentCount / SEARCH_PAGE_SIZE)
 
   return (
     <Modal
@@ -388,35 +506,41 @@ function SearchDocumentModal({ workspaceId, documents, openedModal, setOpenedMod
       <ScrollArea scrollbarSize={0} style={{ height: 400 }}>
         <Grid>
           <SearchDocumentResults
-            documents={documents}
-            loading={loading}
+            documents={pageDocuments}
+            loadingMessage={loading ? "Searching documents…" : results === null && loadingPage ? "Loading documents…" : null}
             results={results}
             onOpen={openDocument}
           />
         </Grid>
       </ScrollArea>
+
+      {results === null && pageCount > 1 && (
+        <Group justify="center" mt={20}>
+          <Pagination size="sm" color="brand" total={pageCount} value={page} onChange={setPage} />
+        </Group>
+      )}
     </Modal>
   )
 }
 
 function SearchDocumentResults({
   documents,
-  loading,
+  loadingMessage,
   results,
   onOpen,
 }: {
   documents: WorkspaceDocument[]
-  loading: boolean
+  loadingMessage: string | null
   results: DocumentSearchResult[] | null
   onOpen: (documentId: string) => void
 }) {
-  if (loading) {
+  if (loadingMessage) {
     return (
       <Grid.Col span={12}>
         <Group justify="center" pt={40} pb={40}>
           <Loader size="sm" color="brand" />
           <Text c="dimmed">
-            Searching documents…
+            {loadingMessage}
           </Text>
         </Group>
       </Grid.Col>

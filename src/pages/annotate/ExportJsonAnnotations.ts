@@ -1,6 +1,6 @@
 import saveAs from "file-saver"
 import JSZip from "jszip"
-import { WorkspaceAnnotation, WorkspaceDocument } from "storage/database"
+import { WorkspaceAnnotation, WorkspaceDocumentName } from "storage/database"
 import notify from "utils/Notifications"
 
 interface JsonOutput {
@@ -16,7 +16,7 @@ interface AnnotationOutput2 {
   payload: string
 }
 
-async function exportJsonAnnotations(documents: WorkspaceDocument[], annotations: WorkspaceAnnotation[][]): Promise<void> {
+async function exportJsonAnnotations(documents: WorkspaceDocumentName[], annotations: WorkspaceAnnotation[][]): Promise<void> {
   const outputs = [] as AnnotationOutput2[]
 
   documents.forEach((doc, index) => {

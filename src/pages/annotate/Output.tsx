@@ -15,13 +15,11 @@ type AnnotationGroup = Record<Entity, WorkspaceAnnotation[]>
 
 function Output({ workspace }: SectionProps) {
   const entityColours = useAnnotateStore((s) => s.entityColours)
-  const documents = useAnnotateStore((s) => s.documents)
-  const documentIndex = useAnnotateStore((s) => s.documentIndex)
 
   const [guideline, setGuideline] = useState("")
   const [guidelineReady, setGuidelineReady] = useState(false)
   const annotations = useAnnotateStore((s) => s.annotations)
-  const setAnnotations = useAnnotateStore((s) => s.setAnnotations)
+  const updateDocumentAnnotations = useAnnotateStore((s) => s.updateDocumentAnnotations)
   const recordAnnotationChange = useAnnotateStore((s) => s.recordAnnotationChange)
   const [groupedAnnotations, setGroupedAnnotations] = useState<AnnotationGroup>({})
   const [openAnnotations, setOpenAnnotations] = useState<Record<string, boolean>>({})
@@ -33,18 +31,23 @@ function Output({ workspace }: SectionProps) {
     database
       .deleteWorkspaceAnnotation(annotation.id)
       .then(() => {
-        const copy = [...annotations]
-        copy[documentIndex] = [...copy[documentIndex].filter(i => i.id !== annotation.id)]
-        setAnnotations(copy)
+        updateDocumentAnnotations(annotation.document_id, (annotations) => annotations.filter(i => i.id !== annotation.id))
         recordAnnotationChange({ type: "delete", documentId: annotation.document_id, annotations: [annotation] })
       })
       .catch((e) => notify.error("Failed to delete annotation.", e))
   }
 
+  const exportAnnotations = () => {
+    database
+      .getWorkspaceExport(workspace.id)
+      .then(({ documents, annotations }) => exportJsonAnnotations(documents, annotations))
+      .catch((e) => notify.error("Failed to export annotations.", e))
+  }
+
   useEffect(() => {
     const grouped: AnnotationGroup = {}
 
-    annotations[documentIndex]?.forEach((annotation) => {
+    annotations.forEach((annotation) => {
       if (annotation.entity in grouped) {
         grouped[annotation.entity].push(annotation)
       } else {
@@ -53,17 +56,15 @@ function Output({ workspace }: SectionProps) {
     })
 
     setGroupedAnnotations(grouped)
-  }, [annotations, documentIndex])
+  }, [annotations])
 
   useEffect(() => {
-    annotations.forEach(documentAnnotations => {
-      documentAnnotations.forEach(annotation => {
-        if (!Object.keys(openAnnotations).includes(annotation.id)) {
-          const copy = { ...openAnnotations }
-          copy[annotation.id] = false
-          setOpenAnnotations(copy)
-        }
-      })
+    annotations.forEach(annotation => {
+      if (!Object.keys(openAnnotations).includes(annotation.id)) {
+        const copy = { ...openAnnotations }
+        copy[annotation.id] = false
+        setOpenAnnotations(copy)
+      }
     })
   }, [annotations, openAnnotations])
 
@@ -107,7 +108,7 @@ function Output({ workspace }: SectionProps) {
                   </Menu.Target>
 
                   <Menu.Dropdown>
-                    <Menu.Item onClick={() => exportJsonAnnotations(documents, annotations)}>
+                    <Menu.Item onClick={exportAnnotations}>
                       Annotations
                     </Menu.Item>
                     <Menu.Item
@@ -138,7 +139,7 @@ function Output({ workspace }: SectionProps) {
                     label: (
                       <Center>
                         <Box ml={10}>
-                          Annotations ({annotations[documentIndex]?.length || 0})
+                          Annotations ({annotations.length})
                         </Box>
                       </Center>
                     ),

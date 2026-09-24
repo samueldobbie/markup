@@ -169,6 +169,126 @@ async function getWorkspaceDocuments(workspaceId: string): Promise<WorkspaceDocu
   return documents
 }
 
+// PostgREST caps each response (1000 rows by default), so large reads are fetched in ranges
+const FETCH_BATCH_SIZE = 1000
+
+async function fetchAllRows<T>(
+  fetchRange: (from: number, to: number) => PromiseLike<{ data: T[] | null, error: { message: string } | null }>,
+): Promise<T[]> {
+  const rows: T[] = []
+
+  for (let from = 0; ; from += FETCH_BATCH_SIZE) {
+    const { data, error } = await fetchRange(from, from + FETCH_BATCH_SIZE - 1)
+
+    if (error) {
+      throw new Error(error.message)
+    }
+
+    rows.push(...(data ?? []))
+
+    if (!data || data.length < FETCH_BATCH_SIZE) {
+      return rows
+    }
+  }
+}
+
+// Documents are navigated by position, so every paged query must share this total order
+function orderDocuments<T extends { order: (column: string) => T }>(query: T): T {
+  return query.order("created_at").order("name").order("id")
+}
+
+// Quote a value for use inside a PostgREST or() filter
+function quoteFilterValue(value: string): string {
+  return `"${value.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}"`
+}
+
+export type WorkspaceDocumentName = Pick<WorkspaceDocument, "id" | "name">
+
+async function getWorkspaceDocumentCount(workspaceId: string): Promise<number> {
+  const { count, error } = await supabase
+    .from("workspace_document")
+    .select("id", { count: "exact", head: true })
+    .eq("workspace_id", workspaceId)
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  return count ?? 0
+}
+
+async function getWorkspaceDocumentNames(workspaceId: string, from: number, to: number): Promise<WorkspaceDocumentName[]> {
+  const { data, error } = await orderDocuments(
+    supabase
+      .from("workspace_document")
+      .select("id, name")
+      .eq("workspace_id", workspaceId),
+  ).range(from, to)
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  return data
+}
+
+async function getWorkspaceDocumentPage(workspaceId: string, from: number, to: number): Promise<WorkspaceDocument[]> {
+  const { data, error } = await orderDocuments(
+    supabase
+      .from("workspace_document")
+      .select()
+      .eq("workspace_id", workspaceId),
+  ).range(from, to)
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  return data
+}
+
+async function getWorkspaceDocumentAt(workspaceId: string, index: number): Promise<WorkspaceDocument | null> {
+  const documents = await getWorkspaceDocumentPage(workspaceId, index, index)
+  return documents[0] ?? null
+}
+
+// Position of a document in the workspace order, or -1 if it doesn't exist
+async function getWorkspaceDocumentIndex(workspaceId: string, documentId: string): Promise<number> {
+  const { data: documents, error: documentError } = await supabase
+    .from("workspace_document")
+    .select("created_at, name")
+    .eq("workspace_id", workspaceId)
+    .eq("id", documentId)
+
+  if (documentError) {
+    throw new Error(documentError.message)
+  }
+
+  if (documents.length === 0) {
+    return -1
+  }
+
+  const createdAt = quoteFilterValue(documents[0].created_at)
+  const name = quoteFilterValue(documents[0].name)
+  const id = quoteFilterValue(documentId)
+
+  const { count, error } = await supabase
+    .from("workspace_document")
+    .select("id", { count: "exact", head: true })
+    .eq("workspace_id", workspaceId)
+    .or([
+      `created_at.lt.${createdAt}`,
+      `and(created_at.eq.${createdAt},name.lt.${name})`,
+      `and(created_at.eq.${createdAt},name.eq.${name},id.lt.${id})`,
+    ].join(","))
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  return count ?? 0
+}
+
 async function deleteWorkspaceDocument(documentId: string): Promise<boolean> {
   const { error } = await supabase
     .from("workspace_document")
@@ -352,6 +472,57 @@ async function getWorkspaceAnnotations(documentIds: string[]): Promise<Workspace
   })
 
   return result
+}
+
+async function getDocumentAnnotations(documentId: string): Promise<WorkspaceAnnotation[]> {
+  return fetchAllRows((from, to) => (
+    supabase
+      .from("workspace_annotation")
+      .select()
+      .eq("document_id", documentId)
+      .order("id")
+      .range(from, to)
+  ))
+}
+
+export interface WorkspaceExport {
+  documents: WorkspaceDocumentName[]
+  annotations: WorkspaceAnnotation[][]
+}
+
+// Every document name and annotation in a workspace, without document content
+async function getWorkspaceExport(workspaceId: string): Promise<WorkspaceExport> {
+  const [documents, annotations] = await Promise.all([
+    fetchAllRows<WorkspaceDocumentName>((from, to) => (
+      orderDocuments(
+        supabase
+          .from("workspace_document")
+          .select("id, name")
+          .eq("workspace_id", workspaceId),
+      ).range(from, to)
+    )),
+    fetchAllRows<WorkspaceAnnotation>((from, to) => (
+      supabase
+        .from("workspace_annotation")
+        .select()
+        .eq("workspace_id", workspaceId)
+        .order("id")
+        .range(from, to)
+    )),
+  ])
+
+  const byDocument = new Map<string, WorkspaceAnnotation[]>()
+
+  annotations.forEach((annotation) => {
+    const group = byDocument.get(annotation.document_id) ?? []
+    group.push(annotation)
+    byDocument.set(annotation.document_id, group)
+  })
+
+  return {
+    documents,
+    annotations: documents.map((document) => byDocument.get(document.id) ?? []),
+  }
 }
 
 async function deleteWorkspaceAnnotation(annotationId: string): Promise<boolean> {
@@ -548,6 +719,11 @@ export const database = {
 
   addWorkspaceDocuments,
   getWorkspaceDocuments,
+  getWorkspaceDocumentCount,
+  getWorkspaceDocumentNames,
+  getWorkspaceDocumentPage,
+  getWorkspaceDocumentAt,
+  getWorkspaceDocumentIndex,
   deleteWorkspaceDocument,
 
   addWorkspaceConfig,
@@ -561,6 +737,8 @@ export const database = {
   addWorkspaceAnnotation,
   addWorkspaceAnnotations,
   getWorkspaceAnnotations,
+  getDocumentAnnotations,
+  getWorkspaceExport,
   deleteWorkspaceAnnotation,
 
   addWorkspaceCollaborator,

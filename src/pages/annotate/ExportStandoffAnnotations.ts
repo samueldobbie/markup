@@ -1,6 +1,6 @@
 import saveAs from "file-saver"
 import JSZip from "jszip"
-import { WorkspaceAnnotation, WorkspaceDocument } from "storage/database"
+import { WorkspaceAnnotation, WorkspaceDocumentName } from "storage/database"
 import notify from "utils/Notifications"
 
 interface StandoffOutput {
@@ -8,7 +8,7 @@ interface StandoffOutput {
   payload: string[]
 }
 
-async function exportStandoffAnnotations(documents: WorkspaceDocument[], annotations: WorkspaceAnnotation[][]): Promise<void> {
+async function exportStandoffAnnotations(documents: WorkspaceDocumentName[], annotations: WorkspaceAnnotation[][]): Promise<void> {
   const outputs = [] as StandoffOutput[]
 
   documents.forEach((doc, index) => {

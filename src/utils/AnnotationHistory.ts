@@ -6,27 +6,11 @@ type Stack = "undoStack" | "redoStack"
 
 let applying = false
 
-function updateDocumentAnnotations(
-  documentId: string,
-  update: (annotations: WorkspaceAnnotation[]) => WorkspaceAnnotation[],
-) {
-  const { documents, annotations, setAnnotations } = useAnnotateStore.getState()
-  const index = documents.findIndex((document) => document.id === documentId)
-
-  if (index < 0) {
-    return
-  }
-
-  const copy = [...annotations]
-  copy[index] = update(copy[index] ?? [])
-  setAnnotations(copy)
-}
-
 async function removeAnnotations(change: AnnotationChange) {
   await Promise.all(change.annotations.map((annotation) => database.deleteWorkspaceAnnotation(annotation.id)))
 
   const removedIds = new Set(change.annotations.map((annotation) => annotation.id))
-  updateDocumentAnnotations(change.documentId, (annotations) => (
+  useAnnotateStore.getState().updateDocumentAnnotations(change.documentId, (annotations) => (
     annotations.filter((annotation) => !removedIds.has(annotation.id))
   ))
 }
@@ -43,7 +27,7 @@ async function restoreAnnotations(change: AnnotationChange): Promise<Map<string,
     })
   )))
 
-  updateDocumentAnnotations(change.documentId, (annotations) => [...annotations, ...restored])
+  useAnnotateStore.getState().updateDocumentAnnotations(change.documentId, (annotations) => [...annotations, ...restored])
 
   return new Map(change.annotations.map((annotation, index) => [annotation.id, restored[index]]))
 }
@@ -83,10 +67,14 @@ async function step(from: Stack) {
       state.setAnnotationHistory(moved, remaining)
     }
 
-    const index = state.documents.findIndex((document) => document.id === change.documentId)
+    const workspaceId = change.annotations[0]?.workspace_id
 
-    if (index >= 0 && index !== state.documentIndex) {
-      state.setDocumentIndex(index)
+    if (workspaceId && change.documentId !== state.document?.id) {
+      const index = await database.getWorkspaceDocumentIndex(workspaceId, change.documentId)
+
+      if (index >= 0) {
+        state.setDocumentIndex(index)
+      }
     }
   } catch (e) {
     notify.error(`Failed to ${from === "undoStack" ? "undo" : "redo"} annotation change.`, e instanceof Error ? e : undefined)

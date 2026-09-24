@@ -46,10 +46,9 @@ function overlapsExisting(
 function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCount }: Props) {
   const config = useAnnotateStore((s) => s.config)
   const entityColours = useAnnotateStore((s) => s.entityColours)
-  const documents = useAnnotateStore((s) => s.documents)
-  const documentIndex = useAnnotateStore((s) => s.documentIndex)
+  const document = useAnnotateStore((s) => s.document)
   const annotations = useAnnotateStore((s) => s.annotations)
-  const setAnnotations = useAnnotateStore((s) => s.setAnnotations)
+  const updateDocumentAnnotations = useAnnotateStore((s) => s.updateDocumentAnnotations)
   const recordAnnotationChange = useAnnotateStore((s) => s.recordAnnotationChange)
   const pendingSuggestion = useAnnotateStore((s) => s.pendingSuggestion)
   const setPendingSuggestion = useAnnotateStore((s) => s.setPendingSuggestion)
@@ -61,7 +60,6 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
   const [refreshToken, setRefreshToken] = useState(0)
   const [openSuggestions, setOpenSuggestions] = useState<Record<string, boolean>>({})
 
-  const document = documents[documentIndex]
   const isDemoWorkspace = DEMO_IDS.includes(workspace.id)
 
   useEffect(() => {
@@ -69,16 +67,14 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
   }, [setSuggestionCount, suggestions.length])
 
   useEffect(() => {
-    const currentAnnotations = annotations[documentIndex] ?? []
-
     setSuggestions((current) => {
       const remaining = current.filter((suggestion) => (
-        !overlapsExisting(suggestion, currentAnnotations)
+        !overlapsExisting(suggestion, annotations)
       ))
 
       return remaining.length === current.length ? current : remaining
     })
-  }, [annotations, documentIndex])
+  }, [annotations])
 
   useEffect(() => {
     if (isDemoWorkspace) {
@@ -102,7 +98,7 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
     }
 
     const controller = new AbortController()
-    const currentAnnotations = useAnnotateStore.getState().annotations[documentIndex] ?? []
+    const currentAnnotations = useAnnotateStore.getState().annotations
 
     setLoading(true)
     setError("")
@@ -152,7 +148,7 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
       })
 
     return () => controller.abort()
-  }, [config, document, documentIndex, guideline, guidelineReady, isDemoWorkspace, refreshToken, workspace.id])
+  }, [config, document, guideline, guidelineReady, isDemoWorkspace, refreshToken, workspace.id])
 
   const toggleSuggestion = (suggestionId: string) => {
     setOpenSuggestions((current) => ({
@@ -209,9 +205,7 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
 
       const acceptedIds = new Set(accepted.map((suggestion) => suggestion.id))
 
-      const copy = [...annotations]
-      copy[documentIndex] = [...(copy[documentIndex] ?? []), ...saved]
-      setAnnotations(copy)
+      updateDocumentAnnotations(document.id, (annotations) => [...annotations, ...saved])
       recordAnnotationChange({ type: "add", documentId: document.id, annotations: saved })
 
       if (pendingSuggestion && acceptedIds.has(pendingSuggestion.id)) {
