@@ -1,8 +1,8 @@
 import { Group, Button, ActionIcon, Text, FileButton, Tooltip, Card } from "@mantine/core"
 import { IconFilePlus, IconTrashX } from "@tabler/icons-react"
 import { DataTable } from "mantine-datatable"
-import { useCallback, useEffect, useState } from "react"
-import { database, WorkspaceDocument } from "storage/database/Database"
+import { useEffect, useState } from "react"
+import { database, WorkspaceDocumentWithAnnotationCount } from "storage/database/Database"
 import notify from "utils/Notifications"
 import { parseJsonAnnotations } from "./ParseJsonAnnotations"
 import { parseStandoffAnnotations } from "./ParseStandoffAnnotations"
@@ -11,13 +11,15 @@ import { SectionProps } from "./Setup"
 const PAGE_SIZE = 10
 
 function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: SectionProps) {
-  const [documents, setDocuments] = useState<WorkspaceDocument[]>([])
-  const [documentFiles, setDocumentFiles] = useState<File[]>([])
-  const [annotationFiles, setAnnotationFiles] = useState<File[]>([])
-  const [documentToAnnotationCount, setDocumentToAnnotationCount] = useState<Record<string, number>>({})
+  const [documents, setDocuments] = useState<WorkspaceDocumentWithAnnotationCount[]>([])
+  const [documentCount, setDocumentCount] = useState(0)
   const [page, setPage] = useState(1)
+  const [loading, setLoading] = useState(true)
+  const [refreshToken, setRefreshToken] = useState(0)
 
-  const uploadAnnotations = useCallback(async (documentId: string, file: File) => {
+  const refresh = () => setRefreshToken((token) => token + 1)
+
+  const uploadAnnotations = async (documentId: string, file: File) => {
     const format = file.name.split(".").pop()
     const content = await file.text()
 
@@ -25,104 +27,92 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
       ? parseJsonAnnotations(content)
       : parseStandoffAnnotations(content)
 
-    database
-      .addWorkspaceAnnotations(workspace.id, documentId, rawAnnotations)
-      .then(() => {
-        notify.success(`${rawAnnotations.length} annotations uploaded.`)
+    await database.addWorkspaceAnnotations(workspace.id, documentId, rawAnnotations)
+    notify.success(`${rawAnnotations.length} annotations uploaded.`)
+  }
 
-        const copy = { ...documentToAnnotationCount }
-        copy[documentId] = rawAnnotations.length + (copy[documentId] || 0)
-        setDocumentToAnnotationCount(copy)
-      })
+  const uploadAnnotationsForDocument = (documentId: string, file: File) => {
+    uploadAnnotations(documentId, file)
       .catch((e) => notify.error("Failed to upload annotations.", e))
-  }, [documentToAnnotationCount, workspace.id])
+      .finally(refresh)
+  }
+
+  const uploadAnnotationFiles = (files: File[]) => {
+    Promise.all(files.map(async (file) => {
+      const document = await database.findWorkspaceDocumentForFile(workspace.id, file.name)
+
+      if (document) {
+        await uploadAnnotations(document.id, file)
+      }
+    }))
+      .catch((e) => notify.error("Failed to upload annotations.", e))
+      .finally(refresh)
+  }
+
+  const uploadDocumentFiles = (files: File[]) => {
+    if (files.length === 0) return
+
+    database
+      .addWorkspaceDocuments(workspace.id, files)
+      .then((insertedDocuments) => notify.success(`${insertedDocuments.length} documents uploaded.`))
+      .catch((e) => notify.error("Failed to upload documents.", e))
+      .finally(refresh)
+  }
 
   useEffect(() => {
-    database
-      .getWorkspaceDocuments(workspace.id)
-      .then(setDocuments)
-      .catch((e) => notify.error("Failed to load documents.", e))
+    setPage(1)
   }, [workspace.id])
 
   useEffect(() => {
-    if (documentFiles.length === 0) return
+    let cancelled = false
+    const from = (page - 1) * PAGE_SIZE
 
-    const func = async () => {
-      database
-        .addWorkspaceDocuments(workspace.id, documentFiles)
-        .then(insertedDocuments => {
-          const nextDocuments = [...documents, ...insertedDocuments]
-          setDocumentFiles([])
-          setDocuments(nextDocuments)
-          notify.success(`${insertedDocuments.length} documents uploaded.`)
-        })
-        .catch((e) => notify.error("Failed to upload documents.", e))
-    }
+    setLoading(true)
 
-    func()
-  }, [documents, documentFiles, workspace.id])
+    Promise.all([
+      database.getWorkspaceDocumentCount(workspace.id),
+      database.getWorkspaceDocumentPageWithAnnotationCounts(workspace.id, from, from + PAGE_SIZE - 1),
+    ])
+      .then(([count, pageDocuments]) => {
+        if (cancelled) return
 
-  useEffect(() => {
-    annotationFiles.forEach(annotationFile => {
-      const document = documents.find(document => {
-        const documentFileName = document.name.split(".").slice(0, -1).join(".")
-        const annotationFileName = annotationFile.name.split(".").slice(0, -1).join(".")
+        const pageCount = Math.max(1, Math.ceil(count / PAGE_SIZE))
 
-        return documentFileName === annotationFileName
+        setDocumentCount(count)
+
+        if (page > pageCount) {
+          setPage(pageCount)
+        } else {
+          setDocuments(pageDocuments)
+        }
+      })
+      .catch((e) => notify.error("Failed to load documents.", e))
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false)
+        }
       })
 
-      if (document) {
-        uploadAnnotations(document.id, annotationFile)
-      }
-    })
-  }, [annotationFiles, documents, uploadAnnotations, workspace.id])
+    return () => {
+      cancelled = true
+    }
+  }, [page, refreshToken, workspace.id])
 
   useEffect(() => {
-    if (setWorkspaceStatus === undefined) return
+    if (setWorkspaceStatus === undefined || loading) return
 
-    if (documents.length === 0 && workspaceStatus.hasDocument) {
+    if (documentCount === 0 && workspaceStatus.hasDocument) {
       setWorkspaceStatus({
         ...workspaceStatus,
         hasDocument: false,
       })
-    } else if (documents.length > 0 && !workspaceStatus.hasDocument) {
+    } else if (documentCount > 0 && !workspaceStatus.hasDocument) {
       setWorkspaceStatus({
         ...workspaceStatus,
         hasDocument: true,
       })
     }
-  }, [documents, workspaceStatus, setWorkspaceStatus])
-
-  useEffect(() => {
-    const documentIds = documents.map(document => document.id)
-
-    database
-      .getWorkspaceAnnotations(documentIds)
-      .then(documentAnnotations => {
-        const documentToAnnotationCount = {} as Record<string, number>
-
-        documentAnnotations.forEach(documentAnnotation => {
-          if (documentAnnotation.length > 0) {
-            const documentId = documentAnnotation[0].document_id
-
-            documentToAnnotationCount[documentId] = documentAnnotation.length
-          }
-        })
-
-        setDocumentToAnnotationCount(documentToAnnotationCount)
-      })
-      .catch((e) => notify.error("Failed to load annotations.", e))
-  }, [documents])
-
-  useEffect(() => {
-    const pageCount = Math.max(1, Math.ceil(documents.length / PAGE_SIZE))
-    if (page > pageCount) {
-      setPage(pageCount)
-    }
-  }, [documents.length, page])
-
-  const from = (page - 1) * PAGE_SIZE
-  const pagedDocuments = documents.slice(from, from + PAGE_SIZE)
+  }, [documentCount, loading, workspaceStatus, setWorkspaceStatus])
 
   return (
     <Card shadow="xs" radius={5}>
@@ -131,8 +121,9 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
         emptyState="Upload documents to annotate"
         borderRadius={5}
         style={{ minHeight: "500px" }}
-        records={pagedDocuments}
-        totalRecords={documents.length}
+        records={documents}
+        totalRecords={documentCount}
+        fetching={loading}
         recordsPerPage={PAGE_SIZE}
         page={page}
         onPageChange={setPage}
@@ -162,13 +153,13 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                   {document.name}
                 </Text>
 
-                {documentToAnnotationCount[document.id] && (
+                {document.annotation_count > 0 && (
                   <Text size="sm" c="dimmed">
-                    {documentToAnnotationCount[document.id]} annotations
+                    {document.annotation_count} annotations
                   </Text>
                 )}
 
-                {!documentToAnnotationCount[document.id] && (
+                {document.annotation_count === 0 && (
                   <Text size="sm" c="dimmed">
                     No annotations
                   </Text>
@@ -180,7 +171,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
             accessor: "actions",
             title: (
               <Group justify="flex-end">
-                <FileButton onChange={setAnnotationFiles} accept=".json,.ann" multiple key={crypto.randomUUID()}>
+                <FileButton onChange={uploadAnnotationFiles} accept=".json,.ann" multiple key={crypto.randomUUID()}>
                   {(props) => (
                     <Button {...props} variant="light">
                       Upload annotations
@@ -188,7 +179,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                   )}
                 </FileButton>
 
-                <FileButton onChange={setDocumentFiles} accept=".txt" multiple key={crypto.randomUUID()}>
+                <FileButton onChange={uploadDocumentFiles} accept=".txt" multiple key={crypto.randomUUID()}>
                   {(props) => (
                     <Button {...props}>
                       Upload documents
@@ -204,7 +195,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
                   accept=".json,.ann"
                   onChange={(file) => {
                     if (file) {
-                      uploadAnnotations(document.id, file)
+                      uploadAnnotationsForDocument(document.id, file)
                     }
                   }}
                 >
@@ -233,13 +224,7 @@ function DocumentTable({ workspace, workspaceStatus, setWorkspaceStatus }: Secti
 
                       database
                         .deleteWorkspaceDocument(document.id)
-                        .then(() => {
-                          setDocuments(documents.filter(i => i.id !== document.id))
-
-                          const copy = { ...documentToAnnotationCount }
-                          delete copy[document.id]
-                          setDocumentToAnnotationCount(copy)
-                        })
+                        .then(refresh)
                         .catch((e) => notify.error("Failed to delete document.", e))
                     }}
                   >

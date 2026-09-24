@@ -156,19 +156,6 @@ async function addWorkspaceDocuments(workspaceId: string, files: File[]): Promis
   return documents
 }
 
-async function getWorkspaceDocuments(workspaceId: string): Promise<WorkspaceDocument[]> {
-  const { data: documents, error } = await supabase
-    .from("workspace_document")
-    .select()
-    .eq("workspace_id", workspaceId)
-
-  if (error) {
-    throw new Error(error.message)
-  }
-
-  return documents
-}
-
 // PostgREST caps each response (1000 rows by default), so large reads are fetched in ranges
 const FETCH_BATCH_SIZE = 1000
 
@@ -287,6 +274,52 @@ async function getWorkspaceDocumentIndex(workspaceId: string, documentId: string
   }
 
   return count ?? 0
+}
+
+export type WorkspaceDocumentWithAnnotationCount = WorkspaceDocument & { annotation_count: number }
+
+async function getWorkspaceDocumentPageWithAnnotationCounts(
+  workspaceId: string,
+  from: number,
+  to: number,
+): Promise<WorkspaceDocumentWithAnnotationCount[]> {
+  const { data, error } = await orderDocuments(
+    supabase
+      .from("workspace_document")
+      .select("*, workspace_annotation(count)")
+      .eq("workspace_id", workspaceId),
+  ).range(from, to)
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  return data.map(({ workspace_annotation, ...document }: WorkspaceDocument & { workspace_annotation: { count: number }[] }) => ({
+    ...document,
+    annotation_count: workspace_annotation[0]?.count ?? 0,
+  }))
+}
+
+function fileStem(name: string): string {
+  return name.split(".").slice(0, -1).join(".")
+}
+
+async function findWorkspaceDocumentForFile(workspaceId: string, fileName: string): Promise<WorkspaceDocumentName | null> {
+  const stem = fileStem(fileName)
+  const pattern = `${stem.replace(/[\\%_]/g, "\\$&")}.%`
+
+  const candidates = await fetchAllRows<WorkspaceDocumentName>((from, to) => (
+    orderDocuments(
+      supabase
+        .from("workspace_document")
+        .select("id, name")
+        .eq("workspace_id", workspaceId)
+        .like("name", pattern),
+    ).range(from, to)
+  ))
+
+  // PostgREST also treats * as a wildcard, so confirm the match exactly
+  return candidates.find((document) => fileStem(document.name) === stem) ?? null
 }
 
 async function deleteWorkspaceDocument(documentId: string): Promise<boolean> {
@@ -453,25 +486,6 @@ async function addWorkspaceAnnotations(
   if (annotations === null || annotations.length === 0) {
     throw new Error("Invalid workspace annotations")
   }
-}
-
-async function getWorkspaceAnnotations(documentIds: string[]): Promise<WorkspaceAnnotation[][]> {
-  const { data: annotations, error } = await supabase
-    .from("workspace_annotation")
-    .select()
-    .in("document_id", documentIds)
-
-  if (error) {
-    throw new Error(error.message)
-  }
-
-  const result: WorkspaceAnnotation[][] = []
-
-  documentIds.forEach(documentId => {
-    result.push(annotations.filter(i => i.document_id === documentId))
-  })
-
-  return result
 }
 
 async function getDocumentAnnotations(documentId: string): Promise<WorkspaceAnnotation[]> {
@@ -718,10 +732,11 @@ export const database = {
   deleteWorkspace,
 
   addWorkspaceDocuments,
-  getWorkspaceDocuments,
   getWorkspaceDocumentCount,
   getWorkspaceDocumentNames,
   getWorkspaceDocumentPage,
+  getWorkspaceDocumentPageWithAnnotationCounts,
+  findWorkspaceDocumentForFile,
   getWorkspaceDocumentAt,
   getWorkspaceDocumentIndex,
   deleteWorkspaceDocument,
@@ -736,7 +751,6 @@ export const database = {
 
   addWorkspaceAnnotation,
   addWorkspaceAnnotations,
-  getWorkspaceAnnotations,
   getDocumentAnnotations,
   getWorkspaceExport,
   deleteWorkspaceAnnotation,
