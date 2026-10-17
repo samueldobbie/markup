@@ -717,10 +717,10 @@ function SearchDocuments() {
         Configure AI from workspace settings to enable conceptual search.
       </Text>
 
-      <h3>Search annotations</h3>
+      <h3>Filter by annotations</h3>
 
       <Text>
-        Switch the search to <b>Annotations</b> to find documents by the
+        Switch the search to <b>Filter by annotations</b> to find documents by the
         annotations already made in the workspace. This does not use the AI
         model.
       </Text>

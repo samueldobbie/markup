@@ -535,8 +535,8 @@ function SearchDocumentModal({ workspaceId, documentCount, openedModal, setOpene
           setQueryError(null)
         }}
         data={[
-          { label: "Document text", value: "text" },
-          { label: "Annotations", value: "annotations" },
+          { label: "Search text", value: "text" },
+          { label: "Filter by annotations", value: "annotations" },
         ]}
       />
 
