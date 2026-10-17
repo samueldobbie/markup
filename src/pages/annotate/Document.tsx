@@ -375,6 +375,7 @@ function SearchDocumentModal({ workspaceId, documentCount, openedModal, setOpene
   const [searchTerm, setSearchTerm] = useDebouncedState("", 500)
   const [queryError, setQueryError] = useState<string | null>(null)
   const [modelConfigured, setModelConfigured] = useState(false)
+  const [modelFailed, setModelFailed] = useState(false)
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState<DocumentSearchResult[] | null>(null)
   const [page, setPage] = useState(1)
@@ -405,6 +406,7 @@ function SearchDocumentModal({ workspaceId, documentCount, openedModal, setOpene
     }
 
     setQueryError(null)
+    setModelFailed(false)
 
     if (searchTerm.trim() === "") {
       setLoading(false)
@@ -431,6 +433,7 @@ function SearchDocumentModal({ workspaceId, documentCount, openedModal, setOpene
       .then((response) => {
         if (!structured) {
           setModelConfigured(response.modelConfigured)
+          setModelFailed(response.modelFailed === true)
         }
 
         setResults(response.results)
@@ -582,6 +585,12 @@ function SearchDocumentModal({ workspaceId, documentCount, openedModal, setOpene
             setSearchTerm(e.currentTarget.value)
           }}
         />
+      )}
+
+      {searchTarget === "text" && modelConfigured && modelFailed && (
+        <Text size="sm" c="dimmed" mt={8}>
+          Conceptual search failed, so these are keyword results. Check the API key in AI settings on the workspace setup page.
+        </Text>
       )}
 
       {searchTarget === "text" && !modelConfigured && (

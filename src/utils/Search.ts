@@ -23,6 +23,7 @@ export interface DocumentSearchResult {
 export interface DocumentSearchResponse {
   mode: SearchMode
   modelConfigured: boolean
+  modelFailed?: boolean
   results: DocumentSearchResult[]
 }
 

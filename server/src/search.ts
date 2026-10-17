@@ -37,6 +37,7 @@ export interface DocumentSearchResult {
 export interface DocumentSearchResponse {
   mode: SearchMode
   modelConfigured: boolean
+  modelFailed?: boolean
   results: DocumentSearchResult[]
 }
 
@@ -76,16 +77,20 @@ export async function searchWorkspaceDocuments(
   const useConceptual = requestedMode === "conceptual" && modelConfigured
 
   if (!useConceptual) {
-    const candidates = await retrieveCandidates(workspaceId, query, null)
-    return {
-      mode: "keyword",
-      modelConfigured,
-      results: candidates.map((candidate) => toKeywordResult(candidate)),
-    }
+    return keywordSearch(workspaceId, query, modelConfigured, false)
   }
 
-  const credentials = await getWorkspaceModelCredentials(workspaceId)
-  const { keywords, criteria } = await expandQuery(credentials, query)
+  const credentials = await getWorkspaceModelCredentials(workspaceId).catch((error: unknown) => {
+    console.error("Workspace model credentials unavailable", error)
+    return null
+  })
+  const expanded = credentials ? await expandQuery(credentials, query) : null
+
+  if (!credentials || !expanded) {
+    return keywordSearch(workspaceId, query, true, true)
+  }
+
+  const { keywords, criteria } = expanded
   const candidates = await retrieveCandidates(workspaceId, query, keywords)
 
   if (candidates.length === 0) {
@@ -96,12 +101,35 @@ export async function searchWorkspaceDocuments(
     }
   }
 
-  const matched = await judgeCandidates(credentials, criteria, keywords, candidates)
+  let matched: DocumentSearchResult[]
+
+  try {
+    matched = await judgeCandidates(credentials, criteria, keywords, candidates)
+  } catch (error) {
+    console.error("Conceptual search judging failed", error)
+    return keywordSearch(workspaceId, query, true, true)
+  }
 
   return {
     mode: "conceptual",
     modelConfigured: true,
     results: matched,
+  }
+}
+
+async function keywordSearch(
+  workspaceId: string,
+  query: string,
+  modelConfigured: boolean,
+  modelFailed: boolean,
+): Promise<DocumentSearchResponse> {
+  const candidates = await retrieveCandidates(workspaceId, query, null)
+
+  return {
+    mode: "keyword",
+    modelConfigured,
+    ...(modelFailed ? { modelFailed } : {}),
+    results: candidates.map((candidate) => toKeywordResult(candidate)),
   }
 }
 
@@ -186,7 +214,7 @@ function annotationSnippet(content: string, annotation: MatchedAnnotation | unde
 async function expandQuery(
   credentials: WorkspaceModelCredentials,
   query: string,
-): Promise<{ keywords: string[] | null, criteria: string }> {
+): Promise<{ keywords: string[] | null, criteria: string } | null> {
   try {
     const parsed = await completeJson({
       ...credentials,
@@ -209,11 +237,9 @@ async function expandQuery(
       keywords: keywords.length > 0 ? keywords : null,
       criteria,
     }
-  } catch {
-    return {
-      keywords: null,
-      criteria: query,
-    }
+  } catch (error) {
+    console.error("Search query expansion failed", error)
+    return null
   }
 }
 
