@@ -1,5 +1,5 @@
 import { useAnnotateStore } from "storage/state/Annotate"
-import { ActionIcon, Button, Card, Center, Divider, Grid, Group, Loader, Modal, Pagination, ScrollArea, Select, TextInput, Text, Tooltip } from "@mantine/core"
+import { ActionIcon, Anchor, Badge, Button, Card, Center, Divider, Grid, Group, Loader, Modal, Pagination, ScrollArea, SegmentedControl, Select, Textarea, TextInput, Text, Tooltip } from "@mantine/core"
 import { IconArrowBackUp, IconArrowForwardUp, IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight, IconSearch } from "@tabler/icons-react"
 import { database, WorkspaceDocument, WorkspaceDocumentName } from "storage/database/Database"
 import { useEffect, useState } from "react"
@@ -7,13 +7,18 @@ import { SectionProps } from "./Annotate"
 import { TextAnnotateBlend } from "react-text-annotate-blend"
 import { useDebouncedState } from "@mantine/hooks"
 import notify from "utils/Notifications"
-import { searchWorkspaceDocuments, DocumentSearchResult } from "utils/Search"
+import { ApiError } from "utils/Api"
+import AnnotationQueryBuilder, { buildAnnotationQuery, newQueryRule, QueryRule } from "components/annotate/AnnotationQueryBuilder"
+import { searchWorkspaceDocuments, DocumentSearchResult, MatchedAnnotation } from "utils/Search"
 import { getWorkspaceModel } from "utils/WorkspaceModel"
 import { redoAnnotationChange, undoAnnotationChange } from "utils/AnnotationHistory"
 import "./Document.css"
 
 const NAME_PAGE_SIZE = 50
 const SEARCH_PAGE_SIZE = 10
+const ANNOTATION_QUERY_EXAMPLE = `{"entity": "Medication", "attributes.Dose": {"$gte": 500}}`
+
+type SearchTarget = "text" | "annotations"
 
 export interface InlineAnnotation {
   tag: string
@@ -361,9 +366,14 @@ function isAbortError(error: unknown): boolean {
 
 function SearchDocumentModal({ workspaceId, documentCount, openedModal, setOpenedModal }: Props) {
   const setDocumentIndex = useAnnotateStore((s) => s.setDocumentIndex)
+  const config = useAnnotateStore((s) => s.config)
 
+  const [searchTarget, setSearchTarget] = useState<SearchTarget>("text")
   const [inputValue, setInputValue] = useState("")
+  const [rules, setRules] = useState<QueryRule[]>(() => [newQueryRule()])
+  const [editingJson, setEditingJson] = useState(false)
   const [searchTerm, setSearchTerm] = useDebouncedState("", 500)
+  const [queryError, setQueryError] = useState<string | null>(null)
   const [modelConfigured, setModelConfigured] = useState(false)
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState<DocumentSearchResult[] | null>(null)
@@ -375,8 +385,11 @@ function SearchDocumentModal({ workspaceId, documentCount, openedModal, setOpene
     if (!openedModal) {
       setPage(1)
       setInputValue("")
+      setRules([newQueryRule()])
+      setEditingJson(false)
       setSearchTerm("")
       setResults(null)
+      setQueryError(null)
       setLoading(false)
       return
     }
@@ -391,22 +404,45 @@ function SearchDocumentModal({ workspaceId, documentCount, openedModal, setOpene
       return
     }
 
+    setQueryError(null)
+
     if (searchTerm.trim() === "") {
       setLoading(false)
       setResults(null)
       return
     }
 
+    const structured = searchTarget === "annotations"
+
+    if (structured && !isJson(searchTerm)) {
+      setLoading(false)
+      setResults(null)
+      setQueryError("Query must be valid JSON")
+      return
+    }
+
     const controller = new AbortController()
     setLoading(true)
 
-    searchWorkspaceDocuments(workspaceId, searchTerm, { signal: controller.signal })
+    searchWorkspaceDocuments(workspaceId, searchTerm, {
+      mode: structured ? "structured" : "conceptual",
+      signal: controller.signal,
+    })
       .then((response) => {
-        setModelConfigured(response.modelConfigured)
+        if (!structured) {
+          setModelConfigured(response.modelConfigured)
+        }
+
         setResults(response.results)
       })
       .catch((error) => {
         if (isAbortError(error)) {
+          return
+        }
+
+        if (structured && error instanceof ApiError && error.status === 400) {
+          setResults(null)
+          setQueryError(error.message)
           return
         }
 
@@ -420,7 +456,7 @@ function SearchDocumentModal({ workspaceId, documentCount, openedModal, setOpene
       })
 
     return () => controller.abort()
-  }, [openedModal, searchTerm, workspaceId])
+  }, [openedModal, searchTarget, searchTerm, workspaceId])
 
   useEffect(() => {
     if (!openedModal || documentCount === 0) {
@@ -485,20 +521,99 @@ function SearchDocumentModal({ workspaceId, documentCount, openedModal, setOpene
       }
       centered
     >
-      <TextInput
-        placeholder="female patients on metformin"
-        size="md"
-        value={inputValue}
-        onChange={(e) => {
-          setInputValue(e.currentTarget.value)
-          setSearchTerm(e.currentTarget.value)
+      <SegmentedControl
+        mb={12}
+        color="brand"
+        value={searchTarget}
+        onChange={(value) => {
+          setSearchTarget(value as SearchTarget)
+          setInputValue("")
+          setRules([newQueryRule()])
+          setEditingJson(false)
+          setSearchTerm("")
+          setResults(null)
+          setQueryError(null)
         }}
+        data={[
+          { label: "Document text", value: "text" },
+          { label: "Annotations", value: "annotations" },
+        ]}
       />
 
-      {!modelConfigured && (
+      {searchTarget === "text" ? (
+        <TextInput
+          placeholder="female patients on metformin"
+          size="md"
+          value={inputValue}
+          onChange={(e) => {
+            setInputValue(e.currentTarget.value)
+            setSearchTerm(e.currentTarget.value)
+          }}
+        />
+      ) : !editingJson ? (
+        <>
+          <AnnotationQueryBuilder
+            config={config}
+            rules={rules}
+            onChange={(next) => {
+              setRules(next)
+              setSearchTerm(buildAnnotationQuery(next) ?? "")
+            }}
+          />
+
+          {queryError && (
+            <Text size="sm" c="red" mt={8}>
+              {queryError}
+            </Text>
+          )}
+        </>
+      ) : (
+        <Textarea
+          placeholder={ANNOTATION_QUERY_EXAMPLE}
+          size="md"
+          autosize
+          minRows={2}
+          maxRows={8}
+          styles={{ input: { fontFamily: "var(--mantine-font-family-monospace)" } }}
+          value={inputValue}
+          error={queryError}
+          onChange={(e) => {
+            setInputValue(e.currentTarget.value)
+            setSearchTerm(e.currentTarget.value)
+          }}
+        />
+      )}
+
+      {searchTarget === "text" && !modelConfigured && (
         <Text size="sm" c="dimmed" mt={8}>
           Keyword search. Configure AI in workspace settings for conceptual search.
         </Text>
+      )}
+
+      {searchTarget === "annotations" && (
+        <Group justify="flex-end" mt={8}>
+          <Anchor
+            size="sm"
+            component="button"
+            type="button"
+            onClick={() => {
+              if (editingJson) {
+                setRules([newQueryRule()])
+                setInputValue("")
+                setSearchTerm("")
+              } else {
+                const query = buildAnnotationQuery(rules)
+                const json = query ? JSON.stringify(JSON.parse(query), null, 2) : ""
+                setInputValue(json)
+                setSearchTerm(json)
+              }
+
+              setEditingJson(!editingJson)
+            }}
+          >
+            {editingJson ? "Back to query builder" : "Edit as JSON"}
+          </Anchor>
+        </Group>
       )}
 
       <Divider mt={20} mb={20} />
@@ -577,6 +692,10 @@ function SearchDocumentResults({
                   {result.reason}
                 </Text>
               )}
+
+              {result.annotations && result.annotations.length > 0 && (
+                <MatchedAnnotations annotations={result.annotations} matchCount={result.matchCount ?? result.annotations.length} />
+              )}
             </Card>
           </Grid.Col>
         ))}
@@ -611,6 +730,52 @@ function SearchDocumentResults({
       ))}
     </>
   )
+}
+
+function MatchedAnnotations({ annotations, matchCount }: { annotations: MatchedAnnotation[], matchCount: number }) {
+  return (
+    <>
+      <Text size="sm" mt={10}>
+        {matchCount === 1 ? "1 matching annotation" : `${matchCount} matching annotations`}
+      </Text>
+
+      <Group gap={6} mt={6}>
+        {annotations.map((annotation) => (
+          <Tooltip
+            key={annotation.id}
+            label={formatAttributes(annotation.attributes) || "No attributes"}
+            multiline
+            maw={320}
+          >
+            <Badge variant="light" color="brand" tt="none">
+              {annotation.entity}: {annotation.text.length > 40 ? `${annotation.text.slice(0, 40)}…` : annotation.text}
+            </Badge>
+          </Tooltip>
+        ))}
+
+        {matchCount > annotations.length && (
+          <Text size="sm" c="dimmed">
+            +{matchCount - annotations.length} more
+          </Text>
+        )}
+      </Group>
+    </>
+  )
+}
+
+function formatAttributes(attributes: Record<string, unknown>): string {
+  return Object.entries(attributes)
+    .map(([name, value]) => `${name}: ${Array.isArray(value) ? value.join(", ") : String(value)}`)
+    .join(" · ")
+}
+
+function isJson(value: string): boolean {
+  try {
+    JSON.parse(value)
+    return true
+  } catch {
+    return false
+  }
 }
 
 export default Document

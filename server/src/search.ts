@@ -1,10 +1,12 @@
 import { HTTPException } from "hono/http-exception"
+import { compileAnnotationQuery } from "./annotationQuery.js"
 import { completeJson } from "./complete.js"
 import { getWorkspaceModelCredentials, getWorkspaceModelRow } from "./model.js"
 import type { WorkspaceModelCredentials } from "./model.js"
 import { searchExpandPrompt, searchJudgePrompt } from "./prompts.js"
 import { supabaseAdmin } from "./supabase.js"
 import {
+  MAX_ANNOTATION_QUERY_LENGTH,
   MAX_SEARCH_QUERY_LENGTH,
   SEARCH_CANDIDATE_LIMIT,
   SEARCH_JUDGE_BATCH_SIZE,
@@ -12,13 +14,24 @@ import {
   SEARCH_JUDGE_DOC_CHARS,
 } from "./types.js"
 
-export type SearchMode = "conceptual" | "keyword"
+export type SearchMode = "conceptual" | "keyword" | "structured"
+
+export interface MatchedAnnotation {
+  id: string
+  entity: string
+  text: string
+  start: number
+  end: number
+  attributes: Record<string, unknown>
+}
 
 export interface DocumentSearchResult {
   id: string
   name: string
   snippet: string
   reason: string | null
+  matchCount?: number
+  annotations?: MatchedAnnotation[]
 }
 
 export interface DocumentSearchResponse {
@@ -47,8 +60,17 @@ export async function searchWorkspaceDocuments(
   input: { query?: unknown, mode?: unknown },
   options: { allowConceptual: boolean },
 ): Promise<DocumentSearchResponse> {
-  const query = parseQuery(input.query)
   const requestedMode = parseMode(input.mode)
+
+  if (requestedMode === "structured") {
+    return {
+      mode: "structured",
+      modelConfigured: false,
+      results: await searchAnnotations(workspaceId, parseQuery(input.query, MAX_ANNOTATION_QUERY_LENGTH)),
+    }
+  }
+
+  const query = parseQuery(input.query, MAX_SEARCH_QUERY_LENGTH)
   const modelRow = options.allowConceptual ? await getWorkspaceModelRow(workspaceId) : null
   const modelConfigured = modelRow !== null
   const useConceptual = requestedMode === "conceptual" && modelConfigured
@@ -83,14 +105,14 @@ export async function searchWorkspaceDocuments(
   }
 }
 
-function parseQuery(value: unknown): string {
+function parseQuery(value: unknown, maxLength: number): string {
   if (typeof value !== "string" || value.trim() === "") {
     throw new HTTPException(400, { message: "query is required" })
   }
 
   const query = value.trim()
 
-  if (query.length > MAX_SEARCH_QUERY_LENGTH) {
+  if (query.length > maxLength) {
     throw new HTTPException(400, { message: "query is too long" })
   }
 
@@ -102,11 +124,63 @@ function parseMode(value: unknown): SearchMode {
     return "conceptual"
   }
 
-  if (value === "keyword") {
-    return "keyword"
+  if (value === "keyword" || value === "structured") {
+    return value
   }
 
-  throw new HTTPException(400, { message: "mode must be conceptual or keyword" })
+  throw new HTTPException(400, { message: "mode must be conceptual, keyword or structured" })
+}
+
+const MAX_ANNOTATIONS_PER_RESULT = 20
+
+async function searchAnnotations(workspaceId: string, query: string): Promise<DocumentSearchResult[]> {
+  const compiled = compileAnnotationQuery(query)
+
+  const { data, error } = await supabaseAdmin.rpc("search_workspace_annotations", {
+    p_workspace_id: workspaceId,
+    p_all: compiled.all,
+    p_none: compiled.none,
+    p_limit: SEARCH_CANDIDATE_LIMIT,
+  })
+
+  if (error) {
+    // Class 22 is data exceptions, e.g. an invalid $regex pattern.
+    if (error.code?.startsWith("22")) {
+      throw new HTTPException(400, { message: `Invalid query: ${error.message}` })
+    }
+
+    console.error("Annotation search failed", error)
+    throw new HTTPException(500, { message: "Failed to search annotations" })
+  }
+
+  const rows = (data ?? []) as Array<{
+    id: string
+    name: string
+    content: string
+    match_count: number
+    annotations: MatchedAnnotation[]
+  }>
+
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    snippet: formatSnippet(annotationSnippet(row.content, row.annotations[0]), row.content),
+    reason: null,
+    matchCount: Number(row.match_count),
+    annotations: row.annotations.slice(0, MAX_ANNOTATIONS_PER_RESULT),
+  }))
+}
+
+function annotationSnippet(content: string, annotation: MatchedAnnotation | undefined): string {
+  if (!annotation || annotation.start < 0 || annotation.end > content.length || annotation.start >= annotation.end) {
+    return content.slice(0, 250)
+  }
+
+  const start = Math.max(0, annotation.start - 125)
+  const end = Math.min(content.length, annotation.end + 125)
+  const clean = (value: string) => value.replaceAll("[[", "[").replaceAll("]]", "]")
+
+  return `${clean(content.slice(start, annotation.start))}[[${clean(content.slice(annotation.start, annotation.end))}]]${clean(content.slice(annotation.end, end))}`
 }
 
 async function expandQuery(

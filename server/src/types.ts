@@ -7,6 +7,8 @@ export const SEARCH_CANDIDATE_LIMIT = 75
 export const SEARCH_JUDGE_BATCH_SIZE = 8
 export const SEARCH_JUDGE_DOC_CHARS = 4_000
 export const SEARCH_JUDGE_CONCURRENCY = 3
+export const MAX_ANNOTATION_QUERY_LENGTH = 4_000
+export const MAX_ANNOTATION_QUERY_CONDITIONS = 50
 
 export interface ConfigAttribute {
   name: string

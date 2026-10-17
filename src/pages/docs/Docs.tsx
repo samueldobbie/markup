@@ -716,6 +716,60 @@ function SearchDocuments() {
         If no model is configured, search falls back to keyword matching.
         Configure AI from workspace settings to enable conceptual search.
       </Text>
+
+      <h3>Search annotations</h3>
+
+      <Text>
+        Switch the search to <b>Annotations</b> to find documents by the
+        annotations already made in the workspace. This does not use the AI
+        model.
+      </Text>
+
+      <Text mt={10}>
+        Each rule picks an entity (or <i>Any entity</i>), optionally text the
+        annotation must contain, and any number of attribute conditions such
+        as <i>Dose ≥ 500</i> or <i>Status is any of active, history</i>. All
+        parts of a rule must hold for the same annotation. Add more rules to
+        require several annotations, or set a rule to <i>Has no annotation</i>{" "}
+        to exclude documents. Comparisons like ≥ are numeric when the value is
+        a number and alphabetical otherwise.
+      </Text>
+
+      <Text mt={10}>
+        For queries the builder cannot express, such as <Code>$or</Code> or{" "}
+        <Code>$regex</Code>, click <b>Edit as JSON</b>. Each annotation is
+        matched as an object with <Code>entity</Code>, <Code>text</Code> and{" "}
+        <Code>attributes.&lt;name&gt;</Code> fields.
+      </Text>
+
+      <Text mt={10}>
+        A plain value matches exactly. Numbers compare numerically even though
+        attribute values are stored as text. Supported operators
+        are <Code>$eq</Code>, <Code>$ne</Code>, <Code>$in</Code>, <Code>$nin</Code>,{" "}
+        <Code>$gt</Code>, <Code>$gte</Code>, <Code>$lt</Code>, <Code>$lte</Code>,{" "}
+        <Code>$exists</Code>, <Code>$contains</Code> (case-insensitive),{" "}
+        <Code>$regex</Code>, and <Code>$and</Code>, <Code>$or</Code>, <Code>$not</Code> to
+        combine conditions on the same annotation.
+      </Text>
+
+      <Text mt={10}>
+        Use an array to require documents to contain a match for every filter,
+        and <Code>$all</Code> / <Code>$none</Code> to exclude documents.
+      </Text>
+
+      <Code block mt={10}>
+{`// Medications with a dose of at least 500
+{"entity": "Medication", "attributes.Dose": {"$gte": 500}}
+
+// Active conditions mentioning diabetes
+{"entity": "Condition", "attributes.Status": "active", "text": {"$contains": "diabetes"}}
+
+// Documents with both a medication and a severe condition
+[{"entity": "Medication"}, {"entity": "Condition", "attributes.Severity": "severe"}]
+
+// Documents with a condition but no medication
+{"$all": [{"entity": "Condition"}], "$none": [{"entity": "Medication"}]}`}
+      </Code>
     </Text>
   )
 }
