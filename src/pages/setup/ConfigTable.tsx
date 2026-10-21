@@ -373,8 +373,6 @@ function ConfigCreatorModal({ configId, configRecord, workspace, openedModal, se
     <Modal
       opened={openedModal}
       onClose={() => {
-        // setEntities([])
-        // setAttributes([])
         setOpenedModal(false)
       }}
       title="Config Creator"

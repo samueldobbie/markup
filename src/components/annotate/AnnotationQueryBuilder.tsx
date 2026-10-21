@@ -72,8 +72,6 @@ function newCondition(): AttributeCondition {
   }
 }
 
-// Builds the JSON filter understood by the server's structured search, or null
-// when no rule is complete enough to search with.
 export function buildAnnotationQuery(rules: QueryRule[]): string | null {
   const all: object[] = []
   const none: object[] = []
@@ -149,8 +147,6 @@ function conditionFilter(condition: AttributeCondition): object | null {
       return { [key]: { $contains: value } }
   }
 
-  // Attribute values have no declared type, so compare numerically whenever
-  // the input looks like a number and fall back to text comparison otherwise.
   const number = Number(value)
   return { [key]: { [COMPARISON_KEYS[condition.operator]!]: Number.isFinite(number) ? number : value } }
 }

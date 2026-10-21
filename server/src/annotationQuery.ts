@@ -1,14 +1,6 @@
 import { HTTPException } from "hono/http-exception"
 import { MAX_ANNOTATION_QUERY_CONDITIONS } from "./types.js"
 
-// Compiles a MongoDB-style JSON filter over annotations into Postgres jsonpath
-// predicates. Each annotation is matched as { entity, text, attributes }.
-//
-// Document-level shapes:
-//   { ...filter }                         documents with an annotation matching filter
-//   [filter, filter]                      documents with a match for every filter
-//   { "$all": [filter], "$none": [filter] }  ...and no annotation matching any $none filter
-
 export interface CompiledAnnotationQuery {
   all: string[]
   none: string[]
@@ -186,7 +178,6 @@ function equals(path: string, value: Json, operator: string): string {
     return `${path} == ${stringLiteral(value)}`
   }
 
-  // Attribute values are stored as strings, so compare numbers numerically.
   if (typeof value === "number") {
     return `${path}.double() == ${numberLiteral(value)}`
   }

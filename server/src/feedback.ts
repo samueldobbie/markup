@@ -206,7 +206,6 @@ function parseStoredConfig(content: string | null): WorkspaceConfigPayload {
       return parsed
     }
   } catch {
-    // Fall through to the empty config.
   }
 
   return {

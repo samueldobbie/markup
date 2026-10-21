@@ -69,7 +69,6 @@ async function getWorkspaces(): Promise<Record<string, Workspace[]>> {
     collaborator: [] as Workspace[],
   }
 
-  // TODO - drop request to workspace_access
 
   const { data: workspaceAccessData, error: workspaceAccessError } = await supabase
     .from("workspace_access")
@@ -156,7 +155,6 @@ async function addWorkspaceDocuments(workspaceId: string, files: File[]): Promis
   return documents
 }
 
-// PostgREST caps each response (1000 rows by default), so large reads are fetched in ranges
 const FETCH_BATCH_SIZE = 1000
 
 async function fetchAllRows<T>(
@@ -179,12 +177,10 @@ async function fetchAllRows<T>(
   }
 }
 
-// Documents are navigated by position, so every paged query must share this total order
 function orderDocuments<T extends { order: (column: string) => T }>(query: T): T {
   return query.order("created_at").order("name").order("id")
 }
 
-// Quote a value for use inside a PostgREST or() filter
 function quoteFilterValue(value: string): string {
   return `"${value.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}"`
 }
@@ -239,7 +235,6 @@ async function getWorkspaceDocumentAt(workspaceId: string, index: number): Promi
   return documents[0] ?? null
 }
 
-// Position of a document in the workspace order, or -1 if it doesn't exist
 async function getWorkspaceDocumentIndex(workspaceId: string, documentId: string): Promise<number> {
   const { data: documents, error: documentError } = await supabase
     .from("workspace_document")
@@ -318,7 +313,6 @@ async function findWorkspaceDocumentForFile(workspaceId: string, fileName: strin
     ).range(from, to)
   ))
 
-  // PostgREST also treats * as a wildcard, so confirm the match exactly
   return candidates.find((document) => fileStem(document.name) === stem) ?? null
 }
 
@@ -504,7 +498,6 @@ export interface WorkspaceExport {
   annotations: WorkspaceAnnotation[][]
 }
 
-// Every document name and annotation in a workspace, without document content
 async function getWorkspaceExport(workspaceId: string): Promise<WorkspaceExport> {
   const [documents, annotations] = await Promise.all([
     fetchAllRows<WorkspaceDocumentName>((from, to) => (

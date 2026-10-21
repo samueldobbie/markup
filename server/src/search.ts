@@ -172,7 +172,6 @@ async function searchAnnotations(workspaceId: string, query: string): Promise<Do
   })
 
   if (error) {
-    // Class 22 is data exceptions, e.g. an invalid $regex pattern.
     if (error.code?.startsWith("22")) {
       throw new HTTPException(400, { message: `Invalid query: ${error.message}` })
     }

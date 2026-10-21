@@ -75,7 +75,6 @@ export const useAnnotateStore = create<AnnotateStore>((set) => ({
   setDocumentCount: (documentCount) => set({ documentCount }),
   setDocumentIndex: (documentIndex) => set({ documentIndex }),
   setDocument: (document, annotations) => set({ document, annotations }),
-  // Ignored if the user has since moved to another document
   updateDocumentAnnotations: (documentId, update) => set((s) => (
     s.document?.id === documentId ? { annotations: update(s.annotations) } : {}
   )),

@@ -24,7 +24,6 @@
 
 .sailImage {
   width: 450px !important;
-  /* Artwork is white; invert so it reads on a light page. */
   filter: grayscale(1) invert(1);
 
   @media (max-width: 456px) {

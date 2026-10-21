@@ -106,7 +106,6 @@ function ConfigureAiModal({
         })
       })
       .catch((e) => notify.error("Failed to load workspace model.", e))
-    // form is not a stable dep from useForm
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openedModal, workspace.id])
 

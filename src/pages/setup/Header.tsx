@@ -164,7 +164,6 @@ function InlineEditableText({
       await onSave(trimmed)
       setEditing(false)
     } catch {
-      // Keep the draft so the user can retry or cancel.
     } finally {
       setSaving(false)
     }

@@ -15,7 +15,6 @@ async function removeAnnotations(change: AnnotationChange) {
   ))
 }
 
-// Restored annotations get new ids, so return a map from old to new for the history to follow
 async function restoreAnnotations(change: AnnotationChange): Promise<Map<string, WorkspaceAnnotation>> {
   const restored = await Promise.all(change.annotations.map((annotation) => (
     database.addWorkspaceAnnotation(annotation.workspace_id, change.documentId, {
