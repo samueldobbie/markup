@@ -1,9 +1,12 @@
+import { Hono } from "hono"
 import { HTTPException } from "hono/http-exception"
 import { compileAnnotationQuery } from "./annotationQuery.js"
+import { AuthVariables, requireWorkspaceReader } from "./auth.js"
 import { completeJson } from "./complete.js"
 import { getWorkspaceModelCredentials, getWorkspaceModelRow } from "./model.js"
 import type { WorkspaceModelCredentials } from "./model.js"
 import { searchExpandPrompt, searchJudgePrompt } from "./prompts.js"
+import { readJsonBody } from "./request.js"
 import { supabaseAdmin } from "./supabase.js"
 import {
   MAX_ANNOTATION_QUERY_LENGTH,
@@ -571,3 +574,14 @@ function escapeHtml(value: string): string {
     .replaceAll(">", "&gt;")
     .replaceAll("\"", "&quot;")
 }
+
+export const searchRoutes = new Hono<{ Variables: Partial<AuthVariables> }>()
+
+searchRoutes.post("/workspaces/:workspaceId/search", async (c) => {
+  const workspaceId = c.req.param("workspaceId")
+  const { isMember } = await requireWorkspaceReader(c.get("userId"), workspaceId)
+
+  const body = await readJsonBody<{ query: unknown, mode: unknown }>(c)
+
+  return c.json(await searchWorkspaceDocuments(workspaceId, body, { allowConceptual: isMember }))
+})

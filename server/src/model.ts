@@ -1,5 +1,8 @@
+import { Hono } from "hono"
 import { HTTPException } from "hono/http-exception"
+import { AuthVariables, requireWorkspaceMember, requireWorkspaceOwner } from "./auth.js"
 import { decryptSecret, encryptSecret, secretLast4 } from "./crypto.js"
+import { readJsonBody } from "./request.js"
 import { supabaseAdmin } from "./supabase.js"
 
 export interface WorkspaceModelRow {
@@ -128,3 +131,41 @@ export async function upsertWorkspaceModel(
 
   return toPublicModel(data)
 }
+
+export const modelRoutes = new Hono<{ Variables: AuthVariables }>()
+
+modelRoutes.get("/workspaces/:workspaceId/model", async (c) => {
+  const workspaceId = c.req.param("workspaceId")
+  await requireWorkspaceMember(c.get("userId"), workspaceId)
+
+  const row = await getWorkspaceModelRow(workspaceId)
+
+  return c.json(row ? toPublicModel(row) : emptyModelConfig())
+})
+
+modelRoutes.put("/workspaces/:workspaceId/model", async (c) => {
+  const workspaceId = c.req.param("workspaceId")
+  await requireWorkspaceOwner(c.get("userId"), workspaceId, "Only the workspace owner can configure AI")
+
+  const body = await readJsonBody<{ baseUrl: unknown, model: unknown, apiKey: unknown }>(c)
+
+  if (typeof body.baseUrl !== "string") {
+    throw new HTTPException(400, { message: "baseUrl must be a string" })
+  }
+
+  if (body.model !== undefined && typeof body.model !== "string") {
+    throw new HTTPException(400, { message: "model must be a string" })
+  }
+
+  if (body.apiKey !== undefined && typeof body.apiKey !== "string") {
+    throw new HTTPException(400, { message: "apiKey must be a string" })
+  }
+
+  const saved = await upsertWorkspaceModel(workspaceId, {
+    baseUrl: body.baseUrl,
+    model: body.model ?? "",
+    apiKey: body.apiKey,
+  })
+
+  return c.json(saved)
+})

@@ -1,4 +1,6 @@
+import { Hono } from "hono"
 import { HTTPException } from "hono/http-exception"
+import { AuthVariables, requireWorkspaceMember } from "./auth.js"
 import { getWorkspaceModelRow } from "./model.js"
 import { supabaseAdmin } from "./supabase.js"
 import { isWorkspaceConfigPayload, WorkspaceConfigPayload } from "./types.js"
@@ -370,3 +372,12 @@ export async function getWorkspaceFeedbackExport(workspaceId: string): Promise<A
     }),
   }
 }
+
+export const feedbackRoutes = new Hono<{ Variables: AuthVariables }>()
+
+feedbackRoutes.get("/workspaces/:workspaceId/feedback", async (c) => {
+  const workspaceId = c.req.param("workspaceId")
+  await requireWorkspaceMember(c.get("userId"), workspaceId)
+
+  return c.json(await getWorkspaceFeedbackExport(workspaceId))
+})
