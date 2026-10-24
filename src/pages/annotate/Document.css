@@ -6,3 +6,24 @@ mark {
 mark:hover {
   opacity: 0.8;
 }
+
+.tutorial-pulse {
+  animation: tutorial-pulse 2s ease-in-out infinite;
+}
+
+@keyframes tutorial-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+
+  50% {
+    box-shadow: 0 0 0 3px var(--mantine-primary-color-light);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-pulse {
+    animation: none;
+    box-shadow: 0 0 0 2px var(--mantine-primary-color-light);
+  }
+}

@@ -12,6 +12,7 @@ import AnnotationQueryBuilder, { buildAnnotationQuery, newQueryRule, QueryRule }
 import { searchWorkspaceDocuments, DocumentSearchResult, MatchedAnnotation } from "utils/Search"
 import { getWorkspaceModel } from "utils/WorkspaceModel"
 import { redoAnnotationChange, undoAnnotationChange } from "utils/AnnotationHistory"
+import { TutorialStep, useTutorialStep } from "storage/state/Tutorial"
 import "./Document.css"
 
 const NAME_PAGE_SIZE = 50
@@ -44,6 +45,7 @@ function Document({ workspace }: SectionProps) {
   const canUndo = useAnnotateStore((s) => s.undoStack.length > 0)
   const canRedo = useAnnotateStore((s) => s.redoStack.length > 0)
   const resetAnnotationHistory = useAnnotateStore((s) => s.resetAnnotationHistory)
+  const tutorialStep = useTutorialStep()
   const [openedSearchDocumentModal, setOpenedSearchDocumentModal] = useState(false)
   const [inlineAnnotations, setInlineAnnotations] = useState<InlineAnnotation[]>([])
   const [loadingDocuments, setLoadingDocuments] = useState(true)
@@ -171,7 +173,12 @@ function Document({ workspace }: SectionProps) {
 
   return (
     <>
-      <Card shadow="xs" radius={5} p="xl">
+      <Card
+        shadow="xs"
+        radius={5}
+        p="xl"
+        className={tutorialStep === TutorialStep.SelectText ? "tutorial-pulse" : undefined}
+      >
         <ScrollArea scrollbarSize={0} style={{ height: "76vh" }}>
           {loadingDocuments && (
             <Center h="76vh">

@@ -14,7 +14,6 @@ export interface AnnotationChange {
 }
 
 interface AnnotateStore {
-  activeTutorialStep: number
   config: IConfig
   activeEntity: string
   entityColours: Record<string, string>
@@ -28,7 +27,6 @@ interface AnnotateStore {
   pendingSuggestion: DocumentAnnotationSuggestion | null
   undoStack: AnnotationChange[]
   redoStack: AnnotationChange[]
-  setActiveTutorialStep: (activeTutorialStep: number) => void
   setConfig: (config: IConfig) => void
   setActiveEntity: (activeEntity: string) => void
   setEntityColours: (entityColours: Record<string, string>) => void
@@ -46,7 +44,6 @@ interface AnnotateStore {
 }
 
 export const useAnnotateStore = create<AnnotateStore>((set) => ({
-  activeTutorialStep: 0,
   config: {
     entities: [],
     globalAttributes: [],
@@ -66,7 +63,6 @@ export const useAnnotateStore = create<AnnotateStore>((set) => ({
   pendingSuggestion: null,
   undoStack: [],
   redoStack: [],
-  setActiveTutorialStep: (activeTutorialStep) => set({ activeTutorialStep }),
   setConfig: (config) => set({ config }),
   setActiveEntity: (activeEntity) => set({ activeEntity }),
   setEntityColours: (entityColours) => set({ entityColours }),

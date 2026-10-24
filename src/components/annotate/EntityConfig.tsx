@@ -12,8 +12,6 @@ function EntityConfig({ config }: Props) {
   const [entityNames, setEntityNames] = useState<string[]>([])
   const activeEntity = useAnnotateStore((s) => s.activeEntity)
   const setActiveEntity = useAnnotateStore((s) => s.setActiveEntity)
-  const activeTutorialStep = useAnnotateStore((s) => s.activeTutorialStep)
-  const setActiveTutorialStep = useAnnotateStore((s) => s.setActiveTutorialStep)
   const entityColours = useAnnotateStore((s) => s.entityColours)
   const setEntityColours = useAnnotateStore((s) => s.setEntityColours)
 
@@ -31,13 +29,7 @@ function EntityConfig({ config }: Props) {
     <Group mb={20}>
       <Radio.Group
         name="entities"
-        onChange={(e) => {
-          setActiveEntity(e)
-
-          if (activeTutorialStep === 0) {
-            setActiveTutorialStep(1)
-          }
-        }}
+        onChange={setActiveEntity}
         value={activeEntity}
       >
         <Group gap="xs">

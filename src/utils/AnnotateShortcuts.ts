@@ -66,10 +66,6 @@ export function useAnnotateShortcuts() {
       if (entity) {
         event.preventDefault()
         state.setActiveEntity(entity.name)
-
-        if (state.activeTutorialStep === 0) {
-          state.setActiveTutorialStep(1)
-        }
       }
     }
   })

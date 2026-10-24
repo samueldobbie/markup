@@ -9,9 +9,9 @@ import Document from "./Document"
 import Config from "./Config"
 import notify from "utils/Notifications"
 import InvalidWorkspace from "pages/error/InvalidWorkspace"
-import Tutorial from "./Tutorial"
 import { DEMO_IDS } from "utils/Demo"
 import { useAnnotateShortcuts } from "utils/AnnotateShortcuts"
+import { useTutorialStore } from "storage/state/Tutorial"
 
 export interface SectionProps {
   workspace: Workspace
@@ -22,7 +22,7 @@ function Annotate() {
 
   const [invalidWorkspace, setInvalidWorkspace] = useState(false)
   const [workspace, setWorkspace] = useState<Workspace>()
-  const [isDemoWorkspace, setIsDemoWorkspace] = useState(false)
+  const setTutorialEnabled = useTutorialStore((s) => s.setEnabled)
 
   useAnnotateShortcuts()
 
@@ -50,10 +50,10 @@ function Annotate() {
   }, [id])
 
   useEffect(() => {
-    if (id) {
-      setIsDemoWorkspace(DEMO_IDS.includes(id))
-    }
-  }, [id])
+    setTutorialEnabled(id !== undefined && DEMO_IDS.includes(id))
+
+    return () => setTutorialEnabled(false)
+  }, [id, setTutorialEnabled])
 
   return (
     <>
@@ -65,12 +65,6 @@ function Annotate() {
         <Container style={{ width: "98%", maxWidth: "98%" }}>
           {workspace &&
             <Grid>
-              {isDemoWorkspace && (
-                <Grid.Col span={12}>
-                  <Tutorial />
-                </Grid.Col>
-              )}
-
               <Grid.Col span={{ md: 3 }}>
                 <Config workspace={workspace} />
               </Grid.Col>

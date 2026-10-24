@@ -1,5 +1,6 @@
 import { useAnnotateStore } from "storage/state/Annotate"
-import { Button, Card, Code, Grid, Group, ScrollArea, Select, Text } from "@mantine/core"
+import { Anchor, Button, Card, Code, Grid, Group, ScrollArea, Select, Text } from "@mantine/core"
+import { notifications } from "@mantine/notifications"
 import { RawAnnotation, database } from "storage/database/Database"
 import { useState, useEffect } from "react"
 import { SectionProps } from "./Annotate"
@@ -9,9 +10,12 @@ import notify from "utils/Notifications"
 import Title from "components/title/Title"
 import EntityConfig from "components/annotate/EntityConfig"
 import AttributeConfig, { SelectData } from "components/annotate/AttributeConfig"
-import { IconNumber1, IconNumber2, IconNumber3, IconNumber4 } from "@tabler/icons-react"
+import { IconConfetti, IconNumber1, IconNumber2, IconNumber3, IconNumber4 } from "@tabler/icons-react"
 import { suggestAttributes, suggestEntity } from "utils/Suggest"
 import { annotationFeedbackAction, logAnnotationFeedback, toFeedbackSpan } from "utils/AnnotationFeedback"
+import TutorialHint from "components/annotate/TutorialHint"
+import { TutorialStep, useTutorialStep, useTutorialStore } from "storage/state/Tutorial"
+import { Path } from "utils/Path"
 
 function isAbortError(error: unknown): boolean {
   return error instanceof DOMException && error.name === "AbortError"
@@ -41,8 +45,10 @@ function Config({ workspace }: SectionProps) {
   const document = useAnnotateStore((s) => s.document)
   const updateDocumentAnnotations = useAnnotateStore((s) => s.updateDocumentAnnotations)
   const recordAnnotationChange = useAnnotateStore((s) => s.recordAnnotationChange)
-  const activeTutorialStep = useAnnotateStore((s) => s.activeTutorialStep)
-  const setActiveTutorialStep = useAnnotateStore((s) => s.setActiveTutorialStep)
+  const tutorialStep = useTutorialStep()
+  const tutorialEnabled = useTutorialStore((s) => s.enabled)
+  const tutorialCompleted = useTutorialStore((s) => s.completed)
+  const setTutorialCompleted = useTutorialStore((s) => s.setCompleted)
   const [selectedText, setSelectedText] = useState("")
   const [suggestedEntity, setSuggestedEntity] = useState("")
   const [suggestedAttributes, setSuggestedAttributes] = useState<Record<string, string>>({})
@@ -213,6 +219,11 @@ function Config({ workspace }: SectionProps) {
     database
       .addWorkspaceAnnotation(workspace.id, documentId, rawAnnotation)
       .then((annotation) => {
+        if (tutorialStep !== null) {
+          setTutorialCompleted(true)
+          showTutorialCompleted()
+        }
+
         updateDocumentAnnotations(documentId, (annotations) => [...annotations, annotation])
         recordAnnotationChange({ type: "add", documentId, annotations: [annotation] })
 
@@ -230,10 +241,6 @@ function Config({ workspace }: SectionProps) {
         }
       })
       .catch((e) => notify.error("Failed to add annotation.", e))
-
-    if (activeTutorialStep === 1) {
-      setActiveTutorialStep(3)
-    }
 
     setSelectedText("")
     setActiveEntity("")
@@ -269,11 +276,17 @@ function Config({ workspace }: SectionProps) {
           </Grid.Col>
 
           <Grid.Col span={12}>
-            <Text style={{ padding: 5 }}>
-              <Code className="highlight-chip">
-                {selectedText === "" ? "Highlight the text you want to annotate." : selectedText}
-              </Code>
-            </Text>
+            <TutorialHint
+              step={TutorialStep.SelectText}
+              title="Highlight some text"
+              description="Click and drag over a span of text in the document, such as a name or a medication."
+            >
+              <Text style={{ padding: 5 }}>
+                <Code className="highlight-chip">
+                  {selectedText === "" ? "Highlight the text you want to annotate." : selectedText}
+                </Code>
+              </Text>
+            </TutorialHint>
           </Grid.Col>
 
           <Grid.Col span={12} pb={0}>
@@ -308,7 +321,13 @@ function Config({ workspace }: SectionProps) {
               </Button>
             </Group>
 
-            <EntityConfig config={config} />
+            <TutorialHint
+              step={TutorialStep.SelectEntity}
+              title="Pick what it is"
+              description="Choose the entity that describes the text you highlighted, e.g. “Person”. Attributes below are optional."
+            >
+              <EntityConfig config={config} />
+            </TutorialHint>
           </Grid.Col>
 
           <Grid.Col span={12} pb={0}>
@@ -412,14 +431,45 @@ function Config({ workspace }: SectionProps) {
           </Grid.Col>
 
           <Grid.Col span={12}>
-            <Button fullWidth onClick={() => addAnnotation()}>
-              Add annotation
-            </Button>
+            <TutorialHint
+              step={TutorialStep.AddAnnotation}
+              title="Save the annotation"
+              description="Optionally fill in attributes or an ontology concept, then add the annotation."
+            >
+              <Button fullWidth onClick={() => addAnnotation()}>
+                Add annotation
+              </Button>
+            </TutorialHint>
           </Grid.Col>
+
+          {tutorialEnabled && tutorialCompleted && (
+            <Grid.Col span={12}>
+              <Group justify="center">
+                <Anchor size="xs" c="dimmed" component="button" type="button" onClick={() => setTutorialCompleted(false)}>
+                  Restart tutorial
+                </Anchor>
+              </Group>
+            </Grid.Col>
+          )}
         </Grid>
       </ScrollArea>
     </Card>
   )
+}
+
+function showTutorialCompleted() {
+  notifications.show({
+    title: "That's your first annotation",
+    message: (
+      <>
+        That's all it takes. For more complex workflows, read
+        the <Anchor href={Path.Docs} target="_blank" size="sm">docs</Anchor>.
+      </>
+    ),
+    color: "green",
+    icon: <IconConfetti />,
+    autoClose: 8000,
+  })
 }
 
 export default Config
