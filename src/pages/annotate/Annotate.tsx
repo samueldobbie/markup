@@ -22,7 +22,7 @@ function Annotate() {
 
   const [invalidWorkspace, setInvalidWorkspace] = useState(false)
   const [workspace, setWorkspace] = useState<Workspace>()
-  const setTutorialEnabled = useTutorialStore((s) => s.setEnabled)
+  const setTutorialActive = useTutorialStore((s) => s.setActive)
 
   useAnnotateShortcuts()
 
@@ -50,10 +50,12 @@ function Annotate() {
   }, [id])
 
   useEffect(() => {
-    setTutorialEnabled(id !== undefined && DEMO_IDS.includes(id))
+    // Start the tutorial automatically in demo workspaces; elsewhere it's opt-in
+    const isDemoWorkspace = id !== undefined && DEMO_IDS.includes(id)
+    setTutorialActive(isDemoWorkspace && !useTutorialStore.getState().completed)
 
-    return () => setTutorialEnabled(false)
-  }, [id, setTutorialEnabled])
+    return () => setTutorialActive(false)
+  }, [id, setTutorialActive])
 
   return (
     <>

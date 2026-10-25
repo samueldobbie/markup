@@ -1,26 +1,30 @@
 import type { ReactNode } from "react"
-import { Anchor, Box, Group, Popover, Text } from "@mantine/core"
+import { Anchor, Box, FloatingPosition, Group, Popover, Text } from "@mantine/core"
 import { TutorialStep, useTutorialStep, useTutorialStore } from "storage/state/Tutorial"
+import "./TutorialHint.css"
 
 interface Props {
   step: TutorialStep
   title: string
   description: string
+  position?: FloatingPosition
   children: ReactNode
 }
 
 const STEP_COUNT = Object.keys(TutorialStep).length / 2
 
-function TutorialHint({ step, title, description, children }: Props) {
+function TutorialHint({ step, title, description, position = "right", children }: Props) {
   const activeStep = useTutorialStep()
-  const setCompleted = useTutorialStore((s) => s.setCompleted)
+  const finish = useTutorialStore((s) => s.finish)
 
   return (
     <Popover
       opened={activeStep === step}
-      position="right"
+      position={position}
       withArrow
-      shadow="md"
+      arrowSize={16}
+      arrowOffset={20}
+      offset={14}
       width={260}
       zIndex={150}
     >
@@ -28,8 +32,8 @@ function TutorialHint({ step, title, description, children }: Props) {
         <Box>{children}</Box>
       </Popover.Target>
 
-      <Popover.Dropdown>
-        <Text size="xs" c="dimmed">
+      <Popover.Dropdown className="tutorial-hint">
+        <Text size="xs" opacity={0.8}>
           Step {step + 1} of {STEP_COUNT}
         </Text>
 
@@ -42,7 +46,7 @@ function TutorialHint({ step, title, description, children }: Props) {
         </Text>
 
         <Group justify="flex-end" mt="xs">
-          <Anchor size="xs" c="dimmed" component="button" type="button" onClick={() => setCompleted(true)}>
+          <Anchor size="xs" c="white" opacity={0.8} component="button" type="button" onClick={finish}>
             Skip tutorial
           </Anchor>
         </Group>

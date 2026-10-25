@@ -1,5 +1,5 @@
 import { useAnnotateStore } from "storage/state/Annotate"
-import { Anchor, Button, Card, Code, Grid, Group, ScrollArea, Select, Text } from "@mantine/core"
+import { Anchor, Button, Card, Code, Grid, Group, ScrollArea, Select, Stack, Text } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { RawAnnotation, database } from "storage/database/Database"
 import { useState, useEffect } from "react"
@@ -46,9 +46,7 @@ function Config({ workspace }: SectionProps) {
   const updateDocumentAnnotations = useAnnotateStore((s) => s.updateDocumentAnnotations)
   const recordAnnotationChange = useAnnotateStore((s) => s.recordAnnotationChange)
   const tutorialStep = useTutorialStep()
-  const tutorialEnabled = useTutorialStore((s) => s.enabled)
-  const tutorialCompleted = useTutorialStore((s) => s.completed)
-  const setTutorialCompleted = useTutorialStore((s) => s.setCompleted)
+  const finishTutorial = useTutorialStore((s) => s.finish)
   const [selectedText, setSelectedText] = useState("")
   const [suggestedEntity, setSuggestedEntity] = useState("")
   const [suggestedAttributes, setSuggestedAttributes] = useState<Record<string, string>>({})
@@ -220,7 +218,7 @@ function Config({ workspace }: SectionProps) {
       .addWorkspaceAnnotation(workspace.id, documentId, rawAnnotation)
       .then((annotation) => {
         if (tutorialStep !== null) {
-          setTutorialCompleted(true)
+          finishTutorial()
           showTutorialCompleted()
         }
 
@@ -253,216 +251,202 @@ function Config({ workspace }: SectionProps) {
 
   return (
     <Card shadow="xs" radius={5} p="xl">
-      <ScrollArea scrollbarSize={0} style={{ height: "76vh" }}>
-        <Grid>
-          {pendingSuggestion && (
+      {/* Keeps the same overall height as the document panel, with the scrollable
+          fields taking whatever space the pinned button leaves */}
+      <Stack h="76vh" gap="md">
+        <ScrollArea scrollbarSize={0} style={{ flex: 1, minHeight: 0 }}>
+          <Grid>
+            {pendingSuggestion && (
+              <Grid.Col span={12}>
+                <Text size="sm" c="dimmed">
+                  Reviewing suggestion. Edit the entity, attributes, or ontology, then add the annotation.
+                </Text>
+              </Grid.Col>
+            )}
+
             <Grid.Col span={12}>
-              <Text size="sm" c="dimmed">
-                Reviewing suggestion. Edit the entity, attributes, or ontology, then add the annotation.
-              </Text>
+              <Group justify="space-between">
+                <Title
+                  text="Select text"
+                  description="Highlight the document text you want to annotate."
+                  open={true}
+                  setOpen={() => { }}
+                  number={<IconNumber1 size={15} color="gray" />}
+                />
+              </Group>
             </Grid.Col>
-          )}
 
-          <Grid.Col span={12}>
-            <Group justify="space-between">
-              <Title
-                text="Select text"
-                description="Highlight the document text you want to annotate."
-                open={true}
-                setOpen={() => { }}
-                number={<IconNumber1 size={15} color="gray" />}
-              />
-            </Group>
-          </Grid.Col>
-
-          <Grid.Col span={12}>
-            <TutorialHint
-              step={TutorialStep.SelectText}
-              title="Highlight some text"
-              description="Click and drag over a span of text in the document, such as a name or a medication."
-            >
+            <Grid.Col span={12}>
               <Text style={{ padding: 5 }}>
                 <Code className="highlight-chip">
                   {selectedText === "" ? "Highlight the text you want to annotate." : selectedText}
                 </Code>
               </Text>
-            </TutorialHint>
-          </Grid.Col>
+            </Grid.Col>
 
-          <Grid.Col span={12} pb={0}>
-            <Group justify="space-between">
-              <Title
-                text="Select entity"
-                description="The high-level concept you are annotating."
-                open={entitySectionOpen}
-                setOpen={setEntitySectionOpen}
-                number={<IconNumber2 size={15} color="gray" />}
-              />
-            </Group>
-          </Grid.Col>
-
-          <Grid.Col span={12}>
-            <Group justify="flex-start" gap={4} mb={10}>
-              <Text size="xs">
-                Suggested:
-              </Text>
-
-              <Button
-                variant="subtle"
-                size="xs"
-                p={0}
-                onClick={() => {
-                  if (suggestedEntity !== "") {
-                    setActiveEntity(suggestedEntity)
-                  }
-                }}
-              >
-                {suggestedEntity === "" ? "NA" : suggestedEntity}
-              </Button>
-            </Group>
-
-            <TutorialHint
-              step={TutorialStep.SelectEntity}
-              title="Pick what it is"
-              description="Choose the entity that describes the text you highlighted, e.g. “Person”. Attributes below are optional."
-            >
-              <EntityConfig config={config} />
-            </TutorialHint>
-          </Grid.Col>
-
-          <Grid.Col span={12} pb={0}>
-            <Group justify="space-between">
-              <Title
-                text="Add attributes"
-                description="The specific properties of the entity."
-                open={attributeSectionOpen}
-                setOpen={setAttributeSectionOpen}
-                number={<IconNumber3 size={15} color="gray" />}
-              />
-            </Group>
-          </Grid.Col>
-
-          <Grid.Col span={12}>
-            <Group justify="flex-start" gap={4} mb={10}>
-              <Text size="xs">
-                Suggested:
-              </Text>
-
-              {Object.keys(suggestedAttributes).length === 0 && (
-                <Button
-                  variant="subtle"
-                  size="xs"
-                  p={0}
-                >
-                  NA
-                </Button>
-              )}
-
-              {Object.keys(suggestedAttributes).map((attribute) => (
-                <Button
-                  key={attribute}
-                  variant="subtle"
-                  size="xs"
-                  p={0}
-                  mr={5}
-                  onClick={() => {
-                    const copy = { ...populatedAttributes }
-                    copy[attribute] = suggestedAttributes[attribute]
-                    setPopulatedAttributes(copy)
-                  }}
-                >
-                  {attribute} ({suggestedAttributes[attribute]})
-                </Button>
-              ))}
-            </Group>
-
-            <AttributeConfig config={config} />
-          </Grid.Col>
-
-          <Grid.Col span={12}>
-            <Group justify="space-between">
-              <Title
-                text="Ontology"
-                description="The concept you want to map to the entity."
-                open={ontologySectionOpen}
-                setOpen={setOntologySectionOpen}
-                number={<IconNumber4 size={15} color="gray" />}
-              />
-            </Group>
-          </Grid.Col>
-
-          <Grid.Col span={12}>
-            <Group mb={20}>
-              <Grid style={{ width: "100%" }}>
-                <Grid.Col span={12}>
-                  <Select
-                    data={availableOntologies}
-                    placeholder="Ontology"
-                    size="sm"
-                    searchable
-                    onChange={setSelectedOntologyId}
-                  />
-                </Grid.Col>
-
-                <Grid.Col span={12}>
-                  <Select
-                    data={selectedOntologyConcepts.map(concept => {
-                      return {
-                        label: `${concept.name} (${concept.code})`,
-                        value: concept.code,
-                      }
-                    })}
-                    placeholder="Concept"
-                    size="sm"
-                    searchable
-                    clearable
-                    onChange={(code) => {
-                      const name = selectedOntologyConcepts.find(concept => concept.code === code)?.name
-
-                      setActiveOntologyConcept({
-                        code: code ?? "",
-                        name: name ?? "",
-                      })
-                    }}
-                  />
-                </Grid.Col>
-              </Grid>
-            </Group>
-          </Grid.Col>
-
-          <Grid.Col span={12}>
-            <TutorialHint
-              step={TutorialStep.AddAnnotation}
-              title="Save the annotation"
-              description="Optionally fill in attributes or an ontology concept, then add the annotation."
-            >
-              <Button fullWidth onClick={() => addAnnotation()}>
-                Add annotation
-              </Button>
-            </TutorialHint>
-          </Grid.Col>
-
-          {tutorialEnabled && tutorialCompleted && (
-            <Grid.Col span={12}>
-              <Group justify="center">
-                <Anchor size="xs" c="dimmed" component="button" type="button" onClick={() => setTutorialCompleted(false)}>
-                  Restart tutorial
-                </Anchor>
+            <Grid.Col span={12} pb={0}>
+              <Group justify="space-between">
+                <Title
+                  text="Select entity"
+                  description="The high-level concept you are annotating."
+                  open={entitySectionOpen}
+                  setOpen={setEntitySectionOpen}
+                  number={<IconNumber2 size={15} color="gray" />}
+                />
               </Group>
             </Grid.Col>
-          )}
-        </Grid>
-      </ScrollArea>
+
+            <Grid.Col span={12}>
+              <Group justify="flex-start" gap={4} mb={10}>
+                <Text size="xs">
+                  Suggested:
+                </Text>
+
+                <Button
+                  variant="subtle"
+                  size="xs"
+                  p={0}
+                  onClick={() => {
+                    if (suggestedEntity !== "") {
+                      setActiveEntity(suggestedEntity)
+                    }
+                  }}
+                >
+                  {suggestedEntity === "" ? "NA" : suggestedEntity}
+                </Button>
+              </Group>
+
+              <TutorialHint
+                step={TutorialStep.SelectEntity}
+                title="Pick what it is"
+                description="Choose the entity that describes the text you highlighted, e.g. “Person”. Attributes below are optional."
+              >
+                <EntityConfig config={config} />
+              </TutorialHint>
+            </Grid.Col>
+
+            <Grid.Col span={12} pb={0}>
+              <Group justify="space-between">
+                <Title
+                  text="Add attributes"
+                  description="The specific properties of the entity."
+                  open={attributeSectionOpen}
+                  setOpen={setAttributeSectionOpen}
+                  number={<IconNumber3 size={15} color="gray" />}
+                />
+              </Group>
+            </Grid.Col>
+
+            <Grid.Col span={12}>
+              <Group justify="flex-start" gap={4} mb={10}>
+                <Text size="xs">
+                  Suggested:
+                </Text>
+
+                {Object.keys(suggestedAttributes).length === 0 && (
+                  <Button
+                    variant="subtle"
+                    size="xs"
+                    p={0}
+                  >
+                    NA
+                  </Button>
+                )}
+
+                {Object.keys(suggestedAttributes).map((attribute) => (
+                  <Button
+                    key={attribute}
+                    variant="subtle"
+                    size="xs"
+                    p={0}
+                    mr={5}
+                    onClick={() => {
+                      const copy = { ...populatedAttributes }
+                      copy[attribute] = suggestedAttributes[attribute]
+                      setPopulatedAttributes(copy)
+                    }}
+                  >
+                    {attribute} ({suggestedAttributes[attribute]})
+                  </Button>
+                ))}
+              </Group>
+
+              <AttributeConfig config={config} />
+            </Grid.Col>
+
+            <Grid.Col span={12}>
+              <Group justify="space-between">
+                <Title
+                  text="Ontology"
+                  description="The concept you want to map to the entity."
+                  open={ontologySectionOpen}
+                  setOpen={setOntologySectionOpen}
+                  number={<IconNumber4 size={15} color="gray" />}
+                />
+              </Group>
+            </Grid.Col>
+
+            <Grid.Col span={12}>
+              <Group mb={20}>
+                <Grid style={{ width: "100%" }}>
+                  <Grid.Col span={12}>
+                    <Select
+                      data={availableOntologies}
+                      placeholder="Ontology"
+                      size="sm"
+                      searchable
+                      onChange={setSelectedOntologyId}
+                    />
+                  </Grid.Col>
+
+                  <Grid.Col span={12}>
+                    <Select
+                      data={selectedOntologyConcepts.map(concept => {
+                        return {
+                          label: `${concept.name} (${concept.code})`,
+                          value: concept.code,
+                        }
+                      })}
+                      placeholder="Concept"
+                      size="sm"
+                      searchable
+                      clearable
+                      onChange={(code) => {
+                        const name = selectedOntologyConcepts.find(concept => concept.code === code)?.name
+
+                        setActiveOntologyConcept({
+                          code: code ?? "",
+                          name: name ?? "",
+                        })
+                      }}
+                    />
+                  </Grid.Col>
+                </Grid>
+              </Group>
+            </Grid.Col>
+          </Grid>
+        </ScrollArea>
+
+        <TutorialHint
+          step={TutorialStep.AddAnnotation}
+          title="Save the annotation"
+          description="Optionally fill in attributes or an ontology concept, then add the annotation."
+        >
+          <Button fullWidth onClick={() => addAnnotation()}>
+            Add annotation
+          </Button>
+        </TutorialHint>
+      </Stack>
     </Card>
   )
 }
 
 function showTutorialCompleted() {
   notifications.show({
-    title: "That's your first annotation",
+    title: "Tutorial complete",
     message: (
       <>
-        That's all it takes. For more complex workflows, read
+        That's all it takes to add an annotation. For more complex workflows, read
         the <Anchor href={Path.Docs} target="_blank" size="sm">docs</Anchor>.
       </>
     ),

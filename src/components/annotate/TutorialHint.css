@@ -1,0 +1,28 @@
+/* Qualified with Mantine's static class to beat its colour-scheme rules, which
+   have equal specificity and load after this file */
+.mantine-Popover-dropdown.tutorial-hint {
+  --popover-border-color: var(--mantine-primary-color-filled);
+  background-color: var(--mantine-primary-color-filled);
+  color: var(--mantine-color-white);
+  animation: tutorial-hint-pulse 1.8s ease-out infinite;
+}
+
+@keyframes tutorial-hint-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--mantine-primary-color-filled) 60%, transparent);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px color-mix(in srgb, var(--mantine-primary-color-filled) 0%, transparent);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mantine-Popover-dropdown.tutorial-hint {
+    animation: none;
+  }
+}

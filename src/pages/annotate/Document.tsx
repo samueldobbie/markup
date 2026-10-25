@@ -1,6 +1,6 @@
 import { useAnnotateStore } from "storage/state/Annotate"
 import { ActionIcon, Anchor, Badge, Button, Card, Center, Divider, Grid, Group, Loader, Modal, Pagination, ScrollArea, SegmentedControl, Select, Textarea, TextInput, Text, Tooltip } from "@mantine/core"
-import { IconArrowBackUp, IconArrowForwardUp, IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight, IconSearch } from "@tabler/icons-react"
+import { IconArrowBackUp, IconArrowForwardUp, IconChevronLeft, IconHelp, IconChevronRight, IconChevronsLeft, IconChevronsRight, IconSearch } from "@tabler/icons-react"
 import { database, WorkspaceDocument, WorkspaceDocumentName } from "storage/database/Database"
 import { useEffect, useState } from "react"
 import { SectionProps } from "./Annotate"
@@ -12,7 +12,8 @@ import AnnotationQueryBuilder, { buildAnnotationQuery, newQueryRule, QueryRule }
 import { searchWorkspaceDocuments, DocumentSearchResult, MatchedAnnotation } from "utils/Search"
 import { getWorkspaceModel } from "utils/WorkspaceModel"
 import { redoAnnotationChange, undoAnnotationChange } from "utils/AnnotationHistory"
-import { TutorialStep, useTutorialStep } from "storage/state/Tutorial"
+import { TutorialStep, useTutorialStep, useTutorialStore } from "storage/state/Tutorial"
+import TutorialHint from "components/annotate/TutorialHint"
 import "./Document.css"
 
 const NAME_PAGE_SIZE = 50
@@ -46,6 +47,7 @@ function Document({ workspace }: SectionProps) {
   const canRedo = useAnnotateStore((s) => s.redoStack.length > 0)
   const resetAnnotationHistory = useAnnotateStore((s) => s.resetAnnotationHistory)
   const tutorialStep = useTutorialStep()
+  const setTutorialActive = useTutorialStore((s) => s.setActive)
   const [openedSearchDocumentModal, setOpenedSearchDocumentModal] = useState(false)
   const [inlineAnnotations, setInlineAnnotations] = useState<InlineAnnotation[]>([])
   const [loadingDocuments, setLoadingDocuments] = useState(true)
@@ -297,6 +299,19 @@ function Document({ workspace }: SectionProps) {
                       <IconArrowForwardUp size={16} />
                     </ActionIcon>
                   </Tooltip>
+
+                  <Tooltip label="Show tutorial">
+                    <ActionIcon
+                      size="lg"
+                      color="brand"
+                      variant="transparent"
+                      onClick={() => setTutorialActive(true)}
+                      disabled={tutorialStep !== null}
+                      aria-label="Show tutorial"
+                    >
+                      <IconHelp size={16} />
+                    </ActionIcon>
+                  </Tooltip>
                 </Group>
               </Grid.Col>
 
@@ -320,28 +335,35 @@ function Document({ workspace }: SectionProps) {
                 )}
 
                 {!loadingDocument && document && (
-                  <TextAnnotateBlend
-                    content={document.content}
-                    value={inlineAnnotations}
-                    onChange={(updated) => {
-                      if (annotations.length >= updated.length || updated.length === 0) {
-                        return
-                      }
-
-                      setPendingSuggestion(null)
-                      setProposedAnnotation(updated[updated.length - 1])
-                    }}
-                    getSpan={(span) => ({
-                      tag: activeEntity,
-                      color: entityColours[activeEntity],
-                      start: span.start,
-                      end: span.end,
-                    })}
-                    style={{
-                      fontSize: "1.1rem",
-                      whiteSpace: "pre-line",
-                    }}
-                  />
+                  <TutorialHint
+                    step={TutorialStep.SelectText}
+                    title="Highlight some text"
+                    description="Click and drag over a span of text in this document, such as a name or a medication."
+                    position="left-start"
+                  >
+                    <TextAnnotateBlend
+                      content={document.content}
+                      value={inlineAnnotations}
+                      onChange={(updated) => {
+                        if (annotations.length >= updated.length || updated.length === 0) {
+                          return
+                        }
+  
+                        setPendingSuggestion(null)
+                        setProposedAnnotation(updated[updated.length - 1])
+                      }}
+                      getSpan={(span) => ({
+                        tag: activeEntity,
+                        color: entityColours[activeEntity],
+                        start: span.start,
+                        end: span.end,
+                      })}
+                      style={{
+                        fontSize: "1.1rem",
+                        whiteSpace: "pre-line",
+                      }}
+                    />
+                  </TutorialHint>
                 )}
               </Grid.Col>
             </Grid>

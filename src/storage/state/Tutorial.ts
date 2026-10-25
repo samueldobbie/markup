@@ -9,19 +9,19 @@ export enum TutorialStep {
 }
 
 interface TutorialStore {
-  enabled: boolean
+  active: boolean
   completed: boolean
-  setEnabled: (enabled: boolean) => void
-  setCompleted: (completed: boolean) => void
+  setActive: (active: boolean) => void
+  finish: () => void
 }
 
 export const useTutorialStore = create<TutorialStore>()(
   persist(
     (set) => ({
-      enabled: false,
+      active: false,
       completed: false,
-      setEnabled: (enabled) => set({ enabled }),
-      setCompleted: (completed) => set({ completed }),
+      setActive: (active) => set({ active }),
+      finish: () => set({ active: false, completed: true }),
     }),
     {
       name: "markup-annotate-tutorial",
@@ -33,12 +33,11 @@ export const useTutorialStore = create<TutorialStore>()(
 // The step is derived from what the user has actually done, so it can't drift
 // out of sync with the annotation flow (e.g. picking an entity before any text).
 export function useTutorialStep(): TutorialStep | null {
-  const enabled = useTutorialStore((s) => s.enabled)
-  const completed = useTutorialStore((s) => s.completed)
+  const active = useTutorialStore((s) => s.active)
   const hasSelection = useAnnotateStore((s) => s.proposedAnnotation !== null)
   const hasEntity = useAnnotateStore((s) => s.activeEntity !== "")
 
-  if (!enabled || completed) {
+  if (!active) {
     return null
   }
 
