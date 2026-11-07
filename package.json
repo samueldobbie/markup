@@ -14,6 +14,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "predev:api": "supabase migration up",
     "dev:api": "tsx watch server/src/index.ts",
     "start:api": "tsx server/src/index.ts",
     "start": "vite",
