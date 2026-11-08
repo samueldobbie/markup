@@ -1,7 +1,7 @@
 import { useAnnotateStore } from "storage/state/Annotate"
 import { Anchor, Button, Card, Code, Grid, Group, ScrollArea, Select, Stack, Text } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
-import { RawAnnotation, database } from "storage/database/Database"
+import { RawAnnotation, WorkspaceAnnotation, database } from "storage/database/Database"
 import { useState, useEffect } from "react"
 import { SectionProps } from "./Annotate"
 import { parseJsonConfig } from "pages/annotate/ParseJsonConfig"
@@ -16,6 +16,7 @@ import { annotationFeedbackAction, logAnnotationFeedback, toFeedbackSpan } from 
 import TutorialHint from "components/annotate/TutorialHint"
 import { TutorialStep, useTutorialStep, useTutorialStore } from "storage/state/Tutorial"
 import { Path } from "utils/Path"
+import { deleteAnnotation } from "utils/AnnotationHistory"
 
 function isAbortError(error: unknown): boolean {
   return error instanceof DOMException && error.name === "AbortError"
@@ -45,6 +46,8 @@ function Config({ workspace }: SectionProps) {
   const document = useAnnotateStore((s) => s.document)
   const updateDocumentAnnotations = useAnnotateStore((s) => s.updateDocumentAnnotations)
   const recordAnnotationChange = useAnnotateStore((s) => s.recordAnnotationChange)
+  const editingAnnotation = useAnnotateStore((s) => s.editingAnnotation)
+  const stopEditingAnnotation = useAnnotateStore((s) => s.stopEditingAnnotation)
   const tutorialStep = useTutorialStep()
   const finishTutorial = useTutorialStore((s) => s.finish)
   const [selectedText, setSelectedText] = useState("")
@@ -106,6 +109,10 @@ function Config({ workspace }: SectionProps) {
     setSuggestedEntity("")
     setSuggestedAttributes({})
 
+    if (editingAnnotation) {
+      return
+    }
+
     if (pendingSuggestion) {
       setActiveEntity(pendingSuggestion.entity)
       setPopulatedAttributes(pendingSuggestion.attributes)
@@ -114,7 +121,7 @@ function Config({ workspace }: SectionProps) {
 
     setActiveEntity("")
     setPopulatedAttributes({})
-  }, [proposedAnnotation, pendingSuggestion, document, config, setActiveEntity, setPopulatedAttributes])
+  }, [proposedAnnotation, pendingSuggestion, editingAnnotation, document, config, setActiveEntity, setPopulatedAttributes])
 
   useEffect(() => {
     if (selectedText === "") {
@@ -180,6 +187,57 @@ function Config({ workspace }: SectionProps) {
     return () => controller.abort()
   }, [activeEntity, selectedText, config, workspace.id])
 
+  const buildAttributes = (base: WorkspaceAnnotation["attributes"] = {}) => {
+    const preserved = Object.fromEntries(
+      Object.entries(base ?? {}).filter(([name, value]) => typeof value !== "string" && !(name in populatedAttributes)),
+    )
+
+    const allAttributes: Record<string, unknown> = {
+      ...preserved,
+      ...populatedAttributes,
+    }
+
+    if (activeOntologyConcept.name && activeOntologyConcept.code) {
+      allAttributes["ontologyName"] = activeOntologyConcept.name
+      allAttributes["ontologyCode"] = activeOntologyConcept.code
+    }
+
+    return allAttributes
+  }
+
+  const saveAnnotation = () => {
+    if (!editingAnnotation || !proposedAnnotation || !document) {
+      return
+    }
+
+    if (!activeEntity) {
+      notify.error("You need to select an entity.")
+      return
+    }
+
+    const { start, end } = proposedAnnotation
+    const previous = editingAnnotation
+    const documentId = document.id
+
+    const rawAnnotation = {
+      text: document.content.slice(start, end),
+      entity: activeEntity,
+      start_index: start,
+      end_index: end,
+      attributes: buildAttributes(previous.attributes),
+    } as RawAnnotation
+
+    database
+      .updateWorkspaceAnnotation(previous.id, rawAnnotation)
+      .then((annotation) => {
+        updateDocumentAnnotations(documentId, (annotations) => annotations.map((item) => item.id === annotation.id ? annotation : item))
+        recordAnnotationChange({ type: "update", documentId, annotations: [annotation], previous: [previous] })
+      })
+      .catch((e) => notify.error("Failed to update annotation.", e))
+
+    stopEditingAnnotation()
+  }
+
   const addAnnotation = () => {
     if (!proposedAnnotation || !document) {
       notify.error("You need to highlight text within the document.")
@@ -196,21 +254,12 @@ function Config({ workspace }: SectionProps) {
     const documentId = document.id
     const text = document.content.slice(start, end)
 
-    const allAttributes = {
-      ...populatedAttributes,
-    }
-
-    if (activeOntologyConcept.name && activeOntologyConcept.code) {
-      allAttributes["ontologyName"] = activeOntologyConcept.name
-      allAttributes["ontologyCode"] = activeOntologyConcept.code
-    }
-
     const rawAnnotation = {
       text,
       entity: activeEntity,
       start_index: start,
       end_index: end,
-      attributes: allAttributes,
+      attributes: buildAttributes(),
     } as RawAnnotation
     const reviewedSuggestion = pendingSuggestion
 
@@ -256,6 +305,14 @@ function Config({ workspace }: SectionProps) {
       <Stack h="76vh" gap="md">
         <ScrollArea scrollbarSize={0} style={{ flex: 1, minHeight: 0 }}>
           <Grid>
+            {editingAnnotation && (
+              <Grid.Col span={12}>
+                <Text size="sm" c="dimmed">
+                  Editing annotation. Highlight new text to change the span, or edit the entity, attributes, or ontology, then save.
+                </Text>
+              </Grid.Col>
+            )}
+
             {pendingSuggestion && (
               <Grid.Col span={12}>
                 <Text size="sm" c="dimmed">
@@ -428,15 +485,40 @@ function Config({ workspace }: SectionProps) {
           </Grid>
         </ScrollArea>
 
-        <TutorialHint
-          step={TutorialStep.AddAnnotation}
-          title="Save the annotation"
-          description="Optionally fill in attributes or an ontology concept, then add the annotation."
-        >
-          <Button fullWidth onClick={() => addAnnotation()}>
-            Add annotation
-          </Button>
-        </TutorialHint>
+        {editingAnnotation ? (
+          <Stack gap="xs">
+            <Button fullWidth onClick={() => saveAnnotation()}>
+              Save changes
+            </Button>
+
+            <Group grow gap="xs">
+              <Button variant="default" onClick={() => stopEditingAnnotation()}>
+                Cancel
+              </Button>
+
+              <Button
+                variant="light"
+                color="red"
+                onClick={() => {
+                  deleteAnnotation(editingAnnotation)
+                  stopEditingAnnotation()
+                }}
+              >
+                Delete
+              </Button>
+            </Group>
+          </Stack>
+        ) : (
+          <TutorialHint
+            step={TutorialStep.AddAnnotation}
+            title="Save the annotation"
+            description="Optionally fill in attributes or an ontology concept, then add the annotation."
+          >
+            <Button fullWidth onClick={() => addAnnotation()}>
+              Add annotation
+            </Button>
+          </TutorialHint>
+        )}
       </Stack>
     </Card>
   )

@@ -22,7 +22,10 @@ const ANNOTATION_QUERY_EXAMPLE = `{"entity": "Medication", "attributes.Dose": {"
 
 type SearchTarget = "text" | "annotations"
 
+const PROPOSED_ID = "proposed"
+
 export interface InlineAnnotation {
+  id?: string
   tag: string
   start: number
   end: number
@@ -35,6 +38,9 @@ function Document({ workspace }: SectionProps) {
   const proposedAnnotation = useAnnotateStore((s) => s.proposedAnnotation)
   const setProposedAnnotation = useAnnotateStore((s) => s.setProposedAnnotation)
   const setPendingSuggestion = useAnnotateStore((s) => s.setPendingSuggestion)
+  const editingAnnotation = useAnnotateStore((s) => s.editingAnnotation)
+  const startEditingAnnotation = useAnnotateStore((s) => s.startEditingAnnotation)
+  const stopEditingAnnotation = useAnnotateStore((s) => s.stopEditingAnnotation)
 
   const documentCount = useAnnotateStore((s) => s.documentCount)
   const setDocumentCount = useAnnotateStore((s) => s.setDocumentCount)
@@ -145,19 +151,23 @@ function Document({ workspace }: SectionProps) {
   }, [documentCount, loadingDocuments, namePageStart, workspace.id])
 
   useEffect(() => {
-    const inlineAnnotations = annotations.map(annotation => {
-      const inlineAnnotation: InlineAnnotation = {
-        tag: "",
-        start: annotation.start_index,
-        end: annotation.end_index,
-        color: entityColours[annotation.entity],
-      }
+    const inlineAnnotations = annotations
+      .filter(annotation => annotation.id !== editingAnnotation?.id)
+      .map(annotation => {
+        const inlineAnnotation: InlineAnnotation = {
+          id: annotation.id,
+          tag: "",
+          start: annotation.start_index,
+          end: annotation.end_index,
+          color: entityColours[annotation.entity],
+        }
 
-      return inlineAnnotation
-    })
+        return inlineAnnotation
+      })
 
     if (proposedAnnotation) {
       inlineAnnotations.push({
+        id: PROPOSED_ID,
         tag: "",
         start: proposedAnnotation.start,
         end: proposedAnnotation.end,
@@ -166,12 +176,38 @@ function Document({ workspace }: SectionProps) {
     }
 
     setInlineAnnotations(inlineAnnotations)
-  }, [annotations, entityColours, proposedAnnotation])
+  }, [annotations, editingAnnotation, entityColours, proposedAnnotation])
 
   useEffect(() => {
-    setProposedAnnotation(null)
+    if (editingAnnotation && !annotations.some((annotation) => annotation.id === editingAnnotation.id)) {
+      stopEditingAnnotation()
+    }
+  }, [annotations, editingAnnotation, stopEditingAnnotation])
+
+  useEffect(() => {
+    stopEditingAnnotation()
     setPendingSuggestion(null)
-  }, [documentIndex, setProposedAnnotation, setPendingSuggestion])
+  }, [documentIndex, stopEditingAnnotation, setPendingSuggestion])
+
+  const handleAnnotationsChange = (updated: InlineAnnotation[]) => {
+    if (updated.length > inlineAnnotations.length) {
+      const added = updated.find((annotation) => annotation.id === undefined) ?? updated[updated.length - 1]
+
+      setPendingSuggestion(null)
+      setProposedAnnotation(added)
+      return
+    }
+
+    const remainingIds = new Set(updated.map((annotation) => annotation.id))
+    const clicked = inlineAnnotations.find((annotation) => (
+      annotation.id !== undefined && annotation.id !== PROPOSED_ID && !remainingIds.has(annotation.id)
+    ))
+    const annotation = clicked && annotations.find((item) => item.id === clicked.id)
+
+    if (annotation) {
+      startEditingAnnotation(annotation)
+    }
+  }
 
   return (
     <>
@@ -344,14 +380,7 @@ function Document({ workspace }: SectionProps) {
                     <TextAnnotateBlend
                       content={document.content}
                       value={inlineAnnotations}
-                      onChange={(updated) => {
-                        if (annotations.length >= updated.length || updated.length === 0) {
-                          return
-                        }
-  
-                        setPendingSuggestion(null)
-                        setProposedAnnotation(updated[updated.length - 1])
-                      }}
+                      onChange={handleAnnotationsChange}
                       getSpan={(span) => ({
                         tag: activeEntity,
                         color: entityColours[activeEntity],

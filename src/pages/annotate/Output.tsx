@@ -1,6 +1,6 @@
 import { useAnnotateStore } from "storage/state/Annotate"
 import { Box, Button, Card, Center, Collapse, Divider, Grid, Group, Menu, Modal, ScrollArea, SegmentedControl, Text } from "@mantine/core"
-import { IconDownload, IconView360, IconX } from "@tabler/icons-react"
+import { IconDownload, IconPencil, IconView360, IconX } from "@tabler/icons-react"
 import { useEffect, useState } from "react"
 import { database, WorkspaceAnnotation } from "storage/database"
 import { SectionProps } from "./Annotate"
@@ -10,6 +10,7 @@ import { exportStandoffAnnotations } from "./ExportStandoffAnnotations"
 import notify from "utils/Notifications"
 import { DEMO_IDS } from "utils/Demo"
 import SmartAssistant from "./SmartAssistant"
+import { deleteAnnotation } from "utils/AnnotationHistory"
 
 type Entity = string
 type AnnotationGroup = Record<Entity, WorkspaceAnnotation[]>
@@ -20,23 +21,13 @@ function Output({ workspace }: SectionProps) {
   const [guideline, setGuideline] = useState("")
   const [guidelineReady, setGuidelineReady] = useState(false)
   const annotations = useAnnotateStore((s) => s.annotations)
-  const updateDocumentAnnotations = useAnnotateStore((s) => s.updateDocumentAnnotations)
-  const recordAnnotationChange = useAnnotateStore((s) => s.recordAnnotationChange)
+  const editingAnnotation = useAnnotateStore((s) => s.editingAnnotation)
+  const startEditingAnnotation = useAnnotateStore((s) => s.startEditingAnnotation)
   const [groupedAnnotations, setGroupedAnnotations] = useState<AnnotationGroup>({})
   const [openAnnotations, setOpenAnnotations] = useState<Record<string, boolean>>({})
   const [suggestionCount, setSuggestionCount] = useState(0)
   const [segment, setSegment] = useState<"annotations" | "suggestions">("annotations")
   const [openedViewGuidelineModal, setOpenedViewGuidelineModal] = useState(false)
-
-  const deleteAnnotation = (annotation: WorkspaceAnnotation) => {
-    database
-      .deleteWorkspaceAnnotation(annotation.id)
-      .then(() => {
-        updateDocumentAnnotations(annotation.document_id, (annotations) => annotations.filter(i => i.id !== annotation.id))
-        recordAnnotationChange({ type: "delete", documentId: annotation.document_id, annotations: [annotation] })
-      })
-      .catch((e) => notify.error("Failed to delete annotation.", e))
-  }
 
   const exportAnnotations = (format: "json" | "standoff", byAnnotator = false) => {
     Promise.all([
@@ -199,7 +190,8 @@ function Output({ workspace }: SectionProps) {
                             style={{
                               backgroundColor: entityColours[annotation.entity],
                               color: "#333333",
-                              cursor: "pointer"
+                              cursor: "pointer",
+                              outline: editingAnnotation?.id === annotation.id ? "2px solid #6F72E9" : undefined,
                             }}
                             onClick={() => {
                               const copy = { ...openAnnotations }
@@ -211,7 +203,20 @@ function Output({ workspace }: SectionProps) {
                               <Grid.Col span={2}>
                                 <IconX
                                   size={16}
-                                  onClick={() => deleteAnnotation(annotation)}
+                                  aria-label="Delete annotation"
+                                  onClick={(event) => {
+                                    event.stopPropagation()
+                                    deleteAnnotation(annotation)
+                                  }}
+                                />
+
+                                <IconPencil
+                                  size={16}
+                                  aria-label="Edit annotation"
+                                  onClick={(event) => {
+                                    event.stopPropagation()
+                                    startEditingAnnotation(annotation)
+                                  }}
                                 />
                               </Grid.Col>
 

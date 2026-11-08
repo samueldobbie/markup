@@ -8,9 +8,10 @@ import { DocumentAnnotationSuggestion } from "utils/Suggest"
 const MAX_HISTORY = 100
 
 export interface AnnotationChange {
-  type: "add" | "delete"
+  type: "add" | "delete" | "update"
   documentId: string
   annotations: WorkspaceAnnotation[]
+  previous?: WorkspaceAnnotation[]
 }
 
 interface AnnotateStore {
@@ -25,6 +26,7 @@ interface AnnotateStore {
   annotations: WorkspaceAnnotation[]
   proposedAnnotation: InlineAnnotation | null
   pendingSuggestion: DocumentAnnotationSuggestion | null
+  editingAnnotation: WorkspaceAnnotation | null
   undoStack: AnnotationChange[]
   redoStack: AnnotationChange[]
   setConfig: (config: IConfig) => void
@@ -38,6 +40,8 @@ interface AnnotateStore {
   updateDocumentAnnotations: (documentId: string, update: (annotations: WorkspaceAnnotation[]) => WorkspaceAnnotation[]) => void
   setProposedAnnotation: (proposedAnnotation: InlineAnnotation | null) => void
   setPendingSuggestion: (pendingSuggestion: DocumentAnnotationSuggestion | null) => void
+  startEditingAnnotation: (annotation: WorkspaceAnnotation) => void
+  stopEditingAnnotation: () => void
   recordAnnotationChange: (change: AnnotationChange) => void
   setAnnotationHistory: (undoStack: AnnotationChange[], redoStack: AnnotationChange[]) => void
   resetAnnotationHistory: () => void
@@ -61,6 +65,7 @@ export const useAnnotateStore = create<AnnotateStore>((set) => ({
   annotations: [],
   proposedAnnotation: null,
   pendingSuggestion: null,
+  editingAnnotation: null,
   undoStack: [],
   redoStack: [],
   setConfig: (config) => set({ config }),
@@ -76,6 +81,21 @@ export const useAnnotateStore = create<AnnotateStore>((set) => ({
   )),
   setProposedAnnotation: (proposedAnnotation) => set({ proposedAnnotation }),
   setPendingSuggestion: (pendingSuggestion) => set({ pendingSuggestion }),
+  startEditingAnnotation: (annotation) => set({
+    editingAnnotation: annotation,
+    pendingSuggestion: null,
+    proposedAnnotation: { tag: "", start: annotation.start_index, end: annotation.end_index, color: "" },
+    activeEntity: annotation.entity,
+    populatedAttributes: Object.fromEntries(
+      Object.entries(annotation.attributes ?? {}).filter(([, value]) => typeof value === "string"),
+    ) as Record<string, string>,
+  }),
+  stopEditingAnnotation: () => set({
+    editingAnnotation: null,
+    proposedAnnotation: null,
+    activeEntity: "",
+    populatedAttributes: {},
+  }),
   recordAnnotationChange: (change) => set((s) => ({
     undoStack: [...s.undoStack, change].slice(-MAX_HISTORY),
     redoStack: [],

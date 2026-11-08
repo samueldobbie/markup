@@ -531,6 +531,33 @@ async function getWorkspaceExport(workspaceId: string): Promise<WorkspaceExport>
   }
 }
 
+async function updateWorkspaceAnnotation(
+  annotationId: string,
+  rawAnnotation: RawAnnotation,
+): Promise<WorkspaceAnnotation> {
+  const { data: annotation, error } = await supabase
+    .from("workspace_annotation")
+    .update({
+      entity: rawAnnotation.entity,
+      start_index: rawAnnotation.start_index,
+      end_index: rawAnnotation.end_index,
+      text: rawAnnotation.text,
+      attributes: rawAnnotation.attributes,
+    })
+    .eq("id", annotationId)
+    .select()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  if (annotation === null || annotation.length === 0) {
+    throw new Error("Invalid workspace annotation")
+  }
+
+  return annotation[0]
+}
+
 async function deleteWorkspaceAnnotation(annotationId: string): Promise<boolean> {
   const { error } = await supabase
     .from("workspace_annotation")
@@ -821,6 +848,7 @@ export const database = {
   getDocumentAnnotations,
   getWorkspaceExport,
   getWorkspaceAnnotators,
+  updateWorkspaceAnnotation,
   deleteWorkspaceAnnotation,
 
   addWorkspaceCollaborator,

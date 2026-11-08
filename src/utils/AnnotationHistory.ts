@@ -31,10 +31,35 @@ async function restoreAnnotations(change: AnnotationChange): Promise<Map<string,
   return new Map(change.annotations.map((annotation, index) => [annotation.id, restored[index]]))
 }
 
+async function applyAnnotations(documentId: string, annotations: WorkspaceAnnotation[]) {
+  const updated = await Promise.all(annotations.map((annotation) => (
+    database.updateWorkspaceAnnotation(annotation.id, {
+      text: annotation.text,
+      entity: annotation.entity,
+      start_index: annotation.start_index,
+      end_index: annotation.end_index,
+      attributes: annotation.attributes,
+    })
+  )))
+
+  const byId = new Map(updated.map((annotation) => [annotation.id, annotation]))
+  const state = useAnnotateStore.getState()
+
+  state.updateDocumentAnnotations(documentId, (current) => current.map((annotation) => byId.get(annotation.id) ?? annotation))
+
+  if (state.editingAnnotation && byId.has(state.editingAnnotation.id)) {
+    state.stopEditingAnnotation()
+  }
+}
+
 function remapChange(change: AnnotationChange, idMap: Map<string, WorkspaceAnnotation>): AnnotationChange {
   return {
     ...change,
     annotations: change.annotations.map((annotation) => idMap.get(annotation.id) ?? annotation),
+    previous: change.previous?.map((annotation) => {
+      const mapped = idMap.get(annotation.id)
+      return mapped ? { ...annotation, id: mapped.id } : annotation
+    }),
   }
 }
 
@@ -48,11 +73,14 @@ async function step(from: Stack) {
   applying = true
 
   try {
-    const shouldRemove = (change.type === "add") === (from === "undoStack")
-    const idMap = shouldRemove ? new Map<string, WorkspaceAnnotation>() : await restoreAnnotations(change)
+    let idMap = new Map<string, WorkspaceAnnotation>()
 
-    if (shouldRemove) {
+    if (change.type === "update") {
+      await applyAnnotations(change.documentId, from === "undoStack" ? change.previous ?? [] : change.annotations)
+    } else if ((change.type === "add") === (from === "undoStack")) {
       await removeAnnotations(change)
+    } else {
+      idMap = await restoreAnnotations(change)
     }
 
     const to: Stack = from === "undoStack" ? "redoStack" : "undoStack"
@@ -84,3 +112,14 @@ async function step(from: Stack) {
 
 export const undoAnnotationChange = () => step("undoStack")
 export const redoAnnotationChange = () => step("redoStack")
+
+export function deleteAnnotation(annotation: WorkspaceAnnotation) {
+  database
+    .deleteWorkspaceAnnotation(annotation.id)
+    .then(() => {
+      const state = useAnnotateStore.getState()
+      state.updateDocumentAnnotations(annotation.document_id, (annotations) => annotations.filter((item) => item.id !== annotation.id))
+      state.recordAnnotationChange({ type: "delete", documentId: annotation.document_id, annotations: [annotation] })
+    })
+    .catch((e) => notify.error("Failed to delete annotation.", e))
+}
