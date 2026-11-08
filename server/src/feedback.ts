@@ -284,6 +284,56 @@ export async function recordWorkspaceAnnotationFeedback(
   }
 }
 
+const PAGE_SIZE = 1000
+const DOCUMENT_ID_CHUNK_SIZE = 100
+
+async function fetchAllRows<T>(
+  fetchRange: (from: number, to: number) => PromiseLike<{ data: unknown[] | null, error: unknown }>,
+): Promise<T[]> {
+  const rows: T[] = []
+
+  for (let from = 0; ; from += PAGE_SIZE) {
+    const { data, error } = await fetchRange(from, from + PAGE_SIZE - 1)
+
+    if (error) {
+      console.error(error)
+      throw new HTTPException(500, { message: "Failed to load annotation feedback" })
+    }
+
+    rows.push(...((data ?? []) as T[]))
+
+    if (!data || data.length < PAGE_SIZE) {
+      return rows
+    }
+  }
+}
+
+async function getDocumentsById(
+  workspaceId: string,
+  documentIds: string[],
+): Promise<Map<string, { id: string, name: string, content: string }>> {
+  const documents = new Map<string, { id: string, name: string, content: string }>()
+
+  for (let index = 0; index < documentIds.length; index += DOCUMENT_ID_CHUNK_SIZE) {
+    const { data, error } = await supabaseAdmin
+      .from("workspace_document")
+      .select("id, name, content")
+      .eq("workspace_id", workspaceId)
+      .in("id", documentIds.slice(index, index + DOCUMENT_ID_CHUNK_SIZE))
+
+    if (error) {
+      console.error(error)
+      throw new HTTPException(500, { message: "Failed to load annotation feedback" })
+    }
+
+    for (const document of data ?? []) {
+      documents.set(document.id, document)
+    }
+  }
+
+  return documents
+}
+
 export async function getWorkspaceFeedbackExport(workspaceId: string): Promise<AnnotationFeedbackExport> {
   const { data: workspace, error: workspaceError } = await supabaseAdmin
     .from("workspace")
@@ -299,7 +349,7 @@ export async function getWorkspaceFeedbackExport(workspaceId: string): Promise<A
     throw new HTTPException(404, { message: "Workspace not found" })
   }
 
-  const [configResult, guidelineResult, documentResult, eventResult] = await Promise.all([
+  const [configResult, guidelineResult, events] = await Promise.all([
     supabaseAdmin
       .from("workspace_config")
       .select("content")
@@ -312,24 +362,20 @@ export async function getWorkspaceFeedbackExport(workspaceId: string): Promise<A
       .eq("workspace_id", workspaceId)
       .limit(1)
       .maybeSingle(),
-    supabaseAdmin
-      .from("workspace_document")
-      .select("id, name, content")
-      .eq("workspace_id", workspaceId),
-    supabaseAdmin
+    fetchAllRows<FeedbackRow>((from, to) => supabaseAdmin
       .from("workspace_annotation_feedback")
       .select("id, created_at, document_id, action, source, annotation_id, suggested, accepted, model, model_base_url")
       .eq("workspace_id", workspaceId)
-      .order("created_at", { ascending: true }),
+      .order("created_at", { ascending: true })
+      .order("id", { ascending: true })
+      .range(from, to)),
   ])
 
-  if (configResult.error || guidelineResult.error || documentResult.error || eventResult.error) {
+  if (configResult.error || guidelineResult.error) {
     throw new HTTPException(500, { message: "Failed to load annotation feedback" })
   }
 
-  const documents = new Map(
-    (documentResult.data ?? []).map((document) => [document.id, document]),
-  )
+  const documents = await getDocumentsById(workspaceId, [...new Set(events.map((event) => event.document_id))])
 
   return {
     workspace: {
@@ -339,7 +385,7 @@ export async function getWorkspaceFeedbackExport(workspaceId: string): Promise<A
     exported_at: new Date().toISOString(),
     config: parseStoredConfig(configResult.data?.content ?? null),
     guidelines: guidelineResult.data?.content ?? "",
-    events: ((eventResult.data ?? []) as FeedbackRow[]).map((event) => {
+    events: events.map((event) => {
       const document = documents.get(event.document_id)
 
       return {
