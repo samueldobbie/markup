@@ -2,6 +2,7 @@ import saveAs from "file-saver"
 import JSZip from "jszip"
 import { WorkspaceAnnotation, WorkspaceDocumentName } from "storage/database"
 import notify from "utils/Notifications"
+import { exportFileNames } from "./ExportFileNames"
 
 interface StandoffOutput {
   name: string
@@ -11,8 +12,10 @@ interface StandoffOutput {
 async function exportStandoffAnnotations(documents: WorkspaceDocumentName[], annotations: WorkspaceAnnotation[][]): Promise<void> {
   const outputs = [] as StandoffOutput[]
 
-  documents.forEach((doc, index) => {
-    const output = buildSingleOutput(doc.name, annotations[index])
+  const names = exportFileNames(documents.map((doc) => doc.name), ".ann")
+
+  documents.forEach((_, index) => {
+    const output = buildSingleOutput(names[index], annotations[index])
     outputs.push(output)
   })
 
@@ -36,7 +39,7 @@ function saveAsZip(outputs: StandoffOutput[]): void {
 
 function buildSingleOutput(name: string, annotations: WorkspaceAnnotation[]): StandoffOutput {
   return {
-    name: name.split(".txt")[0] + ".ann",
+    name,
     payload: buildExportRows(annotations),
   }
 }

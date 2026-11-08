@@ -105,3 +105,17 @@ describe("exportJsonAnnotations", () => {
     ])
   })
 })
+
+describe("duplicate document names", () => {
+  it("gives each document its own file instead of overwriting", async () => {
+    await exportJsonAnnotations(
+      [{ id: "a", name: "note.txt" }, { id: "b", name: "note.txt" }, { id: "c", name: "NOTE.txt" }],
+      [[annotation({ text: "a" })], [annotation({ text: "b" })], [annotation({ text: "c" })]],
+    )
+
+    const { zip } = await savedZip()
+
+    expect(Object.keys(zip.files).sort()).toEqual(["NOTE-3.json", "note-2.json", "note.json"])
+    expect(JSON.parse(await zip.file("note-2.json")!.async("string"))[0].text).toBe("b")
+  })
+})

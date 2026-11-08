@@ -2,6 +2,7 @@ import saveAs from "file-saver"
 import JSZip from "jszip"
 import { WorkspaceAnnotation, WorkspaceDocumentName } from "storage/database"
 import notify from "utils/Notifications"
+import { exportFileNames } from "./ExportFileNames"
 
 interface JsonOutput {
   entity: string
@@ -19,8 +20,10 @@ interface AnnotationOutput2 {
 async function exportJsonAnnotations(documents: WorkspaceDocumentName[], annotations: WorkspaceAnnotation[][]): Promise<void> {
   const outputs = [] as AnnotationOutput2[]
 
-  documents.forEach((doc, index) => {
-    const output = buildSingleOutput(doc.name, annotations[index])
+  const names = exportFileNames(documents.map((doc) => doc.name), ".json")
+
+  documents.forEach((_, index) => {
+    const output = buildSingleOutput(names[index], annotations[index])
     outputs.push(output)
   })
 
@@ -44,7 +47,7 @@ function saveAsZip(outputs: AnnotationOutput2[]): void {
 
 function buildSingleOutput(name: string, annotations: WorkspaceAnnotation[]): AnnotationOutput2 {
   return {
-    name: name.split(".txt")[0] + ".json",
+    name,
     payload: buildJsonOutputs(annotations),
   }
 }

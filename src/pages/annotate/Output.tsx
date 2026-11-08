@@ -6,6 +6,7 @@ import { database, WorkspaceAnnotation } from "storage/database"
 import { SectionProps } from "./Annotate"
 import { exportAnnotationFeedback } from "./ExportAnnotationFeedback"
 import { exportJsonAnnotations } from "./ExportJsonAnnotations"
+import { exportStandoffAnnotations } from "./ExportStandoffAnnotations"
 import notify from "utils/Notifications"
 import { DEMO_IDS } from "utils/Demo"
 import SmartAssistant from "./SmartAssistant"
@@ -37,10 +38,14 @@ function Output({ workspace }: SectionProps) {
       .catch((e) => notify.error("Failed to delete annotation.", e))
   }
 
-  const exportAnnotations = () => {
+  const exportAnnotations = (format: "json" | "standoff") => {
     database
       .getWorkspaceExport(workspace.id)
-      .then(({ documents, annotations }) => exportJsonAnnotations(documents, annotations))
+      .then(({ documents, annotations }) => (
+        format === "json"
+          ? exportJsonAnnotations(documents, annotations)
+          : exportStandoffAnnotations(documents, annotations)
+      ))
       .catch((e) => notify.error("Failed to export annotations.", e))
   }
 
@@ -108,8 +113,11 @@ function Output({ workspace }: SectionProps) {
                   </Menu.Target>
 
                   <Menu.Dropdown>
-                    <Menu.Item onClick={exportAnnotations}>
-                      Annotations
+                    <Menu.Item onClick={() => exportAnnotations("json")}>
+                      Annotations (JSON)
+                    </Menu.Item>
+                    <Menu.Item onClick={() => exportAnnotations("standoff")}>
+                      Annotations (brat .ann)
                     </Menu.Item>
                     <Menu.Item
                       disabled={DEMO_IDS.includes(workspace.id)}
