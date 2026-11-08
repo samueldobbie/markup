@@ -330,16 +330,15 @@ async function deleteWorkspaceDocument(documentId: string): Promise<boolean> {
 }
 
 async function getWorkspaceGuideline(workspaceId: string): Promise<WorkspaceGuideline[]> {
-  const { data: config, error } = await supabase
-    .from("workspace_guideline")
-    .select()
-    .eq("workspace_id", workspaceId)
-
-  if (error) {
-    throw new Error(error.message)
-  }
-
-  return config
+  return fetchAllRows((from, to) => (
+    supabase
+      .from("workspace_guideline")
+      .select()
+      .eq("workspace_id", workspaceId)
+      .order("created_at")
+      .order("id")
+      .range(from, to)
+  ))
 }
 
 async function addWorkspaceGuideline(workspaceId: string, file: File): Promise<WorkspaceGuideline[]> {
@@ -598,12 +597,14 @@ async function addOntology(name: string, description: string, rows: OntologyConc
     code: i.code,
   }))
 
-  const { error: ontologyConceptError } = await supabase
-    .from("ontology_concept")
-    .insert(ontologyConcepts)
+  for (let from = 0; from < ontologyConcepts.length; from += FETCH_BATCH_SIZE) {
+    const { error: ontologyConceptError } = await supabase
+      .from("ontology_concept")
+      .insert(ontologyConcepts.slice(from, from + FETCH_BATCH_SIZE))
 
-  if (ontologyConceptError) {
-    throw new Error(ontologyConceptError.message)
+    if (ontologyConceptError) {
+      throw new Error(ontologyConceptError.message)
+    }
   }
 }
 
@@ -611,12 +612,16 @@ async function useDefaultOntology(ontologyId: string): Promise<void> {
   const user = await supabase.auth.getUser()
   const userId = user.data.user?.id ?? ""
 
-  await supabase
+  const { error } = await supabase
     .from("ontology_access")
     .insert({
       user_id: userId,
       ontology_id: ontologyId,
     })
+
+  if (error) {
+    throw new Error(error.message)
+  }
 }
 
 async function getDefaultOntologies(): Promise<Ontology[]> {
@@ -632,26 +637,16 @@ async function getDefaultOntologies(): Promise<Ontology[]> {
   return data
 }
 
-async function getUserOntologies(): Promise<Ontology[]> {
-  return []
-}
-
-async function getWorkspaceOntologies(workspaceId: string): Promise<Ontology[]> {
-  const { data: workspaceOntologyData, error: workspaceOntologyError } = await supabase
-    .from("workspace_ontology")
-    .select()
-    .eq("workspace_id", workspaceId)
-
-  if (workspaceOntologyError) {
-    throw new Error(workspaceOntologyError.message)
+async function getOntologiesByIds(ontologyIds: string[]): Promise<Ontology[]> {
+  if (ontologyIds.length === 0) {
+    return []
   }
-
-  const workspaceOntologyIds = workspaceOntologyData.map(i => i.ontology_id)
 
   const { data, error } = await supabase
     .from("ontology")
     .select()
-    .in("id", workspaceOntologyIds)
+    .in("id", ontologyIds)
+    .order("name")
 
   if (error) {
     throw new Error(error.message)
@@ -660,17 +655,87 @@ async function getWorkspaceOntologies(workspaceId: string): Promise<Ontology[]> 
   return data
 }
 
-async function getOntologyConcepts(ontologyId: string): Promise<OntologyConcept[]> {
-  const { data, error } = await supabase
-    .from("ontology_concept")
-    .select()
-    .eq("ontology_id", ontologyId)
+async function getUserOntologies(): Promise<Ontology[]> {
+  const user = await supabase.auth.getUser()
+  const userId = user.data.user?.id ?? ""
+
+  const access = await fetchAllRows<{ ontology_id: string }>((from, to) => (
+    supabase
+      .from("ontology_access")
+      .select("ontology_id")
+      .eq("user_id", userId)
+      .eq("is_demo", false)
+      .order("id")
+      .range(from, to)
+  ))
+
+  return getOntologiesByIds(access.map((row) => row.ontology_id))
+}
+
+export interface WorkspaceOntology {
+  id: string
+  ontology: Ontology
+}
+
+async function getWorkspaceOntologyLinks(workspaceId: string): Promise<WorkspaceOntology[]> {
+  const links = await fetchAllRows<{ id: string, ontology_id: string }>((from, to) => (
+    supabase
+      .from("workspace_ontology")
+      .select("id, ontology_id")
+      .eq("workspace_id", workspaceId)
+      .order("created_at")
+      .order("id")
+      .range(from, to)
+  ))
+
+  const ontologies = new Map(
+    (await getOntologiesByIds(links.map((link) => link.ontology_id))).map((ontology) => [ontology.id, ontology]),
+  )
+
+  return links.flatMap((link) => {
+    const ontology = ontologies.get(link.ontology_id)
+    return ontology ? [{ id: link.id, ontology }] : []
+  })
+}
+
+async function getWorkspaceOntologies(workspaceId: string): Promise<Ontology[]> {
+  return (await getWorkspaceOntologyLinks(workspaceId)).map((link) => link.ontology)
+}
+
+async function addWorkspaceOntology(workspaceId: string, ontologyId: string): Promise<void> {
+  const { error } = await supabase
+    .from("workspace_ontology")
+    .insert({
+      workspace_id: workspaceId,
+      ontology_id: ontologyId,
+    })
+
+  if (error) {
+    throw new Error(error.code === "23505" ? "Ontology is already linked to this workspace" : error.message)
+  }
+}
+
+async function removeWorkspaceOntology(workspaceOntologyId: string): Promise<void> {
+  const { error } = await supabase
+    .from("workspace_ontology")
+    .delete()
+    .eq("id", workspaceOntologyId)
 
   if (error) {
     throw new Error(error.message)
   }
+}
 
-  return data
+async function getOntologyConcepts(ontologyId: string): Promise<OntologyConcept[]> {
+  return fetchAllRows((from, to) => (
+    supabase
+      .from("ontology_concept")
+      .select("name, code")
+      .eq("ontology_id", ontologyId)
+      .order("name")
+      .order("id")
+      .range(from, to)
+  ))
 }
 
 async function removeDefaultOntology(ontologyId: string): Promise<void> {
@@ -755,6 +820,9 @@ export const database = {
   addOntology,
   getUserOntologies,
   getWorkspaceOntologies,
+  getWorkspaceOntologyLinks,
+  addWorkspaceOntology,
+  removeWorkspaceOntology,
   getOntologyConcepts,
   useDefaultOntology,
   getDefaultOntologies,

@@ -6,6 +6,7 @@ import ConfigTable from "./ConfigTable"
 import DocumentTable from "./DocumentTable"
 import Header from "./Header"
 import GuidelinesTable from "./GuidelinesTable"
+import OntologyLinksTable from "./OntologyLinksTable"
 import notify from "utils/Notifications"
 import InvalidWorkspace from "pages/error/InvalidWorkspace"
 
@@ -86,6 +87,13 @@ function Setup() {
                       workspace={workspace}
                       workspaceStatus={workspaceStatus}
                       setWorkspaceStatus={setWorkspaceStatus}
+                    />
+                  </Grid.Col>
+
+                  <Grid.Col span={12}>
+                    <OntologyLinksTable
+                      workspace={workspace}
+                      workspaceStatus={workspaceStatus}
                     />
                   </Grid.Col>
                 </Grid>

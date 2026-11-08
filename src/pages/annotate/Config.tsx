@@ -411,6 +411,7 @@ function Config({ workspace }: SectionProps) {
                       size="sm"
                       searchable
                       clearable
+                      limit={100}
                       onChange={(code) => {
                         const name = selectedOntologyConcepts.find(concept => concept.code === code)?.name
 
