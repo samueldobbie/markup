@@ -22,6 +22,7 @@ To install and run Markup locally:
 1. Copy `.env.example` to `.env.local`
 1. Install the [Supabase CLI](https://supabase.com/docs/guides/cli)
 1. Start Supabase: `supabase start`. This will output an API URL, anon key, and service role key. Add the URL and anon key to `.env.local` as `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`, and the service role key as `SUPABASE_SERVICE_ROLE_KEY`. Set `MODEL_CREDENTIALS_KEY` to any secret used to encrypt workspace API keys (or a 64-character hex key).
+1. Optionally load the demo workspaces and a sample ontology: `supabase db reset` (this wipes local data and applies `supabase/seed.sql`)
 1. Run the web app and API: `pnpm dev` and `pnpm dev:api`
 1. Open Markup in your web browser at `http://localhost:3000`
 
