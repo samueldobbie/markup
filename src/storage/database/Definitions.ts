@@ -25,6 +25,7 @@ export interface paths {
           end_index?: parameters["rowFilter.workspace_annotation.end_index"];
           attributes?: parameters["rowFilter.workspace_annotation.attributes"];
           text?: parameters["rowFilter.workspace_annotation.text"];
+          user_id?: parameters["rowFilter.workspace_annotation.user_id"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -84,6 +85,7 @@ export interface paths {
           end_index?: parameters["rowFilter.workspace_annotation.end_index"];
           attributes?: parameters["rowFilter.workspace_annotation.attributes"];
           text?: parameters["rowFilter.workspace_annotation.text"];
+          user_id?: parameters["rowFilter.workspace_annotation.user_id"];
         };
         header: {
           /** Preference */
@@ -107,6 +109,7 @@ export interface paths {
           end_index?: parameters["rowFilter.workspace_annotation.end_index"];
           attributes?: parameters["rowFilter.workspace_annotation.attributes"];
           text?: parameters["rowFilter.workspace_annotation.text"];
+          user_id?: parameters["rowFilter.workspace_annotation.user_id"];
         };
         body: {
           /** workspace_annotation */
@@ -962,6 +965,12 @@ export interface definitions {
     attributes: any;
     /** Format: text */
     text: string;
+    /**
+     * Format: uuid
+     * @description Note:
+     * This is a Foreign Key to `user.id`.<fk table='user' column='id'/>
+     */
+    user_id: string | null;
   };
   workspace_guideline: {
     /**
@@ -1229,6 +1238,8 @@ export interface parameters {
   "rowFilter.workspace_annotation.attributes": string;
   /** Format: text */
   "rowFilter.workspace_annotation.text": string;
+  /** Format: uuid */
+  "rowFilter.workspace_annotation.user_id": string;
   /** @description workspace_guideline */
   "body.workspace_guideline": definitions["workspace_guideline"];
   /** Format: uuid */

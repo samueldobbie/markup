@@ -10,7 +10,7 @@ export type WorkspaceDocument = definitions["workspace_document"]
 export type RawWorkspaceDocument = Omit<Omit<definitions["workspace_document"], "id">, "created_at">
 export type WorkspaceConfig = definitions["workspace_config"]
 export type WorkspaceAnnotation = definitions["workspace_annotation"]
-export type RawAnnotation = Omit<Omit<Omit<Omit<definitions["workspace_annotation"], "id">, "created_at">, "document_id">, "workspace_id">
+export type RawAnnotation = Omit<definitions["workspace_annotation"], "id" | "created_at" | "document_id" | "workspace_id" | "user_id">
 export type Ontology = definitions["ontology"]
 export type OntologyAccess = definitions["ontology_access"]
 
@@ -555,6 +555,15 @@ async function getWorkspaceCollaboratorEmails(workspaceId: string): Promise<stri
   return apiFetch(`/api/workspaces/${encodeURIComponent(workspaceId)}/collaborators`)
 }
 
+export interface WorkspaceAnnotator {
+  id: string
+  email: string
+}
+
+async function getWorkspaceAnnotators(workspaceId: string): Promise<WorkspaceAnnotator[]> {
+  return apiFetch(`/api/workspaces/${encodeURIComponent(workspaceId)}/annotators`)
+}
+
 async function removeWorkspaceCollaborator(workspaceId: string, email: string): Promise<void> {
   await apiFetch(
     `/api/workspaces/${encodeURIComponent(workspaceId)}/collaborators/${encodeURIComponent(email)}`,
@@ -811,6 +820,7 @@ export const database = {
   addWorkspaceAnnotations,
   getDocumentAnnotations,
   getWorkspaceExport,
+  getWorkspaceAnnotators,
   deleteWorkspaceAnnotation,
 
   addWorkspaceCollaborator,

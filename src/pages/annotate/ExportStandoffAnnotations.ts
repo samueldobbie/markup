@@ -1,47 +1,12 @@
-import saveAs from "file-saver"
-import JSZip from "jszip"
-import { WorkspaceAnnotation, WorkspaceDocumentName } from "storage/database"
-import notify from "utils/Notifications"
-import { exportFileNames } from "./ExportFileNames"
+import { WorkspaceAnnotation, WorkspaceAnnotator, WorkspaceDocumentName } from "storage/database"
+import { buildExportFiles, saveAsZip } from "./ExportZip"
 
-interface StandoffOutput {
-  name: string
-  payload: string[]
-}
-
-async function exportStandoffAnnotations(documents: WorkspaceDocumentName[], annotations: WorkspaceAnnotation[][]): Promise<void> {
-  const outputs = [] as StandoffOutput[]
-
-  const names = exportFileNames(documents.map((doc) => doc.name), ".ann")
-
-  documents.forEach((_, index) => {
-    const output = buildSingleOutput(names[index], annotations[index])
-    outputs.push(output)
-  })
-
-  saveAsZip(outputs)
-}
-
-function saveAsZip(outputs: StandoffOutput[]): void {
-  const zip = new JSZip()
-
-  outputs.forEach((output: StandoffOutput) => {
-    if (output.name && output.payload) {
-      zip.file(output.name, output.payload.join(""))
-    }
-  })
-
-  zip
-    .generateAsync({ type: "blob" })
-    .then((content) => saveAs(content, "annotations.zip"))
-    .catch((e) => notify.error("Failed to export annotations.", e))
-}
-
-function buildSingleOutput(name: string, annotations: WorkspaceAnnotation[]): StandoffOutput {
-  return {
-    name,
-    payload: buildExportRows(annotations),
-  }
+async function exportStandoffAnnotations(
+  documents: WorkspaceDocumentName[],
+  annotations: WorkspaceAnnotation[][],
+  annotators?: WorkspaceAnnotator[],
+): Promise<void> {
+  saveAsZip(buildExportFiles(documents, annotations, ".ann", (rows) => buildExportRows(rows).join(""), annotators))
 }
 
 function buildExportRows(annotations: WorkspaceAnnotation[]): string[] {

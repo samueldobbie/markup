@@ -38,13 +38,15 @@ function Output({ workspace }: SectionProps) {
       .catch((e) => notify.error("Failed to delete annotation.", e))
   }
 
-  const exportAnnotations = (format: "json" | "standoff") => {
-    database
-      .getWorkspaceExport(workspace.id)
-      .then(({ documents, annotations }) => (
+  const exportAnnotations = (format: "json" | "standoff", byAnnotator = false) => {
+    Promise.all([
+      database.getWorkspaceExport(workspace.id),
+      byAnnotator ? database.getWorkspaceAnnotators(workspace.id) : Promise.resolve(undefined),
+    ])
+      .then(([{ documents, annotations }, annotators]) => (
         format === "json"
-          ? exportJsonAnnotations(documents, annotations)
-          : exportStandoffAnnotations(documents, annotations)
+          ? exportJsonAnnotations(documents, annotations, annotators)
+          : exportStandoffAnnotations(documents, annotations, annotators)
       ))
       .catch((e) => notify.error("Failed to export annotations.", e))
   }
@@ -118,6 +120,18 @@ function Output({ workspace }: SectionProps) {
                     </Menu.Item>
                     <Menu.Item onClick={() => exportAnnotations("standoff")}>
                       Annotations (brat .ann)
+                    </Menu.Item>
+                    <Menu.Item
+                      disabled={DEMO_IDS.includes(workspace.id)}
+                      onClick={() => exportAnnotations("json", true)}
+                    >
+                      Per annotator (JSON)
+                    </Menu.Item>
+                    <Menu.Item
+                      disabled={DEMO_IDS.includes(workspace.id)}
+                      onClick={() => exportAnnotations("standoff", true)}
+                    >
+                      Per annotator (brat .ann)
                     </Menu.Item>
                     <Menu.Item
                       disabled={DEMO_IDS.includes(workspace.id)}

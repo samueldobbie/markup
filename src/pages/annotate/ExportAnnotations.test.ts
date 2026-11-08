@@ -20,6 +20,7 @@ function annotation(fields: Partial<WorkspaceAnnotation>): WorkspaceAnnotation {
     end_index: 0,
     attributes: {},
     text: "",
+    user_id: null,
     ...fields,
   }
 }
@@ -117,5 +118,48 @@ describe("duplicate document names", () => {
 
     expect(Object.keys(zip.files).sort()).toEqual(["NOTE-3.json", "note-2.json", "note.json"])
     expect(JSON.parse(await zip.file("note-2.json")!.async("string"))[0].text).toBe("b")
+  })
+})
+
+describe("per-annotator export", () => {
+  it("writes one folder per annotator with every document, and keeps unattributed annotations apart", async () => {
+    await exportJsonAnnotations(
+      documents,
+      [
+        [annotation({ text: "a1", user_id: "user-a" }), annotation({ text: "b1", user_id: "user-b" })],
+        [annotation({ text: "legacy", user_id: null }), annotation({ text: "a2", user_id: "user-a" })],
+      ],
+      [{ id: "user-a", email: "alice@example.com" }, { id: "user-b", email: "bob@example.com" }],
+    )
+
+    const { zip } = await savedZip()
+    const files = Object.keys(zip.files).filter((name) => !zip.files[name].dir).sort()
+
+    expect(files).toEqual([
+      "alice@example.com/note-1.json",
+      "alice@example.com/note-2.json",
+      "bob@example.com/note-1.json",
+      "bob@example.com/note-2.json",
+      "unattributed/note-1.json",
+      "unattributed/note-2.json",
+    ])
+
+    const read = async (name: string) => JSON.parse(await zip.file(name)!.async("string")).map((row: { text: string }) => row.text)
+
+    expect(await read("alice@example.com/note-2.json")).toEqual(["a2"])
+    expect(await read("bob@example.com/note-2.json")).toEqual([])
+    expect(await read("unattributed/note-2.json")).toEqual(["legacy"])
+  })
+
+  it("falls back to the user id when the annotator is no longer a member", async () => {
+    await exportStandoffAnnotations(
+      [documents[0]],
+      [[annotation({ entity: "Drug", start_index: 0, end_index: 7, text: "aspirin", user_id: "gone" })]],
+      [],
+    )
+
+    const { zip } = await savedZip()
+
+    expect(await zip.file("user-gone/note-1.ann")!.async("string")).toBe("T1\tDrug 0 7\taspirin\n")
   })
 })

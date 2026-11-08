@@ -1,6 +1,6 @@
 import { Hono } from "hono"
 import { HTTPException } from "hono/http-exception"
-import { AuthVariables, requireWorkspaceOwner } from "./auth.js"
+import { AuthVariables, requireWorkspaceMember, requireWorkspaceOwner } from "./auth.js"
 import { readJsonBody } from "./request.js"
 import { supabaseAdmin } from "./supabase.js"
 
@@ -32,6 +32,42 @@ export async function getCollaboratorEmails(workspaceId: string): Promise<string
   }
 
   return (users ?? []).map((user) => user.email).sort()
+}
+
+export interface Annotator {
+  id: string
+  email: string
+}
+
+export async function getWorkspaceAnnotators(workspaceId: string): Promise<Annotator[]> {
+  const { data: access, error: accessError } = await supabaseAdmin
+    .from("workspace_access")
+    .select("user_id")
+    .eq("workspace_id", workspaceId)
+    .eq("is_demo", false)
+
+  if (accessError) {
+    throw new HTTPException(500, { message: "Failed to load annotators" })
+  }
+
+  const userIds = [...new Set((access ?? []).map((row) => row.user_id))]
+
+  if (userIds.length === 0) {
+    return []
+  }
+
+  const { data: users, error: usersError } = await supabaseAdmin
+    .from("user")
+    .select("id, email")
+    .in("id", userIds)
+
+  if (usersError) {
+    throw new HTTPException(500, { message: "Failed to load annotators" })
+  }
+
+  return (users ?? [])
+    .map((user) => ({ id: user.id, email: user.email }))
+    .sort((a, b) => a.email.localeCompare(b.email))
 }
 
 export async function addCollaborator(workspaceId: string, email: unknown): Promise<void> {
@@ -144,6 +180,13 @@ collaboratorRoutes.get("/workspaces/:workspaceId/collaborators", async (c) => {
   await requireWorkspaceOwner(c.get("userId"), workspaceId, "Only the workspace owner can manage collaborators")
 
   return c.json(await getCollaboratorEmails(workspaceId))
+})
+
+collaboratorRoutes.get("/workspaces/:workspaceId/annotators", async (c) => {
+  const workspaceId = c.req.param("workspaceId")
+  await requireWorkspaceMember(c.get("userId"), workspaceId)
+
+  return c.json(await getWorkspaceAnnotators(workspaceId))
 })
 
 collaboratorRoutes.post("/workspaces/:workspaceId/collaborators", async (c) => {
