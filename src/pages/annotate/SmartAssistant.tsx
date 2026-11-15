@@ -1,6 +1,6 @@
-import { ActionIcon, Button, Card, Center, Collapse, Divider, Grid, Group, Loader, Text, Tooltip } from "@mantine/core"
-import { IconCheck, IconPencil, IconRefresh, IconX } from "@tabler/icons-react"
-import { useEffect, useState } from "react"
+import { ActionIcon, Badge, Button, Card, Center, Collapse, ColorSwatch, Divider, Grid, Group, Loader, Menu, Text, Tooltip } from "@mantine/core"
+import { IconCheck, IconChevronDown, IconPencil, IconRefresh, IconX } from "@tabler/icons-react"
+import { useEffect, useMemo, useState } from "react"
 import { Workspace, WorkspaceAnnotation, database } from "storage/database/Database"
 import { useAnnotateStore } from "storage/state/Annotate"
 import { ApiError } from "utils/Api"
@@ -61,6 +61,24 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
   const [openSuggestions, setOpenSuggestions] = useState<Record<string, boolean>>({})
 
   const isDemoWorkspace = DEMO_IDS.includes(workspace.id)
+
+  const suggestionsByEntity = useMemo(() => {
+    const groups = new Map<string, DocumentAnnotationSuggestion[]>()
+
+    for (const suggestion of suggestions) {
+      const group = groups.get(suggestion.entity)
+
+      if (group) {
+        group.push(suggestion)
+      } else {
+        groups.set(suggestion.entity, [suggestion])
+      }
+    }
+
+    return [...groups.entries()]
+      .map(([entity, items]) => ({ entity, items }))
+      .sort((a, b) => b.items.length - a.items.length || a.entity.localeCompare(b.entity))
+  }, [suggestions])
 
   useEffect(() => {
     setSuggestionCount(suggestions.length)
@@ -248,15 +266,46 @@ function SmartAssistant({ workspace, guideline, guidelineReady, setSuggestionCou
             Refresh
           </Button>
 
-          <Button
-            variant="subtle"
-            size="xs"
-            leftSection={<IconCheck size={14} />}
-            onClick={() => acceptSuggestions(suggestions)}
-            disabled={loading || suggestions.length === 0}
-          >
-            Accept all
-          </Button>
+          <Menu position="bottom-end" width={220} withinPortal>
+            <Menu.Target>
+              <Button
+                variant="subtle"
+                size="xs"
+                leftSection={<IconCheck size={14} />}
+                rightSection={<IconChevronDown size={14} />}
+                disabled={loading || suggestions.length === 0}
+              >
+                Accept
+              </Button>
+            </Menu.Target>
+
+            <Menu.Dropdown>
+              <Menu.Item
+                leftSection={<IconCheck size={14} />}
+                rightSection={<Badge size="sm" variant="light" color="gray">{suggestions.length}</Badge>}
+                onClick={() => acceptSuggestions(suggestions)}
+              >
+                All suggestions
+              </Menu.Item>
+
+              <Menu.Divider />
+
+              <Menu.Label>By entity</Menu.Label>
+
+              {suggestionsByEntity.map(({ entity, items }) => (
+                <Menu.Item
+                  key={entity}
+                  leftSection={<ColorSwatch size={12} color={entityColours[entity] || "#e9ecef"} />}
+                  rightSection={<Badge size="sm" variant="light" color="gray">{items.length}</Badge>}
+                  onClick={() => acceptSuggestions(items)}
+                >
+                  <Text size="sm" truncate>
+                    {entity}
+                  </Text>
+                </Menu.Item>
+              ))}
+            </Menu.Dropdown>
+          </Menu>
         </Group>
       </Grid.Col>
 
