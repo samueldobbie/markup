@@ -876,9 +876,10 @@ function AnnotatorAgreement() {
 
       <Alert icon={<IconAlertCircle size={16} />} title="Annotate independently" c="orange">
         <Text>
-          Collaborators can see each other's annotations while annotating. For a meaningful score,
-          annotators should add their own annotations without relying on what is already there. A
-          document only counts for an annotator once they have added at least one annotation to it.
+          By default, collaborators see each other's annotations while annotating. The workspace owner
+          can turn on <b>Blind annotation</b> on the agreement page so that each annotator only sees
+          their own annotations, and only the owner can compare them. A document only counts for an
+          annotator once they have added at least one annotation to it.
         </Text>
       </Alert>
     </Text>

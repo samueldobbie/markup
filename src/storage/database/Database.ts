@@ -60,6 +60,40 @@ async function updateWorkspace(workspaceId: string, name: string, description: s
   }
 }
 
+async function setWorkspaceBlindAnnotation(workspaceId: string, blindAnnotation: boolean): Promise<void> {
+  const { error } = await supabase
+    .from("workspace")
+    .update({ blind_annotation: blindAnnotation })
+    .eq("id", workspaceId)
+
+  if (error) {
+    throw new Error(error.message)
+  }
+}
+
+async function isWorkspaceOwner(workspaceId: string): Promise<boolean> {
+  const user = await supabase.auth.getUser()
+  const userId = user.data.user?.id
+
+  if (!userId) {
+    return false
+  }
+
+  const { data, error } = await supabase
+    .from("workspace_access")
+    .select("id")
+    .eq("workspace_id", workspaceId)
+    .eq("user_id", userId)
+    .eq("is_owner", true)
+    .limit(1)
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  return data.length > 0
+}
+
 async function getWorkspaces(): Promise<Record<string, Workspace[]>> {
   const user = await supabase.auth.getUser()
   const userId = user.data.user?.id ?? ""
@@ -481,15 +515,17 @@ async function addWorkspaceAnnotations(
   }
 }
 
-async function getDocumentAnnotations(documentId: string): Promise<WorkspaceAnnotation[]> {
-  return fetchAllRows((from, to) => (
-    supabase
+async function getDocumentAnnotations(documentId: string, annotatorId?: string): Promise<WorkspaceAnnotation[]> {
+  return fetchAllRows((from, to) => {
+    const query = supabase
       .from("workspace_annotation")
       .select()
       .eq("document_id", documentId)
+
+    return (annotatorId ? query.eq("user_id", annotatorId) : query)
       .order("id")
       .range(from, to)
-  ))
+  })
 }
 
 export interface WorkspaceExport {
@@ -845,6 +881,8 @@ async function deleteOntology(ontologyId: string, isDefault: boolean): Promise<b
 export const database = {
   addWorkspace,
   updateWorkspace,
+  setWorkspaceBlindAnnotation,
+  isWorkspaceOwner,
   getWorkspaces,
   getWorkspace,
   deleteWorkspace,

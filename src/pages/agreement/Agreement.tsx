@@ -1,5 +1,5 @@
-import { Alert, Badge, Button, Card, Center, Container, Grid, Group, Loader, Select, Table, Text, Tooltip } from "@mantine/core"
-import { IconArrowLeft, IconInfoCircle } from "@tabler/icons-react"
+import { Alert, Badge, Button, Card, Center, Container, Grid, Group, Loader, Select, Switch, Table, Text, Tooltip } from "@mantine/core"
+import { IconArrowLeft, IconEyeOff, IconInfoCircle } from "@tabler/icons-react"
 import { useEffect, useMemo, useState } from "react"
 import { useParams } from "react-router-dom"
 import InvalidWorkspace from "pages/error/InvalidWorkspace"
@@ -92,6 +92,8 @@ function Agreement() {
   const [invalidWorkspace, setInvalidWorkspace] = useState(false)
   const [workspace, setWorkspace] = useState<Workspace>()
   const [data, setData] = useState<AgreementData>()
+  const [isOwner, setIsOwner] = useState(false)
+  const [savingBlind, setSavingBlind] = useState(false)
   const [selectedPair, setSelectedPair] = useState<string | null>(null)
   const [openedDocumentId, setOpenedDocumentId] = useState<string | null>(null)
 
@@ -101,15 +103,19 @@ function Agreement() {
       return
     }
 
-    database
-      .getWorkspace(id)
-      .then((workspaces) => {
+    Promise.all([database.getWorkspace(id), database.isWorkspaceOwner(id)])
+      .then(([workspaces, owner]) => {
         if (workspaces.length === 0) {
           setInvalidWorkspace(true)
           return
         }
 
+        setIsOwner(owner)
         setWorkspace(workspaces[0])
+
+        if (workspaces[0].blind_annotation && !owner) {
+          return
+        }
 
         return loadAgreementData(id).then(setData)
       })
@@ -162,12 +168,24 @@ function Agreement() {
     return <InvalidWorkspace />
   }
 
-  if (!workspace || !data) {
+  const restricted = workspace !== undefined && workspace.blind_annotation && !isOwner
+
+  if (!workspace || (!data && !restricted)) {
     return (
       <Center h="60vh">
         <Loader size="sm" />
       </Center>
     )
+  }
+
+  const toggleBlindAnnotation = (blindAnnotation: boolean) => {
+    setSavingBlind(true)
+
+    database
+      .setWorkspaceBlindAnnotation(workspace.id, blindAnnotation)
+      .then(() => setWorkspace({ ...workspace, blind_annotation: blindAnnotation }))
+      .catch((e) => notify.error("Failed to update blind annotation.", e))
+      .finally(() => setSavingBlind(false))
   }
 
   const nameOf = (userId: string) => annotatorNames.get(userId) ?? "Unknown"
@@ -197,7 +215,41 @@ function Agreement() {
           </Group>
         </Grid.Col>
 
-        {pairScores.length === 0 && (
+        {restricted && (
+          <Grid.Col span={12}>
+            <Alert icon={<IconEyeOff size={16} />} title="Blind annotation is on" color="gray">
+              Annotators work independently in this workspace, so only the workspace owner can compare annotations.
+            </Alert>
+          </Grid.Col>
+        )}
+
+        {isOwner && (
+          <Grid.Col span={12}>
+            <Card shadow="xs" radius={5} p="xl">
+              <Group justify="space-between" wrap="nowrap">
+                <div>
+                  <Text fw={600}>
+                    Blind annotation
+                  </Text>
+
+                  <Text fz={14} c="dimmed">
+                    Each annotator only sees their own annotations while annotating, so agreement reflects independent work.
+                    Only you can view this page while it is on.
+                  </Text>
+                </div>
+
+                <Switch
+                  aria-label="Blind annotation"
+                  checked={workspace.blind_annotation}
+                  disabled={savingBlind}
+                  onChange={(event) => toggleBlindAnnotation(event.currentTarget.checked)}
+                />
+              </Group>
+            </Card>
+          </Grid.Col>
+        )}
+
+        {!restricted && pairScores.length === 0 && (
           <Grid.Col span={12}>
             <Alert icon={<IconInfoCircle size={16} />} title="Nothing to compare yet" color="gray">
               Agreement is measured on documents that at least two people have annotated. Add a collaborator
@@ -220,7 +272,7 @@ function Agreement() {
             <Grid.Col span={{ base: 12, md: 4 }}>
               <StatCard
                 label="Documents compared"
-                value={`${alpha.documentCount} of ${data.documents.length}`}
+                value={`${alpha.documentCount} of ${data?.documents.length ?? 0}`}
                 detail="Annotated by two or more people"
               />
             </Grid.Col>
@@ -312,7 +364,7 @@ function Agreement() {
                     {pair.entities.map((entity) => (
                       <Table.Tr key={entity.entity}>
                         <Table.Td>
-                          <Badge color={data.entityColours[entity.entity]} c="#333333" tt="none" radius="sm">
+                          <Badge color={(data?.entityColours ?? {})[entity.entity]} c="#333333" tt="none" radius="sm">
                             {entity.entity}
                           </Badge>
                         </Table.Td>
@@ -381,7 +433,7 @@ function Agreement() {
           userB={pair.userB}
           nameA={nameOf(pair.userA)}
           nameB={nameOf(pair.userB)}
-          entityColours={data.entityColours}
+          entityColours={(data?.entityColours ?? {})}
         />
       )}
     </Container>

@@ -14,6 +14,7 @@ import { getWorkspaceModel } from "utils/WorkspaceModel"
 import { redoAnnotationChange, undoAnnotationChange } from "utils/AnnotationHistory"
 import { TutorialStep, useTutorialStep, useTutorialStore } from "storage/state/Tutorial"
 import TutorialHint from "components/annotate/TutorialHint"
+import { useAuth } from "providers/AuthProvider"
 import "./Document.css"
 
 const NAME_PAGE_SIZE = 50
@@ -52,6 +53,8 @@ function Document({ workspace }: SectionProps) {
   const canUndo = useAnnotateStore((s) => s.undoStack.length > 0)
   const canRedo = useAnnotateStore((s) => s.redoStack.length > 0)
   const resetAnnotationHistory = useAnnotateStore((s) => s.resetAnnotationHistory)
+  const { user } = useAuth()
+  const annotatorId = workspace.blind_annotation ? user?.id : undefined
   const tutorialStep = useTutorialStep()
   const setTutorialActive = useTutorialStore((s) => s.setActive)
   const [openedSearchDocumentModal, setOpenedSearchDocumentModal] = useState(false)
@@ -107,7 +110,7 @@ function Document({ workspace }: SectionProps) {
     database
       .getWorkspaceDocumentAt(workspace.id, documentIndex)
       .then(async (nextDocument) => {
-        const nextAnnotations = nextDocument ? await database.getDocumentAnnotations(nextDocument.id) : []
+        const nextAnnotations = nextDocument ? await database.getDocumentAnnotations(nextDocument.id, annotatorId) : []
 
         if (!cancelled) {
           setDocument(nextDocument, nextAnnotations)
@@ -127,7 +130,7 @@ function Document({ workspace }: SectionProps) {
     return () => {
       cancelled = true
     }
-  }, [documentCount, documentIndex, loadingDocuments, setDocument, workspace.id])
+  }, [annotatorId, documentCount, documentIndex, loadingDocuments, setDocument, workspace.id])
 
   useEffect(() => {
     if (loadingDocuments || documentCount === 0) {

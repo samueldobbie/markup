@@ -1098,6 +1098,8 @@ export interface definitions {
      * @default 0
      */
     collaborators: number;
+    /** @default false */
+    blind_annotation: boolean;
   };
   ontology: {
     /**

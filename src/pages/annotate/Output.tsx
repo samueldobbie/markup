@@ -173,6 +173,12 @@ function Output({ workspace }: SectionProps) {
 
             {segment === "annotations" && (
               <Grid.Col span={12}>
+                {workspace.blind_annotation && (
+                  <Text c="dimmed" fz={12} mb={10}>
+                    Blind annotation is on, so you only see your own annotations.
+                  </Text>
+                )}
+
                 {
                   Object.keys(groupedAnnotations).map((entity, index) => (
                     <div key={index}>
