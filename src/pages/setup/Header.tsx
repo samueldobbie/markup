@@ -1,11 +1,11 @@
 import { ActionIcon, Group, Button, Text, TextInput, Tooltip } from "@mantine/core"
-import { IconArrowRight, IconCornerDownLeft, IconPencil, IconSparkles } from "@tabler/icons-react"
+import { IconArrowRight, IconCornerDownLeft, IconPencil, IconScale, IconSparkles } from "@tabler/icons-react"
 import { useEffect, useRef, useState } from "react"
 import { useParams } from "react-router-dom"
 import { Workspace, database } from "storage/database"
 import { moveToPage } from "utils/Location"
 import notify from "utils/Notifications"
-import { Path, toAnnotateUrl } from "utils/Path"
+import { Path, toAgreementUrl, toAnnotateUrl } from "utils/Path"
 import ConfigureAiModal from "./ConfigureAiModal"
 import { SectionProps } from "./Setup"
 
@@ -75,6 +75,14 @@ function Header({ workspace, workspaceStatus, onWorkspaceChange }: HeaderProps) 
             onClick={() => moveToPage(Path.Dashboard)}
           >
             Exit setup
+          </Button>
+
+          <Button
+            variant="subtle"
+            leftSection={<IconScale size={16} />}
+            onClick={() => moveToPage(toAgreementUrl(id))}
+          >
+            Agreement
           </Button>
 
           <Button

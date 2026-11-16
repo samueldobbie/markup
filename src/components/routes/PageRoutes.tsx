@@ -17,6 +17,7 @@ import Docs from "pages/docs/Docs"
 import Support from "pages/support/Support"
 import Faq from "pages/faq/Faq"
 import ResetPassword from "pages/auth/ResetPassword"
+import Agreement from "pages/agreement/Agreement"
 
 function PageRoutes() {
   return (
@@ -69,6 +70,12 @@ function PageRoutes() {
           exception={() => DEMO_PATHS.includes(window.location.pathname)}
         >
           <Annotate />
+        </ProtectedRoute>
+      } />
+
+      <Route path={Path.Agreement} element={
+        <ProtectedRoute title="Annotator Agreement - Markup">
+          <Agreement />
         </ProtectedRoute>
       } />
 

@@ -531,6 +531,30 @@ async function getWorkspaceExport(workspaceId: string): Promise<WorkspaceExport>
   }
 }
 
+export type WorkspaceDocumentContent = Pick<WorkspaceDocument, "id" | "content">
+
+const DOCUMENT_CONTENT_BATCH_SIZE = 100
+
+async function getWorkspaceDocumentContents(workspaceId: string, documentIds: string[]): Promise<WorkspaceDocumentContent[]> {
+  const contents: WorkspaceDocumentContent[] = []
+
+  for (let from = 0; from < documentIds.length; from += DOCUMENT_CONTENT_BATCH_SIZE) {
+    const { data, error } = await supabase
+      .from("workspace_document")
+      .select("id, content")
+      .eq("workspace_id", workspaceId)
+      .in("id", documentIds.slice(from, from + DOCUMENT_CONTENT_BATCH_SIZE))
+
+    if (error) {
+      throw new Error(error.message)
+    }
+
+    contents.push(...data)
+  }
+
+  return contents
+}
+
 async function updateWorkspaceAnnotation(
   annotationId: string,
   rawAnnotation: RawAnnotation,
@@ -833,6 +857,7 @@ export const database = {
   findWorkspaceDocumentForFile,
   getWorkspaceDocumentAt,
   getWorkspaceDocumentIndex,
+  getWorkspaceDocumentContents,
   deleteWorkspaceDocument,
 
   addWorkspaceConfig,

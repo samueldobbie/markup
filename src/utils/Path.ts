@@ -8,6 +8,7 @@ enum Path {
   Dashboard = "/dashboard",
   Setup = "/workspace/setup/:id",
   Annotate = "/workspace/annotate/:id",
+  Agreement = "/workspace/agreement/:id",
   Support = "/support",
   Faq = "/faq",
   Settings = "/settings",
@@ -22,4 +23,8 @@ function toAnnotateUrl(id: string) {
   return Path.Annotate.replace(":id", id)
 }
 
-export { Path, toSetupUrl, toAnnotateUrl }
+function toAgreementUrl(id: string) {
+  return Path.Agreement.replace(":id", id)
+}
+
+export { Path, toSetupUrl, toAnnotateUrl, toAgreementUrl }

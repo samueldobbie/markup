@@ -85,6 +85,11 @@ const DOCUMENTATION = [
     content: <Collaborate />,
     order: 2,
   },
+  {
+    label: "Measure annotator agreement",
+    content: <AnnotatorAgreement />,
+    order: 2,
+  },
 ].map((item) => ({
   ...item,
   link: `#${toKebabCase(item.label)}`,
@@ -820,6 +825,62 @@ function Collaborate() {
           <li>Enter the email address of each collaborator</li>
         </ol>
       </Text>
+    </Text>
+  )
+}
+
+function AnnotatorAgreement() {
+  return (
+    <Text>
+      <h2>Measure annotator agreement</h2>
+
+      <Text>
+        Inter-annotator agreement shows how consistently your collaborators annotate the same documents.
+        Markup records who created each annotation, and compares annotators on every document that
+        two or more of them have annotated.
+
+        <ol>
+          <li>Add collaborators to your workspace</li>
+          <li>Have each annotator annotate the same documents</li>
+          <li>Open your workspace and click <b>Agreement</b></li>
+        </ol>
+      </Text>
+
+      <ConceptCard title="Exact F1">
+        The share of annotations where both annotators chose the same entity and exactly the same span
+        of text. This is the standard measure for span annotation, and the strictest.
+      </ConceptCard>
+
+      <ConceptCard title="Relaxed F1">
+        The same as exact F1, but spans only need to overlap. A large gap between exact and relaxed F1
+        means annotators agree on what to annotate but not on where it starts and ends.
+      </ConceptCard>
+
+      <ConceptCard title="Cohen's kappa">
+        Agreement between two annotators on the entity of each word, corrected for the agreement they
+        would reach by chance. Words neither annotator marked count as agreement on no entity.
+      </ConceptCard>
+
+      <ConceptCard title="Krippendorff's alpha">
+        A single chance-corrected score across all annotators, measured per word. It copes with
+        documents that only some annotators have covered. Above 0.8 is generally considered reliable.
+      </ConceptCard>
+
+      <Text>
+        Select a document on the agreement page to compare two annotators side by side. Disagreements
+        are underlined and listed as a missing annotation, a different entity, a different span, or
+        different attributes.
+      </Text>
+
+      <br />
+
+      <Alert icon={<IconAlertCircle size={16} />} title="Annotate independently" c="orange">
+        <Text>
+          Collaborators can see each other's annotations while annotating. For a meaningful score,
+          annotators should add their own annotations without relying on what is already there. A
+          document only counts for an annotator once they have added at least one annotation to it.
+        </Text>
+      </Alert>
     </Text>
   )
 }
